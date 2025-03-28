@@ -1,0 +1,47 @@
+## 学习路径建议
+
+作为新来的AI编程员，我建议你按照以下步骤了解我们的项目：
+
+1. **首先阅读产品需求和架构设计**：
+   - 从 `架构文档-Aetherflow/11-产品需求文档.md` 开始，了解项目目标
+   - 接着阅读 `架构文档-Aetherflow/00-项目实现说明.md` 了解整体架构
+
+2. **了解用户流程**：
+   - 查看 `架构文档-Aetherflow/12-用户流程文档.md` 了解用户如何使用我们的产品
+
+3. **探索代码结构**：
+   - 查看 `extension/src` 目录，了解核心代码组织
+
+Ran tool
+4. **浏览核心组件**：
+   - 了解 `extension/src/components` 目录中的组件
+   - 查看 `架构文档-Aetherflow/components.md` 了解组件设计文档
+
+5. **了解任务清单**：
+   - 查看 `架构文档-Aetherflow/51-任务清单.md` 了解当前需要完成的任务
+
+## 关键文件导航
+
+当你需要了解特定功能时，可以参考以下文件：
+
+1. **入口文件**：
+   - `extension/src/main.tsx` - 应用入口点
+   - `extension/src/App.tsx` - 主应用组件
+
+2. **配置文件**：
+   - `extension/manifest.json` - Chrome扩展配置
+   - `extension/package.json` - 项目依赖
+
+3. **核心功能目录**：
+   - `extension/src/background/` - 浏览器扩展后台脚本
+   - `extension/src/content/` - 内容脚本
+   - `extension/src/sidebar/` 和 `extension/src/sidepanel/` - 侧边栏界面
+   - `extension/src/components/` - 可复用UI组件
+
+## 如何有效阅读代码
+
+1. 从文档了解**"为什么"**
+2. 从代码了解**"如何做"**
+3. 看不懂某部分时，可以通过搜索函数和组件的使用位置来理解
+
+如果你有任何疑问，随时可以问我。
