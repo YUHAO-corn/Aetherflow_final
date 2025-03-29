@@ -1,7 +1,7 @@
 import React from 'react';
 import { Sparkles, Wand2, Copy } from 'lucide-react';
 import { PromptShortcut } from './PromptShortcut';
-import type { Prompt } from '../../../hooks/usePrompts';
+import type { Prompt } from '../../../services/prompt/types';
 
 interface OptimizationVersion {
   id: number;

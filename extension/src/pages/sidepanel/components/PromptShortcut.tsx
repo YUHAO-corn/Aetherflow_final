@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search } from 'lucide-react';
-import { usePrompts, Prompt } from '../../../hooks/usePrompts';
+import { usePromptsData } from '../../../hooks/usePromptsData';
+import { Prompt } from '../../../services/prompt/types';
 import { Card } from '../../../components/common/Card';
 import { LoadingIndicator } from '../../../components/common/LoadingIndicator';
 
@@ -11,7 +12,7 @@ interface PromptShortcutProps {
 export function PromptShortcut({ onSelect }: PromptShortcutProps) {
   const [isActive, setIsActive] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const { loading, searchPrompts, incrementPromptUse } = usePrompts();
+  const { loading, searchPrompts, incrementUseCount } = usePromptsData();
   const [searchResults, setSearchResults] = useState<Prompt[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -19,7 +20,9 @@ export function PromptShortcut({ onSelect }: PromptShortcutProps) {
   useEffect(() => {
     if (searchTerm && searchTerm.startsWith('/')) {
       const fetchResults = async () => {
-        const results = await searchPrompts(searchTerm.slice(1));
+        const results = await searchPrompts({
+          searchTerm: searchTerm.slice(1)
+        });
         setSearchResults(results);
       };
       fetchResults();
@@ -45,7 +48,7 @@ export function PromptShortcut({ onSelect }: PromptShortcutProps) {
   }, [isActive]);
 
   const handlePromptSelect = async (prompt: Prompt) => {
-    await incrementPromptUse(prompt.id);
+    await incrementUseCount(prompt.id);
     onSelect(prompt);
     setIsActive(false);
     setSearchTerm('');

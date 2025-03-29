@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '../../../components/common/Modal';
 import { Input } from '../../../components/common/Input';
-import { usePrompts } from '../../../hooks/usePrompts';
+import { usePromptsData } from '../../../hooks/usePromptsData';
 import { Prompt } from '../../../services/prompt/types';
 
 interface PromptFormModalProps {
@@ -11,7 +11,7 @@ interface PromptFormModalProps {
 }
 
 export function PromptFormModal({ isOpen, onClose, prompt }: PromptFormModalProps) {
-  const { addPrompt, updatePrompt } = usePrompts();
+  const { addPrompt, updatePrompt } = usePromptsData();
   
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');

@@ -27,7 +27,7 @@ export function usePromptShortcut(
       console.log('[AetherFlow] 钩子: 加载初始提示词');
       setLoading(true);
       try {
-        // 使用空字符串搜索获取所有提示词
+        // 使用空字符串搜索获取所有提示词 - 修正参数格式
         const prompts = await searchPromptsByMessaging('', 8);
         console.log('[AetherFlow] 钩子: 初始提示词加载完成，数量:', prompts.length);
         setResults(prompts);

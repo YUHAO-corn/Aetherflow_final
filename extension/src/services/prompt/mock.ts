@@ -1,7 +1,7 @@
 import { Prompt, CreatePromptInput, UpdatePromptInput } from './types';
 
 // 模拟的提示词存储
-let mockPrompts: Prompt[] = [
+export let mockPrompts: Prompt[] = [
   {
     id: '1',
     title: '高质量代码审查',

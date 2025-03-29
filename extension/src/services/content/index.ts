@@ -1,9 +1,9 @@
-import { findActiveInput, platformModules } from '../../content/platformDetector';
-import { getAdapter } from '../../content/platformAdapter';
+// import { findActiveInput, platformModules } from '../../content/platformDetector';
+// import { getAdapter } from '../../content/platformAdapter';
 
 /**
- * 内容脚本服务接口
- * 提供与页面交互的功能
+ * 临时内容脚本服务接口
+ * 提供与页面交互的功能的简化版本
  */
 export const contentService = {
   /**
@@ -11,8 +11,6 @@ export const contentService = {
    */
   setupShortcutTrigger: () => {
     console.log('[AetherFlow] contentService: 初始化快捷键触发器');
-    // 此功能在PromptShortcutInjector.tsx中实现
-    // 这里只是提供接口以保持一致性
   },
 
   /**
@@ -36,23 +34,18 @@ export const contentService = {
    * @returns 是否成功插入
    */
   insertTextToActiveElement: (text: string): boolean => {
-    const activeInput = findActiveInput();
-    if (!activeInput) {
-      console.error('[AetherFlow] contentService: 未找到活跃的输入框');
-      return false;
-    }
-
     try {
-      const platform = platformModules.detectPlatform();
-      if (!platform) {
-        console.error('[AetherFlow] contentService: 无法识别当前平台');
-        return false;
+      // 简化版实现
+      const activeElement = document.activeElement as HTMLElement;
+      if (activeElement instanceof HTMLTextAreaElement ||
+          activeElement instanceof HTMLInputElement) {
+        activeElement.value = text;
+        return true;
+      } else if (activeElement.isContentEditable) {
+        activeElement.textContent = text;
+        return true;
       }
-
-      const adapter = getAdapter(platform);
-      adapter.insertText(activeInput, text);
-      adapter.triggerInputEvent(activeInput);
-      return true;
+      return false;
     } catch (error) {
       console.error('[AetherFlow] contentService: 文本插入失败', error);
       return false;
@@ -60,4 +53,9 @@ export const contentService = {
   }
 };
 
-export * from './types'; 
+// 临时解决方案：创建一个types.ts文件的简单接口
+export interface ContentServiceInterface {
+  setupShortcutTrigger: () => void;
+  copyToClipboard: (text: string) => Promise<boolean>;
+  insertTextToActiveElement: (text: string) => boolean;
+} 

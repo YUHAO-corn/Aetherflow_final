@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Copy, Heart, HeartOff, Clock, Star } from 'lucide-react';
 import { Prompt } from '../../../services/prompt/types';
-import { usePrompts } from '../../../hooks/usePrompts';
+import { usePromptsData } from '../../../hooks/usePromptsData';
 import { formatDate } from '../../../utils/formatDate';
 
 interface PromptDetailDrawerProps {
@@ -12,7 +12,7 @@ interface PromptDetailDrawerProps {
 }
 
 export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDetailDrawerProps) {
-  const { incrementPromptUse, toggleFavorite, deletePrompt, updatePrompt } = usePrompts();
+  const { incrementUseCount, toggleFavorite, deletePrompt, updatePrompt } = usePromptsData();
   const [isTitleEditing, setIsTitleEditing] = useState(false);
   const [isContentEditing, setIsContentEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
@@ -36,7 +36,7 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
   // 处理复制提示词
   const handleCopy = () => {
     navigator.clipboard.writeText(prompt.content);
-    incrementPromptUse(prompt.id);
+    incrementUseCount(prompt.id);
   };
   
   // 处理删除提示词

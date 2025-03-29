@@ -1,11 +1,17 @@
-import { StorageArea } from './types';
+import { StorageArea, StorageService } from './types';
 import { STORAGE_KEYS, STORAGE_LIMITS } from './constants';
+import { chromeStorageService } from './chromeStorage';
+import { mockStorageService } from './mockStorage';
 
 // 存储操作的最大重试次数
 const MAX_RETRY_COUNT = 3;
 // 重试延迟(毫秒)
 const RETRY_DELAY = 500;
 
+/**
+ * 基础存储类
+ * @deprecated 使用统一的 storageService 替代
+ */
 export class Storage {
   private area: StorageArea;
 
@@ -82,10 +88,48 @@ export class Storage {
   }
 }
 
+// 为了向后兼容，保留旧的实例
 export const syncStorage = new Storage('sync');
 export const localStorage = new Storage('local');
-export const storageService = syncStorage;
 
+// 判断是否在开发环境
+const isDevelopment = typeof window !== 'undefined' && 
+  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+
+// 默认使用Chrome存储服务
+let useMockData = false;
+
+// 尝试从localStorage读取标志
+try {
+  // 从localStorage读取是否使用模拟数据的标志
+  // 注意这里使用的是原生localStorage，而不是之前定义的Storage实例
+  useMockData = isDevelopment && window.localStorage.getItem('USE_MOCK_DATA') === 'true';
+} catch (error) {
+  console.error('[Storage] 读取模拟数据标志失败', error);
+}
+
+/**
+ * 获取适合当前环境的存储服务
+ * 在开发环境中，如果设置了USE_MOCK_DATA=true，则使用模拟存储
+ * 否则使用Chrome存储API
+ */
+export function getStorageService(): StorageService {
+  if (isDevelopment && useMockData) {
+    console.log('[Storage] 使用模拟存储服务');
+    return mockStorageService;
+  }
+  
+  console.log('[Storage] 使用Chrome存储服务');
+  return chromeStorageService;
+}
+
+// 导出统一的存储服务实例
+export const storageService: StorageService = getStorageService();
+
+// 导出其他相关内容
 export { STORAGE_KEYS, STORAGE_LIMITS };
 export * from './types';
 export * from './constants';
+
+// 导出具体存储服务，用于特殊场景
+export { chromeStorageService, mockStorageService };

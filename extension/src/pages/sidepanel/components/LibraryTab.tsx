@@ -7,12 +7,19 @@ import { PromptFormModal } from './PromptFormModal';
 import { PromptDetailDrawer } from './PromptDetailDrawer';
 import { Prompt } from '../../../services/prompt/types';
 import { Menu, MenuItem } from '../../../components/common/Menu';
-import { usePrompts } from '../../../hooks/usePrompts';
+import { usePromptsData } from '../../../hooks/usePromptsData';
 
 type SortOption = 'updatedDesc' | 'updatedAsc' | 'createdDesc' | 'createdAsc' | 'useCount';
 
 export function LibraryTab() {
-  const { loading: apiLoading, prompts: apiPrompts, searchPrompts, incrementPromptUse, deletePrompt, toggleFavorite } = usePrompts();
+  const { 
+    loading: apiLoading, 
+    prompts: apiPrompts, 
+    incrementUseCount, 
+    deletePrompt, 
+    toggleFavorite,
+    searchPrompts
+  } = usePromptsData();
   
   // 状态管理
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,24 +41,56 @@ export function LibraryTab() {
       // 显示加载状态
       setLoading(true);
       
-      // 模拟延迟
-      setTimeout(() => {
-        // 1. 先过滤
-        let results = prompts.filter(prompt => 
-          prompt.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-          prompt.content.toLowerCase().includes(searchTerm.toLowerCase())
-        );
+      try {
+        // 使用新的searchPrompts方法，它已经内置了过滤和排序功能
+        let searchSortOption = 'time'; // 默认按时间排序
         
-        // 2. 再排序
-        results = sortPrompts(results, sortOption);
+        if (sortOption === 'useCount') {
+          searchSortOption = 'usage';
+        } else if (sortOption.startsWith('created')) {
+          // 创建时间排序需要特殊处理，因为PromptFilter没有这个选项
+          searchSortOption = 'time'; // 先按更新时间排序，后面会重新排序
+        }
         
-        setFilteredPrompts(results);
+        // 转换为PromptFilter格式
+        const results = await searchPrompts({
+          searchTerm: searchTerm,
+          sortBy: searchSortOption as any
+        });
+        
+        // 处理特殊排序情况
+        let finalResults = [...results];
+        
+        // 按照选择的排序选项进行排序
+        switch (sortOption) {
+          case 'updatedDesc':
+            finalResults.sort((a, b) => b.updatedAt - a.updatedAt);
+            break;
+          case 'updatedAsc':
+            finalResults.sort((a, b) => a.updatedAt - b.updatedAt);
+            break;
+          case 'createdDesc':
+            finalResults.sort((a, b) => b.createdAt - a.createdAt);
+            break;
+          case 'createdAsc':
+            finalResults.sort((a, b) => a.createdAt - b.createdAt);
+            break;
+          case 'useCount':
+            finalResults.sort((a, b) => (b.useCount || 0) - (a.useCount || 0));
+            break;
+        }
+        
+        setFilteredPrompts(finalResults);
+      } catch (error) {
+        console.error('搜索提示词失败:', error);
+        setFilteredPrompts([]);
+      } finally {
         setLoading(false);
-      }, 300);
+      }
     };
     
     filterAndSortPrompts();
-  }, [searchTerm, prompts, sortOption]);
+  }, [searchTerm, prompts, sortOption, searchPrompts]);
   
   // 排序提示词
   const sortPrompts = (prompts: Prompt[], option: SortOption): Prompt[] => {
@@ -88,8 +127,8 @@ export function LibraryTab() {
   // 处理复制提示词
   const handleCopy = (id: string, content: string) => {
     navigator.clipboard.writeText(content);
-    // 增加使用次数
-    incrementPromptUse(id);
+    // 增加使用次数，使用新方法
+    incrementUseCount(id);
   };
   
   // 处理查看提示词详情
@@ -222,12 +261,15 @@ export function LibraryTab() {
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleDelete(prompt.id);
+                        toggleFavorite(prompt.id);
                       }}
                       className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-700/50 rounded-full transition-all duration-300 transform hover:scale-110 mr-1"
-                      title="取消收藏"
+                      title={prompt.isFavorite || prompt.favorite ? "取消收藏" : "收藏"}
                     >
-                      <HeartOff size={14} className="text-red-400" />
+                      {prompt.isFavorite || prompt.favorite ? 
+                        <HeartOff size={14} className="text-red-400" /> : 
+                        <Heart size={14} className="text-magic-400" />
+                      }
                     </button>
                     <button 
                       onClick={(e) => {
@@ -248,6 +290,15 @@ export function LibraryTab() {
                 <p className="text-sm text-magic-200 mb-3 relative z-10 line-clamp-3">
                   {prompt.content}
                 </p>
+                {/* 底部元信息 */}
+                <div className="text-xs text-magic-500 flex justify-between mt-2">
+                  <span>
+                    使用次数: {prompt.useCount || 0}
+                  </span>
+                  <span>
+                    {new Date(prompt.updatedAt).toLocaleDateString()}
+                  </span>
+                </div>
               </Card>
             ))
           )}
@@ -260,7 +311,11 @@ export function LibraryTab() {
           isOpen={isDetailOpen}
           prompt={selectedPrompt}
           onClose={handleCloseDetail}
-          onEdit={handleEdit}
+          onEdit={() => {
+            setEditingPrompt(selectedPrompt);
+            setIsFormOpen(true);
+            setIsDetailOpen(false);
+          }}
         />
       )}
 

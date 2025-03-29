@@ -3,7 +3,7 @@ import { Loader2 } from 'lucide-react';
 import { OptimizeSection } from './OptimizeSection';
 import { LibraryTab } from './LibraryTab';
 import { Navigation } from './Navigation';
-import type { Prompt } from '../../../hooks/usePrompts';
+import type { Prompt } from '../../../services/prompt/types';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<'library' | 'optimize'>('library');
