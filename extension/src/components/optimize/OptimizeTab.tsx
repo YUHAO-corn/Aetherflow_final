@@ -1,9 +1,12 @@
-import React from 'react';
-import { Wand2, Copy, Sparkles, Bookmark } from 'lucide-react';
+import React, { useState } from 'react';
+import { Wand2, Copy, Sparkles, Bookmark, Heart } from 'lucide-react';
 import { Button } from '../common/Button';
 import { Card } from '../common/Card';
 import { MagicParticles } from '../common/MagicParticles';
 import { useAppContext } from '../../hooks/AppContext';
+import { OptimizationDetailDrawer } from './OptimizationDetailDrawer';
+import { OptimizationModeSelector } from './OptimizationModeSelector';
+import { OptimizationVersion } from '../../services/optimize/types';
 
 interface OptimizeTabProps {
   onLevelUp: () => void;
@@ -15,8 +18,13 @@ export function OptimizeTab({ onLevelUp }: OptimizeTabProps) {
     setOptimizationInput, 
     startOptimization, 
     continueOptimization, 
-    addPrompt 
+    addPrompt,
+    setOptimizeMode
   } = useAppContext();
+
+  // 详情抽屉状态
+  const [selectedVersion, setSelectedVersion] = useState<OptimizationVersion | undefined>(undefined);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const handleStartOptimize = async () => {
     if (!state.currentOptimizationInput.trim()) return;
@@ -37,13 +45,29 @@ export function OptimizeTab({ onLevelUp }: OptimizeTabProps) {
     addPrompt({
       title: content.substring(0, 30) + (content.length > 30 ? '...' : ''),
       content,
-      isFavorite: false,
+      isFavorite: true,
       isActive: true,
       useCount: 0,
       lastUsed: Date.now(),
       createdAt: Date.now(),
       updatedAt: Date.now()
     });
+  };
+
+  // 打开版本详情
+  const handleOpenDetail = (version: OptimizationVersion) => {
+    setSelectedVersion(version);
+    setIsDetailOpen(true);
+  };
+
+  // 关闭版本详情
+  const handleCloseDetail = () => {
+    setIsDetailOpen(false);
+  };
+  
+  // 处理优化模式变更
+  const handleModeChange = (mode: 'standard' | 'creative' | 'concise') => {
+    setOptimizeMode(mode);
   };
 
   return (
@@ -76,24 +100,33 @@ export function OptimizeTab({ onLevelUp }: OptimizeTabProps) {
             className={`relative p-4 bg-gradient-to-r from-magic-800/50 via-magic-700/30 to-magic-800/50 border border-magic-700/30 rounded-lg group transform hover:-rotate-1 hover:scale-[1.02] transition-all duration-300 before:absolute before:inset-0 before:bg-gradient-to-r before:from-transparent before:via-magic-500/10 before:to-transparent before:animate-shimmer-fast before:pointer-events-none ${
               version.isNew ? 'animate-magic-reveal' : ''
             } ${version.isLoading ? 'animate-pulse' : ''}`}
+            onClick={() => !version.isLoading && handleOpenDetail(version)}
           >
             {version.isLoading && <MagicParticles />}
             <div className="absolute inset-0 bg-gradient-to-r from-magic-500/20 to-magic-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg pointer-events-none" />
             <div className="flex items-center justify-between mb-3 relative z-10">
               <span className="text-xs font-medium text-magic-400">
-                优化版本 v{version.id}
+                优化版本 v{version.id} {version.isEdited ? '(已编辑)' : ''}
               </span>
               {!version.isLoading && (
-                <div className="flex items-center">
+                <div className="flex items-center space-x-1">
                   <button
-                    onClick={() => handleSaveToLibrary(version.content)}
-                    className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110 mr-1"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSaveToLibrary(version.editedContent || version.content);
+                    }}
+                    className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
+                    title="添加到收藏"
                   >
-                    <Bookmark size={14} className="text-magic-400" />
+                    <Heart size={14} className="text-magic-400" />
                   </button>
                   <button
-                    onClick={() => handleCopy(version.content)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopy(version.editedContent || version.content);
+                    }}
                     className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
+                    title="复制内容"
                   >
                     <Copy size={14} className="text-magic-400" />
                   </button>
@@ -107,23 +140,50 @@ export function OptimizeTab({ onLevelUp }: OptimizeTabProps) {
                 <div className="h-4 bg-magic-700/30 rounded animate-pulse w-1/2" />
               </div>
             ) : (
-              <p className="text-sm text-magic-200 mb-3 relative z-10">{version.content}</p>
+              <p className="text-sm text-magic-200 mb-3 relative z-10">
+                {(version.editedContent || version.content).length > 150
+                  ? (version.editedContent || version.content).substring(0, 150) + '...'
+                  : (version.editedContent || version.content)}
+              </p>
             )}
             {!version.isLoading && (
-              <Button
-                onClick={() => handleContinueOptimize(version.id)}
-                disabled={state.isLoading}
-                variant="secondary"
-                fullWidth
-                loading={state.isLoading}
-                icon={<Wand2 className="w-4 h-4" />}
-              >
-                {state.isLoading ? '优化中...' : '继续优化'}
-              </Button>
+              <div className="flex items-center">
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleContinueOptimize(version.id);
+                  }}
+                  disabled={state.isLoading}
+                  variant="secondary"
+                  fullWidth
+                  loading={state.isLoading}
+                  icon={<Wand2 className="w-4 h-4" />}
+                  className="flex-1"
+                >
+                  {state.isLoading ? '优化中...' : '继续优化'}
+                </Button>
+                <div 
+                  className="ml-2" 
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <OptimizationModeSelector 
+                    selectedMode={state.currentOptimizeMode}
+                    onSelectMode={handleModeChange}
+                  />
+                </div>
+              </div>
             )}
           </div>
         ))}
       </div>
+
+      {/* 详情抽屉 */}
+      <OptimizationDetailDrawer
+        version={selectedVersion}
+        isOpen={isDetailOpen}
+        onClose={handleCloseDetail}
+        onContinueOptimize={handleContinueOptimize}
+      />
     </div>
   );
 } 

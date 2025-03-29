@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Prompt } from '../services/prompt';
 import { syncStorage } from '../services/storage';
+import { OptimizationVersion, OptimizeOptions } from '../services/optimize/types';
 
 // 定义状态接口
 interface AppState {
@@ -13,12 +14,8 @@ interface AppState {
   // 业务状态
   prompts: Prompt[];
   currentOptimizationInput: string;
-  optimizationVersions: Array<{
-    id: number;
-    content: string;
-    isLoading?: boolean;
-    isNew?: boolean;
-  }>;
+  optimizationVersions: OptimizationVersion[];
+  currentOptimizeMode: 'standard' | 'creative' | 'concise';
 }
 
 // 定义Context接口
@@ -44,6 +41,8 @@ interface AppContextType {
   setOptimizationInput: (input: string) => void;
   startOptimization: () => Promise<void>;
   continueOptimization: (versionId: number) => Promise<void>;
+  setOptimizeMode: (mode: 'standard' | 'creative' | 'concise') => void;
+  updateOptimizationVersion: (versionId: number, updates: Partial<OptimizationVersion>) => void;
 }
 
 // 创建Context
@@ -68,6 +67,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     prompts: [],
     currentOptimizationInput: '',
     optimizationVersions: [],
+    currentOptimizeMode: 'standard',
   });
   
   // 初始化：从存储加载数据
@@ -112,6 +112,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   
   const setError = (error: string | null) => {
     setState(prev => ({ ...prev, error }));
+  };
+  
+  // 设置优化模式
+  const setOptimizeMode = (mode: 'standard' | 'creative' | 'concise') => {
+    setState(prev => ({ ...prev, currentOptimizeMode: mode }));
   };
   
   // 业务操作函数
@@ -263,10 +268,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setState(prev => ({ ...prev, currentOptimizationInput: input }));
   };
   
+  // 更新优化版本
+  const updateOptimizationVersion = (versionId: number, updates: Partial<OptimizationVersion>) => {
+    setState(prev => ({
+      ...prev,
+      optimizationVersions: prev.optimizationVersions.map(version => 
+        version.id === versionId 
+          ? { ...version, ...updates } 
+          : version
+      )
+    }));
+  };
+  
   const startOptimization = async (): Promise<void> => {
     try {
       if (!state.currentOptimizationInput.trim()) return;
       
+      // 清空之前的优化版本，开始新的优化任务
       setState(prev => ({ 
         ...prev, 
         isLoading: true,
@@ -274,7 +292,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           id: 1,
           content: '',
           isLoading: true,
-          isNew: true
+          isNew: true,
+          createdAt: Date.now()
         }]
       }));
       
@@ -287,7 +306,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
           id: 1,
           content: state.currentOptimizationInput,
           isLoading: false,
-          isNew: true
+          isNew: true,
+          createdAt: Date.now()
         }],
         isLoading: false
       }));
@@ -319,48 +339,64 @@ export function AppProvider({ children }: { children: ReactNode }) {
     try {
       setState(prev => ({ ...prev, isLoading: true }));
       
-      const version = state.optimizationVersions.find(v => v.id === versionId);
-      if (!version) return;
+      // 找到要继续优化的版本
+      const sourceVersion = state.optimizationVersions.find(v => v.id === versionId);
+      if (!sourceVersion) return;
       
-      const versionIndex = state.optimizationVersions.findIndex(v => v.id === versionId);
+      // 使用编辑过的内容或原始内容
+      const contentToOptimize = sourceVersion.editedContent || sourceVersion.content;
       
-      const placeholderVersion = {
-        id: state.optimizationVersions.length + 1,
+      // 确定插入位置
+      const sourceIndex = state.optimizationVersions.findIndex(v => v.id === versionId);
+      
+      // 生成新版本ID
+      const newVersionId = Math.max(...state.optimizationVersions.map(v => v.id)) + 1;
+      
+      // 创建加载状态的新版本
+      const placeholderVersion: OptimizationVersion = {
+        id: newVersionId,
         content: '',
         isLoading: true,
-        isNew: true
+        isNew: true,
+        createdAt: Date.now(),
+        parentId: sourceVersion.id // 设置父版本ID
       };
       
-      const newVersions = [
-        ...state.optimizationVersions.slice(0, versionIndex + 1),
+      // 在原版本后面插入新版本
+      const updatedVersions = [
+        ...state.optimizationVersions.slice(0, sourceIndex + 1),
         placeholderVersion,
-        ...state.optimizationVersions.slice(versionIndex + 1)
+        ...state.optimizationVersions.slice(sourceIndex + 1)
       ];
       
       setState(prev => ({
         ...prev,
-        optimizationVersions: newVersions
+        optimizationVersions: updatedVersions
       }));
       
       // 模拟API调用延迟
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      const optimizedVersion = {
-        id: placeholderVersion.id,
-        content: version.content + ' [优化版本]',
+      // 优化结果
+      const optimizedVersion: OptimizationVersion = {
+        id: newVersionId,
+        content: contentToOptimize + ` [${state.currentOptimizeMode}模式优化]`,
         isLoading: false,
-        isNew: true
+        isNew: true,
+        createdAt: Date.now(),
+        parentId: sourceVersion.id // 保持父版本ID引用
       };
       
-      const updatedVersions = [
-        ...state.optimizationVersions.slice(0, versionIndex + 1),
+      // 更新版本列表
+      const finalVersions = [
+        ...state.optimizationVersions.slice(0, sourceIndex + 1),
         optimizedVersion,
-        ...state.optimizationVersions.slice(versionIndex + 1)
-      ];
+        ...state.optimizationVersions.slice(sourceIndex + 1)
+      ].filter(v => v.id !== placeholderVersion.id);
       
       setState(prev => ({
         ...prev,
-        optimizationVersions: updatedVersions,
+        optimizationVersions: finalVersions,
         isLoading: false
       }));
       
@@ -402,7 +438,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     incrementPromptUse,
     setOptimizationInput,
     startOptimization,
-    continueOptimization
+    continueOptimization,
+    setOptimizeMode,
+    updateOptimizationVersion
   };
   
   return (

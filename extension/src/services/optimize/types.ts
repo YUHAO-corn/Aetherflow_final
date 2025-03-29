@@ -4,6 +4,10 @@ export interface OptimizationVersion {
   isLoading?: boolean;
   isNew?: boolean;
   createdAt?: number;
+  parentId?: number;
+  editedContent?: string;
+  isEdited?: boolean;
+  position?: number;
 }
 
 export interface OptimizeOptions {
