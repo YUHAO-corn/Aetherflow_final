@@ -17,50 +17,54 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
   const [isContentEditing, setIsContentEditing] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
+  // 添加本地状态以跟踪最新的提示词内容
+  const [localPrompt, setLocalPrompt] = useState<Prompt | undefined>(prompt);
   
-  // 每次打开时更新编辑状态
+  // 每次打开或提示词更新时，更新编辑状态和本地提示词
   useEffect(() => {
     if (prompt) {
       setEditTitle(prompt.title);
       setEditContent(prompt.content);
+      setLocalPrompt(prompt);
     }
-  }, [prompt]);
+  }, [prompt, isOpen]);
   
-  if (!isOpen || !prompt) return null;
+  // 如果没有提示词或抽屉关闭，则不显示任何内容
+  if (!isOpen || !localPrompt) return null;
   
-  // 格式化日期
-  const created = formatDate(prompt.createdAt);
-  const updated = formatDate(prompt.updatedAt);
-  const lastUsed = prompt.lastUsed ? formatDate(prompt.lastUsed) : '从未使用';
+  // 格式化日期 - 使用本地提示词数据
+  const created = formatDate(localPrompt.createdAt);
+  const updated = formatDate(localPrompt.updatedAt);
+  const lastUsed = localPrompt.lastUsed ? formatDate(localPrompt.lastUsed) : '从未使用';
   
   // 处理复制提示词
   const handleCopy = () => {
-    navigator.clipboard.writeText(prompt.content);
-    incrementUseCount(prompt.id);
+    navigator.clipboard.writeText(localPrompt.content);
+    incrementUseCount(localPrompt.id);
   };
   
   // 处理删除提示词
   const handleDelete = async () => {
     if (window.confirm('确定要取消收藏这个提示词吗？')) {
-      await deletePrompt(prompt.id);
+      await deletePrompt(localPrompt.id);
       onClose();
     }
   };
 
   // 处理开始编辑标题
   const handleStartEditTitle = () => {
-    setEditTitle(prompt.title);
+    setEditTitle(localPrompt.title);
     setIsTitleEditing(true);
   };
 
   // 处理开始编辑内容
   const handleStartEditContent = () => {
-    setEditContent(prompt.content);
+    setEditContent(localPrompt.content);
     setIsContentEditing(true);
   };
 
   // 处理保存编辑
-  const handleSaveEdit = () => {
+  const handleSaveEdit = async () => {
     console.log("保存编辑被触发", { 
       isTitleEditing, 
       isContentEditing, 
@@ -69,11 +73,12 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
     });
     
     if (isTitleEditing || isContentEditing) {
+      const now = Date.now();
       const updatedPrompt = { 
-        ...prompt,
-        title: isTitleEditing ? editTitle : prompt.title,
-        content: isContentEditing ? editContent : prompt.content,
-        updatedAt: Date.now()
+        ...localPrompt,
+        title: isTitleEditing ? editTitle : localPrompt.title,
+        content: isContentEditing ? editContent : localPrompt.content,
+        updatedAt: now
       };
       
       console.log("更新的提示词数据:", updatedPrompt);
@@ -85,10 +90,22 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
           // 提取更新内容
           const { id, ...updateInput } = updatedPrompt;
           console.log("调用 updatePrompt 函数，更新ID:", id);
-          updatePrompt(id, updateInput);
+          
+          // 先更新本地状态，使UI立即响应
+          setLocalPrompt(updatedPrompt);
+          
+          // 然后更新到服务端/存储中
+          const success = await updatePrompt(id, updateInput);
+          
+          if (!success) {
+            console.error("更新提示词失败");
+            // 如果更新失败，可以考虑回滚本地状态
+            // setLocalPrompt(prompt);
+          }
         } else {
           // 如果没有updatePrompt函数，仍然可以使用onEdit，但这可能会打开模态窗口
           console.warn('updatePrompt not available, using onEdit instead');
+          setLocalPrompt(updatedPrompt); // 仍然更新本地状态
           onEdit(updatedPrompt);
         }
       } catch (error) {
@@ -145,7 +162,7 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
             onDoubleClick={handleStartEditTitle}
             title="双击编辑标题"
           >
-            {prompt.title}
+            {localPrompt.title}
           </h2>
         )}
         
@@ -169,7 +186,7 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
               onDoubleClick={handleStartEditContent}
               title="双击编辑内容"
             >
-              {prompt.content}
+              {localPrompt.content}
             </div>
           )}
         </div>
@@ -188,7 +205,7 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
           )}
           <div className="flex items-center text-sm text-magic-400">
             <Star className="w-4 h-4 mr-2" /> 
-            <span>使用次数: {prompt.useCount || 0}</span>
+            <span>使用次数: {localPrompt.useCount || 0}</span>
           </div>
           <div className="flex items-center text-sm text-magic-400">
             <Clock className="w-4 h-4 mr-2" /> 
@@ -218,7 +235,7 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
             onClick={handleDelete}
             className="flex items-center justify-center px-4 py-2 bg-red-800/60 hover:bg-red-700/60 rounded-md text-red-200 transition-colors mt-4"
           >
-            <HeartOff className="w-4 h-4 mr-2" /> 取消收藏
+            <Star className="w-4 h-4 mr-2" /> 移出收藏夹
           </button>
         </div>
       </div>

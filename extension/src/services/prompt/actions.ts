@@ -57,6 +57,11 @@ export async function searchPrompts(filter: PromptFilter): Promise<Prompt[]> {
 
     let filteredPrompts = [...prompts];
     
+    // 只处理激活状态的提示词
+    filteredPrompts = filteredPrompts.filter(prompt => 
+      prompt.isActive !== false && prompt.active !== false
+    );
+    
     // 搜索关键词过滤
     if (filter.searchTerm) {
       const term = filter.searchTerm.toLowerCase();
@@ -75,21 +80,79 @@ export async function searchPrompts(filter: PromptFilter): Promise<Prompt[]> {
     
     // 排序
     if (filter.sortBy) {
+      const now = Date.now();
+      const TIME_RANGE = 14 * 24 * 60 * 60 * 1000; // 14天时间范围
+      const USAGE_WEIGHT = 0.7;                    // 使用次数权重
+      const RECENCY_WEIGHT = 0.3;                  // 最近使用时间权重
+      const INITIAL_SCORE = 0.1;                   // 冷启动常数
+
       switch (filter.sortBy) {
         case 'usage':
+          // 按使用频率排序
           filteredPrompts.sort((a, b) => (b.useCount || 0) - (a.useCount || 0));
           break;
+          
         case 'favorite':
+          // 按收藏状态排序
           filteredPrompts.sort((a, b) => {
             const aFav = a.isFavorite || a.favorite || false;
             const bFav = b.isFavorite || b.favorite || false;
             return (aFav === bFav) ? 0 : aFav ? -1 : 1;
           });
           break;
+          
         case 'time':
+          // 按最近使用时间排序
           filteredPrompts.sort((a, b) => (b.lastUsed || 0) - (a.lastUsed || 0));
           break;
+          
+        case 'relevance':
+          // 使用综合评分公式排序
+          filteredPrompts.sort((a, b) => {
+            // 找出所有提示词中最大使用次数
+            const maxUsage = Math.max(...filteredPrompts.map(p => p.useCount || 0));
+            
+            // 计算a的归一化使用次数
+            const normalizedUsageA = maxUsage > 0 ? (a.useCount || 0) / maxUsage : 0;
+            
+            // 计算a的归一化时间接近度 (越接近当前时间，值越高)
+            const timeDistanceA = Math.max(0, Math.min(1, 1 - ((now - (a.lastUsed || 0)) / TIME_RANGE)));
+            
+            // 计算a的综合得分
+            const scoreA = (USAGE_WEIGHT * normalizedUsageA) + 
+                          (RECENCY_WEIGHT * timeDistanceA) + 
+                          INITIAL_SCORE;
+            
+            // 计算b的归一化使用次数
+            const normalizedUsageB = maxUsage > 0 ? (b.useCount || 0) / maxUsage : 0;
+            
+            // 计算b的归一化时间接近度
+            const timeDistanceB = Math.max(0, Math.min(1, 1 - ((now - (b.lastUsed || 0)) / TIME_RANGE)));
+            
+            // 计算b的综合得分
+            const scoreB = (USAGE_WEIGHT * normalizedUsageB) + 
+                          (RECENCY_WEIGHT * timeDistanceB) + 
+                          INITIAL_SCORE;
+            
+            // 收藏状态优先级最高，在评分基础上叠加收藏因素
+            const aFav = a.isFavorite || a.favorite || false;
+            const bFav = b.isFavorite || b.favorite || false;
+            
+            if (aFav && !bFav) return -1;
+            if (!aFav && bFav) return 1;
+            
+            // 相同收藏状态则按评分排序
+            return scoreB - scoreA;
+          });
+          break;
+          
+        default:
+          // 默认按使用频率排序
+          filteredPrompts.sort((a, b) => (b.useCount || 0) - (a.useCount || 0));
       }
+    } else {
+      // 默认按使用频率排序
+      filteredPrompts.sort((a, b) => (b.useCount || 0) - (a.useCount || 0));
     }
     
     // 限制数量
@@ -289,13 +352,20 @@ export async function toggleFavorite(id: string): Promise<boolean> {
     // 处理新旧两种字段名
     const currentFavorite = prompts[index].isFavorite || prompts[index].favorite || false;
     
-    prompts[index] = {
-      ...prompts[index],
-      isFavorite: !currentFavorite,
-      favorite: !currentFavorite
-    };
+    if (currentFavorite) {
+      // 如果已收藏，则删除提示词
+      const newPrompts = prompts.filter(p => p.id !== id);
+      await storageService.set(STORAGE_KEYS.PROMPTS, newPrompts);
+    } else {
+      // 如果未收藏，则标记为收藏
+      prompts[index] = {
+        ...prompts[index],
+        isFavorite: true,
+        favorite: true
+      };
+      await storageService.set(STORAGE_KEYS.PROMPTS, prompts);
+    }
     
-    await storageService.set(STORAGE_KEYS.PROMPTS, prompts);
     return true;
   } catch (error) {
     console.error(`切换提示词收藏状态失败(ID:${id}):`, error);

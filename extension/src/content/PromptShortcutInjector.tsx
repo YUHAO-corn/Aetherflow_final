@@ -1,7 +1,6 @@
 // PromptShortcutInjector.tsx - 提示词快捷输入注入器
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { AIPlatformType } from './platformDetector';
 import { PlatformAdapter } from './platformAdapter';
 import { addMessageListener, sendMessage } from '../services/messaging';
 import type { Message } from '../services/messaging/types';
@@ -26,8 +25,16 @@ const styles = `
 .af-shortcut-header {
   display: flex;
   align-items: center;
-  padding: 10px 12px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #9ca3af;
   border-bottom: 1px solid #2f3146;
+}
+
+.af-shortcut-header-icon {
+  margin-right: 6px;
+  color: #8357f6;
 }
 
 .af-shortcut-search {
@@ -45,6 +52,21 @@ const styles = `
   max-height: 250px;
   overflow-y: auto;
   padding: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: #3f4565 transparent;
+}
+
+.af-shortcut-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.af-shortcut-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.af-shortcut-list::-webkit-scrollbar-thumb {
+  background-color: #3f4565;
+  border-radius: 3px;
 }
 
 .af-shortcut-item {
@@ -122,6 +144,21 @@ const styles = `
 @keyframes af-spinner {
   to { transform: rotate(360deg); }
 }
+
+.af-shortcut-highlight {
+  background-color: rgba(131, 87, 246, 0.3);
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+.af-shortcut-recommended-label {
+  font-size: 11px;
+  color: #8357f6;
+  margin-left: 5px;
+  padding: 1px 5px;
+  background-color: rgba(131, 87, 246, 0.1);
+  border-radius: 3px;
+}
 `;
 
 // 提示词快捷输入组件属性
@@ -133,74 +170,145 @@ interface PromptShortcutProps {
     top: number;
     left: number;
   };
+  searchInfo: {
+    slashPosition: number;
+    searchTerm: string;
+  };
 }
 
 /**
  * 提示词快捷输入组件
  */
-function PromptShortcut({ inputElement, adapter, onClose, position }: PromptShortcutProps) {
-  const [searchTerm, setSearchTerm] = useState('');
+function PromptShortcut({ inputElement, adapter, onClose, position, searchInfo }: PromptShortcutProps) {
   const [results, setResults] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [hasExactMatch, setHasExactMatch] = useState(false);
+  const [currentSearchTerm, setCurrentSearchTerm] = useState(searchInfo.searchTerm);
   const containerRef = useRef<HTMLDivElement>(null);
-  const searchInputRef = useRef<HTMLInputElement>(null);
   
-  // 搜索提示词
+  // 初始化时执行一次搜索，确保始终显示结果
   useEffect(() => {
-    const search = async () => {
-      if (!searchTerm.trim()) {
-        setResults([]);
-        return;
-      }
+    // 初始加载时立即搜索一次
+    performSearch(searchInfo.searchTerm);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  
+  // 搜索词长度超过限制且没有匹配结果时自动关闭
+  useEffect(() => {
+    const term = searchInfo.searchTerm.trim();
+    if (term.length > 5 && results.length === 0 && !loading && !hasExactMatch) {
+      console.log('[AetherFlow] 搜索词超过5个字符且无匹配结果，自动关闭');
+      setTimeout(() => {
+        onClose();
+      }, 500); // 延迟500ms关闭，给用户一个反馈的机会
+    }
+  }, [searchInfo.searchTerm, results.length, loading, hasExactMatch, onClose]);
+  
+  // 执行搜索的函数
+  const performSearch = async (term: string) => {
+    setLoading(true);
+    try {
+      // 搜索请求参数
+      const searchParams = {
+        searchTerm: term.trim(),
+        limit: 10,
+        // 根据搜索词是否为空决定排序方式
+        sortBy: term.trim() ? 'relevance' : 'usage'
+      };
       
-      setLoading(true);
-      try {
-        // 向background发送消息，请求提示词搜索
-        const response = await sendMessage({
-          type: 'SEARCH_PROMPTS',
-          payload: {
-            keyword: searchTerm,
-            limit: 8
-          }
-        });
+      console.log('[AetherFlow] 执行搜索:', searchParams);
+      
+      // 向background发送消息，请求提示词搜索
+      const response = await sendMessage({
+        type: 'SEARCH_PROMPTS',
+        payload: searchParams
+      });
+      
+      if (Array.isArray(response)) {
+        const prompts = response as Prompt[];
+        setResults(prompts);
         
-        if (Array.isArray(response)) {
-          setResults(response as Prompt[]);
+        // 判断是否有精确匹配
+        if (term.trim()) {
+          const exactMatches = prompts.filter(p => 
+            p.title.toLowerCase().includes(term.toLowerCase()) || 
+            p.content.toLowerCase().includes(term.toLowerCase())
+          );
+          setHasExactMatch(exactMatches.length > 0);
         } else {
-          setResults([]);
+          setHasExactMatch(true); // 空搜索词时始终有匹配（显示推荐）
         }
-      } catch (error) {
-        console.error('搜索提示词失败:', error);
+        
+        console.log(`[AetherFlow] 搜索完成, 结果数量: ${prompts.length}, 精确匹配: ${hasExactMatch}`);
+      } else {
         setResults([]);
-      } finally {
-        setLoading(false);
+        setHasExactMatch(false);
+      }
+    } catch (error) {
+      console.error('[AetherFlow] 搜索提示词失败:', error);
+      setResults([]);
+      setHasExactMatch(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // 当搜索词变化时执行搜索
+  useEffect(() => {
+    if (searchInfo.searchTerm !== currentSearchTerm) {
+      setCurrentSearchTerm(searchInfo.searchTerm);
+      performSearch(searchInfo.searchTerm);
+      // 重置活跃索引
+      setActiveIndex(0);
+    }
+  }, [searchInfo.searchTerm, currentSearchTerm]);
+  
+  // 监听输入框变化，实时更新搜索
+  useEffect(() => {
+    const handleInput = () => {
+      const text = adapter.getText(inputElement);
+      // 确保斜杠位置存在
+      if (searchInfo.slashPosition < text.length && text[searchInfo.slashPosition] === '/') {
+        // 提取当前搜索词
+        const currentTerm = text.substring(searchInfo.slashPosition + 1);
+        // 如果搜索词变化了，更新状态
+        if (currentTerm !== currentSearchTerm) {
+          setCurrentSearchTerm(currentTerm);
+          performSearch(currentTerm);
+        }
+      } else {
+        // 如果斜杠位置不再存在，关闭面板
+        onClose();
       }
     };
     
-    search();
-  }, [searchTerm]);
-  
-  // 自动聚焦搜索框
-  useEffect(() => {
-    searchInputRef.current?.focus();
-  }, []);
+    inputElement.addEventListener('input', handleInput);
+    
+    return () => {
+      inputElement.removeEventListener('input', handleInput);
+    };
+  }, [adapter, inputElement, onClose, searchInfo.slashPosition, currentSearchTerm]);
   
   // 键盘导航
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        onClose();
-      } else if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setActiveIndex(prev => (prev < results.length - 1 ? prev + 1 : prev));
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setActiveIndex(prev => (prev > 0 ? prev - 1 : 0));
-      } else if (e.key === 'Enter' && results.length > 0 && activeIndex >= 0) {
-        e.preventDefault();
-        handleSelectPrompt(results[activeIndex]);
+      // 只处理可能的导航键
+      if (e.key === 'Escape' || e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'Tab') {
+        
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          onClose();
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          setActiveIndex(prev => (prev < results.length - 1 ? prev + 1 : prev));
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          setActiveIndex(prev => (prev > 0 ? prev - 1 : 0));
+        } else if (e.key === 'Tab' && results.length > 0 && activeIndex >= 0) {
+          e.preventDefault();
+          handleSelectPrompt(results[activeIndex]);
+        }
       }
     };
     
@@ -229,8 +337,31 @@ function PromptShortcut({ inputElement, adapter, onClose, position }: PromptShor
   // 处理提示词选择
   const handleSelectPrompt = async (prompt: Prompt) => {
     try {
-      // 向输入框插入文本
-      adapter.insertText(inputElement, prompt.content);
+      console.log('[AetherFlow] 选择提示词:', prompt.title);
+      
+      // 获取当前输入框文本
+      const currentText = adapter.getText(inputElement);
+      
+      // 计算要替换的范围
+      const startPos = searchInfo.slashPosition;
+      const endPos = searchInfo.slashPosition + currentSearchTerm.length + 1; // +1 是为了包含"/"
+      
+      // 组合新文本：前部分 + 提示词内容 + 后部分
+      const newText = currentText.substring(0, startPos) + 
+                    prompt.content + 
+                    currentText.substring(endPos);
+      
+      // 应用新文本并设置光标
+      const newCursorPos = startPos + prompt.content.length;
+      console.log('[AetherFlow] 替换文本:', {
+        startPos,
+        endPos,
+        newCursorPos,
+        originalText: currentText,
+        newText
+      });
+      
+      adapter.replaceTextAndSetCursor(inputElement, newText, newCursorPos);
       adapter.triggerInputEvent(inputElement);
       
       // 增加使用次数
@@ -239,11 +370,35 @@ function PromptShortcut({ inputElement, adapter, onClose, position }: PromptShor
         payload: prompt.id
       });
       
+      // 关闭面板
       onClose();
     } catch (error) {
-      console.error('插入提示词失败:', error);
+      console.error('[AetherFlow] 插入提示词失败:', error);
     }
   };
+  
+  // 高亮关键词
+  const highlightKeyword = (text: string, keyword: string) => {
+    if (!keyword.trim()) return text;
+    
+    try {
+      const parts = text.split(new RegExp(`(${keyword})`, 'gi'));
+      return parts.map((part, i) => 
+        part.toLowerCase() === keyword.toLowerCase() ? 
+          <span key={i} className="af-shortcut-highlight">{part}</span> : part
+      );
+    } catch (e) {
+      return text;
+    }
+  };
+  
+  // 获取当前搜索词
+  const displayTerm = currentSearchTerm || '';
+  
+  // 确定需要显示的标题文本
+  const headerTitle = displayTerm 
+    ? `提示词搜索: ${displayTerm}` 
+    : '推荐提示词';
   
   return (
     <div 
@@ -255,15 +410,8 @@ function PromptShortcut({ inputElement, adapter, onClose, position }: PromptShor
       }}
     >
       <div className="af-shortcut-header">
-        <input
-          ref={searchInputRef}
-          className="af-shortcut-search"
-          type="text"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="搜索提示词..."
-          autoFocus
-        />
+        <span className="af-shortcut-header-icon">/</span>
+        <span>{headerTitle}</span>
       </div>
       
       <div className="af-shortcut-list">
@@ -280,22 +428,25 @@ function PromptShortcut({ inputElement, adapter, onClose, position }: PromptShor
               onMouseEnter={() => setActiveIndex(index)}
             >
               <div className="af-shortcut-title">
-                {prompt.title}
+                {highlightKeyword(prompt.title, displayTerm)}
                 {prompt.isFavorite && <span className="af-shortcut-favorite">★</span>}
+                {!displayTerm && <span className="af-shortcut-recommended-label">推荐</span>}
               </div>
-              <div className="af-shortcut-content">{prompt.content}</div>
+              <div className="af-shortcut-content">
+                {highlightKeyword(prompt.content, displayTerm)}
+              </div>
             </div>
           ))
-        ) : searchTerm ? (
-          <div className="af-shortcut-empty">未找到匹配的提示词</div>
+        ) : displayTerm ? (
+          <div className="af-shortcut-empty">未能找到相关结果</div>
         ) : (
-          <div className="af-shortcut-empty">输入关键词搜索提示词...</div>
+          <div className="af-shortcut-empty">继续输入关键词进行搜索...</div>
         )}
       </div>
       
       <div className="af-shortcut-footer">
         <span>↑/↓: 导航</span>
-        <span>Enter: 选择</span>
+        <span>Tab: 选择</span>
         <span>Esc: 取消</span>
       </div>
     </div>
@@ -306,66 +457,106 @@ function PromptShortcut({ inputElement, adapter, onClose, position }: PromptShor
  * 注入提示词快捷输入功能到页面
  * @param inputElement 输入框元素
  * @param adapter 平台适配器
+ * @param searchInfo 搜索信息
  */
-export function injectPromptShortcut(inputElement: HTMLElement, adapter: PlatformAdapter) {
-  // 创建样式元素
-  const styleElement = document.createElement('style');
-  styleElement.textContent = styles;
-  document.head.appendChild(styleElement);
+export function injectPromptShortcut(
+  inputElement: HTMLElement, 
+  adapter: PlatformAdapter,
+  searchInfo: { slashPosition: number; searchTerm: string }
+) {
+  console.log('[AetherFlow] 注入提示词快捷输入组件', searchInfo);
   
-  // 创建快捷键触发器组件的容器
-  const shortcutContainerElement = document.createElement('div');
-  shortcutContainerElement.id = 'aetherflow-shortcut-container';
-  document.body.appendChild(shortcutContainerElement);
+  // 创建样式元素（如果不存在）
+  let styleElement = document.getElementById('aetherflow-shortcut-styles');
+  if (!styleElement) {
+    styleElement = document.createElement('style');
+    styleElement.id = 'aetherflow-shortcut-styles';
+    styleElement.textContent = styles;
+    document.head.appendChild(styleElement);
+    console.log('[AetherFlow] 注入样式元素');
+  }
   
-  // 初始化快捷键状态
-  let isShortcutActive = false;
+  // 获取或创建快捷键触发器组件的容器
+  let shortcutContainerElement = document.getElementById('aetherflow-shortcut-container');
+  if (!shortcutContainerElement) {
+    shortcutContainerElement = document.createElement('div');
+    shortcutContainerElement.id = 'aetherflow-shortcut-container';
+    document.body.appendChild(shortcutContainerElement);
+    console.log('[AetherFlow] 创建组件容器');
+  }
   
-  // 监听输入框的键盘事件
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === '/' && !isShortcutActive) {
-      e.preventDefault();
-      isShortcutActive = true;
-      
-      // 计算显示位置
-      const inputRect = inputElement.getBoundingClientRect();
-      const position = {
-        top: inputRect.top,
-        left: inputRect.left
-      };
-      
-      // 渲染快捷输入组件
-      ReactDOM.render(
-        <PromptShortcut
-          inputElement={inputElement}
-          adapter={adapter}
-          onClose={() => {
-            isShortcutActive = false;
-            ReactDOM.unmountComponentAtNode(shortcutContainerElement);
-          }}
-          position={position}
-        />,
-        shortcutContainerElement
-      );
+  // 计算显示位置
+  const inputRect = inputElement.getBoundingClientRect();
+  
+  // 计算光标位置
+  let cursorLeft = inputRect.left;
+  let cursorTop = inputRect.bottom;
+  
+  try {
+    if (window.getSelection && inputElement.isContentEditable) {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const rects = range.getClientRects();
+        if (rects.length > 0) {
+          cursorLeft = rects[0].left;
+          cursorTop = rects[0].bottom;
+        }
+      }
+    } else if (inputElement instanceof HTMLTextAreaElement || inputElement instanceof HTMLInputElement) {
+      // 对于textarea和input，我们只能近似光标位置
+      cursorLeft = inputRect.left + 20; // 简单偏移
     }
+  } catch (e) {
+    console.error('[AetherFlow] 计算光标位置失败:', e);
+  }
+  
+  // 确保浮层在可视范围内
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  
+  // 调整水平位置，确保不超出右边界
+  const floatWidth = 320; // 浮层宽度
+  if (cursorLeft + floatWidth > viewportWidth - 20) {
+    cursorLeft = Math.max(20, viewportWidth - floatWidth - 20);
+  }
+  
+  // 调整垂直位置，如果底部空间不足则显示在输入框上方
+  const floatHeight = 300; // 浮层高度
+  if (cursorTop + floatHeight > viewportHeight - 20) {
+    cursorTop = Math.max(20, inputRect.top - floatHeight);
+  }
+  
+  const position = {
+    top: cursorTop + window.scrollY,
+    left: cursorLeft + window.scrollX
   };
   
-  // 添加事件监听器
-  inputElement.addEventListener('keydown', handleKeyDown);
+  console.log('[AetherFlow] 渲染快捷输入组件, 位置:', position);
+  
+  // 渲染快捷输入组件
+  ReactDOM.render(
+    <PromptShortcut
+      inputElement={inputElement}
+      adapter={adapter}
+      onClose={() => {
+        console.log('[AetherFlow] 关闭快捷输入组件');
+        // 卸载组件但不删除容器，以便重用
+        ReactDOM.unmountComponentAtNode(shortcutContainerElement);
+      }}
+      position={position}
+      searchInfo={searchInfo}
+    />,
+    shortcutContainerElement
+  );
   
   // 返回清理函数
   return () => {
-    // 移除事件监听器
-    inputElement.removeEventListener('keydown', handleKeyDown);
+    console.log('[AetherFlow] 清理快捷输入组件');
     
-    // 移除样式和容器元素
-    if (styleElement.parentNode) {
-      styleElement.parentNode.removeChild(styleElement);
-    }
-    
-    if (shortcutContainerElement.parentNode) {
+    // 卸载组件
+    if (shortcutContainerElement) {
       ReactDOM.unmountComponentAtNode(shortcutContainerElement);
-      shortcutContainerElement.parentNode.removeChild(shortcutContainerElement);
     }
   };
 } 

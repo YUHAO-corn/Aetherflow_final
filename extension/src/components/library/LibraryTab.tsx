@@ -128,7 +128,7 @@ export function LibraryTab() {
             className="flex items-center justify-center px-3 py-2 bg-magic-600 hover:bg-magic-500 rounded-md text-white transition-colors transform hover:scale-105"
             title="添加新提示词"
           >
-            <Plus size={16} className="mr-1" /> 添加提示词
+            <Plus size={16} className="mr-1" /> 添加至收藏夹
           </button>
           
           {/* 排序按钮 */}
@@ -200,7 +200,7 @@ export function LibraryTab() {
         <div className="space-y-3">
           {filteredPrompts.length === 0 ? (
             <div className="text-center text-magic-400 py-8">
-              {searchTerm ? "没有找到匹配的提示词" : "提示词库为空"}
+              {searchTerm ? "没有找到匹配的提示词" : "收藏夹为空"}
             </div>
           ) : (
             filteredPrompts.map(prompt => (

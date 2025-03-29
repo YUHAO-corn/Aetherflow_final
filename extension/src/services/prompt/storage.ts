@@ -179,14 +179,22 @@ export class PromptStorageService {
         return false;
       }
       
-      // 切换收藏状态
-      prompts[index] = {
-        ...prompts[index],
-        favorite: !prompts[index].favorite
-      };
+      // 检查当前收藏状态
+      const currentFavorite = prompts[index].favorite || prompts[index].isFavorite;
       
-      // 保存到存储
-      await storageService.set(STORAGE_KEYS.PROMPTS, prompts);
+      if (currentFavorite) {
+        // 如果当前是收藏状态，则删除此提示词
+        const newPrompts = prompts.filter(p => p.id !== id);
+        await storageService.set(STORAGE_KEYS.PROMPTS, newPrompts);
+      } else {
+        // 如果当前不是收藏状态，则设为收藏
+        prompts[index] = {
+          ...prompts[index],
+          favorite: true,
+          isFavorite: true
+        };
+        await storageService.set(STORAGE_KEYS.PROMPTS, prompts);
+      }
       
       return true;
     } catch (error) {

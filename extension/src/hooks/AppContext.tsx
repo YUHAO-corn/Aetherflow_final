@@ -222,7 +222,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const prompt = state.prompts.find(p => p.id === id);
       if (!prompt) return;
       
-      await updatePrompt(id, { isFavorite: !prompt.isFavorite });
+      // 检查当前收藏状态
+      const isFavorited = prompt.isFavorite || prompt.favorite;
+      
+      if (isFavorited) {
+        // 如果已收藏，则删除提示词
+        await deletePrompt(id);
+      } else {
+        // 如果未收藏，则标记为收藏
+        await updatePrompt(id, { 
+          isFavorite: true, 
+          favorite: true 
+        });
+      }
     } catch (error) {
       setState(prev => ({ 
         ...prev, 

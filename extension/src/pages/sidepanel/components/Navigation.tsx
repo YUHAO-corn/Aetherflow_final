@@ -1,5 +1,5 @@
 import React from 'react';
-import { Library, Wand2 } from 'lucide-react';
+import { BookMarked, Wand2 } from 'lucide-react';
 
 interface NavigationProps {
   activeTab: 'library' | 'optimize';
@@ -18,8 +18,8 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
         }`}
       >
         <div className="flex items-center justify-center space-x-2">
-          <Library size={16} />
-          <span>提示词库</span>
+          <BookMarked size={16} />
+          <span>提示词收藏夹</span>
         </div>
       </button>
       <button

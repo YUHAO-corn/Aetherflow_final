@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Copy, Pencil, Heart, Trash2, Clock, Star } from 'lucide-react';
+import { X, Copy, Pencil, Star, Trash2, Clock } from 'lucide-react';
 import { Prompt } from '../../services/prompt/types';
 import { useAppContext } from '../../hooks/AppContext';
 import { formatDate } from '../../utils/formatDate';
@@ -108,8 +108,8 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
             onClick={handleToggleFavorite}
             className="flex items-center justify-center px-4 py-2 bg-magic-700 hover:bg-magic-600 rounded-md text-magic-200 transition-colors"
           >
-            <Heart className={`w-4 h-4 mr-2 ${prompt.isFavorite ? 'fill-magic-400' : ''}`} /> 
-            {prompt.isFavorite ? '取消收藏' : '收藏'}
+            <Star className={`w-4 h-4 mr-2 ${prompt.isFavorite ? 'fill-magic-400' : ''}`} /> 
+            {prompt.isFavorite ? '移出收藏夹' : '加入收藏夹'}
           </button>
           
           <button

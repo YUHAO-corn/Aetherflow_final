@@ -9,6 +9,7 @@ export let mockPrompts: Prompt[] = [
     createdAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
     updatedAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
     isFavorite: true,
+    favorite: true,
     useCount: 12,
     lastUsed: Date.now() - 2 * 24 * 60 * 60 * 1000,
     isActive: true
@@ -19,7 +20,8 @@ export let mockPrompts: Prompt[] = [
     content: '请以一个10岁孩子能理解的方式解释以下概念，避免使用技术术语，多用类比和例子。',
     createdAt: Date.now() - 14 * 24 * 60 * 60 * 1000,
     updatedAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
-    isFavorite: false,
+    isFavorite: true,
+    favorite: true,
     useCount: 5,
     lastUsed: Date.now() - 6 * 24 * 60 * 60 * 1000,
     isActive: true

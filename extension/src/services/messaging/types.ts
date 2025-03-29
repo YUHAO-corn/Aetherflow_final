@@ -15,6 +15,7 @@ export type MessageType =
   // 内容脚本相关消息类型
   | 'COPY_TO_CLIPBOARD'
   | 'INJECT_PROMPT'
+  | 'CLOSE_PROMPT_SHORTCUT'
   // 旧版兼容消息类型
   | 'LEGACY_SEARCH_PROMPTS';
 

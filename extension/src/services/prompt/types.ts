@@ -57,7 +57,7 @@ export interface PromptFilter {
   searchTerm?: string;
   
   /** 排序方式 */
-  sortBy?: 'usage' | 'favorite' | 'time' | 'alphabetical';
+  sortBy?: 'usage' | 'favorite' | 'time' | 'alphabetical' | 'relevance';
   
   /** 结果数量限制 */
   limit?: number;

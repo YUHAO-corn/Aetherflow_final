@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Copy, Trash2, Plus, ArrowDownUp, Heart, HeartOff } from 'lucide-react';
+import { Search, Copy, Trash2, Plus, ArrowDownUp, Star } from 'lucide-react';
 import { Input } from '../../../components/common/Input';
 import { Card } from '../../../components/common/Card';
 import { LoadingIndicator } from '../../../components/common/LoadingIndicator';
@@ -169,6 +169,19 @@ export function LibraryTab() {
     setEditingPrompt(undefined);
   };
 
+  // 处理收藏切换
+  const handleToggleFavorite = async (promptId: string, isFavorited: boolean) => {
+    if (isFavorited) {
+      // 如果已收藏，则显示确认对话框
+      if (window.confirm('确定要移出收藏夹吗？')) {
+        await toggleFavorite(promptId);
+      }
+    } else {
+      // 如果未收藏，直接收藏
+      await toggleFavorite(promptId);
+    }
+  };
+
   return (
     <div className="p-4">
       {/* 搜索栏和操作按钮 */}
@@ -186,7 +199,7 @@ export function LibraryTab() {
         <button
           onClick={handleAddNew}
           className="p-2 bg-magic-700 hover:bg-magic-600 rounded-md text-magic-200 transition-colors"
-          title="添加新提示词"
+          title="添加至收藏夹"
         >
           <Plus size={18} />
         </button>
@@ -249,7 +262,7 @@ export function LibraryTab() {
         <div className="space-y-3">
           {filteredPrompts.length === 0 ? (
             <div className="text-center text-magic-400 py-8">
-              {searchTerm ? "没有找到匹配的提示词" : "提示词库为空"}
+              {searchTerm ? "没有找到匹配的提示词" : "收藏夹为空"}
             </div>
           ) : (
             filteredPrompts.map(prompt => (
@@ -261,15 +274,13 @@ export function LibraryTab() {
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
-                        toggleFavorite(prompt.id);
+                        const isFavorited = prompt.isFavorite || prompt.favorite || false;
+                        handleToggleFavorite(prompt.id, isFavorited);
                       }}
                       className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-700/50 rounded-full transition-all duration-300 transform hover:scale-110 mr-1"
-                      title={prompt.isFavorite || prompt.favorite ? "取消收藏" : "收藏"}
+                      title={prompt.isFavorite || prompt.favorite ? "移出收藏夹" : "加入收藏夹"}
                     >
-                      {prompt.isFavorite || prompt.favorite ? 
-                        <HeartOff size={14} className="text-red-400" /> : 
-                        <Heart size={14} className="text-magic-400" />
-                      }
+                      <Star size={14} className={prompt.isFavorite || prompt.favorite ? "text-yellow-400 fill-yellow-400" : "text-magic-400"} />
                     </button>
                     <button 
                       onClick={(e) => {

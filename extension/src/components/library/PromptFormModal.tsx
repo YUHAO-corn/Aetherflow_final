@@ -160,7 +160,7 @@ export function PromptFormModal({ isOpen, onClose, prompt }: PromptFormModalProp
             className="w-4 h-4 text-magic-600 bg-magic-800 border-magic-600 rounded focus:ring-magic-600 focus:ring-offset-magic-800"
           />
           <label htmlFor="prompt-favorite" className="ml-2 text-sm font-medium text-magic-300">
-            收藏
+            加入收藏夹
           </label>
         </div>
         

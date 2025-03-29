@@ -120,6 +120,51 @@ export function initPromptMessaging(): void {
               case 'alphabetical':
                 filteredPrompts.sort((a, b) => a.title.localeCompare(b.title));
                 break;
+              case 'relevance':
+                // 使用综合排序算法进行排序
+                const now = Date.now();
+                const TIME_RANGE = 14 * 24 * 60 * 60 * 1000; // 14天时间范围
+                const USAGE_WEIGHT = 0.7;                    // 使用次数权重
+                const RECENCY_WEIGHT = 0.3;                  // 最近使用时间权重
+                const INITIAL_SCORE = 0.1;                   // 冷启动常数
+                
+                // 找出所有提示词中最大使用次数
+                const maxUsage = Math.max(...filteredPrompts.map(p => p.useCount || 0));
+                
+                filteredPrompts.sort((a, b) => {
+                  // 计算a的归一化使用次数
+                  const normalizedUsageA = maxUsage > 0 ? (a.useCount || 0) / maxUsage : 0;
+                  
+                  // 计算a的归一化时间接近度 (越接近当前时间，值越高)
+                  const timeDistanceA = Math.max(0, Math.min(1, 1 - ((now - (a.lastUsed || 0)) / TIME_RANGE)));
+                  
+                  // 计算a的综合得分
+                  const scoreA = (USAGE_WEIGHT * normalizedUsageA) + 
+                                (RECENCY_WEIGHT * timeDistanceA) + 
+                                INITIAL_SCORE;
+                  
+                  // 计算b的归一化使用次数
+                  const normalizedUsageB = maxUsage > 0 ? (b.useCount || 0) / maxUsage : 0;
+                  
+                  // 计算b的归一化时间接近度
+                  const timeDistanceB = Math.max(0, Math.min(1, 1 - ((now - (b.lastUsed || 0)) / TIME_RANGE)));
+                  
+                  // 计算b的综合得分
+                  const scoreB = (USAGE_WEIGHT * normalizedUsageB) + 
+                                (RECENCY_WEIGHT * timeDistanceB) + 
+                                INITIAL_SCORE;
+                  
+                  // 收藏状态优先级最高，在评分基础上叠加收藏因素
+                  const aFav = a.isFavorite || a.favorite || false;
+                  const bFav = b.isFavorite || b.favorite || false;
+                  
+                  if (aFav && !bFav) return -1;
+                  if (!aFav && bFav) return 1;
+                  
+                  // 相同收藏状态则按评分排序
+                  return scoreB - scoreA;
+                });
+                break;
             }
           }
           

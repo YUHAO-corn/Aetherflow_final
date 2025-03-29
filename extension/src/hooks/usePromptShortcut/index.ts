@@ -105,13 +105,16 @@ export function usePromptShortcut(
       if (e.key === 'Escape') {
         e.preventDefault();
         console.log('[AetherFlow] 钩子: Escape键，关闭面板');
+        
+        // 关闭面板
         onClose();
         
-        // 确保关闭后重新聚焦到输入框
+        // 确保输入框保持焦点，但不移动光标位置
         setTimeout(() => {
-          console.log('[AetherFlow] 钩子: 关闭后重新聚焦到输入框');
+          console.log('[AetherFlow] 钩子: Escape后确保输入框保持焦点');
+          // 在ESC时保持原有光标位置
           inputElement.focus();
-        }, 10);
+        }, 0);
       } else if (e.key === 'ArrowDown') {
         e.preventDefault();
         console.log('[AetherFlow] 钩子: 向下箭头，选择下一项');
@@ -144,11 +147,11 @@ export function usePromptShortcut(
         console.log('[AetherFlow] 钩子: 检测到外部点击，关闭面板');
         onClose();
         
-        // 确保关闭后重新聚焦到输入框
+        // 确保关闭后输入框保持焦点
         setTimeout(() => {
-          console.log('[AetherFlow] 钩子: 关闭后重新聚焦到输入框');
+          console.log('[AetherFlow] 钩子: 点击外部关闭后确保输入框保持焦点');
           inputElement.focus();
-        }, 10);
+        }, 0);
       }
     };
     
@@ -175,13 +178,15 @@ export function usePromptShortcut(
       await incrementPromptUseByMessaging(prompt.id);
       
       console.log('[AetherFlow] 钩子: 选择完成，调用关闭回调');
+      
+      // 关闭菜单
       onClose();
       
-      // 确保关闭后重新聚焦到输入框
+      // 确保输入框保持焦点，光标位置已在adapter.insertText()中设置到插入文本的末尾
       setTimeout(() => {
-        console.log('[AetherFlow] 钩子: 关闭后重新聚焦到输入框');
+        console.log('[AetherFlow] 钩子: 插入后确保输入框保持焦点，光标在插入内容后');
         inputElement.focus();
-      }, 10);
+      }, 0);
     } catch (error) {
       console.error('[AetherFlow] 钩子: 插入提示词失败:', error);
     }

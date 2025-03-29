@@ -181,20 +181,25 @@ export function usePromptsData() {
       const prompt = prompts.find(p => p.id === id);
       if (!prompt) return false;
       
-      // 确定新的收藏状态
-      const isFavorite = !(prompt.isFavorite || prompt.favorite);
+      // 确定当前收藏状态
+      const isFavorited = prompt.isFavorite || prompt.favorite;
       
-      // 更新提示词
-      return await updatePrompt(id, { 
-        isFavorite, 
-        favorite: isFavorite 
-      });
+      if (isFavorited) {
+        // 如果已收藏，则删除提示词
+        return await deletePrompt(id);
+      } else {
+        // 如果未收藏，则标记为收藏
+        return await updatePrompt(id, { 
+          isFavorite: true, 
+          favorite: true 
+        });
+      }
     } catch (err) {
       console.error('切换收藏状态失败:', err);
       setError(err instanceof Error ? err : new Error(String(err)));
       return false;
     }
-  }, [prompts, updatePrompt]);
+  }, [prompts, updatePrompt, deletePrompt]);
   
   // 增加使用次数
   const incrementUseCount = useCallback(async (id: string): Promise<boolean> => {
