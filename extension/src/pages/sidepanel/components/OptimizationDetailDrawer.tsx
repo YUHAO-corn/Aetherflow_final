@@ -126,22 +126,10 @@ export function OptimizationDetailDrawer({
       
       {/* 抽屉内容 */}
       <div className="p-4">
-        {/* 版本标题和收藏按钮 */}
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-magic-200">
-            版本 v{version.id} {version.isEdited ? '(已编辑)' : ''}
-          </h2>
-          <button
-            onClick={handleToggleFavorite}
-            className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
-            title={isFavorite ? "移出收藏夹" : "添加到收藏夹"}
-          >
-            <Star 
-              size={18} 
-              className={isFavorite ? "text-yellow-400 fill-yellow-400" : "text-magic-400"} 
-            />
-          </button>
-        </div>
+        {/* 版本标题 */}
+        <h2 className="text-xl font-bold text-magic-200 mb-4">
+          版本 v{version.id} {version.isEdited ? '(已编辑)' : ''}
+        </h2>
         
         {/* 内容 */}
         <div className="mb-6">
@@ -220,6 +208,14 @@ export function OptimizationDetailDrawer({
                 className="flex items-center justify-center px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-md text-white transition-colors mt-2"
               >
                 <Save className="w-4 h-4 mr-2" /> 继续优化此版本
+              </button>
+              
+              <button
+                onClick={handleToggleFavorite}
+                className="flex items-center justify-center px-4 py-2 bg-magic-600 hover:bg-magic-500 rounded-md text-white transition-colors mt-2"
+              >
+                <Star className="w-4 h-4 mr-2" />
+                {isFavorite ? "移出收藏夹" : "添加到收藏夹"}
               </button>
             </>
           )}
