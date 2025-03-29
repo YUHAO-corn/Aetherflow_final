@@ -26,6 +26,13 @@ module.exports = {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(100%)' },
         },
+        'shimmer-interval': {
+          '0%': { transform: 'translateX(-100%)', opacity: 0 },
+          '10%': { opacity: 1 },
+          '40%': { transform: 'translateX(100%)', opacity: 1 },
+          '41%': { opacity: 0 },
+          '100%': { opacity: 0, transform: 'translateX(-100%)' },
+        },
         glow: {
           '0%, 100%': { opacity: 1 },
           '50%': { opacity: 0.6 },
@@ -77,6 +84,8 @@ module.exports = {
       animation: {
         shimmer: 'shimmer 8s linear infinite',
         'shimmer-fast': 'shimmer-fast 1.5s ease-in-out infinite',
+        'shimmer-slow': 'shimmer-fast 4.5s ease-in-out infinite',
+        'shimmer-interval': 'shimmer-interval 5.5s ease-in-out infinite',
         glow: 'glow 2s ease-in-out infinite',
         float: 'float 3s ease-in-out infinite',
         bounce: 'bounce 1s ease-in-out infinite',

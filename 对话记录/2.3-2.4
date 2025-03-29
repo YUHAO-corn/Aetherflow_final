@@ -1,0 +1,61 @@
+
+## 数据流和互通问题
+
+1. **两套不同的数据源**：
+   - 侧边栏数据：来自于`usePrompts` hook，它通过`mock.ts`中定义的模拟数据
+   - 联想框数据：来自于`background/index.ts`中定义的另一套硬编码数据
+
+2. **数据互通机制**：
+   - 两个数据源实际上是分离的，没有共享存储
+   - 在真实环境中，这些数据应该从同一个后端服务或同一个本地存储获取
+
+3. **为什么这样实现**：
+   - 这是一个演示/开发阶段的临时解决方案
+   - 在扩展开发中，background.js和侧边栏是不同的上下文环境，需要专门设计数据同步机制
+
+## 技术原因解析
+
+1. **Chrome扩展结构限制**：
+   - Chrome扩展有不同的执行上下文：background、content script、sidepanel
+   - 每个上下文有自己的JavaScript环境和内存空间，不能直接共享变量
+
+2. **当前的数据流程**：
+   - 联想框(content script)通过消息机制向background请求数据
+   - 侧边栏通过单独的mock数据获取提示词
+   - 两边没有同步机制，所以显示不一致
+
+3. **正确的实现方式**：
+   - 使用Chrome存储API (chrome.storage) 作为统一数据源
+   - 或建立完整的消息通信机制实现数据同步
+   - 使用IndexedDB等客户端存储方案
+
+## 解决方案
+
+我将background.js中的模拟数据修改为与侧边栏一致，本质上是一个临时解决方案。在实际产品中，应该：
+
+1. 重构数据层：
+```typescript
+// 创建统一的存储服务
+// 在storage.ts中实现
+export async function savePrompt(prompt) {
+  return chrome.storage.local.set({[`prompt_${prompt.id}`]: prompt});
+}
+
+export async function getAllPrompts() {
+  const result = await chrome.storage.local.get(null);
+  return Object.entries(result)
+    .filter(([key]) => key.startsWith('prompt_'))
+    .map(([_, value]) => value);
+}
+```
+
+2. 所有组件使用同一数据源：
+```typescript
+// 在background、content和sidepanel中都使用相同的API
+import { getAllPrompts } from '../services/storage';
+
+// 获取所有提示词
+const prompts = await getAllPrompts();
+```
+
+总结：当前的双数据源方案是开发快速原型的临时解决方案，不是生产级设计。我的修改只是让两边显示一致，但没有解决底层的数据同步问题。要真正解决，需要重构成单一数据源设计。

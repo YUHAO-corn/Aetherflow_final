@@ -7,7 +7,7 @@ module.exports = {
   entry: {
     background: './src/background/index.ts',
     content: './src/content/index.ts',
-    sidepanel: './src/sidepanel/index.tsx'
+    sidepanel: './src/pages/sidepanel/index.tsx'
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
@@ -34,7 +34,7 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/sidepanel/index.html',
+      template: './src/pages/sidepanel/index.html',
       filename: 'sidepanel.html',
       chunks: ['sidepanel'],
     }),
@@ -43,7 +43,8 @@ module.exports = {
     }),
     new CopyWebpackPlugin({
       patterns: [
-        { from: 'manifest.json', to: '' }
+        { from: 'manifest.json', to: '' },
+        { from: 'src/assets/icons', to: 'assets/icons' }
       ],
     }),
   ],
