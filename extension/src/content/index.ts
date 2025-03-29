@@ -1,8 +1,48 @@
 import { addMessageListener } from '../services/messaging';
 import type { Message } from '../services/messaging/types';
-import { contentService } from '../services/content';
+// TODO: contentService需要重构，临时注释处理
+// import { contentService } from '../services/content';
 
 console.log('[AetherFlow] 内容脚本加载成功 - 版本1.0');
+
+// 临时内联contentService实现
+const contentService = {
+  // 设置提示词快捷键触发
+  setupShortcutTrigger: () => {
+    console.log('[AetherFlow] 初始化快捷键处理器');
+  },
+  
+  // 复制到剪贴板
+  copyToClipboard: async (text: string): Promise<boolean> => {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (error) {
+      console.error('[AetherFlow] 复制到剪贴板失败:', error);
+      return false;
+    }
+  },
+  
+  // 插入文本到活跃元素
+  insertTextToActiveElement: (text: string): boolean => {
+    try {
+      // 简化版实现
+      const activeElement = document.activeElement as HTMLElement;
+      if (activeElement instanceof HTMLTextAreaElement ||
+          activeElement instanceof HTMLInputElement) {
+        activeElement.value = text;
+        return true;
+      } else if (activeElement.isContentEditable) {
+        activeElement.textContent = text;
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('[AetherFlow] 插入文本失败:', error);
+      return false;
+    }
+  }
+};
 
 // 设置提示词快捷键触发
 console.log('[AetherFlow] 初始化快捷键处理器');

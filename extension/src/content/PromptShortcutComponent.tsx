@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { GenericAdapter } from './platformAdapter';
-import { usePromptShortcut } from '../hooks/prompt/usePromptShortcut';
+import { usePromptShortcut } from '../hooks/usePromptShortcut';
 import type { Prompt } from '../services/prompt/types';
 
 // 提示词快捷输入组件属性

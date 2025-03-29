@@ -4,4 +4,4 @@ export * from './useLoading';
 export * from './AppContext';
 
 // 业务钩子
-export * from './prompt/usePromptShortcut'; 
+export * from './usePromptShortcut'; 
