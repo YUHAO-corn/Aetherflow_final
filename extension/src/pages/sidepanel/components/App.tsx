@@ -5,9 +5,10 @@ import { LibraryTab } from './LibraryTab';
 import { Navigation } from './Navigation';
 import type { Prompt } from '../../../services/prompt/types';
 import { usePromptsData } from '../../../hooks/usePromptsData';
+import { optimizePrompt, continueOptimize, OptimizationMode as ApiOptimizationMode } from '../../../services/optimizationService';
 
 // 优化模式类型
-export type OptimizationMode = 'standard' | 'creative' | 'concise';
+export type OptimizationMode = ApiOptimizationMode;
 
 // 优化版本类型
 interface OptimizationVersion {
@@ -27,6 +28,7 @@ export function App() {
   const [isOptimizing, setIsOptimizing] = useState(false);
   const [optimizationVersions, setOptimizationVersions] = useState<OptimizationVersion[]>([]);
   const [optimizationMode, setOptimizationMode] = useState<OptimizationMode>('standard');
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // 获取提示词库数据
   const { addPrompt, incrementUseCount } = usePromptsData();
@@ -37,6 +39,7 @@ export function App() {
 
     // 清空之前的优化历史，开始新的优化任务
     setIsOptimizing(true);
+    setApiError(null);
     setOptimizationVersions([
       { 
         id: 1, 
@@ -46,17 +49,9 @@ export function App() {
       }
     ]);
 
-    // 模拟优化过程，使用当前的优化模式
-    setTimeout(() => {
-      // 在实际应用中，这里应该根据不同的模式生成不同的优化结果
-      let optimizedContent = optimizeInput;
-      if (optimizationMode === 'creative') {
-        optimizedContent = `【创意优化】${optimizeInput}`;
-      } else if (optimizationMode === 'concise') {
-        optimizedContent = `【简洁优化】${optimizeInput}`;
-      } else {
-        optimizedContent = `【标准优化】${optimizeInput}`;
-      }
+    try {
+      // 调用API优化提示词
+      const optimizedContent = await optimizePrompt(optimizeInput, optimizationMode);
       
       setOptimizationVersions([
         {
@@ -67,13 +62,30 @@ export function App() {
           createdAt: Date.now()
         }
       ]);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '优化失败，请稍后重试';
+      console.error('优化提示词失败:', error);
+      setApiError(errorMessage);
+      
+      // 保留加载状态但显示错误
+      setOptimizationVersions([
+        {
+          id: 1,
+          content: `优化失败: ${errorMessage}`,
+          isLoading: false,
+          isNew: true,
+          createdAt: Date.now()
+        }
+      ]);
+    } finally {
       setIsOptimizing(false);
-    }, 2000);
+    }
   };
 
   // 继续优化提示词
-  const handleContinueOptimize = (version: OptimizationVersion) => {
+  const handleContinueOptimize = async (version: OptimizationVersion) => {
     setIsOptimizing(true);
+    setApiError(null);
     
     // 找到要继续优化的版本
     const sourceContent = version.editedContent || version.content;
@@ -97,17 +109,9 @@ export function App() {
     
     setOptimizationVersions(updatedVersions);
 
-    // 模拟优化过程，使用当前的优化模式
-    setTimeout(() => {
-      // 在实际应用中，这里应该根据不同的模式生成不同的优化结果
-      let optimizedContent = '';
-      if (optimizationMode === 'creative') {
-        optimizedContent = `【创意优化】进一步优化：${sourceContent}`;
-      } else if (optimizationMode === 'concise') {
-        optimizedContent = `【简洁优化】进一步优化：${sourceContent}`;
-      } else {
-        optimizedContent = `【标准优化】进一步优化：${sourceContent}`;
-      }
+    try {
+      // 调用API继续优化提示词
+      const optimizedContent = await continueOptimize(sourceContent, optimizationMode);
       
       const finalVersions = [
         ...optimizationVersions.slice(0, sourceIndex + 1),
@@ -123,8 +127,29 @@ export function App() {
       ];
       
       setOptimizationVersions(finalVersions);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : '优化失败，请稍后重试';
+      console.error('继续优化提示词失败:', error);
+      setApiError(errorMessage);
+      
+      // 更新为错误状态
+      const errorVersions = [
+        ...optimizationVersions.slice(0, sourceIndex + 1),
+        {
+          id: newVersionId,
+          content: `优化失败: ${errorMessage}`,
+          isLoading: false,
+          isNew: true,
+          createdAt: Date.now(),
+          parentId: version.id
+        },
+        ...optimizationVersions.slice(sourceIndex + 1)
+      ];
+      
+      setOptimizationVersions(errorVersions);
+    } finally {
       setIsOptimizing(false);
-    }, 2000);
+    }
   };
 
   // 复制提示词
@@ -184,6 +209,12 @@ export function App() {
           />
         )}
       </div>
+      
+      {apiError && (
+        <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-red-600/80 text-white rounded-md text-sm">
+          {apiError}
+        </div>
+      )}
     </div>
   );
 }

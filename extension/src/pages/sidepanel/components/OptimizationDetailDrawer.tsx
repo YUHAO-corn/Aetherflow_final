@@ -111,10 +111,20 @@ export function OptimizationDetailDrawer({
     }
   };
   
+  // 格式化内容换行
+  const formatContent = (content: string) => {
+    return content.split('\n').map((line, i) => (
+      <React.Fragment key={i}>
+        {line}
+        <br />
+      </React.Fragment>
+    ));
+  };
+  
   return (
-    <div className={`fixed inset-y-0 right-0 w-80 bg-gradient-to-br from-magic-800 to-magic-900 border-l border-magic-700/30 shadow-xl z-30 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+    <div className={`fixed inset-y-0 right-0 w-80 bg-gradient-to-br from-magic-800 to-magic-900 border-l border-magic-700/30 shadow-xl z-30 transform transition-transform duration-300 flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
       {/* 抽屉头部 */}
-      <div className="flex items-center justify-between p-4 border-b border-magic-700/30">
+      <div className="flex items-center justify-between p-4 border-b border-magic-700/30 flex-shrink-0">
         <h3 className="text-lg font-semibold text-magic-200 truncate">优化版本详情</h3>
         <button
           onClick={onClose}
@@ -124,8 +134,8 @@ export function OptimizationDetailDrawer({
         </button>
       </div>
       
-      {/* 抽屉内容 */}
-      <div className="p-4">
+      {/* 抽屉内容 - 使用flex-1和overflow-y-auto使内容区域可滚动 */}
+      <div className="flex-1 overflow-y-auto p-4">
         {/* 版本标题 */}
         <h2 className="text-xl font-bold text-magic-200 mb-4">
           版本 v{version.id} {version.isEdited ? '(已编辑)' : ''}
@@ -146,10 +156,10 @@ export function OptimizationDetailDrawer({
             </div>
           ) : (
             <div 
-              className="bg-magic-800/50 border border-magic-700/30 rounded-md p-3 text-magic-200 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800 cursor-text"
+              className="bg-magic-800/50 border border-magic-700/30 rounded-md p-3 text-magic-200 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800 cursor-text whitespace-pre-wrap"
               onDoubleClick={handleDoubleClick}
             >
-              {version.editedContent || version.content}
+              {formatContent(version.editedContent || version.content)}
             </div>
           )}
         </div>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, Wand2, Copy, Star } from 'lucide-react';
+import { Sparkles, Wand2, Copy, Star, AlertTriangle } from 'lucide-react';
 import type { Prompt } from '../../../services/prompt/types';
 import { OptimizationDetailDrawer } from './OptimizationDetailDrawer';
 import { OptimizationModeSelector } from './OptimizationModeSelector';
@@ -74,6 +74,24 @@ export function OptimizeSection({
     setIsDetailOpen(false);
   };
 
+  // 检查版本是否包含错误信息
+  const isErrorVersion = (content: string) => {
+    return content.startsWith('优化失败:');
+  };
+  
+  // 格式化内容预览
+  const formatContentPreview = (content: string, maxLength = 250) => {
+    // 去除多余的换行，显示紧凑一些
+    let formatted = content.replace(/\n{2,}/g, '\n').replace(/\n/g, ' ');
+    
+    // 截断长内容
+    if (formatted.length > maxLength) {
+      formatted = formatted.substring(0, maxLength) + '...';
+    }
+    
+    return formatted;
+  };
+
   return (
     <div className="p-4">
       <div className="mb-4 space-y-2">
@@ -109,98 +127,133 @@ export function OptimizeSection({
       </div>
 
       <div className="space-y-4">
-        {optimizationVersions.map(version => (
-          <div
-            key={version.id}
-            className={`relative p-4 bg-gradient-to-r from-magic-800/50 via-magic-700/30 to-magic-800/50 border border-magic-700/30 rounded-lg group transform hover:-rotate-1 hover:scale-[1.02] transition-all duration-300 ${
-              version.isNew ? 'animate-magic-reveal' : ''
-            } ${version.isLoading ? 'animate-pulse' : ''}`}
-            onClick={() => !version.isLoading && handleOpenDetail(version)}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-magic-500/20 to-magic-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg pointer-events-none" />
-            <div className="flex items-center justify-between mb-3 relative z-10">
-              <span className="text-xs font-medium text-magic-400">
-                优化版本 v{version.id} {version.isEdited ? '(已编辑)' : ''}
-              </span>
-              {!version.isLoading && (
-                <div className="flex items-center space-x-1">
-                  {onSaveToLibrary && (
+        {optimizationVersions.map(version => {
+          const isError = isErrorVersion(version.content);
+          const contentToDisplay = version.editedContent || version.content;
+          
+          return (
+            <div
+              key={version.id}
+              className={`relative p-4 bg-gradient-to-r ${
+                isError 
+                  ? 'from-red-900/30 via-red-800/20 to-red-900/30 border-red-700/30' 
+                  : 'from-magic-800/50 via-magic-700/30 to-magic-800/50 border-magic-700/30'
+              } border rounded-lg group transform hover:-rotate-1 hover:scale-[1.02] transition-all duration-300 ${
+                version.isNew ? 'animate-magic-reveal' : ''
+              } ${version.isLoading ? 'animate-pulse' : ''}`}
+              onClick={() => !version.isLoading && handleOpenDetail(version)}
+            >
+              <div className={`absolute inset-0 bg-gradient-to-r ${
+                isError 
+                  ? 'from-red-500/10 to-red-600/10' 
+                  : 'from-magic-500/20 to-magic-600/20'
+              } opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg pointer-events-none`} />
+              <div className="flex items-center justify-between mb-3 relative z-10">
+                <span className="text-xs font-medium text-magic-400">
+                  优化版本 v{version.id} {version.isEdited ? '(已编辑)' : ''}
+                </span>
+                {!version.isLoading && !isError && (
+                  <div className="flex items-center space-x-1">
+                    {onSaveToLibrary && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleFavorite(version.id, contentToDisplay);
+                        }}
+                        className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
+                        title={favoriteVersions.includes(version.id) ? "已收藏" : "添加到收藏"}
+                      >
+                        <Star 
+                          size={14} 
+                          className={favoriteVersions.includes(version.id) 
+                            ? "text-yellow-400 fill-yellow-400" 
+                            : "text-magic-400"} 
+                        />
+                      </button>
+                    )}
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleToggleFavorite(version.id, version.editedContent || version.content);
+                        onCopy(contentToDisplay);
                       }}
                       className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
-                      title={favoriteVersions.includes(version.id) ? "已收藏" : "添加到收藏"}
+                      title="复制内容"
                     >
-                      <Star 
-                        size={14} 
-                        className={favoriteVersions.includes(version.id) 
-                          ? "text-yellow-400 fill-yellow-400" 
-                          : "text-magic-400"} 
-                      />
+                      <Copy size={14} className="text-magic-400" />
                     </button>
+                  </div>
+                )}
+              </div>
+              {version.isLoading ? (
+                <div className="space-y-2">
+                  <div className="h-4 bg-magic-700/30 rounded animate-pulse" />
+                  <div className="h-4 bg-magic-700/30 rounded animate-pulse w-3/4" />
+                  <div className="h-4 bg-magic-700/30 rounded animate-pulse w-1/2" />
+                </div>
+              ) : (
+                <div className="min-h-[40px] max-h-[100px] overflow-hidden">
+                  {isError ? (
+                    <div className="flex items-center text-red-400 mb-3">
+                      <AlertTriangle className="w-4 h-4 mr-2 flex-shrink-0" />
+                      <p className="text-sm whitespace-normal break-words line-clamp-4">
+                        {version.content}
+                      </p>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-magic-200 mb-3 relative z-10 whitespace-normal break-words line-clamp-4">
+                      {formatContentPreview(contentToDisplay)}
+                    </p>
                   )}
+                </div>
+              )}
+              {!version.isLoading && !isError && (
+                <div className="flex items-center">
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      onCopy(version.editedContent || version.content);
+                      onContinueOptimize(version);
                     }}
-                    className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
-                    title="复制内容"
+                    disabled={isOptimizing}
+                    className="relative w-full px-3 py-1.5 text-sm text-magic-200 bg-magic-700/30 rounded hover:bg-magic-600/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group overflow-hidden flex-1"
                   >
-                    <Copy size={14} className="text-magic-400" />
+                    <span className="flex items-center justify-center space-x-2">
+                      <Wand2
+                        className={`w-4 h-4 ${isOptimizing ? 'animate-spin' : 'group-hover:animate-bounce'}`}
+                      />
+                      <span>{isOptimizing ? '优化中...' : '继续优化'}</span>
+                    </span>
+                    {isOptimizing && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer-fast" />
+                    )}
+                  </button>
+                  <div 
+                    className="ml-2" 
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <OptimizationModeSelector 
+                      selectedMode={optimizationMode}
+                      onSelectMode={setOptimizationMode}
+                      iconOnly={true}
+                    />
+                  </div>
+                </div>
+              )}
+              {!version.isLoading && isError && (
+                <div className="flex items-center justify-end mt-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onStartOptimize();
+                    }}
+                    className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                  >
+                    重试优化
                   </button>
                 </div>
               )}
             </div>
-            {version.isLoading ? (
-              <div className="space-y-2">
-                <div className="h-4 bg-magic-700/30 rounded animate-pulse" />
-                <div className="h-4 bg-magic-700/30 rounded animate-pulse w-3/4" />
-                <div className="h-4 bg-magic-700/30 rounded animate-pulse w-1/2" />
-              </div>
-            ) : (
-              <div className="min-h-[40px] max-h-[100px] overflow-hidden">
-                <p className="text-sm text-magic-200 mb-3 relative z-10 whitespace-normal break-words line-clamp-4">
-                  {version.editedContent || version.content}
-                </p>
-              </div>
-            )}
-            {!version.isLoading && (
-              <div className="flex items-center">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onContinueOptimize(version);
-                  }}
-                  disabled={isOptimizing}
-                  className="relative w-full px-3 py-1.5 text-sm text-magic-200 bg-magic-700/30 rounded hover:bg-magic-600/50 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed group overflow-hidden flex-1"
-                >
-                  <span className="flex items-center justify-center space-x-2">
-                    <Wand2
-                      className={`w-4 h-4 ${isOptimizing ? 'animate-spin' : 'group-hover:animate-bounce'}`}
-                    />
-                    <span>{isOptimizing ? '优化中...' : '继续优化'}</span>
-                  </span>
-                  {isOptimizing && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer-fast" />
-                  )}
-                </button>
-                <div 
-                  className="ml-2" 
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <OptimizationModeSelector 
-                    selectedMode={optimizationMode}
-                    onSelectMode={setOptimizationMode}
-                    iconOnly={true}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* 详情抽屉 */}
