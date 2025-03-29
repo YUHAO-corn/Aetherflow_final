@@ -16,6 +16,14 @@ export type MessageType =
   | 'COPY_TO_CLIPBOARD'
   | 'INJECT_PROMPT'
   | 'CLOSE_PROMPT_SHORTCUT'
+  // 选中文本捕获相关消息类型
+  | 'ADD_CONTEXT_MENU_ITEM'
+  | 'CAPTURE_SELECTION_AS_PROMPT'
+  | 'CAPTURE_SELECTION'
+  | 'SHOW_NOTIFICATION'
+  // 消息通信检测
+  | 'PING'
+  | 'CONTENT_SCRIPT_READY'
   // 旧版兼容消息类型
   | 'LEGACY_SEARCH_PROMPTS';
 
@@ -27,6 +35,8 @@ export interface Message<T = any> {
   type: MessageType;
   // 消息负载
   payload?: T;
+  // 可选的数据字段，主要用于新消息格式
+  data?: any;
   // 请求ID，用于追踪异步请求
   requestId?: string;
 }

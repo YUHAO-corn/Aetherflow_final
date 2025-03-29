@@ -8,6 +8,7 @@ import {
 import { PromptValidator } from './validator';
 import { PromptError, PromptErrorCode } from './errors';
 import { storageService, STORAGE_KEYS, STORAGE_LIMITS } from '../storage';
+import { TitleGenerator, generateTitle } from './title-generator';
 
 /**
  * 生成唯一ID
@@ -496,4 +497,37 @@ export async function deletePrompts(): Promise<boolean> {
     console.error('清空提示词失败:', error);
     throw new PromptError('清空提示词失败', PromptErrorCode.STORAGE_ERROR);
   }
-} 
+}
+
+/**
+ * 智能生成提示词标题
+ * 通过TitleGenerator类分析内容并生成标题
+ * 
+ * @param content 提示词内容
+ * @returns 生成的标题
+ */
+export async function generateTitleForPrompt(content: string): Promise<string> {
+  try {
+    // 使用TitleGenerator生成标题
+    return await generateTitle(content);
+  } catch (error) {
+    console.error('[AetherFlow] 标题生成出错:', error);
+    // 错误处理：简单截断前30个字符作为标题
+    return content.substring(0, 30).trim() + '...' || '未命名提示词';
+  }
+}
+
+// 常见停用词列表
+const stopWords = [
+  // 英文停用词
+  'a', 'an', 'the', 'and', 'or', 'but', 'if', 'because', 'as', 'what', 'which', 'this', 'that', 'these', 'those',
+  'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does', 'did', 'doing',
+  'to', 'from', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there',
+  'when', 'where', 'why', 'how', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such',
+  'no', 'nor', 'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 'can', 'will', 'just', 'should', 'now',
+  
+  // 中文停用词
+  '的', '了', '和', '与', '或', '是', '在', '有', '中', '上', '下', '前', '后', '里', '一个', '一种', '这个', '那个',
+  '会', '不会', '可以', '不可以', '应该', '不应该', '能', '不能', '要', '不要', '将', '把', '被', '使', '使用',
+  '如何', '什么', '哪些', '为什么', '怎么', '怎样', '几个', '多少', '如果', '因为', '所以', '但是', '而且', '以及'
+]; 
