@@ -1,3 +1,8 @@
+/**
+ * @deprecated 此组件已废弃，请使用 src/pages/sidepanel/components/OptimizeSection.tsx 替代
+ * 保留此文件是为了确保项目稳定性，请勿在新代码中引用
+ */
+
 import React, { useState } from 'react';
 import { Wand2, Copy, Sparkles, Bookmark, Heart } from 'lucide-react';
 import { Button } from '../common/Button';

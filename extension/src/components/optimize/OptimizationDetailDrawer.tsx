@@ -1,3 +1,8 @@
+/**
+ * @deprecated 此组件已废弃，请使用 src/pages/sidepanel/components/OptimizationDetailDrawer.tsx 替代
+ * 保留此文件是为了确保项目稳定性，请勿在新代码中引用
+ */
+
 import React, { useState, useEffect } from 'react';
 import { X, Clock, Copy, Edit, Heart, Save } from 'lucide-react';
 import { useAppContext } from '../../hooks/AppContext';

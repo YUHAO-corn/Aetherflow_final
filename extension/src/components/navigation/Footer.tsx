@@ -1,6 +1,11 @@
+/**
+ * @deprecated 此组件已废弃，在src/pages/sidepanel/components/App.tsx中直接实现
+ * 保留此文件是为了确保项目稳定性，请勿在新代码中引用
+ */
+
 import React, { useState } from 'react';
 import { Settings } from 'lucide-react';
-import { SettingsDrawer } from './SettingsDrawer';
+import SettingsDrawer from './SettingsDrawer'; // 确保SettingsDrawer组件路径正确
 
 export function Footer() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);

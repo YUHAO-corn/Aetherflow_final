@@ -1,3 +1,8 @@
+/**
+ * @deprecated 此组件已废弃，请使用 src/pages/sidepanel/components/PromptDetailDrawer.tsx 替代
+ * 保留此文件是为了确保项目稳定性，请勿在新代码中引用
+ */
+
 import React from 'react';
 import { X, Copy, Pencil, Star, Trash2, Clock } from 'lucide-react';
 import { Prompt } from '../../services/prompt/types';

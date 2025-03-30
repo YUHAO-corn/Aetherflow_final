@@ -1,3 +1,8 @@
+/**
+ * @deprecated 此组件已废弃，在src/pages/sidepanel/components/App.tsx中直接实现
+ * 保留此文件是为了确保项目稳定性，请勿在新代码中引用
+ */
+
 import React from 'react';
 
 interface HeaderProps {
