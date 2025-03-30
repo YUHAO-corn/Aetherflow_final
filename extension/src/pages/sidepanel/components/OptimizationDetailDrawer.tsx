@@ -2,25 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { X, Copy, Star, Clock, Edit, Save, Check, AlertCircle } from 'lucide-react';
 import { formatDate } from '../../../utils/formatDate';
 import { usePromptsData } from '../../../hooks/usePromptsData';
-import { generateTitleForPrompt } from '../../../services/prompt/actions';
-
-interface OptimizationVersion {
-  id: number;
-  content: string;
-  isLoading?: boolean;
-  isNew?: boolean;
-  editedContent?: string;
-  isEdited?: boolean;
-  createdAt?: number;
-  parentId?: number;
-}
+import { OptimizationVersion } from '../../../hooks/useOptimize';
 
 interface OptimizationDetailDrawerProps {
   version: OptimizationVersion | undefined;
   isOpen: boolean;
   onClose: () => void;
-  onContinueOptimize: (versionId: number) => void;
+  onContinueOptimize: (version: OptimizationVersion) => void;
   onUpdateVersion?: (versionId: number, updates: Partial<OptimizationVersion>) => void;
+  onCopy?: (content: string) => void;
+  onSaveToLibrary?: (content: string) => void;
 }
 
 export function OptimizationDetailDrawer({ 
@@ -28,7 +19,9 @@ export function OptimizationDetailDrawer({
   isOpen, 
   onClose,
   onContinueOptimize,
-  onUpdateVersion
+  onUpdateVersion,
+  onCopy: externalCopy,
+  onSaveToLibrary
 }: OptimizationDetailDrawerProps) {
   // 本地状态
   const [isEditing, setIsEditing] = useState(false);
@@ -67,14 +60,19 @@ export function OptimizationDetailDrawer({
   
   // 处理复制内容
   const handleCopy = () => {
-    navigator.clipboard.writeText(displayContent)
-      .then(() => {
-        setCopySuccess(true);
-      })
-      .catch(err => {
-        console.error('复制失败:', err);
-        // 也可以在这里显示错误反馈
-      });
+    if (externalCopy) {
+      externalCopy(displayContent);
+    } else {
+      navigator.clipboard.writeText(displayContent)
+        .then(() => {
+          setCopySuccess(true);
+        })
+        .catch(err => {
+          console.error('复制失败:', err);
+          // 也可以在这里显示错误反馈
+        });
+    }
+    setCopySuccess(true);
   };
   
   // 开始编辑
@@ -114,15 +112,18 @@ export function OptimizationDetailDrawer({
       if (!isFavorite) {
         // 添加到收藏夹
         try {
-          // 使用智能标题生成替代简单截取
-          const title = await generateTitleForPrompt(displayContent);
-          
-          await addPrompt({
-            title,
-            content: displayContent,
-            isFavorite: true,
-            favorite: true
-          });
+          if (onSaveToLibrary) {
+            // 使用外部提供的保存函数
+            onSaveToLibrary(displayContent);
+          } else {
+            // 使用本地的添加函数
+            await addPrompt({
+              title: displayContent.length > 30 ? displayContent.substring(0, 30) + '...' : displayContent,
+              content: displayContent,
+              isFavorite: true,
+              favorite: true
+            });
+          }
           setIsFavorite(true);
         } catch (error) {
           console.error('添加到收藏夹失败:', error);
@@ -133,6 +134,13 @@ export function OptimizationDetailDrawer({
         // 注意：实际上我们没有真正从收藏夹中移除，因为这需要更复杂的状态管理
         // 在实际应用中，应调用API删除收藏
       }
+    }
+  };
+  
+  // 处理继续优化
+  const handleContinueOptimize = () => {
+    if (version) {
+      onContinueOptimize(version);
     }
   };
   
@@ -198,59 +206,65 @@ export function OptimizationDetailDrawer({
           {isEditing ? (
             <div className="flex space-x-2">
               <button
-                onClick={handleCancelEdit}
-                className="flex items-center justify-center flex-1 px-4 py-2 bg-magic-700 hover:bg-magic-600 rounded-md text-magic-200 transition-colors"
+                onClick={handleSaveEdit}
+                className="flex-1 flex items-center justify-center px-4 py-2 bg-green-600/80 text-white rounded-md hover:bg-green-500/80 transition-colors"
               >
-                <AlertCircle className="w-4 h-4 mr-2" /> 取消
+                <Save className="w-4 h-4 mr-2" />
+                保存修改
               </button>
               <button
-                onClick={handleSaveEdit}
-                className="flex items-center justify-center flex-1 px-4 py-2 bg-green-600 hover:bg-green-500 rounded-md text-white transition-colors"
+                onClick={handleCancelEdit}
+                className="flex-1 flex items-center justify-center px-4 py-2 bg-magic-700/50 text-magic-200 rounded-md hover:bg-magic-600/50 transition-colors"
               >
-                <Check className="w-4 h-4 mr-2" /> 保存修改
+                <X className="w-4 h-4 mr-2" />
+                取消
               </button>
             </div>
           ) : (
             <>
-              {onUpdateVersion && (
+              <button
+                onClick={handleContinueOptimize}
+                className="flex items-center justify-center px-4 py-2 bg-magic-600 text-white rounded-md hover:bg-magic-500 transition-colors"
+              >
+                基于此版本继续优化
+              </button>
+              
+              <div className="flex space-x-2">
                 <button
                   onClick={handleStartEdit}
-                  className="flex items-center justify-center px-4 py-2 bg-magic-600 hover:bg-magic-500 rounded-md text-white transition-colors"
+                  className="flex-1 flex items-center justify-center px-4 py-2 bg-magic-700/50 text-magic-200 rounded-md hover:bg-magic-600/50 transition-colors"
                 >
-                  <Edit className="w-4 h-4 mr-2" /> 编辑内容
+                  <Edit className="w-4 h-4 mr-2" />
+                  编辑
                 </button>
-              )}
-              
-              <button
-                onClick={handleCopy}
-                className={`flex items-center justify-center px-4 py-2 ${copySuccess ? 'bg-green-600' : 'bg-magic-600 hover:bg-magic-500'} rounded-md text-white transition-colors`}
-              >
-                {copySuccess ? (
-                  <>
-                    <Check className="w-4 h-4 mr-2" /> 已复制
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-4 h-4 mr-2" /> 复制内容
-                  </>
-                )}
-              </button>
-              
-              <button
-                onClick={() => onContinueOptimize(version.id)}
-                className="flex items-center justify-center px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-md text-white transition-colors mt-2"
-              >
-                <Save className="w-4 h-4 mr-2" /> 继续优化此版本
-              </button>
+                <button
+                  onClick={handleCopy}
+                  className="flex-1 flex items-center justify-center px-4 py-2 bg-magic-700/50 text-magic-200 rounded-md hover:bg-magic-600/50 transition-colors relative overflow-hidden"
+                >
+                  {copySuccess ? (
+                    <>
+                      <Check className="w-4 h-4 mr-2 text-green-400" />
+                      <span className="text-green-400">已复制</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-4 h-4 mr-2" />
+                      复制
+                    </>
+                  )}
+                </button>
+              </div>
               
               <button
                 onClick={handleToggleFavorite}
-                className="flex items-center justify-center px-4 py-2 bg-magic-600 hover:bg-magic-500 rounded-md text-white transition-colors mt-2"
+                className={`flex items-center justify-center px-4 py-2 ${
+                  isFavorite
+                    ? 'bg-yellow-600/30 text-yellow-300'
+                    : 'bg-magic-700/50 text-magic-200'
+                } rounded-md hover:bg-magic-600/50 transition-colors`}
               >
-                <Star 
-                  className={`w-4 h-4 mr-2 ${isFavorite ? 'text-yellow-400 fill-yellow-400' : ''}`} 
-                />
-                {isFavorite ? "已收藏" : "添加到收藏夹"}
+                <Star className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-yellow-300' : ''}`} />
+                {isFavorite ? '已收藏' : '添加到收藏'}
               </button>
             </>
           )}

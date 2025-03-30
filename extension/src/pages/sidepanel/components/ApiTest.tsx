@@ -1,31 +1,17 @@
-import React, { useState } from 'react';
-import { optimizePrompt, OptimizationMode } from '../../../services/optimizationService';
+import React from 'react';
+import { useApiTest, OptimizationMode } from '../../../hooks/useApiTest';
 
 export function ApiTest() {
-  const [testInput, setTestInput] = useState('请优化我的提示词：我想让AI写一个故事。');
-  const [testResult, setTestResult] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [mode, setMode] = useState<OptimizationMode>('standard');
-
-  const runTest = async () => {
-    if (!testInput.trim()) return;
-    
-    setIsLoading(true);
-    setError(null);
-    setTestResult('');
-    
-    try {
-      const result = await optimizePrompt(testInput, mode);
-      setTestResult(result);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : '测试失败，请稍后重试';
-      setError(errorMessage);
-      console.error('API测试失败:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const {
+    testInput,
+    setTestInput,
+    testResult,
+    isLoading,
+    error,
+    mode,
+    setMode,
+    runTest
+  } = useApiTest();
 
   return (
     <div className="p-4 bg-magic-800 rounded-lg border border-magic-700/50 mt-4">

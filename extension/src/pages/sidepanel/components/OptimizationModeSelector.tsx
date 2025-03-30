@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { ChevronDown, Sparkles, Lightbulb, Scissors } from 'lucide-react';
-import type { OptimizationMode } from './App';
+import type { OptimizationMode } from '../../../hooks/useOptimize';
 
 interface OptimizationModeOption {
   id: OptimizationMode;

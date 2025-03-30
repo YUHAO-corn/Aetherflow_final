@@ -3,43 +3,36 @@ import { Sparkles, Wand2, Copy, Star, AlertTriangle } from 'lucide-react';
 import type { Prompt } from '../../../services/prompt/types';
 import { OptimizationDetailDrawer } from './OptimizationDetailDrawer';
 import { OptimizationModeSelector } from './OptimizationModeSelector';
-import type { OptimizationMode } from './App';
-
-interface OptimizationVersion {
-  id: number;
-  content: string;
-  isLoading?: boolean;
-  isNew?: boolean;
-  editedContent?: string;
-  isEdited?: boolean;
-  createdAt?: number;
-  parentId?: number;
-}
+import { OptimizationMode, OptimizationVersion } from '../../../hooks/useOptimize';
 
 interface OptimizeSectionProps {
-  optimizeInput: string;
-  setOptimizeInput: (input: string) => void;
+  input: string;
+  onInputChange: (input: string) => void;
   isOptimizing: boolean;
   optimizationVersions: OptimizationVersion[];
   onStartOptimize: () => void;
   onContinueOptimize: (version: OptimizationVersion) => void;
+  onUpdateVersion?: (versionId: number, updates: Partial<OptimizationVersion>) => void;
   onCopy: (content: string) => void;
   onSaveToLibrary?: (content: string) => void;
   optimizationMode: OptimizationMode;
-  setOptimizationMode: (mode: OptimizationMode) => void;
+  onOptimizationModeChange: (mode: OptimizationMode) => void;
+  apiError?: string | null;
 }
 
 export function OptimizeSection({
-  optimizeInput,
-  setOptimizeInput,
+  input,
+  onInputChange,
   isOptimizing,
   optimizationVersions,
   onStartOptimize,
   onContinueOptimize,
+  onUpdateVersion,
   onCopy,
   onSaveToLibrary,
   optimizationMode,
-  setOptimizationMode
+  onOptimizationModeChange,
+  apiError
 }: OptimizeSectionProps) {
   // 详情抽屉状态
   const [selectedVersion, setSelectedVersion] = useState<OptimizationVersion | undefined>(undefined);
@@ -109,15 +102,15 @@ export function OptimizeSection({
     <div className="p-4">
       <div className="mb-4 space-y-2">
         <textarea
-          value={optimizeInput}
-          onChange={e => setOptimizeInput(e.target.value)}
+          value={input}
+          onChange={e => onInputChange(e.target.value)}
           placeholder="请输入需要优化的提示词..."
           className="w-full h-32 p-3 bg-magic-800/30 border border-magic-700/50 rounded-lg text-sm text-magic-200 placeholder-magic-500 focus:outline-none focus:ring-2 focus:ring-magic-500 focus:border-transparent resize-none transition-all duration-300"
         />
         <div className="flex items-center">
           <button
             onClick={onStartOptimize}
-            disabled={!optimizeInput.trim() || isOptimizing}
+            disabled={!input.trim() || isOptimizing}
             className="relative flex-1 mt-2 px-4 py-2 bg-magic-600 text-white rounded-lg text-sm font-medium hover:bg-magic-500 disabled:bg-magic-800/50 disabled:cursor-not-allowed transition-all duration-300 group overflow-hidden"
           >
             <span className="flex items-center justify-center space-x-2">
@@ -133,11 +126,18 @@ export function OptimizeSection({
           <div className="ml-2 mt-2">
             <OptimizationModeSelector 
               selectedMode={optimizationMode}
-              onSelectMode={setOptimizationMode}
+              onSelectMode={onOptimizationModeChange}
             />
           </div>
         </div>
       </div>
+
+      {apiError && (
+        <div className="my-4 p-3 bg-red-900/30 border border-red-700/50 rounded-lg flex items-center">
+          <AlertTriangle size={16} className="text-red-400 mr-2" />
+          <span className="text-red-300 text-sm">{apiError}</span>
+        </div>
+      )}
 
       <div className="space-y-4">
         {optimizationVersions.map(version => {
@@ -253,7 +253,7 @@ export function OptimizeSection({
                   >
                     <OptimizationModeSelector 
                       selectedMode={optimizationMode}
-                      onSelectMode={setOptimizationMode}
+                      onSelectMode={onOptimizationModeChange}
                       iconOnly={true}
                     />
                   </div>
@@ -279,37 +279,17 @@ export function OptimizeSection({
         })}
       </div>
 
-      {/* 详情抽屉 */}
-      <OptimizationDetailDrawer
-        version={selectedVersion}
-        isOpen={isDetailOpen}
-        onClose={handleCloseDetail}
-        onContinueOptimize={(versionId: number) => {
-          handleCloseDetail();
-          const version = optimizationVersions.find(v => v.id === versionId);
-          if (version) {
-            onContinueOptimize(version);
-          }
-        }}
-        onUpdateVersion={(versionId: number, updates: Partial<OptimizationVersion>) => {
-          // 更新当前选中的版本
-          const updatedVersion = optimizationVersions.find(v => v.id === versionId);
-          if (updatedVersion) {
-            // 更新内部状态
-            setSelectedVersion({
-              ...updatedVersion,
-              ...updates
-            });
-            
-            // 更新全局状态
-            const updatedVersions = optimizationVersions.map(v => 
-              v.id === versionId ? { ...v, ...updates } : v
-            );
-            
-            // 这里应该有更新操作，暂时不做处理
-          }
-        }}
-      />
+      {selectedVersion && (
+        <OptimizationDetailDrawer
+          isOpen={isDetailOpen}
+          onClose={handleCloseDetail}
+          version={selectedVersion}
+          onCopy={onCopy}
+          onSaveToLibrary={onSaveToLibrary}
+          onContinueOptimize={onContinueOptimize}
+          onUpdateVersion={onUpdateVersion}
+        />
+      )}
     </div>
   );
 } 

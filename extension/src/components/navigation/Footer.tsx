@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { Settings } from 'lucide-react';
-import SettingsDrawer from './SettingsDrawer'; // 确保SettingsDrawer组件路径正确
+import { SettingsDrawer } from './SettingsDrawer'; // 确保SettingsDrawer组件路径正确
 
 export function Footer() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);

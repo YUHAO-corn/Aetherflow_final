@@ -2,16 +2,9 @@ import { useState, useCallback, useEffect } from 'react';
 import { 
   Prompt, 
   PromptFilter,
-  CreatePromptInput,
-  searchPrompts,
-  incrementPromptUse,
-  getPromptById,
-  deletePrompt,
-  toggleFavorite,
-  createPrompt,
-  getPrompts
+  CreatePromptInput
 } from '../services/prompt';
-import { STORAGE_KEYS } from '../services/storage';
+import { usePromptsData } from './usePromptsData';
 
 export type UpdatePromptInput = Partial<Omit<Prompt, 'id' | 'createdAt'>>; 
 
@@ -21,74 +14,18 @@ export type UpdatePromptInput = Partial<Omit<Prompt, 'id' | 'createdAt'>>;
  * @deprecated 使用usePromptsData替代，该Hook提供更完整的提示词管理功能
  */
 export function usePrompts() {
-  const [loading, setLoading] = useState(false);
-  const [prompts, setPrompts] = useState<Prompt[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  
-  // 加载所有提示词
-  const loadPrompts = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      // 使用存储服务获取提示词
-      const allPrompts = await getPrompts();
-      setPrompts(allPrompts);
-    } catch (err) {
-      console.error('Failed to load prompts:', err);
-      setError(err instanceof Error ? err.message : '加载提示词失败');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-  
-  // 监听存储变更并初始加载
-  useEffect(() => {
-    // 初始加载
-    loadPrompts();
-
-    // 添加存储变更监听
-    const handleStorageChange = (changes: { [key: string]: chrome.storage.StorageChange }) => {
-      // 检查是否有提示词相关的变更
-      const promptKeys = Object.keys(changes).filter(key => key.startsWith('prompt_'));
-      if (promptKeys.length > 0) {
-        console.log('[usePrompts] 检测到提示词数据变更，正在刷新...');
-        loadPrompts();
-      }
-    };
-    
-    if (chrome.storage && chrome.storage.onChanged) {
-      chrome.storage.onChanged.addListener(handleStorageChange);
-      return () => chrome.storage.onChanged.removeListener(handleStorageChange);
-    }
-    
-    return () => {};
-  }, [loadPrompts]);
-  
-  // 搜索提示词
-  const searchPromptsHook = useCallback(async (keyword: string, filter?: Partial<PromptFilter>): Promise<Prompt[]> => {
-    setLoading(true);
-    try {
-      const results = await searchPrompts({
-        searchTerm: keyword,
-        ...(filter || {})
-      });
-      return results;
-    } catch (err) {
-      console.error('Failed to search prompts:', err);
-      return [];
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  // 增加提示词使用次数
-  const incrementPromptUseHook = useCallback(async (id: string): Promise<void> => {
-    try {
-      await incrementPromptUse(id);
-    } catch (err) {
-      console.error('Failed to increment prompt use count:', err);
-    }
-  }, []);
+  // 使用新的usePromptsData来实现所有功能
+  const {
+    prompts,
+    loading,
+    error,
+    searchPrompts: search,
+    addPrompt,
+    updatePrompt,
+    deletePrompt,
+    toggleFavorite,
+    refresh
+  } = usePromptsData();
   
   // 生成唯一ID (UUID v4格式)
   const generateId = useCallback((): string => {
@@ -99,88 +36,30 @@ export function usePrompts() {
     });
   }, []);
   
-  // 添加提示词
-  const addPrompt = useCallback(async (input: CreatePromptInput): Promise<Prompt | null> => {
-    setLoading(true);
-    try {
-      // 直接使用服务层的createPrompt函数
-      const newPrompt = await createPrompt(input);
-      
-      // 刷新提示词列表
-      await loadPrompts();
-      
-      return newPrompt;
-    } catch (err) {
-      console.error('Failed to add prompt:', err);
-      setError('添加提示词失败');
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, [loadPrompts]);
+  // 搜索提示词 - 保持旧API兼容性
+  const searchPromptsHook = useCallback(async (keyword: string, filter?: Partial<PromptFilter>): Promise<Prompt[]> => {
+    // 兼容旧版API格式
+    return search({ 
+      searchTerm: keyword,
+      ...(filter || {})
+    });
+  }, [search]);
   
-  // 更新提示词
-  const updatePrompt = useCallback(async (id: string, input: UpdatePromptInput): Promise<Prompt | null> => {
-    setLoading(true);
+  // 增加提示词使用次数 - 确保与旧版接口兼容
+  const incrementPromptUseHook = useCallback(async (id: string): Promise<void> => {
     try {
-      // 先获取现有提示词
-      const existingPrompt = await getPromptById(id);
-      if (!existingPrompt) {
-        throw new Error(`未找到ID为${id}的提示词`);
+      // 使用updatePrompt来增加使用次数
+      const prompt = prompts.find(p => p.id === id);
+      if (prompt) {
+        await updatePrompt(id, { 
+          useCount: (prompt.useCount || 0) + 1,
+          lastUsed: Date.now()
+        });
       }
-      
-      // 更新提示词
-      const updatedPrompt: Prompt = {
-        ...existingPrompt,
-        ...input,
-        updatedAt: Date.now()
-      };
-      
-      // 手动保存到storage
-      const prompts = await getPrompts() || [];
-      const index = prompts.findIndex(p => p.id === id);
-      
-      if (index >= 0) {
-        prompts[index] = updatedPrompt;
-        await chrome.storage.sync.set({ [STORAGE_KEYS.PROMPTS]: prompts });
-      }
-      
-      return updatedPrompt;
     } catch (err) {
-      console.error('Failed to update prompt:', err);
-      setError('更新提示词失败');
-      return null;
-    } finally {
-      setLoading(false);
+      console.error('Failed to increment prompt use count:', err);
     }
-  }, []);
-  
-  // 删除提示词
-  const deletePromptHook = useCallback(async (id: string): Promise<boolean> => {
-    setLoading(true);
-    try {
-      const success = await deletePrompt(id);
-      return success;
-    } catch (err) {
-      console.error('Failed to delete prompt:', err);
-      setError('删除提示词失败');
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-  
-  // 切换收藏状态
-  const toggleFavoriteHook = useCallback(async (id: string): Promise<boolean> => {
-    try {
-      const success = await toggleFavorite(id);
-      return success;
-    } catch (err) {
-      console.error('Failed to toggle favorite:', err);
-      setError('切换收藏状态失败');
-      return false;
-    }
-  }, []);
+  }, [prompts, updatePrompt]);
 
   return {
     prompts,
@@ -190,10 +69,10 @@ export function usePrompts() {
     incrementPromptUse: incrementPromptUseHook,
     addPrompt,
     updatePrompt,
-    deletePrompt: deletePromptHook,
-    toggleFavorite: toggleFavoriteHook,
+    deletePrompt,
+    toggleFavorite,
     generateId,
-    refreshPrompts: loadPrompts
+    refreshPrompts: refresh
   };
 }
 
