@@ -8,7 +8,7 @@ import {
 import { PromptValidator } from './validator';
 import { PromptError, PromptErrorCode } from './errors';
 import { storageService, STORAGE_KEYS, STORAGE_LIMITS } from '../storage';
-import { TitleGenerator, generateTitle } from './title-generator';
+import { generateTitle } from './doubao-title-generator';
 
 /**
  * 生成唯一ID
@@ -526,20 +526,19 @@ export async function deletePrompts(): Promise<boolean> {
 }
 
 /**
- * 智能生成提示词标题
- * 通过TitleGenerator类分析内容并生成标题
- * 
+ * 为提示词生成标题
  * @param content 提示词内容
  * @returns 生成的标题
  */
 export async function generateTitleForPrompt(content: string): Promise<string> {
   try {
-    // 使用TitleGenerator生成标题
-    return await generateTitle(content);
+    // 使用新的豆包API生成标题
+    const title = await generateTitle(content);
+    return title;
   } catch (error) {
-    console.error('[AetherFlow] 标题生成出错:', error);
-    // 错误处理：简单截断前30个字符作为标题
-    return content.substring(0, 30).trim() + '...' || '未命名提示词';
+    console.error('[PromptService] 标题生成失败:', error);
+    // 错误处理时，返回截断的内容作为标题
+    return content.length > 30 ? content.substring(0, 27) + '...' : content;
   }
 }
 
