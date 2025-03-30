@@ -77,6 +77,23 @@ export function getVersionDisplayContent(version: OptimizationVersion): string {
  * @param maxLength 最大长度
  * @returns 格式化后的预览内容
  */
+export function formatContentPreview(content: string, maxLength = 200): string {
+  // 去除多余换行，使显示更紧凑
+  let formatted = content.replace(/\n{2,}/g, '\n').replace(/\n/g, ' ');
+  
+  // 保留文本的前maxLength个字符，并在末尾添加省略号表示被截断
+  if (formatted.length > maxLength) {
+    return formatted.substring(0, maxLength) + '...';
+  }
+  return formatted;
+}
+
+/**
+ * 格式化内容预览，保留原始格式
+ * @param content 原始内容
+ * @param maxLength 最大长度
+ * @returns 格式化后的预览内容
+ */
 export function formatContentPreview(content: string, maxLength = 400): string {
   // 仅去除多余的空行，保留正常换行
   let formatted = content.replace(/\n{3,}/g, '\n\n');

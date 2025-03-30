@@ -182,10 +182,10 @@ export function LibraryTab() {
     }
   };
   
-  // 格式化内容预览，精简显示
+  // 格式化内容预览，保留原始格式
   const formatContentPreview = (content: string) => {
-    // 去除多余换行，使显示更紧凑
-    return content.replace(/\n{2,}/g, '\n').replace(/\n/g, ' ');
+    // 仅去除多余的空行，保留正常换行
+    return content.replace(/\n{3,}/g, '\n\n');
   };
   
   // 限制卡片标题长度，最多24个字节
@@ -316,7 +316,7 @@ export function LibraryTab() {
                   </div>
                   
                   {/* 提示词内容 */}
-                  <p className="text-xs text-magic-200 mb-3 relative z-10 whitespace-normal break-words line-clamp-6">
+                  <p className="text-xs text-magic-200 mb-3 relative z-10 whitespace-pre-line break-words line-clamp-6">
                     {formatContentPreview(prompt.content)}
                   </p>
                   

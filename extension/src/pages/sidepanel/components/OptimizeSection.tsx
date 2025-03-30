@@ -180,7 +180,7 @@ export function OptimizeSection({
               </div>
               
               {/* 内容预览部分 */}
-              <div className="text-sm text-magic-300 line-clamp-3 mb-4">
+              <div className="text-xs text-magic-300 line-clamp-8 mb-4 whitespace-pre-line">
                 {version.isLoading 
                   ? <div className="h-4 bg-magic-700/50 rounded w-3/4 animate-pulse mb-2"></div>
                   : formatContentPreview(displayContent)

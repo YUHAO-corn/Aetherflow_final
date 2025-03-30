@@ -144,9 +144,9 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
   };
   
   return (
-    <div className={`fixed inset-y-0 right-0 w-80 bg-gradient-to-br from-magic-800 to-magic-900 border-l border-magic-700/30 shadow-xl z-30 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+    <div className={`fixed inset-y-0 right-0 w-80 bg-gradient-to-br from-magic-800 to-magic-900 border-l border-magic-700/30 shadow-xl z-30 transform transition-transform duration-300 flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
       {/* 抽屉头部 */}
-      <div className="flex items-center justify-between p-4 border-b border-magic-700/30">
+      <div className="flex items-center justify-between p-4 border-b border-magic-700/30 flex-shrink-0">
         <h3 className="text-lg font-semibold text-magic-200 truncate">提示词详情</h3>
         <button
           onClick={() => {
@@ -159,8 +159,8 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
         </button>
       </div>
       
-      {/* 抽屉内容 */}
-      <div className="p-4">
+      {/* 抽屉内容 - 使用flex-1和overflow-y-auto使内容区域可滚动 */}
+      <div className="flex-1 overflow-y-auto p-4">
         {/* 标题 */}
         {isTitleEditing ? (
           <div className="mb-4">
@@ -170,14 +170,14 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
               onChange={(e) => setEditTitle(e.target.value)}
               onBlur={handleSaveEdit}
               onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
-              className="w-full bg-magic-800 border border-magic-600 rounded-md p-2 text-xl font-bold text-magic-200 mb-2"
+              className="w-full bg-magic-800 border border-magic-600 rounded-md p-2 text-lg font-bold text-magic-200 mb-2"
               autoFocus
             />
             <div className="text-xs text-magic-400">按回车保存或点击外部保存</div>
           </div>
         ) : (
           <h2 
-            className="text-xl font-bold text-magic-200 mb-4 cursor-text"
+            className="text-lg font-bold text-magic-200 mb-4 cursor-text"
             onDoubleClick={handleStartEditTitle}
             title="双击编辑标题"
           >
@@ -201,7 +201,7 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
             </div>
           ) : (
             <div 
-              className="bg-magic-800/50 border border-magic-700/30 rounded-md p-3 text-magic-200 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800 cursor-text"
+              className="bg-magic-800/50 border border-magic-700/30 rounded-md p-3 text-magic-200 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800 cursor-text whitespace-pre-line"
               onDoubleClick={handleStartEditContent}
               title="双击编辑内容"
             >

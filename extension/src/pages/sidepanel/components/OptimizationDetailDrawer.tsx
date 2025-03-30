@@ -170,7 +170,7 @@ export function OptimizationDetailDrawer({
       {/* 抽屉内容 - 使用flex-1和overflow-y-auto使内容区域可滚动 */}
       <div className="flex-1 overflow-y-auto p-4">
         {/* 版本标题 */}
-        <h2 className="text-xl font-bold text-magic-200 mb-4">
+        <h2 className="text-lg font-bold text-magic-200 mb-4">
           版本 v{version.id} {version.isEdited ? '(已编辑)' : ''}
         </h2>
         
