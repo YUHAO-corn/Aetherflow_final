@@ -1,16 +1,50 @@
 import { addMessageListener, createSuccessResponse, createErrorResponse } from '../services/messaging';
 import { Message } from '../services/messaging/types';
-import { storageService } from '../services/storage';
+import { STORAGE_KEYS, storageService } from '../services/storage';
 import { setupPromptMessaging } from '../services/prompt/messaging';
-import { Prompt, PromptFilter, CreatePromptInput } from '../services/prompt/types';
+import { Prompt, PromptFilter } from '../services/prompt/types';
+import { createPrompt } from '../services/prompt';
 import { initializeSampleData } from './sampleData';
-import { createPrompt } from '../services/prompt/actions';
-import { TitleGenerator } from '../services/prompt/title-generator';
 
 console.log('[AetherFlow] 后台脚本加载成功');
 
 // 初始化提示词消息处理
 setupPromptMessaging();
+
+// 添加专门处理提示词更新消息的处理器
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // 处理提示词更新消息
+  if (message && message.type === 'PROMPT_UPDATED') {
+    console.log('[AetherFlow] 收到提示词更新消息，准备广播给所有标签页');
+    
+    // 获取所有标签页
+    chrome.tabs.query({}, (tabs) => {
+      // 向所有标签页广播更新消息
+      tabs.forEach(tab => {
+        if (tab.id) {
+          try {
+            chrome.tabs.sendMessage(tab.id, { 
+              type: 'PROMPT_UPDATED',
+              from: 'background'
+            }).catch(error => {
+              // 忽略消息发送错误，这通常是因为标签页没有内容脚本
+              console.debug(`无法向标签页 ${tab.id} 发送更新通知:`, error);
+            });
+          } catch (error) {
+            // 忽略错误
+          }
+        }
+      });
+    });
+    
+    // 发送成功响应
+    sendResponse({ success: true });
+    return true;
+  }
+  
+  // 不处理其他消息
+  return false;
+});
 
 // 添加初始化数据的函数
 async function setupInitialData() {
@@ -433,43 +467,26 @@ function setupContextMenu() {
 
 // 将选中文本保存为提示词
 async function captureSelectionAsPrompt(content: string): Promise<boolean> {
-  console.log('[AetherFlow] 开始保存提示词，内容长度:', content?.length || 0);
-  
   try {
+    console.log('[AetherFlow] 处理选中内容，准备保存为提示词，长度:', content.length);
+    
+    // 检查内容是否为空
     if (!content || content.trim().length === 0) {
       console.warn('[AetherFlow] 内容为空，不保存');
       return false;
     }
     
-    // 直接使用TitleGenerator生成标题
-    console.log('[AetherFlow] 开始生成提示词标题...');
-    const title = await TitleGenerator.generate(content);
-    console.log('[AetherFlow] 最终生成的标题:', title);
+    console.log('[AetherFlow] 准备创建新提示词...');
     
-    const now = Date.now();
-    
-    // 创建新提示词 - 使用正确的字段名
-    const newPrompt: Prompt = {
-      id: now.toString(),
-      title,
+    // 使用服务层创建提示词，自动处理标题生成
+    const newPrompt = await createPrompt({
       content,
-      createdAt: now,
-      updatedAt: now,
       isFavorite: true,
       favorite: true, // 兼容旧版
-      useCount: 0,
-      lastUsed: now,
-      source: 'user',
-      isActive: true,
-      active: true, // 兼容旧版
-      tags: []
-    };
+      source: 'user'
+    });
     
-    // 保存到存储
-    console.log('[AetherFlow] 保存新提示词:', newPrompt.id, '标题:', newPrompt.title);
-    const result = await storageService.savePrompt(newPrompt);
-    
-    console.log('[AetherFlow] 提示词保存成功:', result);
+    console.log('[AetherFlow] 提示词保存成功:', newPrompt.id, '标题:', newPrompt.title);
     return true;
   } catch (error) {
     console.error('[AetherFlow] 保存提示词失败:', error);

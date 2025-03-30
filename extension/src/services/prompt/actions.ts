@@ -183,10 +183,21 @@ export async function createPrompt(input: CreatePromptInput): Promise<Prompt> {
   try {
     const now = Date.now();
     
+    // 如果没有提供标题，自动生成标题
+    let title = '';
+    if (input.title !== undefined) {
+      title = input.title.trim();
+    }
+    
+    if (!title) {
+      console.log('[createPrompt] 未提供标题，自动生成标题');
+      title = await generateTitleForPrompt(input.content);
+    }
+    
     // 创建新提示词
     const newPrompt: Prompt = {
       id: generateId(),
-      title: input.title.trim(),
+      title: title,
       content: input.content.trim(),
       isFavorite: input.isFavorite || false,
       createdAt: now,
@@ -207,10 +218,17 @@ export async function createPrompt(input: CreatePromptInput): Promise<Prompt> {
         promptValidation.field);
     }
     
-    // 保存到存储
-    const prompts = await storageService.get<Prompt[]>(STORAGE_KEYS.PROMPTS) || [];
-    prompts.push(newPrompt);
-    await storageService.set(STORAGE_KEYS.PROMPTS, prompts);
+    // 直接使用ChromeStorageService保存单个提示词
+    // 替换原来的array保存方式，解决存储不一致问题
+    await storageService.savePrompt(newPrompt);
+    
+    // 通知提示词更新，触发UI刷新
+    try {
+      chrome.runtime.sendMessage({ type: 'PROMPT_UPDATED' });
+    } catch (notifyError) {
+      console.warn('通知提示词更新失败，这可能会导致UI不同步:', notifyError);
+    }
+    
     return newPrompt;
   } catch (error) {
     if (error instanceof PromptError) {
@@ -237,7 +255,7 @@ export async function updatePrompt(id: string, input: UpdatePromptInput): Promis
     console.log(`开始更新提示词(ID: ${id})，输入数据:`, JSON.stringify(input));
     
     // 获取现有提示词
-    const existingPrompt = await getPromptById(id);
+    const existingPrompt = await storageService.getPrompt(id);
     if (!existingPrompt) {
       console.error(`找不到ID为${id}的提示词`);
       throw PromptError.notFound(id);
@@ -261,17 +279,17 @@ export async function updatePrompt(id: string, input: UpdatePromptInput): Promis
         promptValidation.field);
     }
     
-    // 保存到存储
-    console.log(`准备保存更新后的提示词`);
-    const prompts = await storageService.get<Prompt[]>(STORAGE_KEYS.PROMPTS) || [];
-    const index = prompts.findIndex(p => p.id === id);
+    // 直接使用ChromeStorageService更新提示词
+    // 替换原来的array更新方式，解决存储不一致问题
+    await storageService.updatePrompt(id, input);
     
-    if (index === -1) {
-      throw new PromptError('提示词不存在', PromptErrorCode.ITEM_NOT_FOUND);
+    // 通知提示词更新，触发UI刷新
+    try {
+      chrome.runtime.sendMessage({ type: 'PROMPT_UPDATED' });
+    } catch (notifyError) {
+      console.warn('通知提示词更新失败，这可能会导致UI不同步:', notifyError);
     }
     
-    prompts[index] = updatedPrompt;
-    await storageService.set(STORAGE_KEYS.PROMPTS, prompts);
     console.log(`提示词保存成功，ID: ${id}`);
     
     return updatedPrompt;
@@ -289,14 +307,16 @@ export async function updatePrompt(id: string, input: UpdatePromptInput): Promis
  */
 export async function deletePrompt(id: string): Promise<boolean> {
   try {
-    const prompts = await storageService.get<Prompt[]>(STORAGE_KEYS.PROMPTS) || [];
-    const filteredPrompts = prompts.filter(p => p.id !== id);
+    // 直接使用ChromeStorageService删除提示词
+    await storageService.deletePrompt(id);
     
-    if (filteredPrompts.length === prompts.length) {
-      return false;
+    // 通知提示词更新，触发UI刷新
+    try {
+      chrome.runtime.sendMessage({ type: 'PROMPT_UPDATED' });
+    } catch (notifyError) {
+      console.warn('通知提示词更新失败，这可能会导致UI不同步:', notifyError);
     }
     
-    await storageService.set(STORAGE_KEYS.PROMPTS, filteredPrompts);
     return true;
   } catch (error) {
     console.error(`删除提示词失败(ID:${id}):`, error);
@@ -343,28 +363,34 @@ export async function incrementPromptUse(id: string): Promise<boolean> {
  */
 export async function toggleFavorite(id: string): Promise<boolean> {
   try {
-    const prompts = await storageService.get<Prompt[]>(STORAGE_KEYS.PROMPTS) || [];
-    const index = prompts.findIndex(p => p.id === id);
-    
-    if (index === -1) {
+    // 获取提示词
+    const prompt = await storageService.getPrompt(id);
+    if (!prompt) {
       return false;
     }
     
-    // 处理新旧两种字段名
-    const currentFavorite = prompts[index].isFavorite || prompts[index].favorite || false;
+    // 检查当前收藏状态
+    const currentFavorite = prompt.isFavorite || prompt.favorite || false;
     
     if (currentFavorite) {
-      // 如果已收藏，则删除提示词
-      const newPrompts = prompts.filter(p => p.id !== id);
-      await storageService.set(STORAGE_KEYS.PROMPTS, newPrompts);
+      // 如果已收藏，则取消收藏状态
+      await storageService.updatePrompt(id, { 
+        isFavorite: false,
+        favorite: false
+      });
     } else {
       // 如果未收藏，则标记为收藏
-      prompts[index] = {
-        ...prompts[index],
+      await storageService.updatePrompt(id, { 
         isFavorite: true,
         favorite: true
-      };
-      await storageService.set(STORAGE_KEYS.PROMPTS, prompts);
+      });
+    }
+    
+    // 通知提示词更新，触发UI刷新
+    try {
+      chrome.runtime.sendMessage({ type: 'PROMPT_UPDATED' });
+    } catch (notifyError) {
+      console.warn('通知提示词更新失败，这可能会导致UI不同步:', notifyError);
     }
     
     return true;

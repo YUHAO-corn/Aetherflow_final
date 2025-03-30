@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Prompt } from '../services/prompt';
+import { Prompt, CreatePromptInput, createPrompt } from '../services/prompt';
 import { syncStorage } from '../services/storage';
 import { OptimizationVersion, OptimizeOptions } from '../services/optimize/types';
 
@@ -31,7 +31,7 @@ interface AppContextType {
   
   // 业务操作
   searchPrompts: (keyword: string) => Promise<Prompt[]>;
-  addPrompt: (prompt: Omit<Prompt, 'id'>) => Promise<void>;
+  addPrompt: (promptInput: CreatePromptInput) => Promise<void>;
   updatePrompt: (id: string, updates: Partial<Prompt>) => Promise<void>;
   deletePrompt: (id: string) => Promise<void>;
   toggleFavorite: (id: string) => Promise<void>;
@@ -146,16 +146,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   };
   
-  const addPrompt = async (prompt: Omit<Prompt, 'id'>): Promise<void> => {
+  const addPrompt = async (promptInput: CreatePromptInput): Promise<void> => {
     try {
       setState(prev => ({ ...prev, isLoading: true }));
       
-      const newPrompt: Prompt = {
-        ...prompt,
-        id: generateId(),
-        useCount: 0,
-        lastUsed: Date.now()
-      };
+      // 使用服务层createPrompt函数
+      const newPrompt = await createPrompt(promptInput);
       
       const updatedPrompts = [...state.prompts, newPrompt];
       await syncStorage.set('prompts', updatedPrompts);

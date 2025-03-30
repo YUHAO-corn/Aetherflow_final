@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Heart, HeartOff, Clock, Edit, Save } from 'lucide-react';
-import { OptimizationVersion } from '../../services/optimize/types';
+import { X, Clock, Copy, Edit, Heart, Save } from 'lucide-react';
 import { useAppContext } from '../../hooks/AppContext';
 import { formatDate } from '../../utils/formatDate';
+import { usePrompts } from '../../hooks/usePrompts';
+import { OptimizationVersion } from '../../services/optimize/types';
 
 interface OptimizationDetailDrawerProps {
   version: OptimizationVersion | undefined;
@@ -42,17 +43,14 @@ export function OptimizationDetailDrawer({
   };
   
   // 处理保存到收藏夹
-  const handleSaveToLibrary = () => {
+  const handleSaveToLibrary = async () => {
     const contentToSave = version.editedContent || version.content;
-    addPrompt({
-      title: contentToSave.substring(0, 30) + (contentToSave.length > 30 ? '...' : ''),
+    
+    // 提示词的内容是必需的，标题会在service层自动生成
+    await addPrompt({
       content: contentToSave,
       isFavorite: true,
-      isActive: true,
-      useCount: 0,
-      lastUsed: Date.now(),
-      createdAt: Date.now(),
-      updatedAt: Date.now()
+      source: 'optimize'
     });
   };
   

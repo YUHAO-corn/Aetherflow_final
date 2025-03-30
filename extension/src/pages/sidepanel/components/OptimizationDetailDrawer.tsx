@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Copy, Star, Clock, Edit, Save, Check, AlertCircle } from 'lucide-react';
 import { formatDate } from '../../../utils/formatDate';
 import { usePromptsData } from '../../../hooks/usePromptsData';
+import { generateTitleForPrompt } from '../../../services/prompt/actions';
 
 interface OptimizationVersion {
   id: number;
@@ -113,8 +114,11 @@ export function OptimizationDetailDrawer({
       if (!isFavorite) {
         // 添加到收藏夹
         try {
+          // 使用智能标题生成替代简单截取
+          const title = await generateTitleForPrompt(displayContent);
+          
           await addPrompt({
-            title: displayContent.substring(0, 30) + '...',
+            title,
             content: displayContent,
             isFavorite: true,
             favorite: true

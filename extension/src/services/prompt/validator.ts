@@ -33,22 +33,16 @@ export class PromptValidator {
    */
   static validateCreate(input: CreatePromptInput): ValidationResult {
     // 验证标题
-    if (!input.title || input.title.trim() === '') {
-      return {
-        valid: false,
-        message: '标题不能为空',
-        field: 'title',
-        code: PromptErrorCode.INVALID_TITLE
-      };
-    }
-    
-    if (input.title.length > PROMPT_STORAGE_LIMITS.TITLE_MAX_LENGTH) {
-      return {
-        valid: false,
-        message: `标题不能超过${PROMPT_STORAGE_LIMITS.TITLE_MAX_LENGTH}个字符`,
-        field: 'title',
-        code: PromptErrorCode.INVALID_TITLE
-      };
+    if (input.title !== undefined && input.title.trim() !== '') {
+      // 只有当用户提供了标题时才验证长度
+      if (input.title.length > PROMPT_STORAGE_LIMITS.TITLE_MAX_LENGTH) {
+        return {
+          valid: false,
+          message: `标题不能超过${PROMPT_STORAGE_LIMITS.TITLE_MAX_LENGTH}个字符`,
+          field: 'title',
+          code: PromptErrorCode.INVALID_TITLE
+        };
+      }
     }
     
     // 验证内容
@@ -126,16 +120,8 @@ export class PromptValidator {
   static validateUpdate(input: UpdatePromptInput): ValidationResult {
     // 验证标题
     if (input.title !== undefined) {
-      if (input.title.trim() === '') {
-        return {
-          valid: false,
-          message: '标题不能为空',
-          field: 'title',
-          code: PromptErrorCode.INVALID_TITLE
-        };
-      }
-      
-      if (input.title.length > PROMPT_STORAGE_LIMITS.TITLE_MAX_LENGTH) {
+      // 如果title设置为空字符串，允许通过（会触发自动生成）
+      if (input.title.trim() !== '' && input.title.length > PROMPT_STORAGE_LIMITS.TITLE_MAX_LENGTH) {
         return {
           valid: false,
           message: `标题不能超过${PROMPT_STORAGE_LIMITS.TITLE_MAX_LENGTH}个字符`,
@@ -234,7 +220,7 @@ export class PromptValidator {
     if (!prompt.title || prompt.title.trim() === '') {
       return {
         valid: false,
-        message: '标题不能为空',
+        message: '处理后的标题不能为空',
         field: 'title',
         code: PromptErrorCode.INVALID_TITLE
       };

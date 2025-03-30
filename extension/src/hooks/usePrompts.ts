@@ -2,16 +2,17 @@ import { useState, useCallback, useEffect } from 'react';
 import { 
   Prompt, 
   PromptFilter,
+  CreatePromptInput,
   searchPrompts,
   incrementPromptUse,
   getPrompts,
   getPromptById,
   deletePrompt,
-  toggleFavorite
+  toggleFavorite,
+  createPrompt
 } from '../services/prompt';
 import { STORAGE_KEYS } from '../services/storage';
 
-export type CreatePromptInput = Omit<Prompt, 'id' | 'createdAt' | 'updatedAt' | 'useCount' | 'lastUsed'>;
 export type UpdatePromptInput = Partial<Omit<Prompt, 'id' | 'createdAt'>>; 
 
 /**
@@ -99,23 +100,11 @@ export function usePrompts() {
   const addPrompt = useCallback(async (input: CreatePromptInput): Promise<Prompt | null> => {
     setLoading(true);
     try {
-      // 创建新提示词对象
-      const newPrompt: Prompt = {
-        id: generateId(),
-        ...input,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-        useCount: 0,
-        lastUsed: 0,
-        isFavorite: input.favorite || false,
-        favorite: input.favorite || false
-      };
+      // 直接使用服务层的createPrompt函数
+      const newPrompt = await createPrompt(input);
       
-      // 手动保存到storage
-      const existingPrompts = await getPrompts() || [];
-      const updatedPrompts = [...existingPrompts, newPrompt];
-      
-      await chrome.storage.sync.set({ [STORAGE_KEYS.PROMPTS]: updatedPrompts });
+      // 刷新提示词列表
+      await loadPrompts();
       
       return newPrompt;
     } catch (err) {
@@ -125,7 +114,7 @@ export function usePrompts() {
     } finally {
       setLoading(false);
     }
-  }, [generateId]);
+  }, [loadPrompts]);
   
   // 更新提示词
   const updatePrompt = useCallback(async (id: string, input: UpdatePromptInput): Promise<Prompt | null> => {

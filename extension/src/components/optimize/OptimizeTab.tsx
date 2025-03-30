@@ -46,11 +46,7 @@ export function OptimizeTab({ onLevelUp }: OptimizeTabProps) {
       title: content.substring(0, 30) + (content.length > 30 ? '...' : ''),
       content,
       isFavorite: true,
-      isActive: true,
-      useCount: 0,
-      lastUsed: Date.now(),
-      createdAt: Date.now(),
-      updatedAt: Date.now()
+      source: 'optimize'
     });
   };
 

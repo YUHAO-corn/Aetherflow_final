@@ -6,6 +6,7 @@ import { Navigation } from './Navigation';
 import type { Prompt } from '../../../services/prompt/types';
 import { usePromptsData } from '../../../hooks/usePromptsData';
 import { optimizePrompt, continueOptimize, OptimizationMode as ApiOptimizationMode } from '../../../services/optimizationService';
+import { generateTitleForPrompt } from '../../../services/prompt/actions';
 
 // 优化模式类型
 export type OptimizationMode = ApiOptimizationMode;
@@ -161,9 +162,12 @@ export function App() {
   // 保存到收藏夹
   const handleSaveToLibrary = async (content: string) => {
     try {
+      // 使用智能标题生成替代简单截取
+      const title = await generateTitleForPrompt(content);
+      
       // 实际调用添加提示词到收藏夹的API
       await addPrompt({
-        title: content.length > 30 ? content.substring(0, 30) + '...' : content,
+        title,
         content,
         isFavorite: true,
         favorite: true

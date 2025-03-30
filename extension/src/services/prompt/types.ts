@@ -85,7 +85,7 @@ export interface PromptFilter {
  * 创建提示词的输入参数
  */
 export interface CreatePromptInput {
-  title: string;
+  title?: string;
   content: string;
   isFavorite?: boolean;
   favorite?: boolean;

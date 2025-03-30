@@ -25,6 +25,13 @@ const STOP_WORDS = [
  * 从文本内容中分析并提取或生成合适的标题
  */
 export class TitleGenerator {
+  // 标题最大字节限制（30字节）
+  private static readonly MAX_BYTES = 30;
+  // 预留给省略号的字节数
+  private static readonly ELLIPSIS_BYTES = 3;
+  // 实际可用于标题内容的最大字节数
+  private static readonly EFFECTIVE_BYTES = this.MAX_BYTES - this.ELLIPSIS_BYTES;
+  
   /**
    * 分析内容类型并生成标题
    * @param content 提示词内容
@@ -46,8 +53,9 @@ export class TitleGenerator {
       const contentType = this.detectContentType(text);
       console.log('[TitleGenerator] 检测内容类型:', contentType);
       
-      // 提取关键词
-      const keywords = this.extractKeywords(text);
+      // 提取关键词（增强版，包含权重）
+      const keywordsWithWeight = this.extractKeywordsWithWeight(text);
+      const keywords = keywordsWithWeight.map(k => k.word);
       console.log('[TitleGenerator] 提取关键词 TOP 5:', keywords.slice(0, 5));
       
       // 根据内容类型生成标题
@@ -76,12 +84,21 @@ export class TitleGenerator {
       // 标题长度和格式控制
       title = this.formatTitle(title, text);
       
-      console.log('[TitleGenerator] 生成最终标题:', title);
+      // 确保标题不超过字节限制
+      if (this.calculateByteLength(title) > this.MAX_BYTES) {
+        title = this.smartTruncate(title, this.MAX_BYTES);
+      }
+      
+      console.log('[TitleGenerator] 生成最终标题:', title, '字节数:', this.calculateByteLength(title));
       return title || '未命名提示词';
       
     } catch (error) {
       console.error('[TitleGenerator] 标题生成错误:', error);
-      return text.substring(0, 30).trim() + '...' || '未命名提示词';
+      // 错误处理时也确保返回值不超过字节限制
+      const fallbackTitle = '未命名提示词';
+      return this.calculateByteLength(fallbackTitle) <= this.MAX_BYTES 
+        ? fallbackTitle 
+        : this.smartTruncate(text, this.MAX_BYTES);
     }
   }
   
@@ -122,7 +139,48 @@ export class TitleGenerator {
   }
   
   /**
-   * 提取文本中的关键词
+   * 提取文本中的关键词（增强版，包含权重计算）
+   */
+  private static extractKeywordsWithWeight(text: string): Array<{word: string, weight: number}> {
+    // 分段获取位置加权
+    const paragraphs = text.split('\n\n').filter(p => p.trim().length > 0);
+    const firstPara = paragraphs[0] || '';
+    const lastPara = paragraphs[paragraphs.length-1] || '';
+    
+    // 处理文本
+    const cleanText = text
+      .toLowerCase()
+      .replace(/[^\w\s\u4e00-\u9fa5]/g, ' ');
+    
+    // 拆分为单词
+    const words = cleanText
+      .split(/\s+/)
+      .filter(word => word.length > 2 && !STOP_WORDS.includes(word));
+    
+    // 计算词频
+    const wordFreq: Record<string, number> = {};
+    words.forEach(word => {
+      wordFreq[word] = (wordFreq[word] || 0) + 1;
+    });
+    
+    // 加权计算
+    return Object.entries(wordFreq).map(([word, freq]) => {
+      let weight = freq;
+      
+      // 位置加权
+      if (firstPara.toLowerCase().includes(word)) weight *= 1.5;
+      if (lastPara.toLowerCase().includes(word)) weight *= 1.3;
+      
+      // 特殊词加权
+      if (/\d+/.test(word)) weight *= 1.2; // 数字
+      if (/^[A-Z]/.test(word)) weight *= 1.4; // 专有名词（英文首字母大写）
+      
+      return { word, weight };
+    }).sort((a, b) => b.weight - a.weight);
+  }
+  
+  /**
+   * 提取文本中的关键词（原始版本，保留兼容性）
    */
   private static extractKeywords(text: string): string[] {
     // 处理文本
@@ -153,13 +211,23 @@ export class TitleGenerator {
   private static generateMarkdownTitle(text: string): string {
     const markdownTitleMatch = text.match(/^#+\s+(.+?)(?:\n|$)/);
     if (markdownTitleMatch && markdownTitleMatch[1]) {
-      return markdownTitleMatch[1].trim();
+      const title = markdownTitleMatch[1].trim();
+      // 检查标题字节长度，确保不超过有效字节数
+      if (this.calculateByteLength(title) <= this.EFFECTIVE_BYTES) {
+        return title;
+      }
+      // 如果超出，直接在此处截断
+      return this.smartTruncate(title, this.EFFECTIVE_BYTES);
     }
     
     // 尝试查找文档中的其他标题
     const otherTitleMatch = text.match(/\n#+\s+(.+?)(?:\n|$)/);
     if (otherTitleMatch && otherTitleMatch[1]) {
-      return otherTitleMatch[1].trim();
+      const title = otherTitleMatch[1].trim();
+      if (this.calculateByteLength(title) <= this.EFFECTIVE_BYTES) {
+        return title;
+      }
+      return this.smartTruncate(title, this.EFFECTIVE_BYTES);
     }
     
     return '';
@@ -179,15 +247,36 @@ export class TitleGenerator {
     const constMatch = text.match(/const\s+([a-zA-Z_]\w*)\s*=/);
     
     if (functionMatch && functionMatch[1]) {
-      return `函数实现: ${functionMatch[1]}`;
+      const title = `函数: ${functionMatch[1]}`;
+      if (this.calculateByteLength(title) <= this.EFFECTIVE_BYTES) {
+        return title;
+      }
     } else if (classMatch && classMatch[1]) {
-      return `类定义: ${classMatch[1]}`;
+      const title = `类: ${classMatch[1]}`;
+      if (this.calculateByteLength(title) <= this.EFFECTIVE_BYTES) {
+        return title;
+      }
     } else if (constMatch && constMatch[1]) {
-      return `${foundCodeKeyword}: ${constMatch[1]}`;
+      const title = `${foundCodeKeyword}: ${constMatch[1]}`;
+      if (this.calculateByteLength(title) <= this.EFFECTIVE_BYTES) {
+        return title;
+      }
     }
     
-    // 使用关键词组合
-    return `${foundCodeKeyword}实现: ${keywords.slice(0, 2).join(' ')}`;
+    // 使用关键词组合，但确保字节长度控制
+    let title = `${foundCodeKeyword}`;
+    const separator = /[\u4e00-\u9fa5]/.test(foundCodeKeyword) ? '' : ' ';
+    
+    // 动态添加关键词并检查字节长度
+    for (let i = 0; i < Math.min(keywords.length, 3); i++) {
+      const tempTitle = title + (i === 0 ? ': ' : separator) + keywords[i];
+      if (this.calculateByteLength(tempTitle) > this.EFFECTIVE_BYTES) {
+        break;
+      }
+      title = tempTitle;
+    }
+    
+    return title;
   }
   
   /**
@@ -198,17 +287,38 @@ export class TitleGenerator {
     const questionMatch = text.match(/^.+?[?？]/);
     if (questionMatch) {
       const question = questionMatch[0].trim();
-      if (question.length <= 40) {
+      if (this.calculateByteLength(question) <= this.EFFECTIVE_BYTES) {
         return question;
       }
+      return this.smartTruncate(question, this.EFFECTIVE_BYTES);
     }
     
-    // 构建关于...的问题
+    // 构建关于...的问题，确保不超过字节限制
     const isChinese = /[\u4e00-\u9fa5]/.test(text);
+    let title: string;
+    
     if (isChinese) {
-      return `关于${keywords.slice(0, 3).join('')}的问题`;
+      title = '关于';
+      // 动态添加关键词
+      for (let i = 0; i < Math.min(keywords.length, 5); i++) {
+        const tempTitle = title + keywords[i];
+        if (this.calculateByteLength(tempTitle + '的问题') > this.EFFECTIVE_BYTES) {
+          break;
+        }
+        title = tempTitle;
+      }
+      return title + '的问题';
     } else {
-      return `Question about ${keywords.slice(0, 3).join(' ')}`;
+      title = 'Q:';
+      // 动态添加关键词
+      for (let i = 0; i < Math.min(keywords.length, 5); i++) {
+        const tempTitle = title + (i === 0 ? ' ' : ' ') + keywords[i];
+        if (this.calculateByteLength(tempTitle) > this.EFFECTIVE_BYTES) {
+          break;
+        }
+        title = tempTitle;
+      }
+      return title;
     }
   }
   
@@ -218,16 +328,34 @@ export class TitleGenerator {
   private static generateListTitle(text: string, keywords: string[]): string {
     // 尝试从第一行提取列表标题
     const firstLine = text.split('\n')[0].trim();
-    if (firstLine.length <= 40 && !firstLine.match(/^[*\-+\d]\s+/)) {
+    if (!firstLine.match(/^[*\-+\d]\s+/) && this.calculateByteLength(firstLine) <= this.EFFECTIVE_BYTES) {
       return firstLine;
     }
     
-    // 查找列表项的共同主题
+    // 查找列表项的共同主题，确保不超过字节限制
     const isChinese = /[\u4e00-\u9fa5]/.test(text);
+    let title = '';
+    
     if (isChinese) {
-      return `${keywords.slice(0, 3).join('')}列表`;
+      // 动态添加关键词
+      for (let i = 0; i < Math.min(keywords.length, 5); i++) {
+        const tempTitle = title + keywords[i];
+        if (this.calculateByteLength(tempTitle + '列表') > this.EFFECTIVE_BYTES) {
+          break;
+        }
+        title = tempTitle;
+      }
+      return title + '列表';
     } else {
-      return `${keywords.slice(0, 3).join(' ')} list`;
+      // 动态添加关键词
+      for (let i = 0; i < Math.min(keywords.length, 5); i++) {
+        const tempTitle = title + (i === 0 ? '' : ' ') + keywords[i];
+        if (this.calculateByteLength(tempTitle + ' list') > this.EFFECTIVE_BYTES) {
+          break;
+        }
+        title = tempTitle;
+      }
+      return title + ' list';
     }
   }
   
@@ -237,33 +365,68 @@ export class TitleGenerator {
   private static generateInstructionTitle(text: string, keywords: string[]): string {
     // 提取第一行作为指令
     const firstLine = text.split('\n')[0].trim();
-    if (firstLine.length <= 50) {
+    if (this.calculateByteLength(firstLine) <= this.EFFECTIVE_BYTES) {
       return firstLine;
     }
     
-    // 提取动词
+    // 提取动词，并确保字节长度控制
     const verb = firstLine.match(/^(\w+)/)?.[0] || '创建';
     const isChinese = /[\u4e00-\u9fa5]/.test(text);
+    let title = verb;
     
     if (isChinese) {
-      return `${verb}${keywords.slice(0, 2).join('')}`;
+      // 动态添加关键词
+      for (let i = 0; i < Math.min(keywords.length, 4); i++) {
+        const tempTitle = title + keywords[i];
+        if (this.calculateByteLength(tempTitle) > this.EFFECTIVE_BYTES) {
+          break;
+        }
+        title = tempTitle;
+      }
     } else {
-      return `${verb} ${keywords.slice(0, 2).join(' ')}`;
+      // 动态添加关键词
+      for (let i = 0; i < Math.min(keywords.length, 4); i++) {
+        const tempTitle = title + (i === 0 ? ' ' : ' ') + keywords[i];
+        if (this.calculateByteLength(tempTitle) > this.EFFECTIVE_BYTES) {
+          break;
+        }
+        title = tempTitle;
+      }
     }
+    
+    return title;
   }
   
   /**
    * 生成一般文本标题
    */
   private static generateGeneralTitle(text: string, keywords: string[]): string {
-    // 使用关键词组合作为首选
+    // 使用关键词组合作为首选，但确保不超过字节限制
     if (keywords.length > 0) {
+      let title = '';
+      
       // 中文使用紧凑组合
       if (/[\u4e00-\u9fa5]/.test(text)) {
-        return keywords.slice(0, 3).join('') + '相关内容';
+        // 动态添加关键词
+        for (let i = 0; i < Math.min(keywords.length, 5); i++) {
+          const tempTitle = title + keywords[i];
+          if (this.calculateByteLength(tempTitle + '相关') > this.EFFECTIVE_BYTES) {
+            break;
+          }
+          title = tempTitle;
+        }
+        return title + '相关';
       } else {
         // 英文使用空格分隔
-        return keywords.slice(0, 3).join(' ');
+        // 动态添加关键词
+        for (let i = 0; i < Math.min(keywords.length, 5); i++) {
+          const tempTitle = title + (i === 0 ? '' : ' ') + keywords[i];
+          if (this.calculateByteLength(tempTitle) > this.EFFECTIVE_BYTES) {
+            break;
+          }
+          title = tempTitle;
+        }
+        return title;
       }
     }
     
@@ -276,12 +439,16 @@ export class TitleGenerator {
       const sentenceMatch = firstPara.match(/^.{5,60}?[.!?。！？]/);
       
       if (sentenceMatch) {
-        return sentenceMatch[0].trim();
+        const sentence = sentenceMatch[0].trim();
+        if (this.calculateByteLength(sentence) <= this.EFFECTIVE_BYTES) {
+          return sentence;
+        }
+        return this.smartTruncate(sentence, this.EFFECTIVE_BYTES);
       }
     }
     
-    // 如果都无法提取，使用截断文本
-    return text.substring(0, 30).trim() + '...';
+    // 如果都无法提取，使用更强大的智能截断
+    return this.smartTruncate(text, this.EFFECTIVE_BYTES);
   }
   
   /**
@@ -292,22 +459,93 @@ export class TitleGenerator {
       return '未命名提示词';
     }
     
-    // 标题长度控制
-    if (title.length > 50) {
-      title = title.substring(0, 47) + '...';
-    }
-    
     // 清理特殊字符
     title = title
       .replace(/^[^\w\u4e00-\u9fa5]+|[^\w\u4e00-\u9fa5.!?。！？]+$/g, '')
       .replace(/\s{2,}/g, ' ');
     
-    // 处理空标题
-    if (title.length < 5) {
-      return originalText.substring(0, 30).trim() + '...' || '未命名提示词';
+    // 处理空标题或过短标题
+    if (title.length < 2) {
+      // 使用原文智能截断作为备选
+      const shortTitle = this.smartTruncate(originalText, this.EFFECTIVE_BYTES);
+      return shortTitle || '未命名提示词';
     }
     
     return title;
+  }
+  
+  /**
+   * 计算字符串字节长度（中文2字节，其他1字节）
+   */
+  private static calculateByteLength(str: string): number {
+    if (!str) return 0;
+    
+    let byteLen = 0;
+    for (let i = 0; i < str.length; i++) {
+      // 中文字符范围
+      if (/[\u4e00-\u9fa5]/.test(str[i])) {
+        byteLen += 2;
+      } else {
+        byteLen += 1;
+      }
+    }
+    return byteLen;
+  }
+  
+  /**
+   * 增强的智能截断，确保不超过指定字节数的同时保持可读性
+   */
+  private static smartTruncate(title: string, maxBytes: number = this.MAX_BYTES): string {
+    if (!title) return '未命名';
+    
+    const titleBytes = this.calculateByteLength(title);
+    if (titleBytes <= maxBytes) {
+      return title;
+    }
+    
+    // 计算实际可用字节数（减去省略号的字节数）
+    const effectiveMaxBytes = maxBytes - this.ELLIPSIS_BYTES;
+    
+    let result = '';
+    let currentBytes = 0;
+    let lastBreakPoint = 0;
+    
+    // 按字符依次添加，直到接近字节限制
+    for (let i = 0; i < title.length; i++) {
+      const char = title[i];
+      const charBytes = /[\u4e00-\u9fa5]/.test(char) ? 2 : 1;
+      
+      // 记录可能的断点位置（空格、标点等）
+      if (/[\s,.;，。；、！？!?]/.test(char)) {
+        lastBreakPoint = i;
+      }
+      
+      // 如果添加当前字符会超出限制，中断循环
+      if (currentBytes + charBytes > effectiveMaxBytes) {
+        break;
+      }
+      
+      result += char;
+      currentBytes += charBytes;
+    }
+    
+    // 尝试在单词边界截断（针对英文）
+    if (/[a-zA-Z0-9]$/.test(result) && lastBreakPoint > 0) {
+      // 截断点需要考虑是否离结尾太远（避免截断太多内容）
+      if (result.length - lastBreakPoint <= Math.min(5, result.length / 3)) {
+        result = result.substring(0, lastBreakPoint + 1);
+      }
+    }
+    
+    // 避免以空格结尾
+    result = result.trim();
+    
+    // 针对中文内容，检测是否截断在标点符号后
+    if (/[\u4e00-\u9fa5]/.test(title) && /[,，;；]$/.test(result)) {
+      result = result.substring(0, result.length - 1);
+    }
+    
+    return result + '...';
   }
 }
 

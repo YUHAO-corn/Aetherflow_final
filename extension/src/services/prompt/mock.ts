@@ -63,13 +63,17 @@ export async function getPromptById(id: string): Promise<Prompt | null> {
 export async function createPrompt(input: CreatePromptInput): Promise<Prompt> {
   const newPrompt: Prompt = {
     id: `mock-${Date.now()}`,
-    ...input,
+    title: input.title || `提示词 ${Date.now()}`,
+    content: input.content,
     createdAt: Date.now(),
     updatedAt: Date.now(),
     isFavorite: input.isFavorite || false,
     useCount: 0,
     lastUsed: 0,
-    isActive: true
+    isActive: true,
+    source: input.source,
+    tags: input.tags,
+    category: input.category
   };
   
   mockPrompts.push(newPrompt);

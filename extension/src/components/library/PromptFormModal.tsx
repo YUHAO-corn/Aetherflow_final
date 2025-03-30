@@ -91,12 +91,7 @@ export function PromptFormModal({ isOpen, onClose, prompt }: PromptFormModalProp
           title,
           content,
           isFavorite,
-          tags: [],
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-          useCount: 0,
-          lastUsed: 0,
-          isActive: true
+          tags: []
         });
       }
       

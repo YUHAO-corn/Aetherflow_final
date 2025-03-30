@@ -1,0 +1,22 @@
+[AetherFlow] 处理收藏提示词请求
+background.js:1 [AetherFlow] 选中文本: 该功能通过层级化菜单设计和自然语言关键词联想，将文档编辑效率提升约40%（据网页6用户实测数据）。用...
+background.js:1 [AetherFlow] 处理选中内容，准备保存为提示词，长度: 75
+background.js:1 [AetherFlow] 准备创建新提示词...
+background.js:1 [createPrompt] 未提供标题，自动生成标题
+background.js:1 [TitleGenerator] 开始分析内容, 长度: 75
+background.js:1 [TitleGenerator] 检测内容类型: general
+background.js:1 [TitleGenerator] 提取关键词 TOP 5: Array(4)0: "将文档编辑效率提升约40"1: "据网页6用户实测数据"2: "该功能通过层级化菜单设计和自然语言关键词联想"3: "用户可在飞书官方帮助中心查看完整的快捷键列表及进阶用"length: 4[[Prototype]]: Array(0)
+background.js:1 [TitleGenerator] 生成最终标题: 将文档编辑效率提升约40据网... 字节数: 29
+background.js:1 [createPrompt] 提示词保存成功，发送更新通知
+background.js:1 [PromptMessaging] 发送提示词更新通知PROMPT_UPDATED
+background.js:1 [PromptMessaging] 提示词更新通知发送成功
+background.js:1 [AetherFlow] 提示词保存成功: c7fd667b-38df-49dc-9511-9d74d67a0927 标题: 将文档编辑效率提升约40据网...
+background.js:1 [AetherFlow] 发送提示词更新通知...
+background.js:1 [AetherFlow] 提示词更新通知已发送
+background.js:1 [AetherFlow] 提示词保存结果: true
+background.js:1 [AetherFlow-DEBUG] 尝试发送通知: ID=2042162341, 消息=提示词已成功添加到收藏夹, 类型=success
+background.js:1 [AetherFlow-DEBUG] 发送通知前检查内容脚本: ID=2042162341
+background.js:1 [AetherFlow-DEBUG] 开始检查内容脚本就绪状态: ID=2042162341, 已注册=true
+background.js:1 [AetherFlow-DEBUG] 内容脚本已在注册表中: ID=2042162341
+background.js:1 [AetherFlow-DEBUG] 内容脚本就绪，发送通知消息: ID=2042162341
+sidepanel.js:2 [usePromptsData] 收到消息: PROMPT_UPDATED
