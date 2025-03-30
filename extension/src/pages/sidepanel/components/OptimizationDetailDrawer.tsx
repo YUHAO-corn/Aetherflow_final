@@ -33,6 +33,8 @@ export function OptimizationDetailDrawer({
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState('');
   const [isFavorite, setIsFavorite] = useState(false);
+  // 添加复制反馈状态
+  const [copySuccess, setCopySuccess] = useState(false);
   
   // 获取提示词API
   const { addPrompt } = usePromptsData();
@@ -44,15 +46,34 @@ export function OptimizationDetailDrawer({
     }
   }, [version]);
   
+  // 复制成功后的反馈效果
+  useEffect(() => {
+    if (copySuccess) {
+      const timer = setTimeout(() => {
+        setCopySuccess(false);
+      }, 2000); // 2秒后恢复按钮状态
+      return () => clearTimeout(timer);
+    }
+  }, [copySuccess]);
+  
   if (!isOpen || !version) return null;
+  
+  // 获取显示内容
+  const displayContent = version.editedContent || version.content;
   
   // 创建日期
   const created = version.createdAt ? formatDate(version.createdAt) : '未知时间';
   
   // 处理复制内容
   const handleCopy = () => {
-    const contentToCopy = version.editedContent || version.content;
-    navigator.clipboard.writeText(contentToCopy);
+    navigator.clipboard.writeText(displayContent)
+      .then(() => {
+        setCopySuccess(true);
+      })
+      .catch(err => {
+        console.error('复制失败:', err);
+        // 也可以在这里显示错误反馈
+      });
   };
   
   // 开始编辑
@@ -74,7 +95,7 @@ export function OptimizationDetailDrawer({
   // 取消编辑
   const handleCancelEdit = () => {
     if (version) {
-      setEditContent(version.editedContent || version.content);
+      setEditContent(displayContent);
     }
     setIsEditing(false);
   };
@@ -93,8 +114,8 @@ export function OptimizationDetailDrawer({
         // 添加到收藏夹
         try {
           await addPrompt({
-            title: (version.editedContent || version.content).substring(0, 30) + '...',
-            content: version.editedContent || version.content,
+            title: displayContent.substring(0, 30) + '...',
+            content: displayContent,
             isFavorite: true,
             favorite: true
           });
@@ -109,16 +130,6 @@ export function OptimizationDetailDrawer({
         // 在实际应用中，应调用API删除收藏
       }
     }
-  };
-  
-  // 格式化内容换行
-  const formatContent = (content: string) => {
-    return content.split('\n').map((line, i) => (
-      <React.Fragment key={i}>
-        {line}
-        <br />
-      </React.Fragment>
-    ));
   };
   
   return (
@@ -159,7 +170,7 @@ export function OptimizationDetailDrawer({
               className="bg-magic-800/50 border border-magic-700/30 rounded-md p-3 text-magic-200 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800 cursor-text whitespace-pre-wrap"
               onDoubleClick={handleDoubleClick}
             >
-              {formatContent(version.editedContent || version.content)}
+              {displayContent}
             </div>
           )}
         </div>
@@ -208,9 +219,17 @@ export function OptimizationDetailDrawer({
               
               <button
                 onClick={handleCopy}
-                className="flex items-center justify-center px-4 py-2 bg-magic-600 hover:bg-magic-500 rounded-md text-white transition-colors"
+                className={`flex items-center justify-center px-4 py-2 ${copySuccess ? 'bg-green-600' : 'bg-magic-600 hover:bg-magic-500'} rounded-md text-white transition-colors`}
               >
-                <Copy className="w-4 h-4 mr-2" /> 复制内容
+                {copySuccess ? (
+                  <>
+                    <Check className="w-4 h-4 mr-2" /> 已复制
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4 mr-2" /> 复制内容
+                  </>
+                )}
               </button>
               
               <button
@@ -224,8 +243,10 @@ export function OptimizationDetailDrawer({
                 onClick={handleToggleFavorite}
                 className="flex items-center justify-center px-4 py-2 bg-magic-600 hover:bg-magic-500 rounded-md text-white transition-colors mt-2"
               >
-                <Star className="w-4 h-4 mr-2" />
-                {isFavorite ? "移出收藏夹" : "添加到收藏夹"}
+                <Star 
+                  className={`w-4 h-4 mr-2 ${isFavorite ? 'text-yellow-400 fill-yellow-400' : ''}`} 
+                />
+                {isFavorite ? "已收藏" : "添加到收藏夹"}
               </button>
             </>
           )}

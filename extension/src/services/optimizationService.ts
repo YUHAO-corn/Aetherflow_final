@@ -68,7 +68,8 @@ function getSystemPrompt(mode: OptimizationMode): string {
 }
 
 /**
- * 对模型返回的内容进行后处理
+ * 对模型返回的内容进行标准化处理
+ * 确保在存储前格式就已经统一，使所有地方显示一致
  * @param content 模型返回的原始内容
  */
 function postProcessResponse(content: string): string {
@@ -80,13 +81,29 @@ function postProcessResponse(content: string): string {
   processed = processed.replace(/\*([^*]+)\*/g, '$1');      // 替换*文本*为纯文本
   
   // 3. 替换markdown的标题标记
-  processed = processed.replace(/#+\s+(.+)(\n|$)/g, '$1$2');
+  processed = processed.replace(/^#+\s+(.+)$/gm, '$1');
   
-  // 4. 确保段落之间有适当的换行
+  // 4. 处理列表格式，保持结构但移除markdown标记
+  processed = processed.replace(/^-\s+(.+)$/gm, '• $1');    // 替换"- 项目"为"• 项目"
+  processed = processed.replace(/^\d+\.\s+(.+)$/gm, '$1.'); // 替换"1. 项目"为"项目."
+  
+  // 5. 确保段落间有适当的空行
   processed = processed.replace(/([^\n])\n([^\n])/g, '$1\n\n$2');
   
-  // 5. 移除多余的空行（超过2个连续空行的情况）
+  // 6. 移除多余的空行（超过2个连续空行的情况）
   processed = processed.replace(/\n{3,}/g, '\n\n');
+  
+  // 7. 移除末尾的空行
+  processed = processed.replace(/\n+$/g, '');
+  
+  // 8. 确保开头没有空行
+  processed = processed.replace(/^\n+/, '');
+  
+  // 9. 处理引用块，移除>符号但保持缩进
+  processed = processed.replace(/^>\s+(.+)$/gm, '  $1');
+  
+  // 10. 处理代码块，移除```但保留内容
+  processed = processed.replace(/```[a-z]*\n([\s\S]+?)\n```/g, '$1');
   
   return processed;
 }
@@ -178,7 +195,7 @@ export async function optimizePrompt(
     // 提取优化后的内容
     let optimizedContent = response.data.choices[0].message.content;
     
-    // 对响应内容进行后处理
+    // 对响应内容进行标准化处理
     optimizedContent = postProcessResponse(optimizedContent);
     
     return optimizedContent;
@@ -277,7 +294,7 @@ export async function continueOptimize(
     // 提取优化后的内容
     let optimizedContent = response.data.choices[0].message.content;
     
-    // 对响应内容进行后处理
+    // 对响应内容进行标准化处理
     optimizedContent = postProcessResponse(optimizedContent);
     
     return optimizedContent;

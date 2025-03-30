@@ -79,17 +79,30 @@ export function OptimizeSection({
     return content.startsWith('优化失败:');
   };
   
-  // 格式化内容预览
-  const formatContentPreview = (content: string, maxLength = 250) => {
-    // 去除多余的换行，显示紧凑一些
+  // 获取显示内容，优先使用编辑后的内容
+  const getDisplayContent = (version: OptimizationVersion) => {
+    return version.editedContent || version.content;
+  };
+  
+  // 格式化内容预览，精简显示
+  const formatContentPreview = (content: string, maxLength = 200) => {
+    // 去除多余换行，使显示更紧凑
     let formatted = content.replace(/\n{2,}/g, '\n').replace(/\n/g, ' ');
     
-    // 截断长内容
+    // 保留文本的前maxLength个字符，并在末尾添加省略号表示被截断
     if (formatted.length > maxLength) {
-      formatted = formatted.substring(0, maxLength) + '...';
+      return formatted.substring(0, maxLength) + '...';
     }
-    
     return formatted;
+  };
+  
+  // 限制卡片标题长度，最多24个字节
+  const formatVersionTitle = (id: number, isEdited: boolean = false) => {
+    let title = `优化版本 v${id}`;
+    if (isEdited) {
+      title += ' (已编辑)';
+    }
+    return title.length > 24 ? title.substring(0, 21) + '...' : title;
   };
 
   return (
@@ -129,7 +142,7 @@ export function OptimizeSection({
       <div className="space-y-4">
         {optimizationVersions.map(version => {
           const isError = isErrorVersion(version.content);
-          const contentToDisplay = version.editedContent || version.content;
+          const displayContent = getDisplayContent(version);
           
           return (
             <div
@@ -148,17 +161,21 @@ export function OptimizeSection({
                   ? 'from-red-500/10 to-red-600/10' 
                   : 'from-magic-500/20 to-magic-600/20'
               } opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg pointer-events-none`} />
+              
+              {/* 标题和操作按钮部分 */}
               <div className="flex items-center justify-between mb-3 relative z-10">
                 <span className="text-xs font-medium text-magic-400">
-                  优化版本 v{version.id} {version.isEdited ? '(已编辑)' : ''}
+                  {formatVersionTitle(version.id, version.isEdited)}
                 </span>
+                
+                {/* 操作按钮，默认隐藏，hover时显示 */}
                 {!version.isLoading && !isError && (
-                  <div className="flex items-center space-x-1">
+                  <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     {onSaveToLibrary && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleToggleFavorite(version.id, contentToDisplay);
+                          handleToggleFavorite(version.id, displayContent);
                         }}
                         className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
                         title={favoriteVersions.includes(version.id) ? "已收藏" : "添加到收藏"}
@@ -174,7 +191,7 @@ export function OptimizeSection({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        onCopy(contentToDisplay);
+                        onCopy(displayContent);
                       }}
                       className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
                       title="复制内容"
@@ -184,6 +201,8 @@ export function OptimizeSection({
                   </div>
                 )}
               </div>
+              
+              {/* 内容部分 */}
               {version.isLoading ? (
                 <div className="space-y-2">
                   <div className="h-4 bg-magic-700/30 rounded animate-pulse" />
@@ -191,21 +210,23 @@ export function OptimizeSection({
                   <div className="h-4 bg-magic-700/30 rounded animate-pulse w-1/2" />
                 </div>
               ) : (
-                <div className="min-h-[40px] max-h-[100px] overflow-hidden">
+                <div className="min-h-[40px] overflow-hidden">
                   {isError ? (
                     <div className="flex items-center text-red-400 mb-3">
                       <AlertTriangle className="w-4 h-4 mr-2 flex-shrink-0" />
-                      <p className="text-sm whitespace-normal break-words line-clamp-4">
+                      <p className="text-xs whitespace-normal break-words line-clamp-4">
                         {version.content}
                       </p>
                     </div>
                   ) : (
-                    <p className="text-sm text-magic-200 mb-3 relative z-10 whitespace-normal break-words line-clamp-4">
-                      {formatContentPreview(contentToDisplay)}
+                    <p className="text-xs text-magic-200 mb-3 relative z-10 whitespace-normal break-words line-clamp-6">
+                      {formatContentPreview(displayContent)}
                     </p>
                   )}
                 </div>
               )}
+              
+              {/* 底部操作按钮 */}
               {!version.isLoading && !isError && (
                 <div className="flex items-center">
                   <button
@@ -238,6 +259,8 @@ export function OptimizeSection({
                   </div>
                 </div>
               )}
+              
+              {/* 错误状态下的重试按钮 */}
               {!version.isLoading && isError && (
                 <div className="flex items-center justify-end mt-2">
                   <button

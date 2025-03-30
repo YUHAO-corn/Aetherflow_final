@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Heart, HeartOff, Clock, Star } from 'lucide-react';
+import { X, Copy, Heart, HeartOff, Clock, Star, Check } from 'lucide-react';
 import { Prompt } from '../../../services/prompt/types';
 import { usePromptsData } from '../../../hooks/usePromptsData';
 import { formatDate } from '../../../utils/formatDate';
@@ -19,6 +19,8 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
   const [editContent, setEditContent] = useState('');
   // 添加本地状态以跟踪最新的提示词内容
   const [localPrompt, setLocalPrompt] = useState<Prompt | undefined>(prompt);
+  // 添加复制成功的状态标记
+  const [copySuccess, setCopySuccess] = useState(false);
   
   // 每次打开或提示词更新时，更新编辑状态和本地提示词
   useEffect(() => {
@@ -28,6 +30,16 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
       setLocalPrompt(prompt);
     }
   }, [prompt, isOpen]);
+  
+  // 复制成功后的反馈效果
+  useEffect(() => {
+    if (copySuccess) {
+      const timer = setTimeout(() => {
+        setCopySuccess(false);
+      }, 2000); // 2秒后恢复按钮状态
+      return () => clearTimeout(timer);
+    }
+  }, [copySuccess]);
   
   // 如果没有提示词或抽屉关闭，则不显示任何内容
   if (!isOpen || !localPrompt) return null;
@@ -39,8 +51,15 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
   
   // 处理复制提示词
   const handleCopy = () => {
-    navigator.clipboard.writeText(localPrompt.content);
-    incrementUseCount(localPrompt.id);
+    navigator.clipboard.writeText(localPrompt.content)
+      .then(() => {
+        incrementUseCount(localPrompt.id);
+        setCopySuccess(true);
+      })
+      .catch(err => {
+        console.error('复制失败:', err);
+        // 也可以在这里显示错误反馈
+      });
   };
   
   // 处理删除提示词
@@ -226,9 +245,17 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
           
           <button
             onClick={handleCopy}
-            className="flex items-center justify-center px-4 py-2 bg-magic-600 hover:bg-magic-500 rounded-md text-white transition-colors"
+            className={`flex items-center justify-center px-4 py-2 ${copySuccess ? 'bg-green-600' : 'bg-magic-600 hover:bg-magic-500'} rounded-md text-white transition-colors`}
           >
-            <Copy className="w-4 h-4 mr-2" /> 复制内容
+            {copySuccess ? (
+              <>
+                <Check className="w-4 h-4 mr-2" /> 已复制
+              </>
+            ) : (
+              <>
+                <Copy className="w-4 h-4 mr-2" /> 复制内容
+              </>
+            )}
           </button>
           
           <button

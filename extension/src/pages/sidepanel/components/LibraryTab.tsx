@@ -181,6 +181,17 @@ export function LibraryTab() {
       await toggleFavorite(promptId);
     }
   };
+  
+  // 格式化内容预览，精简显示
+  const formatContentPreview = (content: string) => {
+    // 去除多余换行，使显示更紧凑
+    return content.replace(/\n{2,}/g, '\n').replace(/\n/g, ' ');
+  };
+  
+  // 限制卡片标题长度，最多24个字节
+  const formatTitle = (title: string) => {
+    return title.length > 24 ? title.substring(0, 21) + '...' : title;
+  };
 
   return (
     <div className="p-4">
@@ -269,46 +280,55 @@ export function LibraryTab() {
               <Card
                 key={prompt.id}
                 onClick={() => handleViewDetail(prompt)}
-                actions={
-                  <>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const isFavorited = prompt.isFavorite || prompt.favorite || false;
-                        handleToggleFavorite(prompt.id, isFavorited);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-700/50 rounded-full transition-all duration-300 transform hover:scale-110 mr-1"
-                      title={prompt.isFavorite || prompt.favorite ? "移出收藏夹" : "加入收藏夹"}
-                    >
-                      <Star size={14} className={prompt.isFavorite || prompt.favorite ? "text-yellow-400 fill-yellow-400" : "text-magic-400"} />
-                    </button>
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleCopy(prompt.id, prompt.content);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
-                      title="复制提示词内容"
-                    >
-                      <Copy size={14} className="text-magic-400" />
-                    </button>
-                  </>
-                }
               >
-                <div className="flex justify-between mb-2">
-                  <h3 className="text-sm font-medium text-magic-300 truncate">{prompt.title}</h3>
-                </div>
-                <p className="text-sm text-magic-200 mb-3 relative z-10 line-clamp-3">
-                  {prompt.content}
-                </p>
-                {/* 底部元信息 */}
-                <div className="text-xs text-magic-500 flex justify-between mt-2">
-                  <span>
-                    使用次数: {prompt.useCount || 0}
-                  </span>
-                  <span>
-                    {new Date(prompt.updatedAt).toLocaleDateString()}
-                  </span>
+                {/* 卡片内容 */}
+                <div className="relative">
+                  {/* 标题和操作按钮部分 */}
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-xs font-medium text-magic-300 truncate">
+                      {formatTitle(prompt.title)}
+                    </h3>
+                    
+                    {/* 操作按钮，默认隐藏，hover时显示 */}
+                    <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const isFavorited = prompt.isFavorite || prompt.favorite || false;
+                          handleToggleFavorite(prompt.id, isFavorited);
+                        }}
+                        className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
+                        title={prompt.isFavorite || prompt.favorite ? "移出收藏夹" : "加入收藏夹"}
+                      >
+                        <Star size={14} className={prompt.isFavorite || prompt.favorite ? "text-yellow-400 fill-yellow-400" : "text-magic-400"} />
+                      </button>
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleCopy(prompt.id, prompt.content);
+                        }}
+                        className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
+                        title="复制提示词内容"
+                      >
+                        <Copy size={14} className="text-magic-400" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* 提示词内容 */}
+                  <p className="text-xs text-magic-200 mb-3 relative z-10 whitespace-normal break-words line-clamp-6">
+                    {formatContentPreview(prompt.content)}
+                  </p>
+                  
+                  {/* 底部元信息 */}
+                  <div className="text-xs text-magic-500 flex justify-between mt-2">
+                    <span>
+                      使用次数: {prompt.useCount || 0}
+                    </span>
+                    <span>
+                      {new Date(prompt.updatedAt).toLocaleDateString()}
+                    </span>
+                  </div>
                 </div>
               </Card>
             ))
