@@ -5,11 +5,11 @@ import {
   CreatePromptInput,
   searchPrompts,
   incrementPromptUse,
-  getPrompts,
   getPromptById,
   deletePrompt,
   toggleFavorite,
-  createPrompt
+  createPrompt,
+  getPrompts
 } from '../services/prompt';
 import { STORAGE_KEYS } from '../services/storage';
 
@@ -18,6 +18,7 @@ export type UpdatePromptInput = Partial<Omit<Prompt, 'id' | 'createdAt'>>;
 /**
  * 提示词Hook，用于组件中管理提示词数据
  * 提供提示词的CRUD操作，以及搜索、排序等功能
+ * @deprecated 使用usePromptsData替代，该Hook提供更完整的提示词管理功能
  */
 export function usePrompts() {
   const [loading, setLoading] = useState(false);
@@ -46,16 +47,18 @@ export function usePrompts() {
     loadPrompts();
 
     // 添加存储变更监听
-    const listener = (changes: any) => {
-      if (changes[STORAGE_KEYS.PROMPTS]) {
+    const handleStorageChange = (changes: { [key: string]: chrome.storage.StorageChange }) => {
+      // 检查是否有提示词相关的变更
+      const promptKeys = Object.keys(changes).filter(key => key.startsWith('prompt_'));
+      if (promptKeys.length > 0) {
         console.log('[usePrompts] 检测到提示词数据变更，正在刷新...');
         loadPrompts();
       }
     };
     
     if (chrome.storage && chrome.storage.onChanged) {
-      chrome.storage.onChanged.addListener(listener);
-      return () => chrome.storage.onChanged.removeListener(listener);
+      chrome.storage.onChanged.addListener(handleStorageChange);
+      return () => chrome.storage.onChanged.removeListener(handleStorageChange);
     }
     
     return () => {};
@@ -180,8 +183,8 @@ export function usePrompts() {
   }, []);
 
   return {
-    loading,
     prompts,
+    loading,
     error,
     searchPrompts: searchPromptsHook,
     incrementPromptUse: incrementPromptUseHook,
@@ -189,6 +192,7 @@ export function usePrompts() {
     updatePrompt,
     deletePrompt: deletePromptHook,
     toggleFavorite: toggleFavoriteHook,
+    generateId,
     refreshPrompts: loadPrompts
   };
 }

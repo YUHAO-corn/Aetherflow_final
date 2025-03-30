@@ -1,22 +1,45 @@
-[AetherFlow] 处理收藏提示词请求
-background.js:1 [AetherFlow] 选中文本: 该功能通过层级化菜单设计和自然语言关键词联想，将文档编辑效率提升约40%（据网页6用户实测数据）。用...
-background.js:1 [AetherFlow] 处理选中内容，准备保存为提示词，长度: 75
-background.js:1 [AetherFlow] 准备创建新提示词...
-background.js:1 [createPrompt] 未提供标题，自动生成标题
-background.js:1 [TitleGenerator] 开始分析内容, 长度: 75
-background.js:1 [TitleGenerator] 检测内容类型: general
-background.js:1 [TitleGenerator] 提取关键词 TOP 5: Array(4)0: "将文档编辑效率提升约40"1: "据网页6用户实测数据"2: "该功能通过层级化菜单设计和自然语言关键词联想"3: "用户可在飞书官方帮助中心查看完整的快捷键列表及进阶用"length: 4[[Prototype]]: Array(0)
-background.js:1 [TitleGenerator] 生成最终标题: 将文档编辑效率提升约40据网... 字节数: 29
-background.js:1 [createPrompt] 提示词保存成功，发送更新通知
-background.js:1 [PromptMessaging] 发送提示词更新通知PROMPT_UPDATED
-background.js:1 [PromptMessaging] 提示词更新通知发送成功
-background.js:1 [AetherFlow] 提示词保存成功: c7fd667b-38df-49dc-9511-9d74d67a0927 标题: 将文档编辑效率提升约40据网...
-background.js:1 [AetherFlow] 发送提示词更新通知...
-background.js:1 [AetherFlow] 提示词更新通知已发送
-background.js:1 [AetherFlow] 提示词保存结果: true
-background.js:1 [AetherFlow-DEBUG] 尝试发送通知: ID=2042162341, 消息=提示词已成功添加到收藏夹, 类型=success
-background.js:1 [AetherFlow-DEBUG] 发送通知前检查内容脚本: ID=2042162341
-background.js:1 [AetherFlow-DEBUG] 开始检查内容脚本就绪状态: ID=2042162341, 已注册=true
-background.js:1 [AetherFlow-DEBUG] 内容脚本已在注册表中: ID=2042162341
-background.js:1 [AetherFlow-DEBUG] 内容脚本就绪，发送通知消息: ID=2042162341
-sidepanel.js:2 [usePromptsData] 收到消息: PROMPT_UPDATED
+我需要一份基于循证医学的健康管理综合指南，包含以下维度的详细建议：
+
+身体健康管理
+
+• 营养科学：提供符合最新膳食指南的均衡饮食方案，包括宏量营养素配比和微量营养素摄入建议
+
+• 运动医学：制定适合不同年龄段的运动处方，包含有氧运动、力量训练和柔韧性练习的具体参数
+
+• 预防医学：列出关键筛查项目的时间表和疫苗接种建议
+
+• 慢性病管理：针对常见慢性病提供科学的自我管理策略
+
+心理健康维护
+
+• 压力管理：介绍基于认知行为疗法的实用减压技巧
+
+• 睡眠卫生：提供改善睡眠质量的科学方法
+
+• 情绪调节：包含正念冥想和情绪日记等干预措施
+
+• 社交健康：强调社会支持系统的重要性及建立方法
+
+生活方式优化
+
+• 时间生物学：根据昼夜节律设计每日活动安排
+
+• 环境健康：包括室内空气质量、光照和噪音控制建议
+
+• 数字健康：制定合理的屏幕时间管理方案
+
+• 行为改变：应用阶段性改变理论帮助建立健康习惯
+
+要求：
+
+所有建议必须标注权威参考文献来源（如WHO指南、临床实践指南等）.
+
+提供可量化的具体指标（如每日步数、睡眠时长等）.
+
+包含简易自我评估工具和进度追踪方法.
+
+使用清晰的分级建议（基础版/进阶版）.
+
+采用表格形式呈现关键数据，便于快速查阅.
+
+输出格式应为结构化的技术文档风格，使用专业但易懂的医学表述，每个章节保持相对独立的完整性。

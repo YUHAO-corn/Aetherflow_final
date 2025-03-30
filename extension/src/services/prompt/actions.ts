@@ -28,7 +28,8 @@ function generateId(): string {
  */
 export async function getPrompts(filter?: PromptFilter): Promise<Prompt[]> {
   try {
-    const prompts = await storageService.get<Prompt[]>(STORAGE_KEYS.PROMPTS) || [];
+    // 使用新版存储服务的getAllPrompts方法
+    const prompts = await storageService.getAllPrompts();
     return prompts;
   } catch (error) {
     console.error('获取提示词失败:', error);
@@ -41,8 +42,9 @@ export async function getPrompts(filter?: PromptFilter): Promise<Prompt[]> {
  */
 export async function getPromptById(id: string): Promise<Prompt | null> {
   try {
-    const prompts = await storageService.get<Prompt[]>(STORAGE_KEYS.PROMPTS) || [];
-    return prompts.find(p => p.id === id) || null;
+    // 使用新版存储服务的getPrompt方法
+    const prompt = await storageService.getPrompt(id);
+    return prompt;
   } catch (error) {
     console.error(`获取提示词(ID:${id})失败:`, error);
     throw new PromptError('获取提示词失败', PromptErrorCode.STORAGE_ERROR);
@@ -440,18 +442,21 @@ export async function addOptimizationHistory(promptId: string, content: string):
  */
 export async function importPrompts(prompts: Prompt[]): Promise<number> {
   try {
-    const existingPrompts = await storageService.get<Prompt[]>(STORAGE_KEYS.PROMPTS) || [];
-    
-    // 合并提示词，避免ID冲突
+    // 检查现有提示词ID，避免冲突
+    const existingPrompts = await storageService.getAllPrompts();
     const existingIds = existingPrompts.map(p => p.id);
+    
+    // 过滤掉已存在的提示词
     const newPrompts = prompts.filter(p => !existingIds.includes(p.id));
     
     if (newPrompts.length === 0) {
       return 0;
     }
     
-    const updatedPrompts = [...existingPrompts, ...newPrompts];
-    await storageService.set(STORAGE_KEYS.PROMPTS, updatedPrompts);
+    // 使用新存储方式保存每个提示词
+    await Promise.all(newPrompts.map(prompt => 
+      storageService.savePrompt(prompt)
+    ));
     
     return newPrompts.length;
   } catch (error) {
@@ -465,12 +470,16 @@ export async function importPrompts(prompts: Prompt[]): Promise<number> {
  */
 export async function exportPrompts(ids?: string[]): Promise<Prompt[]> {
   try {
-    const prompts = await storageService.get<Prompt[]>(STORAGE_KEYS.PROMPTS) || [];
+    // 使用storageService.getAllPrompts()代替直接访问存储
+    // 这能确保获取到所有正确的提示词，包括单独存储的条目
+    const prompts = await storageService.getAllPrompts();
     
+    // 如果提供了ID列表，则只导出指定ID的提示词
     if (ids && ids.length > 0) {
       return prompts.filter(p => ids.includes(p.id));
     }
     
+    // 返回所有提示词
     return prompts;
   } catch (error) {
     console.error('导出提示词失败:', error);
@@ -483,7 +492,8 @@ export async function exportPrompts(ids?: string[]): Promise<Prompt[]> {
  */
 export async function getStorageUsage(): Promise<{ used: number, total: number, percentage: number, count: number }> {
   try {
-    const prompts = await storageService.get<Prompt[]>(STORAGE_KEYS.PROMPTS) || [];
+    // 使用新版存储服务获取所有提示词
+    const prompts = await storageService.getAllPrompts();
     
     // 计算存储使用情况
     const promptsString = JSON.stringify(prompts);
@@ -517,7 +527,14 @@ export async function getStorageUsage(): Promise<{ used: number, total: number, 
  */
 export async function deletePrompts(): Promise<boolean> {
   try {
-    await storageService.set(STORAGE_KEYS.PROMPTS, []);
+    // 获取所有提示词
+    const prompts = await storageService.getAllPrompts();
+    
+    // 使用软删除方式逐个删除
+    await Promise.all(prompts.map(prompt => 
+      storageService.deletePrompt(prompt.id)
+    ));
+    
     return true;
   } catch (error) {
     console.error('清空提示词失败:', error);

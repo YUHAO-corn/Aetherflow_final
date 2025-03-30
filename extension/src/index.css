@@ -144,3 +144,74 @@
 .fade-in {
   animation: fadeIn 150ms ease-out;
 }
+
+/* Markdown内容样式 */
+.markdown-content {
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.markdown-content h1, 
+.markdown-content h2, 
+.markdown-content h3 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  color: var(--text-magic-100, #f0f0ff);
+}
+
+.markdown-content h1 {
+  font-size: 1.5em;
+}
+
+.markdown-content h2 {
+  font-size: 1.3em;
+}
+
+.markdown-content h3 {
+  font-size: 1.1em;
+}
+
+.markdown-content ul, 
+.markdown-content ol {
+  padding-left: 1.5em;
+  margin: 0.5em 0;
+}
+
+.markdown-content li {
+  margin: 0.25em 0;
+}
+
+.markdown-content p {
+  margin: 0.75em 0;
+}
+
+.markdown-content code {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.markdown-content blockquote {
+  border-left: 3px solid var(--border-magic-600, #4b3f7a);
+  padding-left: 1em;
+  margin-left: 0;
+  color: var(--text-magic-300, #c8c7e9);
+}
+
+.markdown-content table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+}
+
+.markdown-content table th,
+.markdown-content table td {
+  border: 1px solid var(--border-magic-700, #2d2755);
+  padding: 0.5em;
+}
+
+.markdown-content table th {
+  background: var(--bg-magic-700, #221e3d);
+}

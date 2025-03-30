@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Settings } from 'lucide-react';
 import { OptimizeSection } from './OptimizeSection';
 import { LibraryTab } from './LibraryTab';
 import { Navigation } from './Navigation';
+import { SettingsDrawer } from '../../../components/navigation/SettingsDrawer';
 import type { Prompt } from '../../../services/prompt/types';
 import { usePromptsData } from '../../../hooks/usePromptsData';
 import { optimizePrompt, continueOptimize, OptimizationMode as ApiOptimizationMode } from '../../../services/optimizationService';
@@ -30,6 +31,7 @@ export function App() {
   const [optimizationVersions, setOptimizationVersions] = useState<OptimizationVersion[]>([]);
   const [optimizationMode, setOptimizationMode] = useState<OptimizationMode>('standard');
   const [apiError, setApiError] = useState<string | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   // 获取提示词库数据
   const { addPrompt, incrementUseCount } = usePromptsData();
@@ -213,6 +215,23 @@ export function App() {
           />
         )}
       </div>
+      
+      {/* 设置按钮 */}
+      <div className="px-4 py-2 border-t border-magic-700/30 bg-magic-800/50 backdrop-blur-sm">
+        <button 
+          className="flex items-center space-x-2 text-sm text-magic-400 hover:bg-magic-700/30 hover:text-magic-300 transition-colors duration-300 p-1 rounded"
+          onClick={() => setIsSettingsOpen(true)}
+        >
+          <Settings size={14} />
+          <span>设置</span>
+        </button>
+      </div>
+
+      {/* 设置抽屉组件 */}
+      <SettingsDrawer 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
       
       {apiError && (
         <div className="fixed bottom-4 left-1/2 transform -translate-x-1/2 px-4 py-2 bg-red-600/80 text-white rounded-md text-sm">

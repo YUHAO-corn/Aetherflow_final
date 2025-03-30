@@ -21,9 +21,10 @@ function getSystemPrompt(mode: OptimizationMode): string {
 输出要求:
 1. 直接返回优化后的内容，不要加任何解释、前言或"优化后的提示词："等引导语
 2. 使用清晰的段落结构和适当的换行，确保良好的阅读体验
-3. 不要使用星号(*)或其他特殊符号来标记重点，使用自然语言表达
-4. 返回内容格式应该是直接可用的提示词，而不是markdown或其他需要渲染的格式
-5. 如果原文有明显的格式结构，保留或优化这种结构，使用适当的空行和缩进`;
+3. 可以使用Markdown格式（如*斜体*、**加粗**、# 标题等）来增强内容结构和可读性
+4. 为列表内容使用适当的Markdown列表格式（- 或1. 等）
+5. 如果原文有明显的格式结构，保留或优化这种结构
+6. 对重要内容可以使用加粗或其他强调方式突出显示`;
   
   switch (mode) {
     case 'standard':
@@ -76,34 +77,14 @@ function postProcessResponse(content: string): string {
   // 1. 移除"优化后的提示词："等引导语
   let processed = content.replace(/^(优化后的提示词[:：]|以下是优化后的提示词[:：]|优化结果[:：]|以下是[^:：]*优化[^:：]*[:：])/i, '').trim();
   
-  // 2. 检测并替换使用星号标记的内容
-  processed = processed.replace(/\*\*([^*]+)\*\*/g, '$1');  // 替换**文本**为纯文本
-  processed = processed.replace(/\*([^*]+)\*/g, '$1');      // 替换*文本*为纯文本
-  
-  // 3. 替换markdown的标题标记
-  processed = processed.replace(/^#+\s+(.+)$/gm, '$1');
-  
-  // 4. 处理列表格式，保持结构但移除markdown标记
-  processed = processed.replace(/^-\s+(.+)$/gm, '• $1');    // 替换"- 项目"为"• 项目"
-  processed = processed.replace(/^\d+\.\s+(.+)$/gm, '$1.'); // 替换"1. 项目"为"项目."
-  
-  // 5. 确保段落间有适当的空行
-  processed = processed.replace(/([^\n])\n([^\n])/g, '$1\n\n$2');
-  
-  // 6. 移除多余的空行（超过2个连续空行的情况）
+  // 2. 处理过多的空行（超过2个连续空行的情况）
   processed = processed.replace(/\n{3,}/g, '\n\n');
   
-  // 7. 移除末尾的空行
+  // 3. 移除末尾的空行
   processed = processed.replace(/\n+$/g, '');
   
-  // 8. 确保开头没有空行
+  // 4. 确保开头没有空行
   processed = processed.replace(/^\n+/, '');
-  
-  // 9. 处理引用块，移除>符号但保持缩进
-  processed = processed.replace(/^>\s+(.+)$/gm, '  $1');
-  
-  // 10. 处理代码块，移除```但保留内容
-  processed = processed.replace(/```[a-z]*\n([\s\S]+?)\n```/g, '$1');
   
   return processed;
 }

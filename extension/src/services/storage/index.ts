@@ -2,6 +2,7 @@ import { StorageArea, StorageService } from './types';
 import { STORAGE_KEYS, STORAGE_LIMITS } from './constants';
 import { chromeStorageService } from './chromeStorage';
 import { mockStorageService } from './mockStorage';
+import { Prompt } from '../prompt/types';
 
 // 存储操作的最大重试次数
 const MAX_RETRY_COUNT = 3;
@@ -133,3 +134,60 @@ export * from './constants';
 
 // 导出具体存储服务，用于特殊场景
 export { chromeStorageService, mockStorageService };
+
+/**
+ * 数据迁移函数 - 将旧格式的提示词数组转换为新格式的单独存储
+ * 这个函数会检查是否存在旧格式数据，如果存在则迁移到新格式
+ */
+export async function migratePromptsData(): Promise<{migrated: boolean, count: number}> {
+  try {
+    // 检查是否存在旧格式数据
+    const oldPrompts = await storageService.get<Prompt[]>(STORAGE_KEYS.PROMPTS);
+    
+    // 如果没有旧数据或数组为空，则返回
+    if (!oldPrompts || oldPrompts.length === 0) {
+      console.log('[Storage] 未发现旧格式数据，无需迁移');
+      return { migrated: false, count: 0 };
+    }
+    
+    console.log(`[Storage] 发现${oldPrompts.length}条旧格式提示词数据，开始迁移`);
+    
+    // 迁移每个提示词到新格式
+    let migratedCount = 0;
+    
+    for (const prompt of oldPrompts) {
+      if (!prompt.id) continue; // 跳过没有ID的提示词
+      
+      // 使用新格式保存
+      const key = `prompt_${prompt.id}`;
+      
+      // 确保所有必要字段存在
+      const now = Date.now();
+      const completePrompt: Prompt = {
+        ...prompt,
+        createdAt: prompt.createdAt || now,
+        updatedAt: prompt.updatedAt || now,
+        useCount: prompt.useCount || 0,
+        isFavorite: Boolean(prompt.isFavorite || prompt.favorite),
+        favorite: Boolean(prompt.isFavorite || prompt.favorite),
+        lastUsed: prompt.lastUsed || 0,
+        isActive: prompt.isActive !== false
+      };
+      
+      // 使用Chrome Storage API直接保存，避免循环调用
+      await chrome.storage.local.set({ [key]: completePrompt });
+      migratedCount++;
+    }
+    
+    // 迁移完成后，清空旧数据
+    if (migratedCount > 0) {
+      await storageService.remove(STORAGE_KEYS.PROMPTS);
+      console.log(`[Storage] 成功迁移${migratedCount}条提示词数据到新格式`);
+    }
+    
+    return { migrated: true, count: migratedCount };
+  } catch (error) {
+    console.error('[Storage] 数据迁移失败:', error);
+    return { migrated: false, count: 0 };
+  }
+}

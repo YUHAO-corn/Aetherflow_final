@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { X, Clock, Copy, Edit, Heart, Save } from 'lucide-react';
 import { useAppContext } from '../../hooks/AppContext';
 import { formatDate } from '../../utils/formatDate';
-import { usePrompts } from '../../hooks/usePrompts';
+import { usePromptsData } from '../../hooks/usePromptsData';
 import { OptimizationVersion } from '../../services/optimize/types';
+import { MarkdownContent } from '../common/MarkdownContent';
 
 interface OptimizationDetailDrawerProps {
   version: OptimizationVersion | undefined;
@@ -18,7 +19,8 @@ export function OptimizationDetailDrawer({
   onClose,
   onContinueOptimize
 }: OptimizationDetailDrawerProps) {
-  const { addPrompt, state, updateOptimizationVersion } = useAppContext();
+  const { state, updateOptimizationVersion } = useAppContext();
+  const { addPrompt } = usePromptsData();
   
   // 本地状态
   const [isEditing, setIsEditing] = useState(false);
@@ -48,6 +50,7 @@ export function OptimizationDetailDrawer({
     
     // 提示词的内容是必需的，标题会在service层自动生成
     await addPrompt({
+      title: `优化版本 ${version.id}`,
       content: contentToSave,
       isFavorite: true,
       source: 'optimize'
@@ -128,7 +131,7 @@ export function OptimizationDetailDrawer({
             <div 
               className="bg-magic-800/50 border border-magic-700/30 rounded-md p-3 text-magic-200 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800 cursor-text"
             >
-              {version.editedContent || version.content}
+              <MarkdownContent content={version.editedContent || version.content} />
             </div>
           )}
         </div>

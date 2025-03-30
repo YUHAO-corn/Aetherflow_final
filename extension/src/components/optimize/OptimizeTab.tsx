@@ -3,6 +3,7 @@ import { Wand2, Copy, Sparkles, Bookmark, Heart } from 'lucide-react';
 import { Button } from '../common/Button';
 import { Card } from '../common/Card';
 import { MagicParticles } from '../common/MagicParticles';
+import { MarkdownContent } from '../common/MarkdownContent';
 import { useAppContext } from '../../hooks/AppContext';
 import { OptimizationDetailDrawer } from './OptimizationDetailDrawer';
 import { OptimizationModeSelector } from './OptimizationModeSelector';
@@ -136,11 +137,14 @@ export function OptimizeTab({ onLevelUp }: OptimizeTabProps) {
                 <div className="h-4 bg-magic-700/30 rounded animate-pulse w-1/2" />
               </div>
             ) : (
-              <p className="text-sm text-magic-200 mb-3 relative z-10">
-                {(version.editedContent || version.content).length > 150
-                  ? (version.editedContent || version.content).substring(0, 150) + '...'
-                  : (version.editedContent || version.content)}
-              </p>
+              <div className="text-sm text-magic-200 mb-3 relative z-10">
+                <MarkdownContent 
+                  content={(version.editedContent || version.content).length > 150
+                    ? (version.editedContent || version.content).substring(0, 150) + '...'
+                    : (version.editedContent || version.content)}
+                  className="text-sm"
+                />
+              </div>
             )}
             {!version.isLoading && (
               <div className="flex items-center">

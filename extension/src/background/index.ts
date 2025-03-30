@@ -5,6 +5,8 @@ import { setupPromptMessaging } from '../services/prompt/messaging';
 import { Prompt, PromptFilter } from '../services/prompt/types';
 import { createPrompt } from '../services/prompt';
 import { initializeSampleData } from './sampleData';
+import { initPromptMessaging } from '../services/prompt/messaging';
+import { migratePromptsData } from '../services/storage';
 
 console.log('[AetherFlow] 后台脚本加载成功');
 
@@ -46,7 +48,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return false;
 });
 
-// 添加初始化数据的函数
+/**
+ * 设置初始示例数据
+ */
 async function setupInitialData() {
   try {
     // 检查是否已有数据
@@ -55,7 +59,8 @@ async function setupInitialData() {
     // 如果没有数据，初始化示例数据
     if (existingPrompts.length === 0) {
       console.log('[AetherFlow] 后台: 初始化示例提示词数据');
-      await initializeSampleData();
+      const result = await initializeSampleData();
+      console.log('示例数据初始化结果:', result);
     } else {
       console.log('[AetherFlow] 后台: 已存在提示词数据, 共', existingPrompts.length, '条');
     }
@@ -382,17 +387,33 @@ chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error
 });
 
 // 处理扩展安装或更新事件
-chrome.runtime.onInstalled.addListener((details) => {
+chrome.runtime.onInstalled.addListener(async (details) => {
+  console.log('扩展已安装/更新:', details.reason);
+  
+  // 执行数据迁移
+  try {
+    console.log('开始执行数据迁移...');
+    const result = await migratePromptsData();
+    if (result.migrated) {
+      console.log(`数据迁移成功，共迁移${result.count}条提示词`);
+    } else {
+      console.log('无需进行数据迁移');
+    }
+  } catch (error) {
+    console.error('数据迁移失败:', error);
+  }
+  
+  // 根据安装原因执行不同操作
   if (details.reason === 'install') {
     // 新安装时，初始化示例数据
-    setupInitialData().then(() => {
-      // 打开欢迎页面
-      chrome.tabs.create({ url: 'welcome.html' });
-    });
+    await setupInitialData();
+    // 打开欢迎页面
+    chrome.tabs.create({ url: 'welcome.html' });
   } else if (details.reason === 'update') {
     // 更新时执行数据迁移
     console.log('扩展已更新到新版本，正在检查数据...');
-    setupInitialData();
+    // 初始化必要数据
+    await setupInitialData();
   }
   
   // 初始化右键菜单
