@@ -6,7 +6,8 @@ import { Navigation } from './Navigation';
 import { SettingsDrawer } from '../../../components/navigation/SettingsDrawer';
 import type { Prompt } from '../../../services/prompt/types';
 import { usePromptsData } from '../../../hooks/usePromptsData';
-import { useOptimize, OptimizationMode, OptimizationVersion } from '../../../hooks/useOptimize';
+import { useOptimize } from '../../../hooks/useOptimize';
+import type { OptimizationMode, OptimizationVersion } from '../../../services/optimization';
 
 export function App() {
   const [activeTab, setActiveTab] = useState<'library' | 'optimize'>('library');

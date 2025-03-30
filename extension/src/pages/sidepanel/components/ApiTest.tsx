@@ -1,5 +1,6 @@
 import React from 'react';
-import { useApiTest, OptimizationMode } from '../../../hooks/useApiTest';
+import { useApiTest } from '../../../hooks/useApiTest';
+import type { OptimizationMode } from '../../../services/optimization';
 
 export function ApiTest() {
   const {

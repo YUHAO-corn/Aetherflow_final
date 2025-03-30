@@ -3,7 +3,15 @@ import { Sparkles, Wand2, Copy, Star, AlertTriangle } from 'lucide-react';
 import type { Prompt } from '../../../services/prompt/types';
 import { OptimizationDetailDrawer } from './OptimizationDetailDrawer';
 import { OptimizationModeSelector } from './OptimizationModeSelector';
-import { OptimizationMode, OptimizationVersion } from '../../../hooks/useOptimize';
+import type { OptimizationMode, OptimizationVersion } from '../../../services/optimization';
+import { 
+  isErrorVersion, 
+  getVersionDisplayContent, 
+  formatContentPreview, 
+  formatVersionTitle,
+  toggleFavoriteVersion,
+  getFavoriteStatus
+} from '../../../services/optimization';
 
 interface OptimizeSectionProps {
   input: string;
@@ -41,19 +49,17 @@ export function OptimizeSection({
   // 添加收藏状态跟踪
   const [favoriteVersions, setFavoriteVersions] = useState<number[]>([]);
   
-  // 处理收藏
-  const handleToggleFavorite = (versionId: number, content: string) => {
-    if (favoriteVersions.includes(versionId)) {
-      // 如果已收藏，则取消收藏
-      setFavoriteVersions(prev => prev.filter(id => id !== versionId));
-    } else {
-      // 如果未收藏，则添加到收藏
-      setFavoriteVersions(prev => [...prev, versionId]);
-      // 调用保存到收藏夹的函数
-      if (onSaveToLibrary) {
-        onSaveToLibrary(content);
-      }
-    }
+  // 处理收藏 - 使用服务层函数
+  const handleToggleFavorite = async (versionId: number, version: OptimizationVersion) => {
+    // 调用服务层函数处理收藏逻辑
+    const updatedFavorites = await toggleFavoriteVersion(
+      version,
+      favoriteVersions,
+      onSaveToLibrary
+    );
+    
+    // 更新本地收藏状态
+    setFavoriteVersions(updatedFavorites);
   };
 
   // 打开版本详情
@@ -65,37 +71,6 @@ export function OptimizeSection({
   // 关闭版本详情
   const handleCloseDetail = () => {
     setIsDetailOpen(false);
-  };
-
-  // 检查版本是否包含错误信息
-  const isErrorVersion = (content: string) => {
-    return content.startsWith('优化失败:');
-  };
-  
-  // 获取显示内容，优先使用编辑后的内容
-  const getDisplayContent = (version: OptimizationVersion) => {
-    return version.editedContent || version.content;
-  };
-  
-  // 格式化内容预览，精简显示
-  const formatContentPreview = (content: string, maxLength = 200) => {
-    // 去除多余换行，使显示更紧凑
-    let formatted = content.replace(/\n{2,}/g, '\n').replace(/\n/g, ' ');
-    
-    // 保留文本的前maxLength个字符，并在末尾添加省略号表示被截断
-    if (formatted.length > maxLength) {
-      return formatted.substring(0, maxLength) + '...';
-    }
-    return formatted;
-  };
-  
-  // 限制卡片标题长度，最多24个字节
-  const formatVersionTitle = (id: number, isEdited: boolean = false) => {
-    let title = `优化版本 v${id}`;
-    if (isEdited) {
-      title += ' (已编辑)';
-    }
-    return title.length > 24 ? title.substring(0, 21) + '...' : title;
   };
 
   return (
@@ -141,14 +116,16 @@ export function OptimizeSection({
 
       <div className="space-y-4">
         {optimizationVersions.map(version => {
-          const isError = isErrorVersion(version.content);
-          const displayContent = getDisplayContent(version);
+          const hasError = isErrorVersion(version.content);
+          const displayContent = getVersionDisplayContent(version);
+          // 使用服务层函数检查收藏状态
+          const isFavorite = getFavoriteStatus(version.id, favoriteVersions);
           
           return (
             <div
               key={version.id}
               className={`relative p-4 bg-gradient-to-r ${
-                isError 
+                hasError 
                   ? 'from-red-900/30 via-red-800/20 to-red-900/30 border-red-700/30' 
                   : 'from-magic-800/50 via-magic-700/30 to-magic-800/50 border-magic-700/30'
               } border rounded-lg group transform hover:-rotate-1 hover:scale-[1.02] transition-all duration-300 ${
@@ -157,7 +134,7 @@ export function OptimizeSection({
               onClick={() => !version.isLoading && handleOpenDetail(version)}
             >
               <div className={`absolute inset-0 bg-gradient-to-r ${
-                isError 
+                hasError 
                   ? 'from-red-500/10 to-red-600/10' 
                   : 'from-magic-500/20 to-magic-600/20'
               } opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-lg pointer-events-none`} />
@@ -169,20 +146,20 @@ export function OptimizeSection({
                 </span>
                 
                 {/* 操作按钮，默认隐藏，hover时显示 */}
-                {!version.isLoading && !isError && (
+                {!version.isLoading && !hasError && (
                   <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     {onSaveToLibrary && (
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleToggleFavorite(version.id, displayContent);
+                          handleToggleFavorite(version.id, version);
                         }}
                         className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
-                        title={favoriteVersions.includes(version.id) ? "已收藏" : "添加到收藏"}
+                        title={isFavorite ? "已收藏" : "添加到收藏"}
                       >
                         <Star 
                           size={14} 
-                          className={favoriteVersions.includes(version.id) 
+                          className={isFavorite 
                             ? "text-yellow-400 fill-yellow-400" 
                             : "text-magic-400"} 
                         />
@@ -202,32 +179,16 @@ export function OptimizeSection({
                 )}
               </div>
               
-              {/* 内容部分 */}
-              {version.isLoading ? (
-                <div className="space-y-2">
-                  <div className="h-4 bg-magic-700/30 rounded animate-pulse" />
-                  <div className="h-4 bg-magic-700/30 rounded animate-pulse w-3/4" />
-                  <div className="h-4 bg-magic-700/30 rounded animate-pulse w-1/2" />
-                </div>
-              ) : (
-                <div className="min-h-[40px] overflow-hidden">
-                  {isError ? (
-                    <div className="flex items-center text-red-400 mb-3">
-                      <AlertTriangle className="w-4 h-4 mr-2 flex-shrink-0" />
-                      <p className="text-xs whitespace-normal break-words line-clamp-4">
-                        {version.content}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-xs text-magic-200 mb-3 relative z-10 whitespace-normal break-words line-clamp-6">
-                      {formatContentPreview(displayContent)}
-                    </p>
-                  )}
-                </div>
-              )}
+              {/* 内容预览部分 */}
+              <div className="text-sm text-magic-300 line-clamp-3 mb-4">
+                {version.isLoading 
+                  ? <div className="h-4 bg-magic-700/50 rounded w-3/4 animate-pulse mb-2"></div>
+                  : formatContentPreview(displayContent)
+                }
+              </div>
               
-              {/* 底部操作按钮 */}
-              {!version.isLoading && !isError && (
+              {/* 底部操作区 */}
+              {!version.isLoading && !hasError && (
                 <div className="flex items-center">
                   <button
                     onClick={(e) => {
@@ -261,16 +222,19 @@ export function OptimizeSection({
               )}
               
               {/* 错误状态下的重试按钮 */}
-              {!version.isLoading && isError && (
-                <div className="flex items-center justify-end mt-2">
+              {!version.isLoading && hasError && (
+                <div>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       onStartOptimize();
                     }}
-                    className="text-xs text-red-400 hover:text-red-300 transition-colors"
+                    className="w-full px-3 py-1.5 text-sm text-magic-200 bg-red-800/30 rounded hover:bg-red-700/40 transition-colors"
                   >
-                    重试优化
+                    <span className="flex items-center justify-center space-x-2">
+                      <AlertTriangle className="w-4 h-4" />
+                      <span>重新尝试</span>
+                    </span>
                   </button>
                 </div>
               )}
@@ -279,15 +243,16 @@ export function OptimizeSection({
         })}
       </div>
 
+      {/* 详情抽屉 */}
       {selectedVersion && (
-        <OptimizationDetailDrawer
+        <OptimizationDetailDrawer 
           isOpen={isDetailOpen}
           onClose={handleCloseDetail}
           version={selectedVersion}
-          onCopy={onCopy}
-          onSaveToLibrary={onSaveToLibrary}
           onContinueOptimize={onContinueOptimize}
           onUpdateVersion={onUpdateVersion}
+          onCopy={onCopy}
+          onSaveToLibrary={onSaveToLibrary}
         />
       )}
     </div>

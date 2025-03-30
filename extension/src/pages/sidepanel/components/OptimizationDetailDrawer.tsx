@@ -2,13 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { X, Copy, Star, Clock, Edit, Save, Check, AlertCircle } from 'lucide-react';
 import { formatDate } from '../../../utils/formatDate';
 import { usePromptsData } from '../../../hooks/usePromptsData';
-import { OptimizationVersion } from '../../../hooks/useOptimize';
+import type { OptimizationVersion } from '../../../services/optimization';
+import { 
+  getVersionDisplayContent,
+  startEditVersion,
+  saveEditedVersion,
+  cancelEditVersion,
+  toggleFavoriteVersion,
+  getFavoriteStatus
+} from '../../../services/optimization';
 
 interface OptimizationDetailDrawerProps {
   version: OptimizationVersion | undefined;
   isOpen: boolean;
   onClose: () => void;
-  onContinueOptimize: (version: OptimizationVersion) => void;
+  onContinueOptimize?: (version: OptimizationVersion) => void;
   onUpdateVersion?: (versionId: number, updates: Partial<OptimizationVersion>) => void;
   onCopy?: (content: string) => void;
   onSaveToLibrary?: (content: string) => void;
@@ -27,6 +35,8 @@ export function OptimizationDetailDrawer({
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState('');
   const [isFavorite, setIsFavorite] = useState(false);
+  // 添加收藏版本ID列表
+  const [favoriteVersions, setFavoriteVersions] = useState<number[]>([]);
   // 添加复制反馈状态
   const [copySuccess, setCopySuccess] = useState(false);
   
@@ -36,7 +46,8 @@ export function OptimizationDetailDrawer({
   // 当版本变化时更新本地状态
   useEffect(() => {
     if (version) {
-      setEditContent(version.editedContent || version.content);
+      // 使用服务层函数获取编辑内容
+      setEditContent(startEditVersion(version));
     }
   }, [version]);
   
@@ -52,8 +63,8 @@ export function OptimizationDetailDrawer({
   
   if (!isOpen || !version) return null;
   
-  // 获取显示内容
-  const displayContent = version.editedContent || version.content;
+  // 获取显示内容，使用服务层函数
+  const displayContent = getVersionDisplayContent(version);
   
   // 创建日期
   const created = version.createdAt ? formatDate(version.createdAt) : '未知时间';
@@ -75,26 +86,25 @@ export function OptimizationDetailDrawer({
     setCopySuccess(true);
   };
   
-  // 开始编辑
+  // 开始编辑 - 使用服务层函数
   const handleStartEdit = () => {
     setIsEditing(true);
   };
   
-  // 保存编辑
+  // 保存编辑 - 使用服务层函数
   const handleSaveEdit = () => {
     if (version && onUpdateVersion) {
-      onUpdateVersion(version.id, {
-        editedContent: editContent,
-        isEdited: true
-      });
+      // 使用服务层函数获取需要更新的内容
+      const updates = saveEditedVersion(version, editContent);
+      onUpdateVersion(version.id, updates);
       setIsEditing(false);
     }
   };
   
-  // 取消编辑
+  // 取消编辑 - 使用服务层函数
   const handleCancelEdit = () => {
     if (version) {
-      setEditContent(displayContent);
+      setEditContent(cancelEditVersion(version));
     }
     setIsEditing(false);
   };
@@ -106,40 +116,40 @@ export function OptimizationDetailDrawer({
     }
   };
   
-  // 处理收藏
+  // 处理收藏 - 使用服务层函数
   const handleToggleFavorite = async () => {
     if (version) {
-      if (!isFavorite) {
-        // 添加到收藏夹
-        try {
-          if (onSaveToLibrary) {
-            // 使用外部提供的保存函数
-            onSaveToLibrary(displayContent);
-          } else {
-            // 使用本地的添加函数
+      try {
+        // 调用服务层函数处理收藏逻辑
+        const saveToLibraryFn = onSaveToLibrary ? onSaveToLibrary : 
+          async (content: string) => {
             await addPrompt({
-              title: displayContent.length > 30 ? displayContent.substring(0, 30) + '...' : displayContent,
-              content: displayContent,
+              title: content.length > 30 ? content.substring(0, 30) + '...' : content,
+              content: content,
               isFavorite: true,
               favorite: true
             });
-          }
-          setIsFavorite(true);
-        } catch (error) {
-          console.error('添加到收藏夹失败:', error);
-        }
-      } else {
-        // 从收藏夹移除
-        setIsFavorite(false);
-        // 注意：实际上我们没有真正从收藏夹中移除，因为这需要更复杂的状态管理
-        // 在实际应用中，应调用API删除收藏
+          };
+          
+        const updatedFavorites = await toggleFavoriteVersion(
+          version,
+          favoriteVersions,
+          saveToLibraryFn
+        );
+        
+        // 更新本地收藏状态
+        setFavoriteVersions(updatedFavorites);
+        // 更新UI状态
+        setIsFavorite(getFavoriteStatus(version.id, updatedFavorites));
+      } catch (error) {
+        console.error('切换收藏状态失败:', error);
       }
     }
   };
   
   // 处理继续优化
   const handleContinueOptimize = () => {
-    if (version) {
+    if (version && onContinueOptimize) {
       onContinueOptimize(version);
     }
   };

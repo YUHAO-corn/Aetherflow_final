@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { optimizePrompt, OptimizationMode } from '../services/optimizationService';
+import { optimizePrompt, OptimizationMode } from '../services/optimization';
 
 /**
  * API测试钩子
@@ -45,4 +45,5 @@ export function useApiTest() {
   };
 }
 
+// 由于组件通常会需要类型，我们从钩子重新导出类型，避免组件直接从服务导入
 export type { OptimizationMode }; 

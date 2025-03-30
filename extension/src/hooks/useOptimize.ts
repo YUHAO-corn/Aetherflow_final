@@ -1,17 +1,17 @@
 import { useState, useCallback } from 'react';
-import { optimizePrompt, continueOptimize, OptimizationMode } from '../services/optimizationService';
-import { generateTitleForPrompt } from '../services/prompt/actions';
-
-export interface OptimizationVersion {
-  id: number;
-  content: string;
-  isLoading?: boolean;
-  isNew?: boolean;
-  editedContent?: string;
-  isEdited?: boolean;
-  createdAt?: number;
-  parentId?: number;
-}
+import { 
+  optimizePrompt, 
+  continueOptimize, 
+  OptimizationMode,
+  OptimizationVersion,
+  createNextVersionInList,
+  createErrorVersion,
+  generateOptimizationTitle,
+  createInitialLoadingVersion,
+  createSuccessVersion,
+  createContinuedVersion,
+  updateVersionInList
+} from '../services/optimization';
 
 /**
  * 提供提示词优化相关功能的钩子
@@ -30,27 +30,19 @@ export function useOptimize() {
     // 清空之前的优化历史，开始新的优化任务
     setIsOptimizing(true);
     setApiError(null);
+    
+    // 使用服务层函数创建初始加载版本
     setOptimizationVersions([
-      { 
-        id: 1, 
-        content: '', 
-        isLoading: true,
-        createdAt: Date.now()
-      }
+      createInitialLoadingVersion()
     ]);
 
     try {
       // 调用API优化提示词
       const optimizedContent = await optimizePrompt(input, mode);
       
+      // 使用服务层函数创建成功版本
       setOptimizationVersions([
-        {
-          id: 1,
-          content: optimizedContent,
-          isLoading: false,
-          isNew: true,
-          createdAt: Date.now()
-        }
+        createSuccessVersion(optimizedContent)
       ]);
       
       return optimizedContent;
@@ -59,15 +51,9 @@ export function useOptimize() {
       console.error('优化提示词失败:', error);
       setApiError(errorMessage);
       
-      // 保留加载状态但显示错误
+      // 使用服务层函数创建错误版本
       setOptimizationVersions([
-        {
-          id: 1,
-          content: `优化失败: ${errorMessage}`,
-          isLoading: false,
-          isNew: true,
-          createdAt: Date.now()
-        }
+        createErrorVersion(1, errorMessage)
       ]);
       
       throw error;
@@ -81,64 +67,40 @@ export function useOptimize() {
     setIsOptimizing(true);
     setApiError(null);
     
-    // 找到要继续优化的版本
-    const sourceContent = version.editedContent || version.content;
-    const sourceIndex = optimizationVersions.findIndex(v => v.id === version.id);
-    
-    // 生成新版本ID
-    const newVersionId = Math.max(...optimizationVersions.map(v => v.id), 0) + 1;
-    
-    // 在源版本后面插入新版本
-    const updatedVersions = [
-      ...optimizationVersions.slice(0, sourceIndex + 1),
-      { 
-        id: newVersionId, 
-        content: '', 
-        isLoading: true,
-        createdAt: Date.now(),
-        parentId: version.id
-      },
-      ...optimizationVersions.slice(sourceIndex + 1)
-    ];
+    // 使用服务层函数处理版本列表
+    const { updatedVersions, newVersionId, sourceIndex } = createNextVersionInList(
+      optimizationVersions,
+      version
+    );
     
     setOptimizationVersions(updatedVersions);
 
     try {
+      // 获取源内容
+      const sourceContent = version.editedContent || version.content;
+      
       // 调用API继续优化提示词
       const optimizedContent = await continueOptimize(sourceContent, mode);
       
-      const finalVersions = [
-        ...optimizationVersions.slice(0, sourceIndex + 1),
-        {
-          id: newVersionId,
-          content: optimizedContent,
-          isLoading: false,
-          isNew: true,
-          createdAt: Date.now(),
-          parentId: version.id
-        },
-        ...optimizationVersions.slice(sourceIndex + 1)
-      ];
+      // 使用服务层函数创建继续优化版本并更新列表
+      const continuedVersion = createContinuedVersion(optimizedContent, version.id, newVersionId);
+      setOptimizationVersions(prev => [
+        ...prev.slice(0, sourceIndex + 1),
+        continuedVersion,
+        ...prev.slice(sourceIndex + 2) // +2因为要替换loading版本
+      ]);
       
-      setOptimizationVersions(finalVersions);
       return optimizedContent;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '优化失败，请稍后重试';
       console.error('继续优化提示词失败:', error);
       setApiError(errorMessage);
       
-      // 更新为错误状态
+      // 使用服务层函数创建错误版本
       const errorVersions = [
         ...optimizationVersions.slice(0, sourceIndex + 1),
-        {
-          id: newVersionId,
-          content: `优化失败: ${errorMessage}`,
-          isLoading: false,
-          isNew: true,
-          createdAt: Date.now(),
-          parentId: version.id
-        },
-        ...optimizationVersions.slice(sourceIndex + 1)
+        createErrorVersion(newVersionId, errorMessage, version.id),
+        ...optimizationVersions.slice(sourceIndex + 2)
       ];
       
       setOptimizationVersions(errorVersions);
@@ -150,24 +112,12 @@ export function useOptimize() {
 
   // 生成提示词标题
   const generateTitle = useCallback(async (content: string): Promise<string> => {
-    try {
-      return await generateTitleForPrompt(content);
-    } catch (error) {
-      console.error('生成标题失败:', error);
-      // 简单截取作为标题
-      return content.length > 30 ? content.substring(0, 30) + '...' : content;
-    }
+    return generateOptimizationTitle(content);
   }, []);
 
   // 更新优化版本
   const updateVersion = useCallback((versionId: number, updates: Partial<OptimizationVersion>) => {
-    setOptimizationVersions(prev => 
-      prev.map(version => 
-        version.id === versionId 
-          ? { ...version, ...updates } 
-          : version
-      )
-    );
+    setOptimizationVersions(prev => updateVersionInList(prev, versionId, updates));
   }, []);
 
   return {
@@ -185,4 +135,5 @@ export function useOptimize() {
   };
 }
 
-export type { OptimizationMode }; 
+// 导出服务层类型，以避免组件直接从services导入
+export type { OptimizationMode, OptimizationVersion }; 
