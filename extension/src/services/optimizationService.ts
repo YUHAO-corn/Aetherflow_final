@@ -3,9 +3,10 @@ import axios, { AxiosError } from 'axios';
 // 优化模式类型
 export type OptimizationMode = 'standard' | 'creative' | 'concise';
 
-// DeepSeek API密钥 - 使用项目提供的密钥
-const API_KEY = 'sk-e7eb50c23c684a1fbfceedf6623e4a3d';
-const API_URL = 'https://api.deepseek.com/v1/chat/completions';
+// Doubao API配置
+const API_KEY = '32550ef8-b626-4478-bf53-5fb5e34e114f';
+const API_URL = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
+const MODEL_ID = 'doubao-lite-32k-240828';
 
 // 最大重试次数
 const MAX_RETRIES = 2;
@@ -148,6 +149,8 @@ export async function optimizePrompt(
       content = content.substring(0, 10000) + "...(内容已截断)";
     }
     
+    console.log('[OptimizationService] 开始请求AI优化提示词，内容长度:', content.length);
+    
     const systemPrompt = getSystemPrompt(mode);
     
     const headers = {
@@ -156,7 +159,7 @@ export async function optimizePrompt(
     };
     
     const data = {
-      model: 'deepseek-chat',
+      model: MODEL_ID,
       messages: [
         {
           role: 'system',
@@ -168,13 +171,14 @@ export async function optimizePrompt(
         }
       ],
       temperature: mode === 'creative' ? 0.8 : 0.3,
-      max_tokens: 1000
+      max_tokens: 2000
     };
     
     const response = await makeAPIRequestWithRetry(API_URL, data, headers);
     
     // 提取优化后的内容
     let optimizedContent = response.data.choices[0].message.content;
+    console.log('[OptimizationService] 获取到AI优化内容，长度:', optimizedContent.length);
     
     // 对响应内容进行标准化处理
     optimizedContent = postProcessResponse(optimizedContent);
@@ -214,7 +218,7 @@ export async function optimizePrompt(
           case 500:
           case 502:
           case 503:
-            errorMessage = 'DeepSeek服务器错误，请稍后重试';
+            errorMessage = '服务器错误，请稍后重试';
             break;
           default:
             errorMessage = `API错误: ${status}`;
@@ -247,6 +251,8 @@ export async function continueOptimize(
       content = content.substring(0, 10000) + "...(内容已截断)";
     }
     
+    console.log('[OptimizationService] 开始请求AI继续优化提示词，内容长度:', content.length);
+    
     const systemPrompt = getSystemPrompt(mode);
     
     const headers = {
@@ -255,7 +261,7 @@ export async function continueOptimize(
     };
     
     const data = {
-      model: 'deepseek-chat',
+      model: MODEL_ID,
       messages: [
         {
           role: 'system',
@@ -267,13 +273,14 @@ export async function continueOptimize(
         }
       ],
       temperature: mode === 'creative' ? 0.8 : 0.3,
-      max_tokens: 1000
+      max_tokens: 2000
     };
     
     const response = await makeAPIRequestWithRetry(API_URL, data, headers);
     
     // 提取优化后的内容
     let optimizedContent = response.data.choices[0].message.content;
+    console.log('[OptimizationService] 获取到AI继续优化内容，长度:', optimizedContent.length);
     
     // 对响应内容进行标准化处理
     optimizedContent = postProcessResponse(optimizedContent);
@@ -313,7 +320,7 @@ export async function continueOptimize(
           case 500:
           case 502:
           case 503:
-            errorMessage = 'DeepSeek服务器错误，请稍后重试';
+            errorMessage = '服务器错误，请稍后重试';
             break;
           default:
             errorMessage = `API错误: ${status}`;
