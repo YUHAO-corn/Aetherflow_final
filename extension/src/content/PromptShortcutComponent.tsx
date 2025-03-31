@@ -113,7 +113,7 @@ export const PromptShortcutComponent: React.FC<PromptShortcutProps> = ({
       
       <div className="af-shortcut-footer">
         <span>↑/↓: 导航</span>
-        <span>Enter: 选择</span>
+        <span>Tab: 选择</span>
         <span>Esc: 取消</span>
       </div>
     </div>

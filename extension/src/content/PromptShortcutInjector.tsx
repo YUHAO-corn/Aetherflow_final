@@ -165,7 +165,7 @@ const styles = `
 interface PromptShortcutProps {
   inputElement: HTMLElement;
   adapter: PlatformAdapter;
-  onClose: () => void;
+  onClose: (skipFutureShow?: boolean) => void;
   position: {
     top: number;
     left: number;
@@ -194,19 +194,84 @@ function PromptShortcut({ inputElement, adapter, onClose, position, searchInfo }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   
-  // 搜索词长度超过限制且没有匹配结果时自动关闭
+  // 修改搜索词长度检查逻辑
   useEffect(() => {
+    // 调试日志，帮助排查问题
+    console.log('[AetherFlow-DEBUG] 长度检查触发:', {
+      term: searchInfo.searchTerm,
+      results: results.length,
+      loading,
+      hasMatch: hasExactMatch
+    });
+    
+    // 彻底禁用自动关闭逻辑
+    // 只要满足以下任一条件就永不关闭:
+    // 1. 结果数量大于0
+    // 2. 正在搜索中(loading)
+    // 3. hasExactMatch为true(有任何匹配)
+    // 4. 空输入
+    if (results.length > 0 || loading || hasExactMatch || !searchInfo.searchTerm.trim()) {
+      // 有结果或正在加载或有匹配或空输入，都不关闭
+      return;
+    }
+    
     const term = searchInfo.searchTerm.trim();
-    if (term.length > 5 && results.length === 0 && !loading && !hasExactMatch) {
-      console.log('[AetherFlow] 搜索词超过5个字符且无匹配结果，自动关闭');
+    
+    // 中文输入法状态检测 - 进一步增强
+    // 1. 纯拼音状态
+    const isPinyinInput = /^[a-z\s]+$/i.test(term) && term.length < 30;
+    // 2. 部分中文+拼音混合状态
+    const isChineseWithPinyin = /[\u4e00-\u9fa5]/.test(term) && /[a-z]$/i.test(term);
+    // 3. 纯英文输入状态
+    const isEnglishInput = /^[a-zA-Z0-9\s.,!?;:'"()\-]+$/.test(term) && term.length < 50;
+    // 4. 纯中文输入但在合理长度内
+    const isReasonableChinese = /^[\u4e00-\u9fa5]+$/.test(term) && term.length < 20;
+    
+    // 如果符合上述任一条件，就不关闭
+    if (isPinyinInput || isChineseWithPinyin || isEnglishInput || isReasonableChinese) {
+      console.log('[AetherFlow-DEBUG] 输入状态合理，不关闭浮层:', {
+        isPinyinInput,
+        isChineseWithPinyin,
+        isEnglishInput,
+        isReasonableChinese,
+        term
+      });
+      return;
+    }
+    
+    // 极端情况：非常长的无意义输入且确定无匹配
+    // 设置更大的阈值：中文30字符，英文60字符
+    const isExtremeLongTerm = term.length > ((/[\u4e00-\u9fa5]/.test(term) ? 30 : 60));
+    
+    // 多次确认无匹配
+    const definitelyNoMatches = results.length === 0 && 
+                               !loading && 
+                               hasExactMatch === false;
+    
+    // 极端情况关闭逻辑
+    if (isExtremeLongTerm && definitelyNoMatches) {
+      console.log('[AetherFlow-DEBUG] 输入超长且确定无匹配，准备关闭:', {
+        termLength: term.length,
+        term: term.substring(0, 20) + '...',
+        noMatches: definitelyNoMatches
+      });
+      
+      // 延迟关闭，并做二次确认
       setTimeout(() => {
-        onClose();
-      }, 500); // 延迟500ms关闭，给用户一个反馈的机会
+        // 再次检查，防止在延迟期间状态变化
+        if (results.length === 0 && !loading && hasExactMatch === false) {
+          console.log('[AetherFlow-DEBUG] 确认关闭条件仍满足，执行关闭');
+          onClose(true);
+        } else {
+          console.log('[AetherFlow-DEBUG] 关闭条件不再满足，取消关闭');
+        }
+      }, 1000); // 延长延迟到1秒，给足充分时间
     }
   }, [searchInfo.searchTerm, results.length, loading, hasExactMatch, onClose]);
   
   // 执行搜索的函数
   const performSearch = async (term: string) => {
+    console.log('[AetherFlow-DEBUG] 开始执行搜索:', term);
     setLoading(true);
     try {
       // 搜索请求参数
@@ -227,28 +292,132 @@ function PromptShortcut({ inputElement, adapter, onClose, position, searchInfo }
       
       if (Array.isArray(response)) {
         const prompts = response as Prompt[];
-        setResults(prompts);
         
-        // 判断是否有精确匹配
+        // 匹配判断逻辑全面改进
+        let hasMatch = false;
+        
         if (term.trim()) {
-          const exactMatches = prompts.filter(p => 
-            p.title.toLowerCase().includes(term.toLowerCase()) || 
-            p.content.toLowerCase().includes(term.toLowerCase())
-          );
-          setHasExactMatch(exactMatches.length > 0);
+          const termLower = term.toLowerCase().trim();
+          
+          // 针对中文&拼音输入问题，进一步优化
+          hasMatch = prompts.some(p => {
+            // 直接包含
+            if (p.title.toLowerCase().includes(termLower) || p.content.toLowerCase().includes(termLower)) {
+              return true;
+            }
+            
+            // 处理"润色以下学术段"这类场景：按字符匹配
+            const termChars = Array.from(termLower);
+            // 放宽条件：只要包含大部分字符即视为匹配(70%)
+            const matchThreshold = Math.max(1, Math.floor(termChars.length * 0.7));
+            let titleCharMatches = 0;
+            let contentCharMatches = 0;
+            
+            const titleLower = p.title.toLowerCase();
+            const contentLower = p.content.toLowerCase();
+            
+            termChars.forEach(char => {
+              if (titleLower.includes(char)) titleCharMatches++;
+              if (contentLower.includes(char)) contentCharMatches++;
+            });
+            
+            // 超过阈值即视为匹配
+            if (titleCharMatches >= matchThreshold || contentCharMatches >= matchThreshold) {
+              return true;
+            }
+            
+            // 处理拼音输入：将拼音视为拆分的单个字符
+            if (/^[a-z\s]+$/i.test(termLower)) {
+              // 拼音首字母匹配（针对"runse"→"润色"等情况）
+              const pinyinInitials = termLower.split(/\s+/).map(word => word.charAt(0)).join('');
+              if (titleLower.includes(pinyinInitials) || contentLower.includes(pinyinInitials)) {
+                return true;
+              }
+            }
+            
+            // 特殊处理中文+拼音混合状态
+            if (/[\u4e00-\u9fa5]/.test(termLower) && /[a-z]$/i.test(termLower)) {
+              // 提取中文部分
+              const chinesePart = termLower.match(/[\u4e00-\u9fa5]+/g)?.join('') || '';
+              if (chinesePart && (titleLower.includes(chinesePart) || contentLower.includes(chinesePart))) {
+                return true;
+              }
+            }
+            
+            // 如果是包含数字的场景（如Aetherflow123）
+            if (/\d/.test(termLower)) {
+              const nonNumericPart = termLower.replace(/\d+/g, '');
+              if (nonNumericPart && (titleLower.includes(nonNumericPart) || contentLower.includes(nonNumericPart))) {
+                return true;
+              }
+            }
+            
+            // 标签匹配
+            if (p.tags && p.tags.some(tag => tag.toLowerCase().includes(termLower))) {
+              return true;
+            }
+            
+            return false;
+          });
+          
+          // 无匹配时的退化规则：极度宽松的匹配
+          if (!hasMatch) {
+            // 1. 尝试使用前半部分进行匹配(适用于长句输入)
+            const halfTerm = termLower.substring(0, Math.ceil(termLower.length / 2));
+            if (halfTerm.length >= 2) { // 确保至少2个字符
+              hasMatch = prompts.some(p => 
+                p.title.toLowerCase().includes(halfTerm) || 
+                p.content.toLowerCase().includes(halfTerm)
+              );
+            }
+            
+            // 2. 如果仍无匹配，仅使用前2个字符
+            if (!hasMatch && termLower.length >= 2) {
+              const firstChars = termLower.substring(0, 2);
+              hasMatch = prompts.some(p => 
+                p.title.toLowerCase().includes(firstChars) || 
+                p.content.toLowerCase().includes(firstChars)
+              );
+            }
+            
+            // 3. 最终退化：如果是中文且长度>3，视为有潜在匹配
+            if (!hasMatch && /[\u4e00-\u9fa5]/.test(termLower) && termLower.length >= 3) {
+              console.log('[AetherFlow-DEBUG] 应用中文长输入特例规则，强制视为匹配');
+              hasMatch = true; // 强制视为匹配，防止长中文输入关闭浮层
+            }
+          }
         } else {
-          setHasExactMatch(true); // 空搜索词时始终有匹配（显示推荐）
+          // 空搜索词始终视为匹配
+          hasMatch = true;
         }
         
-        console.log(`[AetherFlow] 搜索完成, 结果数量: ${prompts.length}, 精确匹配: ${hasExactMatch}`);
+        console.log('[AetherFlow-DEBUG] 搜索完成:', {
+          term,
+          resultsCount: prompts.length,
+          hasMatch: hasMatch,
+          exampleResults: prompts.slice(0, 2).map(p => p.title)
+        });
+        
+        // 更新状态
+        setResults(prompts);
+        setHasExactMatch(hasMatch);
       } else {
+        console.log('[AetherFlow-DEBUG] 搜索无结果');
+        // 即使无结果，对于中文输入也尽量保持浮层
+        const isChinese = /[\u4e00-\u9fa5]/.test(term);
+        const forcedMatch = isChinese && term.length > 3;
+        
         setResults([]);
-        setHasExactMatch(false);
+        setHasExactMatch(forcedMatch); // 中文长度>3时强制保持浮层
       }
     } catch (error) {
       console.error('[AetherFlow] 搜索提示词失败:', error);
       setResults([]);
-      setHasExactMatch(false);
+      
+      // 即使出错，对于中文输入也尽量保持浮层
+      const isChinese = /[\u4e00-\u9fa5]/.test(term);
+      const forcedMatch = isChinese && term.length > 3;
+      setHasExactMatch(forcedMatch);
     } finally {
       setLoading(false);
     }
@@ -293,8 +462,8 @@ function PromptShortcut({ inputElement, adapter, onClose, position, searchInfo }
   // 键盘导航
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // 只处理可能的导航键
-      if (e.key === 'Escape' || e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'Tab') {
+      // 添加左右键处理，移动光标时退出联想
+      if (e.key === 'Escape' || e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'Tab' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         
         if (e.key === 'Escape') {
           e.preventDefault();
@@ -308,6 +477,9 @@ function PromptShortcut({ inputElement, adapter, onClose, position, searchInfo }
         } else if (e.key === 'Tab' && results.length > 0 && activeIndex >= 0) {
           e.preventDefault();
           handleSelectPrompt(results[activeIndex]);
+        } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          // 左右键移动光标时关闭浮层
+          onClose();
         }
       }
     };
@@ -444,6 +616,7 @@ function PromptShortcut({ inputElement, adapter, onClose, position, searchInfo }
         )}
       </div>
       
+      {/* 确保footer始终显示 */}
       <div className="af-shortcut-footer">
         <span>↑/↓: 导航</span>
         <span>Tab: 选择</span>
@@ -521,14 +694,22 @@ export function injectPromptShortcut(
     cursorLeft = Math.max(20, viewportWidth - floatWidth - 20);
   }
   
-  // 调整垂直位置，如果底部空间不足则显示在输入框上方
-  const floatHeight = 300; // 浮层高度
-  if (cursorTop + floatHeight > viewportHeight - 20) {
-    cursorTop = Math.max(20, inputRect.top - floatHeight);
+  // 修改位置计算逻辑
+  let positionTop;
+  let showAbove = false;
+  
+  // 如果底部空间不足则显示在输入框上方
+  if (cursorTop + 300 > viewportHeight - 20) { // 300是最大高度
+    showAbove = true;
+    // 关键修改：将浮层下边缘固定在光标上方
+    positionTop = inputRect.top - 10; // 固定下边缘在光标上方10px处
+  } else {
+    // 正常情况，上边缘固定在光标下方
+    positionTop = cursorTop;
   }
   
   const position = {
-    top: cursorTop + window.scrollY,
+    top: positionTop + window.scrollY,
     left: cursorLeft + window.scrollX
   };
   
@@ -539,16 +720,41 @@ export function injectPromptShortcut(
     <PromptShortcut
       inputElement={inputElement}
       adapter={adapter}
-      onClose={() => {
+      onClose={(skipFutureShow) => {
         console.log('[AetherFlow] 关闭快捷输入组件');
         // 卸载组件但不删除容器，以便重用
         ReactDOM.unmountComponentAtNode(shortcutContainerElement);
+        
+        // 如果是由于无匹配结果关闭的，告知父组件不要再显示
+        if (skipFutureShow) {
+          // 向父组件传递一个标记，表示这次"/"触发周期结束，不再显示
+          window.dispatchEvent(new CustomEvent('aetherflow-shortcut-dismissed', {
+            detail: { slashPosition: searchInfo.slashPosition }
+          }));
+        }
       }}
       position={position}
       searchInfo={searchInfo}
     />,
     shortcutContainerElement
   );
+  
+  // 使用额外的CSS类控制浮层位置
+  if (showAbove) {
+    // 添加max-height样式，确保位置策略正确应用
+    const firstChild = shortcutContainerElement.firstChild as HTMLElement;
+    if (firstChild) {
+      firstChild.classList.add('af-shortcut-show-above');
+    }
+    
+    // 添加内联样式
+    const container = shortcutContainerElement.querySelector('.af-shortcut-container');
+    if (container && container instanceof HTMLElement) {
+      container.style.bottom = `calc(100vh - ${positionTop}px)`;
+      container.style.top = 'auto';
+      container.style.maxHeight = '300px'; // 限制最大高度
+    }
+  }
   
   // 返回清理函数
   return () => {

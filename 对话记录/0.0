@@ -1,0 +1,1405 @@
+ [Storage] 使用Chrome存储服务
+ [AetherFlow] 后台脚本加载成功
+ [PromptMessaging] 初始化提示词消息处理器
+ 扩展已安装/更新: update
+ 开始执行数据迁移...
+ [Storage] 未发现旧格式数据，无需迁移
+ 无需进行数据迁移
+ 扩展已更新到新版本，正在检查数据...
+ [AetherFlow] 后台: 已存在提示词数据, 共 6 条
+ [AetherFlow] 设置右键菜单...
+ [AetherFlow] 右键菜单创建成功
+ [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=loading, URL=https://chat.deepseek.com/
+ [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=undefined, URL=https://chat.deepseek.com/
+ [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=undefined, URL=https://chat.deepseek.com/
+ [Messaging] 收到消息: CONTENT_SCRIPT_READY
+ [Messaging] 收到消息: CONTENT_SCRIPT_READY
+ [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY Object
+ [AetherFlow] 内容脚本已就绪: 标签页ID 2042162430, URL https://chat.deepseek.com/
+ [Messaging] 异步操作完成
+ [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=complete, URL=https://chat.deepseek.com/
+ [AetherFlow-DEBUG] 页面加载完成: ID=2042162430, 准备检查内容脚本
+ [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=undefined, URL=https://chat.deepseek.com/
+ [Messaging] 收到消息: CONTENT_SCRIPT_READY
+ [Messaging] 收到消息: CONTENT_SCRIPT_READY
+ [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY Object
+ [AetherFlow] 内容脚本已就绪: 标签页ID 2042162430, URL https://chat.deepseek.com/
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: CONTENT_SCRIPT_READY
+ [Messaging] 收到消息: CONTENT_SCRIPT_READY
+ [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY Object
+ [AetherFlow] 内容脚本已就绪: 标签页ID 2042162430, URL https://chat.deepseek.com/
+ [Messaging] 异步操作完成
+ [AetherFlow-DEBUG] 主动检查内容脚本状态: ID=2042162430
+ [AetherFlow-DEBUG] 开始检查内容脚本就绪状态: ID=2042162430, 已注册=true
+ [AetherFlow-DEBUG] 内容脚本已在注册表中: ID=2042162430
+ [AetherFlow-DEBUG] 内容脚本状态检查结果: ID=2042162430, 就绪=true
+index.tsx:1  Failed to load resource: net::ERR_FILE_NOT_FOUND
+ [Storage] 使用Chrome存储服务
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'x', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'x', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'x', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'xu', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'x', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'xue', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'xue', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'xue', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'xue s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'xue s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'xue s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'xue sh', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'xue s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'xue shu', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'xue shu', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'xue shu', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术r', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术r', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术r', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术ru', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术ru', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术ru', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术run', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术run', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术run', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术润', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术润', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术润', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术润s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术润s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术润s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术润se', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术润se', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术润se', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术润色', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '学术润色', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: INCREMENT_PROMPT_USE
+ [Messaging] 收到消息: INCREMENT_PROMPT_USE
+ [AetherFlow] 后台: 收到消息 INCREMENT_PROMPT_USE 3ea63e33-64cc-48a2-8fbf-7b87b8bd92a5
+ [Messaging] 异步操作完成
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'a', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'a', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'a', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ae', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ae', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ae', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aet', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aet', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aet', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aeth', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aeth', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aeth', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aethe', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aethe', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aethe', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aether', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aether', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aether', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherf', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherf', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherf', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherfl', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherfl', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherfl', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherflo', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherflo', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherflo', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherflow', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherflow', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherflow', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherflow1', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherflow1', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherflow1', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherflow12', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherflow1', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherflow123', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'aetherflow123', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: INCREMENT_PROMPT_USE
+ [Messaging] 收到消息: INCREMENT_PROMPT_USE
+ [AetherFlow] 后台: 收到消息 INCREMENT_PROMPT_USE efae80c9-d74f-4c12-a125-01525d8d3b30
+ [Messaging] 异步操作完成
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'g', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'g', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'g', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ga', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'g', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'gao', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'gao', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'gao', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'gao j', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'gao j', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'gao j', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'gao ji', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'gao j', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级so', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级sou', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级sou', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级sou', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级sou s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级sou s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级sou s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级sou su', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级sou s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级sou suo', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级sou suo', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级sou suo', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级搜索', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '高级搜索', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: INCREMENT_PROMPT_USE
+ [Messaging] 收到消息: INCREMENT_PROMPT_USE
+ [AetherFlow] 后台: 收到消息 INCREMENT_PROMPT_USE ae3a1fe4-1784-4dcf-8a43-61f9d653ac8f
+ [Messaging] 异步操作完成
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'r', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'r', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'r', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ru', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ru', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ru', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run se', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run s', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色y', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色y', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色y', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色y', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi x', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi x', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi x', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi xi', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi xi', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi xi', limit: 10, sortBy: 'relevance'}
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi xia', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+ [Messaging] 异步操作完成
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [Messaging] 收到消息: SEARCH_PROMPTS
+ [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi xia', limit: 10, sortBy: 'relevance'}
+ [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi xia', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下x', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下x', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下x', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xu', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xu', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xu', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xue', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xue', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xue', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xue s', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xue s', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xue s', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xue sh', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xue s', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xue shu', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xue shu', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xue shu', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术d', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术d', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术d', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术du', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=loading, URL=https://chat.deepseek.com/
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=undefined, URL=https://chat.deepseek.com/
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=undefined, URL=https://chat.deepseek.com/
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY {url: 'https://chat.deepseek.com/', title: 'DeepSeek', readyState: 'interactive', time: '2025-03-31T03:31:15.714Z'}
+background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042162430, URL https://chat.deepseek.com/
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=complete, URL=https://chat.deepseek.com/
+background.js:2 [AetherFlow-DEBUG] 页面加载完成: ID=2042162430, 准备检查内容脚本
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=undefined, URL=https://chat.deepseek.com/
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY {url: 'https://chat.deepseek.com/', title: 'DeepSeek - 探索未至之境', readyState: 'complete', time: '2025-03-31T03:31:16.218Z'}
+background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042162430, URL https://chat.deepseek.com/
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY {url: 'https://chat.deepseek.com/', title: 'DeepSeek - 探索未至之境', readyState: 'complete', time: '2025-03-31T03:31:16.329Z'}
+background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042162430, URL https://chat.deepseek.com/
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [AetherFlow-DEBUG] 主动检查内容脚本状态: ID=2042162430
+background.js:2 [AetherFlow-DEBUG] 开始检查内容脚本就绪状态: ID=2042162430, 已注册=true
+background.js:2 [AetherFlow-DEBUG] 内容脚本已在注册表中: ID=2042162430
+background.js:2 [AetherFlow-DEBUG] 内容脚本状态检查结果: ID=2042162430, 就绪=true
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=loading, URL=https://chat.deepseek.com/
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=undefined, URL=https://chat.deepseek.com/
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=undefined, URL=https://chat.deepseek.com/
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY {url: 'https://chat.deepseek.com/', title: 'DeepSeek', readyState: 'interactive', time: '2025-03-31T03:31:20.740Z'}
+background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042162430, URL https://chat.deepseek.com/
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=complete, URL=https://chat.deepseek.com/
+background.js:2 [AetherFlow-DEBUG] 页面加载完成: ID=2042162430, 准备检查内容脚本
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=undefined, URL=https://chat.deepseek.com/
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY {url: 'https://chat.deepseek.com/', title: 'DeepSeek - 探索未至之境', readyState: 'complete', time: '2025-03-31T03:31:21.243Z'}
+background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042162430, URL https://chat.deepseek.com/
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY {url: 'https://chat.deepseek.com/', title: 'DeepSeek - 探索未至之境', readyState: 'complete', time: '2025-03-31T03:31:21.319Z'}
+background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042162430, URL https://chat.deepseek.com/
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [AetherFlow-DEBUG] 主动检查内容脚本状态: ID=2042162430
+background.js:2 [AetherFlow-DEBUG] 开始检查内容脚本就绪状态: ID=2042162430, 已注册=true
+background.js:2 [AetherFlow-DEBUG] 内容脚本已在注册表中: ID=2042162430
+background.js:2 [AetherFlow-DEBUG] 内容脚本状态检查结果: ID=2042162430, 就绪=true
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'r', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'r', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'r', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ru', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ru', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ru', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ru ne', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ru ne', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ru ne', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '如呢', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '如呢', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '如呢', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '如', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '如', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '如', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=loading, URL=https://chat.deepseek.com/
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=undefined, URL=https://chat.deepseek.com/
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=undefined, URL=https://chat.deepseek.com/
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY {url: 'https://chat.deepseek.com/', title: 'DeepSeek', readyState: 'interactive', time: '2025-03-31T03:31:26.538Z'}
+background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042162430, URL https://chat.deepseek.com/
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=complete, URL=https://chat.deepseek.com/
+background.js:2 [AetherFlow-DEBUG] 页面加载完成: ID=2042162430, 准备检查内容脚本
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042162430, 状态=undefined, URL=https://chat.deepseek.com/
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY {url: 'https://chat.deepseek.com/', title: 'DeepSeek - 探索未至之境', readyState: 'complete', time: '2025-03-31T03:31:27.040Z'}
+background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042162430, URL https://chat.deepseek.com/
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY {url: 'https://chat.deepseek.com/', title: 'DeepSeek - 探索未至之境', readyState: 'complete', time: '2025-03-31T03:31:27.116Z'}
+background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042162430, URL https://chat.deepseek.com/
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [AetherFlow-DEBUG] 主动检查内容脚本状态: ID=2042162430
+background.js:2 [AetherFlow-DEBUG] 开始检查内容脚本就绪状态: ID=2042162430, 已注册=true
+background.js:2 [AetherFlow-DEBUG] 内容脚本已在注册表中: ID=2042162430
+background.js:2 [AetherFlow-DEBUG] 内容脚本状态检查结果: ID=2042162430, 就绪=true
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'r', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'r', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'r', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ru', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ru', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ru', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run s', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run s', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run s', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run se', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run se', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run se', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色y', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色y', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色y', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色y', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi x', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi x', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi x', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi x a', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi x a', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi x a', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi x ai', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi x ai', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi x ai', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下x', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下x', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '', limit: 10, sortBy: 'usage'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'r', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'r', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'r', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ru', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ru', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'ru', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: 'run', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润s', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润s', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润s', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润se', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润se', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润se', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色y', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色y', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色y', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色yi', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以x', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以x', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以x', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以xi', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以xi', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以xi', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以xia', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以xia', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以xia', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下x', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下x', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下x', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xu', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xu', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xu', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xue', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xue', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下xue', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学s', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学s', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学s', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学sh', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学s', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学shu', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学shu', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学shu', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术d', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术d', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术d', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术du', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术d', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术du a', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术du a', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术du a', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术duan', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术duan', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术duan', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术段', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [Messaging] 收到消息: SEARCH_PROMPTS
+background.js:2 [AetherFlow] 后台: 收到消息 SEARCH_PROMPTS {searchTerm: '润色以下学术段', limit: 10, sortBy: 'relevance'}
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成

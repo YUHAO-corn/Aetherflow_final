@@ -153,7 +153,9 @@ const globalState = {
     // 添加延迟关闭计时器
     closeTimer: null as number | null,
     // 添加自动关闭状态追踪
-    noMatchCount: 0
+    noMatchCount: 0,
+    // 标记本次会话是否已经因无匹配结果而自动关闭过
+    hasAutoDismissed: false
   },
   
   // 选中文本状态
@@ -168,6 +170,13 @@ const contentService = {
   // 设置提示词快捷键触发
   setupShortcutTrigger: () => {
     console.log('[AetherFlow] 初始化提示词快捷输入监听');
+    
+    // 监听提示词浮层被关闭的自定义事件
+    window.addEventListener('aetherflow-shortcut-dismissed', ((event: CustomEvent) => {
+      console.log('[AetherFlow] 接收到浮层关闭事件，标记已自动关闭');
+      // 记录已经自动关闭过，不再根据位置限制
+      globalState.promptShortcut.hasAutoDismissed = true;
+    }) as EventListener);
     
     // 监听输入事件，检测是否有"/"，进行提示词快捷输入
     const handleInput = throttle((event: Event) => {
@@ -185,24 +194,49 @@ const contentService = {
         // 找到最后一个斜杠"/"位置
         const lastSlashIndex = text.lastIndexOf('/');
         
-        // 如果有斜杠，且最后输入的部分不超过20个字符（作为合理限制）
-        if (lastSlashIndex >= 0 && text.length - lastSlashIndex <= 20) {
+        // 详细输出当前状态，帮助调试
+        console.log('[AetherFlow-DEBUG] 输入检测:', {
+          textLength: text.length,
+          lastSlashIndex,
+          hasSlash: lastSlashIndex >= 0,
+          activeStatus: globalState.promptShortcut.active,
+          hasAutoDismissed: globalState.promptShortcut.hasAutoDismissed
+        });
+        
+        // 修改：极度宽松的触发条件，几乎不限制长度
+        if (
+          lastSlashIndex >= 0 && 
+          // 将输入长度限制增加到200个字符，几乎不限制长度
+          text.length - lastSlashIndex <= 200 && 
+          // 完全移除hasAutoDismissed条件，允许在任何时候重新激活浮层
+          true
+        ) {
           // 提取搜索词（斜杠后的内容）
           const searchTerm = text.substring(lastSlashIndex + 1);
           
-          console.log('[AetherFlow] 检测到"/"输入:', {
+          // 改进输入法中间状态检测 - 极其宽松
+          const inputMethod = {
+            isPinyinInput: /^[a-z\s]+$/i.test(searchTerm) && searchTerm.length < 50,
+            isWordInput: /^[a-zA-Z0-9]+$/.test(searchTerm) && searchTerm.length < 100,
+            hasCJK: /[\u4e00-\u9fa5\u3040-\u30ff\u3400-\u4dbf]/.test(searchTerm), // 包含中日韩文字
+            hasLatin: /[a-zA-Z]/.test(searchTerm),  // 包含拉丁字母
+          };
+          
+          console.log('[AetherFlow-DEBUG] 检测到"/"输入:', {
             slashPos: lastSlashIndex,
             searchTerm,
+            inputMethod,
             active: globalState.promptShortcut.active
           });
           
-          // 如果是新的"/"或搜索词变更，或者元素变更
-          if (
+          // 始终允许触发，除非完全相同的状态
+          const shouldActivate = 
             !globalState.promptShortcut.active || 
             globalState.promptShortcut.currentElement !== target || 
             globalState.promptShortcut.lastSlashPosition !== lastSlashIndex ||
-            globalState.promptShortcut.lastSearchTerm !== searchTerm
-          ) {
+            globalState.promptShortcut.lastSearchTerm !== searchTerm;
+          
+          if (shouldActivate) {
             // 如果已经有活跃的提示词面板，先清理
             if (globalState.promptShortcut.cleanupFn) {
               globalState.promptShortcut.cleanupFn();
@@ -215,12 +249,14 @@ const contentService = {
               globalState.promptShortcut.closeTimer = null;
             }
             
-            // 更新状态
+            // 重置所有状态，彻底刷新
             globalState.promptShortcut.active = true;
             globalState.promptShortcut.currentElement = target;
             globalState.promptShortcut.lastSlashPosition = lastSlashIndex;
             globalState.promptShortcut.lastSearchTerm = searchTerm;
             globalState.promptShortcut.noMatchCount = 0;
+            // 强制重置自动关闭状态，每次输入变化都允许重新显示
+            globalState.promptShortcut.hasAutoDismissed = false;
             
             // 注入提示词组件
             const cleanup = injectPromptShortcut(target, adapter, {
@@ -241,9 +277,12 @@ const contentService = {
             };
           }
         } 
-        // 如果不再满足提示词触发条件，但面板处于活跃状态，则清理
-        else if (globalState.promptShortcut.active && globalState.promptShortcut.currentElement === target) {
-          console.log('[AetherFlow] 输入内容不再满足提示词触发条件，关闭面板');
+        // 修改关闭逻辑：只有在斜杠完全被删除时才关闭浮层
+        else if (globalState.promptShortcut.active && 
+                 globalState.promptShortcut.currentElement === target && 
+                 lastSlashIndex < 0) { // 仅当斜杠完全不存在时才关闭
+          
+          console.log('[AetherFlow-DEBUG] "/"已被删除，关闭面板');
           
           if (globalState.promptShortcut.cleanupFn) {
             globalState.promptShortcut.cleanupFn();
@@ -253,7 +292,7 @@ const contentService = {
           globalState.promptShortcut.active = false;
         }
       }
-    }, 100); // 限制100ms内最多执行一次
+    }, 200); // 维持200ms的节流限制
     
     // 监听表单输入事件
     document.addEventListener('input', handleInput);

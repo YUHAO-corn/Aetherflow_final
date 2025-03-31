@@ -73,11 +73,44 @@ export function initPromptMessaging(): void {
           // 关键词搜索
           if (filter.searchTerm) {
             const term = filter.searchTerm.toLowerCase();
-            filteredPrompts = filteredPrompts.filter(prompt => 
-              prompt.title.toLowerCase().includes(term) || 
-              prompt.content.toLowerCase().includes(term) ||
-              prompt.tags?.some(tag => tag.toLowerCase().includes(term))
-            );
+            
+            // 改进匹配逻辑，支持多种匹配模式
+            filteredPrompts = filteredPrompts.filter(prompt => {
+              const titleLower = prompt.title.toLowerCase();
+              const contentLower = prompt.content.toLowerCase();
+              const tagText = prompt.tags?.join(' ').toLowerCase() || '';
+              
+              // 1. 精确完整匹配（优先级最高）
+              const exactTitleMatch = titleLower === term;
+              const exactContentMatch = contentLower === term;
+              
+              // 2. 包含匹配
+              const titleContains = titleLower.includes(term);
+              const contentContains = contentLower.includes(term);
+              const tagContains = tagText.includes(term);
+              
+              // 3. 开头匹配（常用场景）
+              const titleStartsWith = titleLower.startsWith(term);
+              const contentStartsWith = contentLower.startsWith(term);
+              
+              // 4. 词组匹配（按字符）
+              const termChars = Array.from(term);
+              // 检查所有字符是否都存在（不一定连续）
+              const titleHasAllChars = termChars.every(char => titleLower.includes(char));
+              const contentHasAllChars = termChars.every(char => contentLower.includes(char));
+              
+              // 5. 中文拼音匹配（针对拼音输入法）
+              // 这里简化处理，实际可能需要拼音转换库
+              const isPinyinMatch = term.length > 0 && /^[a-z]+$/.test(term) && 
+                                   (titleLower.includes(term) || contentLower.includes(term));
+              
+              // 综合判断是否匹配
+              return exactTitleMatch || exactContentMatch || 
+                     titleContains || contentContains || tagContains ||
+                     titleStartsWith || contentStartsWith ||
+                     titleHasAllChars || contentHasAllChars ||
+                     isPinyinMatch;
+            });
           }
           
           // 收藏过滤
