@@ -155,7 +155,13 @@ const globalState = {
     // 添加自动关闭状态追踪
     noMatchCount: 0,
     // 标记本次会话是否已经因无匹配结果而自动关闭过
-    hasAutoDismissed: false
+    hasAutoDismissed: false,
+    // 新增：记录最后一次斜杠的唯一ID，用于跟踪触发周期
+    lastSlashCycleId: '',
+    // 新增：记录当前是否处于ESC人工关闭状态
+    manuallyDismissed: false,
+    // 新增：记录已经触发过的斜杠位置，防止同一个位置重复触发
+    triggeredSlashPositions: new Set<number>()
   },
   
   // 选中文本状态
@@ -176,7 +182,34 @@ const contentService = {
       console.log('[AetherFlow] 接收到浮层关闭事件，标记已自动关闭');
       // 记录已经自动关闭过，不再根据位置限制
       globalState.promptShortcut.hasAutoDismissed = true;
+      // 当浮层被主动关闭时，记录当前的斜杠周期ID，避免再次激活
+      if (event.detail && event.detail.slashPosition !== undefined) {
+        console.log('[AetherFlow-DEBUG] 浮层被主动关闭，标记位置:', event.detail.slashPosition);
+        globalState.promptShortcut.triggeredSlashPositions.add(event.detail.slashPosition);
+      }
     }) as EventListener);
+    
+    // 监听ESC键按下事件，用于标记人工关闭状态
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && globalState.promptShortcut.active) {
+        console.log('[AetherFlow-DEBUG] 检测到ESC键，标记为人工关闭状态');
+        // 标记为人工关闭状态
+        globalState.promptShortcut.manuallyDismissed = true;
+        
+        // 记录当前已触发过的斜杠位置
+        if (globalState.promptShortcut.lastSlashPosition >= 0) {
+          globalState.promptShortcut.triggeredSlashPositions.add(globalState.promptShortcut.lastSlashPosition);
+        }
+        
+        // 如果存在清理函数，调用它关闭浮层
+        if (globalState.promptShortcut.cleanupFn) {
+          globalState.promptShortcut.cleanupFn();
+          globalState.promptShortcut.cleanupFn = null;
+        }
+        
+        globalState.promptShortcut.active = false;
+      }
+    });
     
     // 监听输入事件，检测是否有"/"，进行提示词快捷输入
     const handleInput = throttle((event: Event) => {
@@ -200,88 +233,103 @@ const contentService = {
           lastSlashIndex,
           hasSlash: lastSlashIndex >= 0,
           activeStatus: globalState.promptShortcut.active,
-          hasAutoDismissed: globalState.promptShortcut.hasAutoDismissed
+          manuallyDismissed: globalState.promptShortcut.manuallyDismissed,
+          triggeredPositions: Array.from(globalState.promptShortcut.triggeredSlashPositions)
         });
         
-        // 修改：极度宽松的触发条件，几乎不限制长度
+        // 完全重写触发条件逻辑：飞书文档式规则
         if (
           lastSlashIndex >= 0 && 
-          // 将输入长度限制增加到200个字符，几乎不限制长度
-          text.length - lastSlashIndex <= 200 && 
-          // 完全移除hasAutoDismissed条件，允许在任何时候重新激活浮层
-          true
+          // 输入长度限制，超过10个字符自动关闭，符合飞书逻辑
+          text.length - lastSlashIndex <= 10 && 
+          // 关键：检查这个斜杠位置是否已经触发过浮层
+          !globalState.promptShortcut.triggeredSlashPositions.has(lastSlashIndex) &&
+          // 关键：如果是人工关闭状态，则必须是新输入的斜杠才能触发
+          (!globalState.promptShortcut.manuallyDismissed || 
+           (globalState.promptShortcut.manuallyDismissed && 
+            lastSlashIndex !== globalState.promptShortcut.lastSlashPosition))
         ) {
           // 提取搜索词（斜杠后的内容）
           const searchTerm = text.substring(lastSlashIndex + 1);
           
-          // 改进输入法中间状态检测 - 极其宽松
-          const inputMethod = {
-            isPinyinInput: /^[a-z\s]+$/i.test(searchTerm) && searchTerm.length < 50,
-            isWordInput: /^[a-zA-Z0-9]+$/.test(searchTerm) && searchTerm.length < 100,
-            hasCJK: /[\u4e00-\u9fa5\u3040-\u30ff\u3400-\u4dbf]/.test(searchTerm), // 包含中日韩文字
-            hasLatin: /[a-zA-Z]/.test(searchTerm),  // 包含拉丁字母
-          };
+          // 生成当前斜杠的唯一ID
+          const currentSlashCycleId = `${lastSlashIndex}-${Date.now()}`;
           
-          console.log('[AetherFlow-DEBUG] 检测到"/"输入:', {
+          console.log('[AetherFlow-DEBUG] 检测到新的"/"输入:', {
             slashPos: lastSlashIndex,
             searchTerm,
-            inputMethod,
+            cycleId: currentSlashCycleId,
             active: globalState.promptShortcut.active
           });
           
-          // 始终允许触发，除非完全相同的状态
-          const shouldActivate = 
-            !globalState.promptShortcut.active || 
-            globalState.promptShortcut.currentElement !== target || 
-            globalState.promptShortcut.lastSlashPosition !== lastSlashIndex ||
-            globalState.promptShortcut.lastSearchTerm !== searchTerm;
+          // 记录这个斜杠位置已经触发
+          globalState.promptShortcut.triggeredSlashPositions.add(lastSlashIndex);
           
-          if (shouldActivate) {
-            // 如果已经有活跃的提示词面板，先清理
-            if (globalState.promptShortcut.cleanupFn) {
-              globalState.promptShortcut.cleanupFn();
-              globalState.promptShortcut.cleanupFn = null;
-            }
+          // 新的斜杠周期，重置人工关闭状态
+          globalState.promptShortcut.manuallyDismissed = false;
+          
+          // 如果已经有活跃的提示词面板，先清理
+          if (globalState.promptShortcut.cleanupFn) {
+            globalState.promptShortcut.cleanupFn();
+            globalState.promptShortcut.cleanupFn = null;
+          }
+          
+          // 清除可能存在的关闭计时器
+          if (globalState.promptShortcut.closeTimer) {
+            clearTimeout(globalState.promptShortcut.closeTimer);
+            globalState.promptShortcut.closeTimer = null;
+          }
+          
+          // 重置所有状态，开始新的斜杠周期
+          globalState.promptShortcut.active = true;
+          globalState.promptShortcut.currentElement = target;
+          globalState.promptShortcut.lastSlashPosition = lastSlashIndex;
+          globalState.promptShortcut.lastSearchTerm = searchTerm;
+          globalState.promptShortcut.noMatchCount = 0;
+          globalState.promptShortcut.hasAutoDismissed = false;
+          globalState.promptShortcut.lastSlashCycleId = currentSlashCycleId;
+          
+          // 注入提示词组件
+          const cleanup = injectPromptShortcut(target, adapter, {
+            slashPosition: lastSlashIndex,
+            searchTerm
+          });
+          
+          // 保存清理函数
+          globalState.promptShortcut.cleanupFn = () => {
+            cleanup();
+            globalState.promptShortcut.active = false;
             
-            // 清除可能存在的关闭计时器（确保不会自动关闭）
+            // 清除可能存在的计时器
             if (globalState.promptShortcut.closeTimer) {
               clearTimeout(globalState.promptShortcut.closeTimer);
               globalState.promptShortcut.closeTimer = null;
             }
-            
-            // 重置所有状态，彻底刷新
-            globalState.promptShortcut.active = true;
-            globalState.promptShortcut.currentElement = target;
-            globalState.promptShortcut.lastSlashPosition = lastSlashIndex;
-            globalState.promptShortcut.lastSearchTerm = searchTerm;
-            globalState.promptShortcut.noMatchCount = 0;
-            // 强制重置自动关闭状态，每次输入变化都允许重新显示
-            globalState.promptShortcut.hasAutoDismissed = false;
-            
-            // 注入提示词组件
-            const cleanup = injectPromptShortcut(target, adapter, {
-              slashPosition: lastSlashIndex,
-              searchTerm
-            });
-            
-            // 保存清理函数
-            globalState.promptShortcut.cleanupFn = () => {
-              cleanup();
-              globalState.promptShortcut.active = false;
-              
-              // 清除可能存在的计时器
-              if (globalState.promptShortcut.closeTimer) {
-                clearTimeout(globalState.promptShortcut.closeTimer);
-                globalState.promptShortcut.closeTimer = null;
-              }
-            };
-          }
+          };
         } 
-        // 修改关闭逻辑：只有在斜杠完全被删除时才关闭浮层
-        else if (globalState.promptShortcut.active && 
-                 globalState.promptShortcut.currentElement === target && 
-                 lastSlashIndex < 0) { // 仅当斜杠完全不存在时才关闭
+        // 自动关闭逻辑：如果搜索词超过10个字符且活跃状态，自动关闭浮层
+        else if (
+          globalState.promptShortcut.active && 
+          lastSlashIndex >= 0 &&
+          text.length - lastSlashIndex > 10
+        ) {
+          console.log('[AetherFlow-DEBUG] 搜索词超过10个字符，自动关闭浮层');
           
+          if (globalState.promptShortcut.cleanupFn) {
+            globalState.promptShortcut.cleanupFn();
+            globalState.promptShortcut.cleanupFn = null;
+          }
+          
+          globalState.promptShortcut.active = false;
+          // 记录该位置已触发过，避免重复触发
+          globalState.promptShortcut.triggeredSlashPositions.add(lastSlashIndex);
+        }
+        // 斜杠被删除的情况
+        else if (
+          globalState.promptShortcut.active && 
+          globalState.promptShortcut.currentElement === target && 
+          lastSlashIndex < 0
+        ) {
           console.log('[AetherFlow-DEBUG] "/"已被删除，关闭面板');
           
           if (globalState.promptShortcut.cleanupFn) {
@@ -290,20 +338,14 @@ const contentService = {
           }
           
           globalState.promptShortcut.active = false;
+          // 清空触发位置记录，因为文本已改变
+          globalState.promptShortcut.triggeredSlashPositions.clear();
         }
       }
     }, 200); // 维持200ms的节流限制
     
     // 监听表单输入事件
     document.addEventListener('input', handleInput);
-    
-    /**
-     * 修复问题：
-     * 1. 初始化时确保浮层显示，添加立即搜索逻辑
-     * 2. 移除自动关闭计时器，确保浮层不会意外消失
-     * 3. 实时响应搜索词变化，包括删除字符后的重新搜索
-     * 4. 移除Enter键触发选择，避免与输入框发送冲突，保留Tab键选择
-     */
     
     // 监听焦点变化
     document.addEventListener('focusin', (event) => {
