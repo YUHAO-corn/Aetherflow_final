@@ -20,4 +20,14 @@ export interface StorageService {
   set<T>(key: string, value: T): Promise<void>;
   remove(key: string): Promise<void>;
   clear(): Promise<void>;
+}
+
+/**
+ * 用户设置类型
+ */
+export interface UserSettings {
+  /** 启用提示词快捷输入 */
+  enablePromptShortcut: boolean;
+  
+  // 预留其他设置项
 } 
