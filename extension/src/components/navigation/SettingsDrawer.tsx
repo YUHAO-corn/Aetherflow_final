@@ -1,8 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Download, Check } from 'lucide-react';
 import { useExport } from '../../hooks/useExport';
-import { useSettings } from '../../hooks/useSettings';
-import { Switch } from '../ui/Switch';
 
 interface SettingsDrawerProps {
   isOpen: boolean;
@@ -13,7 +11,6 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const { exportToCSV, loading, success, error } = useExport();
-  const { settings, updateSetting } = useSettings();
 
   // 设置挂载状态以触发动画
   useEffect(() => {
@@ -58,13 +55,6 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
     };
   }, [isOpen, onClose]);
 
-  // 切换提示词快捷输入设置
-  const handleTogglePromptShortcut = async (checked: boolean) => {
-    if (settings) {
-      await updateSetting('enablePromptShortcut', checked);
-    }
-  };
-
   // 如果没有挂载，则不显示
   if (!mounted) return null;
 
@@ -94,65 +84,47 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
         </div>
         
         {/* 抽屉内容 */}
-        <div className="p-4 space-y-6">
-          {/* 功能设置 */}
-          <div>
-            <h4 className="text-md font-bold text-magic-200 mb-4">功能设置</h4>
-            
-            <div className="space-y-4">
-              {/* 提示词快捷输入开关 */}
-              <Switch 
-                checked={settings?.enablePromptShortcut ?? true}
-                onChange={handleTogglePromptShortcut}
-                label="提示词快捷输入"
-                description="在页面输入框中输入'/'后触发提示词搜索功能"
-              />
-            </div>
+        <div className="p-4">
+          <h4 className="text-md font-bold text-magic-200 mb-6">数据管理</h4>
+          
+          <div className="space-y-4">
+            <button
+              onClick={exportToCSV}
+              disabled={loading}
+              className={`flex items-center justify-center px-4 py-2 ${
+                success ? 'bg-green-600' : 
+                loading ? 'bg-magic-700 cursor-not-allowed' : 
+                'bg-magic-600 hover:bg-magic-500'
+              } rounded-md text-white transition-colors w-full`}
+            >
+              {loading ? (
+                <span className="flex items-center">
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  导出中...
+                </span>
+              ) : success ? (
+                <>
+                  <Check className="w-4 h-4 mr-2" /> 导出成功
+                </>
+              ) : (
+                <>
+                  <Download className="w-4 h-4 mr-2" /> 导出提示词(CSV)
+                </>
+              )}
+            </button>
           </div>
           
-          {/* 数据管理 */}
-          <div>
-            <h4 className="text-md font-bold text-magic-200 mb-4">数据管理</h4>
-            
-            <div className="space-y-4">
-              <button
-                onClick={exportToCSV}
-                disabled={loading}
-                className={`flex items-center justify-center px-4 py-2 ${
-                  success ? 'bg-green-600' : 
-                  loading ? 'bg-magic-700 cursor-not-allowed' : 
-                  'bg-magic-600 hover:bg-magic-500'
-                } rounded-md text-white transition-colors w-full`}
-              >
-                {loading ? (
-                  <span className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    导出中...
-                  </span>
-                ) : success ? (
-                  <>
-                    <Check className="w-4 h-4 mr-2" /> 导出成功
-                  </>
-                ) : (
-                  <>
-                    <Download className="w-4 h-4 mr-2" /> 导出提示词(CSV)
-                  </>
-                )}
-              </button>
+          {error && (
+            <div className="mt-2 text-sm text-red-400">
+              <p>{error}</p>
             </div>
-            
-            {error && (
-              <div className="mt-2 text-sm text-red-400">
-                <p>{error}</p>
-              </div>
-            )}
-            
-            <div className="mt-6 text-sm text-magic-400">
-              <p>CSV文件将包含您的所有提示词，包括标题、内容、创建时间和使用次数等信息。</p>
-            </div>
+          )}
+          
+          <div className="mt-6 text-sm text-magic-400">
+            <p>CSV文件将包含您的所有提示词，包括标题、内容、创建时间和使用次数等信息。</p>
           </div>
         </div>
       </div>

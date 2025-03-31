@@ -2,7 +2,6 @@ import { addMessageListener } from '../services/messaging';
 import type { Message } from '../services/messaging/types';
 import { GenericAdapter } from './platformAdapter';
 import { injectPromptShortcut } from './PromptShortcutInjector';
-import { getSettings } from '../services/settings';
 // TODO: contentService需要重构，临时注释处理
 // import { contentService } from '../services/content';
 
@@ -162,9 +161,7 @@ const globalState = {
     // 新增：记录当前是否处于ESC人工关闭状态
     manuallyDismissed: false,
     // 新增：记录已经触发过的斜杠位置，防止同一个位置重复触发
-    triggeredSlashPositions: new Set<number>(),
-    // 新增：记录功能是否已启用
-    enabled: true
+    triggeredSlashPositions: new Set<number>()
   },
   
   // 选中文本状态
@@ -176,19 +173,35 @@ const globalState = {
 
 // 内容服务
 const contentService = {
+  // 重置提示词快捷输入的状态
+  resetShortcutState: () => {
+    console.log('[AetherFlow] 重置提示词快捷输入状态');
+    
+    // 清空所有记录的状态
+    globalState.promptShortcut.active = false;
+    globalState.promptShortcut.cleanupFn = null;
+    globalState.promptShortcut.currentElement = null;
+    globalState.promptShortcut.lastSlashPosition = -1;
+    globalState.promptShortcut.lastSearchTerm = '';
+    globalState.promptShortcut.hasAutoDismissed = false;
+    globalState.promptShortcut.manuallyDismissed = false;
+    
+    // 清空关闭计时器
+    if (globalState.promptShortcut.closeTimer) {
+      clearTimeout(globalState.promptShortcut.closeTimer);
+      globalState.promptShortcut.closeTimer = null;
+    }
+    
+    // 关键：清空触发过的斜杠位置记录
+    globalState.promptShortcut.triggeredSlashPositions.clear();
+  },
+  
   // 设置提示词快捷键触发
-  setupShortcutTrigger: async () => {
+  setupShortcutTrigger: () => {
     console.log('[AetherFlow] 初始化提示词快捷输入监听');
     
-    // 从设置中获取启用状态
-    try {
-      const settings = await getSettings();
-      globalState.promptShortcut.enabled = settings.enablePromptShortcut;
-      console.log('[AetherFlow] 提示词快捷输入功能状态:', globalState.promptShortcut.enabled ? '已启用' : '已禁用');
-    } catch (error) {
-      console.error('[AetherFlow] 获取设置失败，使用默认值(启用):', error);
-      globalState.promptShortcut.enabled = true;
-    }
+    // 首先重置所有状态
+    contentService.resetShortcutState();
     
     // 监听提示词浮层被关闭的自定义事件
     window.addEventListener('aetherflow-shortcut-dismissed', ((event: CustomEvent) => {
@@ -226,11 +239,6 @@ const contentService = {
     
     // 监听输入事件，检测是否有"/"，进行提示词快捷输入
     const handleInput = throttle((event: Event) => {
-      // 如果功能被禁用，直接返回
-      if (!globalState.promptShortcut.enabled) {
-        return;
-      }
-      
       const target = event.target as HTMLElement;
       
       // 检查事件目标是否是有效的输入元素
@@ -571,7 +579,9 @@ function showNotification(message: string, type: 'success' | 'error' = 'success'
 // 初始化内容脚本
 function initialize() {
   if (window.aetherflowInitialized) {
-    console.log('[AetherFlow-DEBUG] 内容脚本已经初始化，跳过');
+    console.log('[AetherFlow-DEBUG] 内容脚本已经初始化，但强制重置所有状态');
+    // 即使已初始化，也强制重置状态
+    contentService.resetShortcutState();
     return;
   }
   
@@ -582,36 +592,47 @@ function initialize() {
   });
   
   try {
+    // 重置所有状态
+    contentService.resetShortcutState();
+    
     // 设置提示词快捷触发
     contentService.setupShortcutTrigger();
     
     // 设置选中文本捕获功能
     contentService.setupSelectionCapture();
     
-    // 监听设置变更消息
-    addMessageListener((message: Message, sender, sendResponse) => {
-      if (message.type === 'SETTINGS_UPDATED' && message.data) {
-        console.log('[AetherFlow] 接收到设置变更消息:', message.data);
-        
-        // 更新提示词快捷输入启用状态
-        if (message.data.enablePromptShortcut !== undefined) {
-          globalState.promptShortcut.enabled = message.data.enablePromptShortcut;
-          console.log('[AetherFlow] 提示词快捷输入功能状态已更新:', 
-                    globalState.promptShortcut.enabled ? '已启用' : '已禁用');
-          
-          // 如果当前有活跃的提示词面板且功能被禁用，则关闭面板
-          if (!globalState.promptShortcut.enabled && globalState.promptShortcut.active && globalState.promptShortcut.cleanupFn) {
-            globalState.promptShortcut.cleanupFn();
-            globalState.promptShortcut.cleanupFn = null;
-            globalState.promptShortcut.active = false;
-          }
-        }
-        
-        sendResponse({ success: true });
-        return true;
+    // 设置定期状态监控，输出当前的触发状态
+    const statusInterval = setInterval(() => {
+      // 避免过多日志，只在活跃状态下或每30秒输出一次
+      if (globalState.promptShortcut.active || Date.now() % 30000 < 1000) {
+        console.log('[AetherFlow-DEBUG] 当前状态:', {
+          time: new Date().toISOString(),
+          active: globalState.promptShortcut.active,
+          manuallyDismissed: globalState.promptShortcut.manuallyDismissed,
+          lastSlashPosition: globalState.promptShortcut.lastSlashPosition,
+          hasCleanupFn: !!globalState.promptShortcut.cleanupFn,
+          triggeredPositions: Array.from(globalState.promptShortcut.triggeredSlashPositions),
+          triggeredCount: globalState.promptShortcut.triggeredSlashPositions.size
+        });
       }
-      
-      return false;
+    }, 5000); // 每5秒检查一次
+    
+    // 添加页面可见性变化监听，当页面从隐藏变为可见时重置状态
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        console.log('[AetherFlow-DEBUG] 页面重新变为可见，重置状态');
+        contentService.resetShortcutState();
+      }
+    });
+    
+    // 添加页面刷新前的监听器
+    window.addEventListener('beforeunload', () => {
+      console.log('[AetherFlow-DEBUG] 页面即将刷新，清理资源');
+      // 清理任何需要清理的资源
+      if (globalState.promptShortcut.cleanupFn) {
+        globalState.promptShortcut.cleanupFn();
+        globalState.promptShortcut.cleanupFn = null;
+      }
     });
     
     // 设置完整消息监听器

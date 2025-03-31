@@ -639,6 +639,13 @@ export function injectPromptShortcut(
 ) {
   console.log('[AetherFlow] 注入提示词快捷输入组件', searchInfo);
   
+  // 清理可能存在的旧浮层
+  const existingContainer = document.getElementById('aetherflow-shortcut-container');
+  if (existingContainer && existingContainer.firstChild) {
+    console.log('[AetherFlow] 强制清理已存在的浮层');
+    ReactDOM.unmountComponentAtNode(existingContainer);
+  }
+  
   // 创建样式元素（如果不存在）
   let styleElement = document.getElementById('aetherflow-shortcut-styles');
   if (!styleElement) {
