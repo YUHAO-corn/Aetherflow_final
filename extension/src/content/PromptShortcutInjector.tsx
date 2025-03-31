@@ -401,6 +401,14 @@ function PromptShortcut({ inputElement, adapter, onClose, position, searchInfo }
         // 更新状态
         setResults(prompts);
         setHasExactMatch(hasMatch);
+        
+        // 新增：通知父组件搜索结果状态，用于飞书触发逻辑
+        if (prompts.length === 0 && term.trim() && !hasMatch) {
+          // 无匹配结果，发送事件通知父组件增加noMatchCount
+          window.dispatchEvent(new CustomEvent('aetherflow-search-no-match', {
+            detail: { term }
+          }));
+        }
       } else {
         console.log('[AetherFlow-DEBUG] 搜索无结果');
         // 即使无结果，对于中文输入也尽量保持浮层
@@ -467,7 +475,7 @@ function PromptShortcut({ inputElement, adapter, onClose, position, searchInfo }
         
         if (e.key === 'Escape') {
           e.preventDefault();
-          onClose();
+          onClose(true);
         } else if (e.key === 'ArrowDown') {
           e.preventDefault();
           setActiveIndex(prev => (prev < results.length - 1 ? prev + 1 : prev));
@@ -495,7 +503,7 @@ function PromptShortcut({ inputElement, adapter, onClose, position, searchInfo }
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
-        onClose();
+        onClose(true);
       }
     };
     
@@ -729,7 +737,11 @@ export function injectPromptShortcut(
         if (skipFutureShow) {
           // 向父组件传递一个标记，表示这次"/"触发周期结束，不再显示
           window.dispatchEvent(new CustomEvent('aetherflow-shortcut-dismissed', {
-            detail: { slashPosition: searchInfo.slashPosition }
+            detail: { 
+              slashPosition: searchInfo.slashPosition,
+              // 添加标记，表示是用户手动关闭的
+              manualClosed: true
+            }
           }));
         }
       }}
