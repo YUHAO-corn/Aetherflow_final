@@ -15,7 +15,7 @@ export function PromptFormModal({ isOpen, onClose, prompt }: PromptFormModalProp
   
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [isFavorite, setIsFavorite] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(true); // 默认为收藏状态
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
@@ -24,12 +24,12 @@ export function PromptFormModal({ isOpen, onClose, prompt }: PromptFormModalProp
     if (prompt) {
       setTitle(prompt.title);
       setContent(prompt.content);
-      setIsFavorite(prompt.isFavorite || prompt.favorite || false);
+      setIsFavorite(true); // 始终设置为收藏状态
     } else {
       // 新建模式下重置表单
       setTitle('');
       setContent('');
-      setIsFavorite(false);
+      setIsFavorite(true); // 始终设置为收藏状态
     }
   }, [prompt, isOpen]);
   
@@ -83,7 +83,7 @@ export function PromptFormModal({ isOpen, onClose, prompt }: PromptFormModalProp
         await updatePrompt(prompt.id, {
           title,
           content,
-          isFavorite,
+          isFavorite: true, // 始终设置为收藏状态
           updatedAt: Date.now()
         });
       } else {
@@ -91,7 +91,7 @@ export function PromptFormModal({ isOpen, onClose, prompt }: PromptFormModalProp
         await addPrompt({
           title,
           content,
-          isFavorite,
+          isFavorite: true, // 始终设置为收藏状态
           tags: [],
           source: 'user'
         });
@@ -152,20 +152,6 @@ export function PromptFormModal({ isOpen, onClose, prompt }: PromptFormModalProp
             rows={6}
             className="w-full p-3 bg-magic-800/50 border border-magic-600/30 rounded-md text-magic-200 placeholder-magic-500 focus:outline-none focus:ring-2 focus:ring-magic-600 focus:border-transparent transition-all resize-none scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800"
           />
-        </div>
-        
-        {/* 收藏选项 */}
-        <div className="flex items-center">
-          <input
-            id="prompt-favorite"
-            type="checkbox"
-            checked={isFavorite}
-            onChange={(e) => setIsFavorite(e.target.checked)}
-            className="w-4 h-4 text-magic-600 bg-magic-800 border-magic-600 rounded focus:ring-magic-600 focus:ring-offset-magic-800"
-          />
-          <label htmlFor="prompt-favorite" className="ml-2 text-sm font-medium text-magic-300">
-            加入收藏夹
-          </label>
         </div>
         
         {/* 操作按钮 */}

@@ -201,7 +201,7 @@ export async function createPrompt(input: CreatePromptInput): Promise<Prompt> {
       id: generateId(),
       title: title,
       content: input.content.trim(),
-      isFavorite: input.isFavorite || false,
+      isFavorite: true,
       createdAt: now,
       updatedAt: now,
       useCount: 0,

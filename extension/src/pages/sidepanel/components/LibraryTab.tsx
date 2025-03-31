@@ -31,66 +31,34 @@ export function LibraryTab() {
   const [sortOption, setSortOption] = useState<SortOption>('updatedDesc');
   const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   
   // 使用API数据
   const prompts = apiPrompts;
   
-  // 搜索和排序提示词
+  // 获取并过滤提示词
   useEffect(() => {
-    const filterAndSortPrompts = async () => {
-      // 显示加载状态
-      setLoading(true);
-      
+    const getPrompts = async () => {
       try {
-        // 使用新的searchPrompts方法，它已经内置了过滤和排序功能
-        let searchSortOption = 'time'; // 默认按时间排序
-        
-        if (sortOption === 'useCount') {
-          searchSortOption = 'usage';
-        } else if (sortOption.startsWith('created')) {
-          // 创建时间排序需要特殊处理，因为PromptFilter没有这个选项
-          searchSortOption = 'time'; // 先按更新时间排序，后面会重新排序
-        }
-        
-        // 转换为PromptFilter格式
-        const results = await searchPrompts({
+        setLoading(true);
+        // 获取提示词
+        const allPrompts = await searchPrompts({
           searchTerm: searchTerm,
-          sortBy: searchSortOption as any
+          sortBy: mapSortOptionToApiSortBy(sortOption),
+          onlyFavorites: true // 确保只显示收藏的提示词
         });
         
-        // 处理特殊排序情况
-        let finalResults = [...results];
-        
-        // 按照选择的排序选项进行排序
-        switch (sortOption) {
-          case 'updatedDesc':
-            finalResults.sort((a, b) => b.updatedAt - a.updatedAt);
-            break;
-          case 'updatedAsc':
-            finalResults.sort((a, b) => a.updatedAt - b.updatedAt);
-            break;
-          case 'createdDesc':
-            finalResults.sort((a, b) => b.createdAt - a.createdAt);
-            break;
-          case 'createdAsc':
-            finalResults.sort((a, b) => a.createdAt - b.createdAt);
-            break;
-          case 'useCount':
-            finalResults.sort((a, b) => (b.useCount || 0) - (a.useCount || 0));
-            break;
-        }
-        
-        setFilteredPrompts(finalResults);
+        setFilteredPrompts(allPrompts);
+        setLoading(false);
       } catch (error) {
-        console.error('搜索提示词失败:', error);
-        setFilteredPrompts([]);
-      } finally {
+        console.error('获取提示词失败:', error);
+        setError('获取提示词失败，请稍后重试');
         setLoading(false);
       }
     };
     
-    filterAndSortPrompts();
-  }, [searchTerm, prompts, sortOption, searchPrompts]);
+    getPrompts();
+  }, [searchTerm, sortOption, searchPrompts]);
   
   // 排序提示词
   const sortPrompts = (prompts: Prompt[], option: SortOption): Prompt[] => {
@@ -191,6 +159,21 @@ export function LibraryTab() {
   // 限制卡片标题长度，最多24个字节
   const formatTitle = (title: string) => {
     return title.length > 24 ? title.substring(0, 21) + '...' : title;
+  };
+
+  // 映射排序选项到API排序类型
+  const mapSortOptionToApiSortBy = (option: SortOption): 'usage' | 'favorite' | 'time' | 'alphabetical' | 'relevance' | undefined => {
+    switch (option) {
+      case 'useCount':
+        return 'usage';
+      case 'updatedDesc':
+      case 'updatedAsc':
+      case 'createdDesc':
+      case 'createdAsc':
+        return 'time';
+      default:
+        return 'time';
+    }
   };
 
   return (
