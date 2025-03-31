@@ -2,6 +2,7 @@ import { addMessageListener } from '../services/messaging';
 import type { Message } from '../services/messaging/types';
 import { GenericAdapter } from './platformAdapter';
 import { injectPromptShortcut } from './PromptShortcutInjector';
+import { getSettings } from '../services/settings';
 // TODO: contentService需要重构，临时注释处理
 // import { contentService } from '../services/content';
 
@@ -161,7 +162,9 @@ const globalState = {
     // 新增：记录当前是否处于ESC人工关闭状态
     manuallyDismissed: false,
     // 新增：记录已经触发过的斜杠位置，防止同一个位置重复触发
-    triggeredSlashPositions: new Set<number>()
+    triggeredSlashPositions: new Set<number>(),
+    // 新增：记录功能是否已启用
+    enabled: true
   },
   
   // 选中文本状态
@@ -174,8 +177,18 @@ const globalState = {
 // 内容服务
 const contentService = {
   // 设置提示词快捷键触发
-  setupShortcutTrigger: () => {
+  setupShortcutTrigger: async () => {
     console.log('[AetherFlow] 初始化提示词快捷输入监听');
+    
+    // 从设置中获取启用状态
+    try {
+      const settings = await getSettings();
+      globalState.promptShortcut.enabled = settings.enablePromptShortcut;
+      console.log('[AetherFlow] 提示词快捷输入功能状态:', globalState.promptShortcut.enabled ? '已启用' : '已禁用');
+    } catch (error) {
+      console.error('[AetherFlow] 获取设置失败，使用默认值(启用):', error);
+      globalState.promptShortcut.enabled = true;
+    }
     
     // 监听提示词浮层被关闭的自定义事件
     window.addEventListener('aetherflow-shortcut-dismissed', ((event: CustomEvent) => {
@@ -213,6 +226,11 @@ const contentService = {
     
     // 监听输入事件，检测是否有"/"，进行提示词快捷输入
     const handleInput = throttle((event: Event) => {
+      // 如果功能被禁用，直接返回
+      if (!globalState.promptShortcut.enabled) {
+        return;
+      }
+      
       const target = event.target as HTMLElement;
       
       // 检查事件目标是否是有效的输入元素
@@ -569,6 +587,32 @@ function initialize() {
     
     // 设置选中文本捕获功能
     contentService.setupSelectionCapture();
+    
+    // 监听设置变更消息
+    addMessageListener((message: Message, sender, sendResponse) => {
+      if (message.type === 'SETTINGS_UPDATED' && message.data) {
+        console.log('[AetherFlow] 接收到设置变更消息:', message.data);
+        
+        // 更新提示词快捷输入启用状态
+        if (message.data.enablePromptShortcut !== undefined) {
+          globalState.promptShortcut.enabled = message.data.enablePromptShortcut;
+          console.log('[AetherFlow] 提示词快捷输入功能状态已更新:', 
+                    globalState.promptShortcut.enabled ? '已启用' : '已禁用');
+          
+          // 如果当前有活跃的提示词面板且功能被禁用，则关闭面板
+          if (!globalState.promptShortcut.enabled && globalState.promptShortcut.active && globalState.promptShortcut.cleanupFn) {
+            globalState.promptShortcut.cleanupFn();
+            globalState.promptShortcut.cleanupFn = null;
+            globalState.promptShortcut.active = false;
+          }
+        }
+        
+        sendResponse({ success: true });
+        return true;
+      }
+      
+      return false;
+    });
     
     // 设置完整消息监听器
     addMessageListener((message: Message, sender, sendResponse) => {

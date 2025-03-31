@@ -24,6 +24,8 @@ export type MessageType =
   // 消息通信检测
   | 'PING'
   | 'CONTENT_SCRIPT_READY'
+  // 设置相关消息类型
+  | 'SETTINGS_UPDATED'
   // 旧版兼容消息类型
   | 'LEGACY_SEARCH_PROMPTS';
 
