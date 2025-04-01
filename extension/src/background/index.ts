@@ -10,6 +10,9 @@ import { migratePromptsData } from '../services/storage';
 
 console.log('[AetherFlow] 后台脚本加载成功');
 
+// 设置Service Worker保活机制
+setupServiceWorkerKeepAlive();
+
 // 初始化提示词消息处理
 setupPromptMessaging();
 
@@ -47,6 +50,88 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // 不处理其他消息
   return false;
 });
+
+/**
+ * 设置Service Worker保活机制，防止长时间不活动后休眠
+ * Chrome扩展的Service Worker会在不活动后休眠，这会导致功能失效
+ */
+function setupServiceWorkerKeepAlive() {
+  console.log('[AetherFlow] 设置Service Worker保活机制');
+  
+  // 记录心跳次数
+  let heartbeatCount = 0;
+  
+  // 设置定期唤醒闹钟
+  chrome.alarms.create('aetherflow-keepalive', {
+    periodInMinutes: 1 // 每1分钟唤醒一次
+  });
+  
+  // 监听闹钟事件
+  chrome.alarms.onAlarm.addListener((alarm) => {
+    if (alarm.name === 'aetherflow-keepalive') {
+      heartbeatCount++;
+      
+      // 每10次心跳打印一次日志，避免日志过多
+      if (heartbeatCount % 10 === 0) {
+        console.log(`[AetherFlow] Service Worker心跳 #${heartbeatCount} (通过alarms API)`);
+      }
+      
+      // 执行一些轻量级操作保持活跃
+      chrome.storage.local.get('lastHeartbeat', (result) => {
+        chrome.storage.local.set({ 
+          'lastHeartbeat': Date.now(),
+          'heartbeatCount': heartbeatCount
+        });
+      });
+      
+      // 检查所有标签页的内容脚本状态
+      refreshContentScriptsStatus();
+      
+      // 处理暂存的捕获请求
+      processPendingCaptures();
+    }
+  });
+  
+  // 额外使用消息机制作为备份
+  const sendHeartbeat = () => {
+    // 向自己发送消息保持活跃
+    chrome.runtime.sendMessage({ type: 'HEARTBEAT', count: heartbeatCount })
+      .catch(error => {
+        // 忽略错误，这里只是为了保持活跃
+      });
+  };
+  
+  // 设置定时器，每60秒发送一次心跳
+  setInterval(sendHeartbeat, 60000);
+  
+  // 监听HEARTBEAT消息，用于响应自己发送的心跳
+  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message && message.type === 'HEARTBEAT') {
+      // 立即响应，保持活跃
+      sendResponse({ alive: true, count: message.count });
+      return true;
+    }
+    return false;
+  });
+  
+  // 刷新所有标签页的内容脚本状态
+  function refreshContentScriptsStatus() {
+    chrome.tabs.query({}, (tabs) => {
+      tabs.forEach(tab => {
+        if (tab.id && tab.url && tab.url.startsWith('http')) {
+          checkContentScriptStatus(tab.id).catch(() => {
+            // 忽略错误，这只是一个状态检查
+          });
+        }
+      });
+    });
+  }
+  
+  // 立即注册一个一次性的闹钟，确保启动后很快就执行一次
+  chrome.alarms.create('aetherflow-keepalive-initial', {
+    delayInMinutes: 0.1 // 6秒后执行一次
+  });
+}
 
 /**
  * 设置初始示例数据
@@ -730,5 +815,80 @@ async function captureSelectionAsPrompt(content: string): Promise<boolean> {
     }
     
     return false;
+  }
+}
+
+// 处理暂存的捕获请求
+async function processPendingCaptures() {
+  try {
+    console.log('[AetherFlow] 检查暂存的捕获请求...');
+    
+    // 获取所有存储的键
+    const data = await chrome.storage.local.get(null);
+    
+    // 找出所有暂存的捕获请求
+    const pendingKeys = Object.keys(data).filter(key => 
+      key.startsWith('temp_capture_') && 
+      data[key] && 
+      data[key].pendingCapture === true
+    );
+    
+    if (pendingKeys.length === 0) {
+      return; // 没有暂存的请求
+    }
+    
+    console.log(`[AetherFlow] 发现${pendingKeys.length}个暂存的捕获请求，开始处理...`);
+    
+    // 处理每个暂存的请求
+    for (const key of pendingKeys) {
+      const captureData = data[key];
+      
+      // 提取内容
+      const content = captureData.content;
+      
+      if (!content || typeof content !== 'string' || content.trim() === '') {
+        console.warn(`[AetherFlow] 暂存捕获请求 ${key} 内容为空，跳过`);
+        // 删除无效的暂存请求
+        chrome.storage.local.remove(key);
+        continue;
+      }
+      
+      console.log(`[AetherFlow] 处理暂存的捕获请求 ${key}，内容长度: ${content.length}`);
+      
+      try {
+        // 尝试保存提示词
+        const result = await captureSelectionAsPrompt(content);
+        
+        if (result) {
+          console.log(`[AetherFlow] 成功处理暂存的捕获请求 ${key}`);
+          
+          // 尝试向用户发送通知
+          try {
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+              if (tabs && tabs[0] && tabs[0].id) {
+                safelySendNotification(
+                  tabs[0].id, 
+                  'Pending prompt has been saved to library', 
+                  'success'
+                );
+              }
+            });
+          } catch (notifyError) {
+            console.warn('[AetherFlow] 发送通知失败:', notifyError);
+          }
+        } else {
+          console.warn(`[AetherFlow] 处理暂存的捕获请求 ${key} 失败`);
+        }
+      } catch (error) {
+        console.error(`[AetherFlow] 处理暂存的捕获请求 ${key} 出错:`, error);
+        // 保留失败的请求，下次再试
+        continue;
+      }
+      
+      // 处理完成后删除暂存的请求
+      chrome.storage.local.remove(key);
+    }
+  } catch (error) {
+    console.error('[AetherFlow] 处理暂存的捕获请求时出错:', error);
   }
 }
