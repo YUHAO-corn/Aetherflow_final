@@ -91,7 +91,10 @@ function PromptShortcut({ inputElement, adapter, onClose, position, searchInfo }
             </div>
           ))
         ) : displayTerm ? (
-          <div className="af-shortcut-empty">No results found</div>
+          <div className="af-shortcut-empty">
+            <div>No results found</div>
+            <div className="mt-2 text-xs opacity-80">If you just installed or updated the extension, try refreshing the page.</div>
+          </div>
         ) : (
           <div className="af-shortcut-empty">Continue typing to search...</div>
         )}

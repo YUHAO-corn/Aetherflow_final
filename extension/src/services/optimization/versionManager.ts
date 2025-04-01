@@ -95,11 +95,8 @@ export function formatContentPreview(content: string, maxLength = 400): string {
  * @returns 格式化后的标题
  */
 export function formatVersionTitle(id: number, isEdited: boolean = false): string {
-  let title = `Optimization v${id}`;
-  if (isEdited) {
-    title += ' (Edited)';
-  }
-  return title.length > 24 ? title.substring(0, 21) + '...' : title;
+  const title = `Version ${id}${isEdited ? ' (Edited)' : ''}`;
+  return title.length > 30 ? title.substring(0, 27) + '...' : title;
 }
 
 /**

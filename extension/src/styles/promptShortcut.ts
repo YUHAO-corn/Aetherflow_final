@@ -14,6 +14,8 @@ export const promptShortcutStyles = `
   font-family: system-ui, -apple-system, sans-serif;
   overflow: hidden;
   color: #e2e8f0;
+  display: flex;
+  flex-direction: column;
 }
 
 .af-shortcut-header {
@@ -24,6 +26,7 @@ export const promptShortcutStyles = `
   font-weight: 500;
   color: #9ca3af;
   border-bottom: 1px solid #2f3146;
+  flex-shrink: 0;
 }
 
 .af-shortcut-header-icon {
@@ -43,11 +46,12 @@ export const promptShortcutStyles = `
 }
 
 .af-shortcut-list {
-  max-height: 250px;
+  flex: 1;
   overflow-y: auto;
   padding: 6px;
   scrollbar-width: thin;
   scrollbar-color: #3f4565 transparent;
+  min-height: 50px;
 }
 
 .af-shortcut-list::-webkit-scrollbar {
@@ -117,6 +121,10 @@ export const promptShortcutStyles = `
   border-top: 1px solid #2f3146;
   display: flex;
   justify-content: space-between;
+  flex-shrink: 0;
+  background-color: #1a1c2a;
+  position: sticky;
+  bottom: 0;
 }
 
 .af-shortcut-loading {

@@ -173,9 +173,9 @@ export function LibraryTab() {
     return content.replace(/\n{3,}/g, '\n\n');
   };
   
-  // 限制卡片标题长度，最多24个字节
+  // 限制卡片标题长度，最多30个字节
   const formatTitle = (title: string) => {
-    return title.length > 24 ? title.substring(0, 21) + '...' : title;
+    return title.length > 30 ? title.substring(0, 27) + '...' : title;
   };
 
   // 映射排序选项到API排序类型
