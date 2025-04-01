@@ -1,4 +1,4 @@
-// PromptShortcutInjector.tsx - 提示词快捷输入注入器
+// PromptShortcutInjector.tsx - Prompt Shortcut Injector
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { PlatformAdapter } from './platformAdapter';
@@ -7,7 +7,7 @@ import { usePromptShortcutUI, HighlightedPart } from '../hooks/usePromptShortcut
 import { usePromptPosition } from '../hooks/usePromptPosition';
 import { promptShortcutStyles } from '../styles/promptShortcut';
 
-// 提示词快捷输入组件属性
+// Prompt shortcut component properties
 interface PromptShortcutProps {
   inputElement: HTMLElement;
   adapter: PlatformAdapter;
@@ -20,11 +20,11 @@ interface PromptShortcutProps {
 }
 
 /**
- * 提示词快捷输入组件
- * 使用Hook管理状态和逻辑，组件专注于UI渲染
+ * Prompt Shortcut Component
+ * Uses Hook to manage state and logic, component focuses on UI rendering
  */
 function PromptShortcut({ inputElement, adapter, onClose, position, searchInfo }: PromptShortcutProps) {
-  // 使用Hook管理状态和逻辑
+  // Use Hook to manage state and logic
   const {
     results,
     loading,
@@ -37,7 +37,7 @@ function PromptShortcut({ inputElement, adapter, onClose, position, searchInfo }
     highlightKeyword
   } = usePromptShortcutUI(inputElement, adapter, searchInfo, onClose);
   
-  // 渲染高亮文本
+  // Render highlighted text
   const renderHighlightedText = (text: string, keyword: string) => {
     if (!keyword.trim()) return text;
     
@@ -52,7 +52,7 @@ function PromptShortcut({ inputElement, adapter, onClose, position, searchInfo }
     }
   };
   
-  // UI渲染，专注于展示
+  // UI rendering, focuses on display
   return (
     <div 
       className="af-shortcut-container" 
@@ -83,7 +83,7 @@ function PromptShortcut({ inputElement, adapter, onClose, position, searchInfo }
               <div className="af-shortcut-title">
                 {renderHighlightedText(prompt.title, displayTerm)}
                 {prompt.isFavorite && <span className="af-shortcut-favorite">★</span>}
-                {!displayTerm && <span className="af-shortcut-recommended-label">推荐</span>}
+                {!displayTerm && <span className="af-shortcut-recommended-label">Recommended</span>}
               </div>
               <div className="af-shortcut-content">
                 {renderHighlightedText(prompt.content, displayTerm)}
@@ -91,60 +91,60 @@ function PromptShortcut({ inputElement, adapter, onClose, position, searchInfo }
             </div>
           ))
         ) : displayTerm ? (
-          <div className="af-shortcut-empty">未能找到相关结果</div>
+          <div className="af-shortcut-empty">No results found</div>
         ) : (
-          <div className="af-shortcut-empty">继续输入关键词进行搜索...</div>
+          <div className="af-shortcut-empty">Continue typing to search...</div>
         )}
       </div>
       
-      {/* 确保footer始终显示 */}
+      {/* Always display footer */}
       <div className="af-shortcut-footer">
-        <span>↑/↓: 导航</span>
-        <span>Tab: 选择</span>
-        <span>Esc: 取消</span>
+        <span>↑/↓: Navigate</span>
+        <span>Tab: Select</span>
+        <span>Esc: Cancel</span>
       </div>
     </div>
   );
 }
 
 /**
- * 注入提示词快捷输入功能到页面
- * @param inputElement 输入框元素
- * @param adapter 平台适配器
- * @param searchInfo 搜索信息
+ * Inject prompt shortcut functionality into the page
+ * @param inputElement Input element
+ * @param adapter Platform adapter
+ * @param searchInfo Search information
  */
 export function injectPromptShortcut(
   inputElement: HTMLElement, 
   adapter: PlatformAdapter,
   searchInfo: SearchInfo
 ) {
-  console.log('[AetherFlow] 注入提示词快捷输入组件', searchInfo);
+  console.log('[AetherFlow] Injecting prompt shortcut component', searchInfo);
   
-  // 创建样式元素（如果不存在）
+  // Create style element (if it doesn't exist)
   let styleElement = document.getElementById('aetherflow-shortcut-styles');
   if (!styleElement) {
     styleElement = document.createElement('style');
     styleElement.id = 'aetherflow-shortcut-styles';
     styleElement.textContent = promptShortcutStyles;
     document.head.appendChild(styleElement);
-    console.log('[AetherFlow] 注入样式元素');
+    console.log('[AetherFlow] Style element injected');
   }
   
-  // 获取或创建快捷键触发器组件的容器
+  // Get or create container for shortcut trigger component
   let shortcutContainerElement = document.getElementById('aetherflow-shortcut-container');
   if (!shortcutContainerElement) {
     shortcutContainerElement = document.createElement('div');
     shortcutContainerElement.id = 'aetherflow-shortcut-container';
     document.body.appendChild(shortcutContainerElement);
-    console.log('[AetherFlow] 创建组件容器');
+    console.log('[AetherFlow] Component container created');
   }
   
-  // 使用位置计算钩子计算位置（直接调用而非使用React钩子，实际计算保持一致）
+  // Use position calculation hook to calculate position (direct call rather than using React hook, actual calculation remains consistent)
   const inputRect = inputElement.getBoundingClientRect();
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
   
-  // 计算光标位置
+  // Calculate cursor position
   let cursorLeft = inputRect.left;
   let cursorTop = inputRect.bottom;
   
@@ -160,30 +160,30 @@ export function injectPromptShortcut(
         }
       }
     } else if (inputElement instanceof HTMLTextAreaElement || inputElement instanceof HTMLInputElement) {
-      // 对于textarea和input，我们只能近似光标位置
-      cursorLeft = inputRect.left + 20; // 简单偏移
+      // For textarea and input, we can only approximate cursor position
+      cursorLeft = inputRect.left + 20; // simple offset
     }
   } catch (e) {
-    console.error('[AetherFlow] 计算光标位置失败:', e);
+    console.error('[AetherFlow] Failed to calculate cursor position:', e);
   }
   
-  // 调整水平位置，确保不超出右边界
-  const floatWidth = 320; // 浮层宽度
+  // Adjust horizontal position to ensure it doesn't exceed the right boundary
+  const floatWidth = 320; // float layer width
   if (cursorLeft + floatWidth > viewportWidth - 20) {
     cursorLeft = Math.max(20, viewportWidth - floatWidth - 20);
   }
   
-  // 修改位置计算逻辑
+  // Modified position calculation logic
   let positionTop;
   let showAbove = false;
   
-  // 如果底部空间不足则显示在输入框上方
-  if (cursorTop + 300 > viewportHeight - 20) { // 300是最大高度
+  // If bottom space is insufficient, show above the input box
+  if (cursorTop + 300 > viewportHeight - 20) { // 300 is the maximum height
     showAbove = true;
-    // 关键修改：将浮层下边缘固定在光标上方
-    positionTop = inputRect.top - 10; // 固定下边缘在光标上方10px处
+    // Key modification: Fix the bottom edge of the float layer above the cursor
+    positionTop = inputRect.top - 10; // Fix the bottom edge 10px above the cursor
   } else {
-    // 正常情况，上边缘固定在光标下方
+    // Normal case, fix the top edge below the cursor
     positionTop = cursorTop;
   }
   
@@ -192,22 +192,21 @@ export function injectPromptShortcut(
     left: cursorLeft + window.scrollX
   };
   
-  console.log('[AetherFlow] 渲染快捷输入组件, 位置:', position);
+  console.log('[AetherFlow] Rendering shortcut component, position:', position);
   
-  // 渲染快捷输入组件
+  // Render shortcut component
   ReactDOM.render(
     <PromptShortcut
       inputElement={inputElement}
       adapter={adapter}
       onClose={(skipFutureShow) => {
-        console.log('[AetherFlow] 关闭快捷输入组件');
-        // 卸载组件但不删除容器，以便重用
         ReactDOM.unmountComponentAtNode(shortcutContainerElement);
+        console.log('[AetherFlow] Component unmounted');
         
-        // 如果是由于无匹配结果关闭的，告知父组件不要再显示
         if (skipFutureShow) {
-          // 使用服务层发送事件
+          // Use service layer to dispatch event
           promptShortcutService.dispatchDismissedEvent(searchInfo.slashPosition, true);
+          console.log('[AetherFlow] Disabled for current session');
         }
       }}
       position={position}
@@ -216,30 +215,26 @@ export function injectPromptShortcut(
     shortcutContainerElement
   );
   
-  // 使用额外的CSS类控制浮层位置
+  // Use additional CSS class to control float layer position
   if (showAbove) {
-    // 添加max-height样式，确保位置策略正确应用
+    // Add max-height style to ensure positioning strategy is correctly applied
     const firstChild = shortcutContainerElement.firstChild as HTMLElement;
     if (firstChild) {
       firstChild.classList.add('af-shortcut-show-above');
     }
     
-    // 添加内联样式
+    // Add inline style
     const container = shortcutContainerElement.querySelector('.af-shortcut-container');
     if (container && container instanceof HTMLElement) {
       container.style.bottom = `calc(100vh - ${positionTop}px)`;
       container.style.top = 'auto';
-      container.style.maxHeight = '300px'; // 限制最大高度
+      container.style.maxHeight = '300px'; // limit maximum height
     }
   }
-  
-  // 返回清理函数
+   
+  // Return cleanup function
   return () => {
-    console.log('[AetherFlow] 清理快捷输入组件');
-    
-    // 卸载组件
-    if (shortcutContainerElement) {
-      ReactDOM.unmountComponentAtNode(shortcutContainerElement);
-    }
+    ReactDOM.unmountComponentAtNode(shortcutContainerElement);
+    console.log('[AetherFlow] Component unmounted');
   };
 } 

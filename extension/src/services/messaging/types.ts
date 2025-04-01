@@ -8,10 +8,10 @@ export type MessageType =
   | 'DELETE_PROMPT'
   | 'INCREMENT_PROMPT_USE'
   | 'SEARCH_PROMPTS'
-  // 其他现有消息类型
-  | 'SEARCH_PROMPTS'
   | 'OPTIMIZE_PROMPT'
   | 'PROMPT_UPDATED'
+  | 'IMPORT_PROMPTS'
+  | 'EXPORT_PROMPTS'
   // 内容脚本相关消息类型
   | 'COPY_TO_CLIPBOARD'
   | 'INJECT_PROMPT'
@@ -25,7 +25,8 @@ export type MessageType =
   | 'PING'
   | 'CONTENT_SCRIPT_READY'
   // 旧版兼容消息类型
-  | 'LEGACY_SEARCH_PROMPTS';
+  | 'LEGACY_SEARCH_PROMPTS'
+  | 'GET_SELECTED_TEXT';
 
 /**
  * 统一消息接口

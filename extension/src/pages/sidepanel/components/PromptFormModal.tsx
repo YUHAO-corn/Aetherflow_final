@@ -66,12 +66,12 @@ export function PromptFormModal({ isOpen, onClose, prompt }: PromptFormModalProp
   
   const handleSubmit = async () => {
     if (!title.trim()) {
-      setError('标题不能为空');
+      setError('Title cannot be empty');
       return;
     }
     
     if (!content.trim()) {
-      setError('内容不能为空');
+      setError('Content cannot be empty');
       return;
     }
     
@@ -104,7 +104,7 @@ export function PromptFormModal({ isOpen, onClose, prompt }: PromptFormModalProp
       setError(null);
     } catch (error) {
       console.error('Failed to save prompt:', error);
-      setError('保存提示词失败');
+      setError('Failed to save prompt');
     } finally {
       setIsSubmitting(false);
     }
@@ -114,7 +114,7 @@ export function PromptFormModal({ isOpen, onClose, prompt }: PromptFormModalProp
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={prompt ? '编辑提示词' : '添加提示词'}
+      title={prompt ? 'Edit Prompt' : 'Add Prompt'}
       className="max-w-lg"
     >
       <div className="p-4 space-y-4">
@@ -128,13 +128,13 @@ export function PromptFormModal({ isOpen, onClose, prompt }: PromptFormModalProp
         {/* 标题输入 */}
         <div>
           <label htmlFor="prompt-title" className="block text-sm font-medium text-magic-300 mb-1">
-            标题
+            Title
           </label>
           <Input
             id="prompt-title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="输入提示词标题..."
+            placeholder="Enter prompt title..."
             className="w-full"
           />
         </div>
@@ -142,13 +142,13 @@ export function PromptFormModal({ isOpen, onClose, prompt }: PromptFormModalProp
         {/* 内容输入 */}
         <div>
           <label htmlFor="prompt-content" className="block text-sm font-medium text-magic-300 mb-1">
-            内容
+            Content
           </label>
           <textarea
             id="prompt-content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="输入提示词内容..."
+            placeholder="Enter prompt content..."
             rows={6}
             className="w-full p-3 bg-magic-800/50 border border-magic-600/30 rounded-md text-magic-200 placeholder-magic-500 focus:outline-none focus:ring-2 focus:ring-magic-600 focus:border-transparent transition-all resize-none scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800"
           />
@@ -160,7 +160,7 @@ export function PromptFormModal({ isOpen, onClose, prompt }: PromptFormModalProp
             onClick={onClose}
             className="px-4 py-2 bg-magic-700 hover:bg-magic-600 rounded-md text-magic-200 transition-colors"
           >
-            取消
+            Cancel
           </button>
           <button
             onClick={handleSubmit}
@@ -173,10 +173,10 @@ export function PromptFormModal({ isOpen, onClose, prompt }: PromptFormModalProp
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                保存中...
+                Saving...
               </>
             ) : (
-              '保存'
+              'Save'
             )}
           </button>
         </div>

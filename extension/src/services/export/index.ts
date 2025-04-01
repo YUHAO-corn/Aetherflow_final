@@ -11,7 +11,7 @@ export async function exportPromptsToCSV(): Promise<boolean> {
     console.log(`[Export] 获取到 ${prompts.length} 条提示词准备导出:`, prompts);
     
     // 将提示词转换为CSV格式
-    const headers = ['标题', '内容', '创建时间', '更新时间', '使用次数', '最后使用时间', '收藏'];
+    const headers = ['Title', 'Content', 'Created', 'Updated', 'Usage Count', 'Last Used', 'Favorite'];
     const csvRows = [
       headers.join(',')
     ];
@@ -19,7 +19,7 @@ export async function exportPromptsToCSV(): Promise<boolean> {
     // 遍历提示词添加数据行
     prompts.forEach(prompt => {
       // 确保所有字段都有定义，避免undefined导致的CSV格式问题
-      const safeTitle = prompt.title || '未命名提示词';
+      const safeTitle = prompt.title || 'Untitled Prompt';
       const safeContent = prompt.content || ''; 
       const safeCreatedAt = prompt.createdAt || Date.now();
       const safeUpdatedAt = prompt.updatedAt || Date.now();
@@ -33,8 +33,8 @@ export async function exportPromptsToCSV(): Promise<boolean> {
         `"${new Date(safeCreatedAt).toLocaleString()}"`,
         `"${new Date(safeUpdatedAt).toLocaleString()}"`,
         `"${safeUseCount}"`,
-        `"${prompt.lastUsed ? new Date(prompt.lastUsed).toLocaleString() : '从未使用'}"`,
-        `"${safeFavorite ? '是' : '否'}"`
+        `"${prompt.lastUsed ? new Date(prompt.lastUsed).toLocaleString() : 'Never used'}"`,
+        `"${safeFavorite ? 'Yes' : 'No'}"`
       ];
       csvRows.push(row.join(','));
     });
@@ -48,7 +48,7 @@ export async function exportPromptsToCSV(): Promise<boolean> {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    const fileName = `AetherFlow提示词库_${new Date().toLocaleDateString()}.csv`;
+    const fileName = `AetherFlow_Prompts_${new Date().toLocaleDateString()}.csv`;
     link.setAttribute('download', fileName);
     link.style.display = 'none';
     document.body.appendChild(link);

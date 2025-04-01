@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Heart, HeartOff, Clock, Star, Check } from 'lucide-react';
+import { X, Copy, Heart, HeartOff, Clock, Star, Check, Trash2 } from 'lucide-react';
 import { Prompt } from '../../../services/prompt/types';
 import { usePromptsData } from '../../../hooks/usePromptsData';
 import { formatDate } from '../../../utils/formatDate';
+import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
 
 interface PromptDetailDrawerProps {
   prompt: Prompt | undefined;
@@ -21,6 +22,9 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
   const [localPrompt, setLocalPrompt] = useState<Prompt | undefined>(prompt);
   // 添加复制成功的状态标记
   const [copySuccess, setCopySuccess] = useState(false);
+  
+  // 确认对话框状态
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   
   // 每次打开或提示词更新时，更新编辑状态和本地提示词
   useEffect(() => {
@@ -63,8 +67,13 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
   };
   
   // 处理删除提示词
-  const handleDelete = async () => {
-    if (window.confirm('确定要取消收藏这个提示词吗？')) {
+  const handleDelete = () => {
+    setConfirmDialogOpen(true);
+  };
+  
+  // 确认删除
+  const confirmDelete = async () => {
+    if (localPrompt) {
       await deletePrompt(localPrompt.id);
       onClose();
     }
@@ -147,7 +156,7 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
     <div className={`fixed inset-y-0 right-0 w-80 bg-gradient-to-br from-magic-800 to-magic-900 border-l border-magic-700/30 shadow-xl z-30 transform transition-transform duration-300 flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
       {/* 抽屉头部 */}
       <div className="flex items-center justify-between p-4 border-b border-magic-700/30 flex-shrink-0">
-        <h3 className="text-lg font-semibold text-magic-200 truncate">提示词详情</h3>
+        <h3 className="text-lg font-semibold text-magic-200 truncate">Prompt Details</h3>
         <button
           onClick={() => {
             handleForceSave();
@@ -170,16 +179,16 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
               onChange={(e) => setEditTitle(e.target.value)}
               onBlur={handleSaveEdit}
               onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
-              className="w-full bg-magic-800 border border-magic-600 rounded-md p-2 text-lg font-bold text-magic-200 mb-2"
+              className="w-full bg-magic-800 border border-magic-600 rounded-md p-2 text-base font-bold text-magic-200 mb-2"
               autoFocus
             />
-            <div className="text-xs text-magic-400">按回车保存或点击外部保存</div>
+            <div className="text-xs text-magic-400">Press Enter to save or click outside</div>
           </div>
         ) : (
           <h2 
-            className="text-lg font-bold text-magic-200 mb-4 cursor-text"
+            className="text-base font-bold text-magic-200 mb-4 cursor-text"
             onDoubleClick={handleStartEditTitle}
-            title="双击编辑标题"
+            title="Double-click to edit title"
           >
             {localPrompt.title}
           </h2>
@@ -187,23 +196,23 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
         
         {/* 内容 */}
         <div className="mb-6">
-          <h4 className="text-sm font-medium text-magic-400 mb-2">内容</h4>
+          <h4 className="text-sm font-medium text-magic-400 mb-2">Content</h4>
           {isContentEditing ? (
             <div>
               <textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 onBlur={handleSaveEdit}
-                className="w-full bg-magic-800 border border-magic-600 rounded-md p-3 text-magic-200 max-h-[300px] min-h-[150px] scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800"
+                className="w-full bg-magic-800 border border-magic-600 rounded-md p-3 text-magic-200 max-h-[300px] min-h-[150px] scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800 text-xs"
                 autoFocus
               />
-              <div className="text-xs text-magic-400 mt-1">点击外部保存</div>
+              <div className="text-xs text-magic-400 mt-1">Click outside to save</div>
             </div>
           ) : (
             <div 
-              className="bg-magic-800/50 border border-magic-700/30 rounded-md p-3 text-magic-200 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800 cursor-text whitespace-pre-line"
+              className="bg-magic-800/50 border border-magic-700/30 rounded-md p-3 mb-4 text-magic-200 text-xs whitespace-pre-line cursor-text max-h-[250px] overflow-y-auto scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800/50"
               onDoubleClick={handleStartEditContent}
-              title="双击编辑内容"
+              title="Double-click to edit content"
             >
               {localPrompt.content}
             </div>
@@ -211,61 +220,73 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
         </div>
         
         {/* 元数据 */}
-        <div className="mb-6 space-y-2">
-          <div className="flex items-center text-sm text-magic-400">
-            <Clock className="w-4 h-4 mr-2" /> 
-            <span>创建于: {created}</span>
+        <div className="mb-6">
+          <h4 className="text-sm font-medium text-magic-400 mb-2">Metadata</h4>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+            <div className="text-magic-400">Created:</div>
+            <div className="text-magic-200">{created}</div>
+            
+            <div className="text-magic-400">Last edited:</div>
+            <div className="text-magic-200">{updated}</div>
+            
+            <div className="text-magic-400">Last used:</div>
+            <div className="text-magic-200">{lastUsed}</div>
+            
+            <div className="text-magic-400">Usage count:</div>
+            <div className="text-magic-200">{localPrompt.useCount || 0}</div>
           </div>
-          {created !== updated && (
-            <div className="flex items-center text-sm text-magic-400">
-              <Clock className="w-4 h-4 mr-2" /> 
-              <span>更新于: {updated}</span>
-            </div>
-          )}
-          <div className="flex items-center text-sm text-magic-400">
-            <Star className="w-4 h-4 mr-2" /> 
-            <span>使用次数: {localPrompt.useCount || 0}</span>
-          </div>
-          <div className="flex items-center text-sm text-magic-400">
-            <Clock className="w-4 h-4 mr-2" /> 
-            <span>最后使用: {lastUsed}</span>
-          </div>
-        </div>
-        
-        {/* 操作按钮 */}
-        <div className="flex flex-col space-y-3">
-          {(isTitleEditing || isContentEditing) && (
-            <button
-              onClick={handleSaveEdit}
-              className="flex items-center justify-center px-4 py-2 bg-green-600 hover:bg-green-500 rounded-md text-white transition-colors"
-            >
-              保存修改
-            </button>
-          )}
-          
-          <button
-            onClick={handleCopy}
-            className={`flex items-center justify-center px-4 py-2 ${copySuccess ? 'bg-green-600' : 'bg-magic-600 hover:bg-magic-500'} rounded-md text-white transition-colors`}
-          >
-            {copySuccess ? (
-              <>
-                <Check className="w-4 h-4 mr-2" /> 已复制
-              </>
-            ) : (
-              <>
-                <Copy className="w-4 h-4 mr-2" /> 复制内容
-              </>
-            )}
-          </button>
-          
-          <button
-            onClick={handleDelete}
-            className="flex items-center justify-center px-4 py-2 bg-red-800/60 hover:bg-red-700/60 rounded-md text-red-200 transition-colors mt-4"
-          >
-            <Star className="w-4 h-4 mr-2" /> 移出收藏夹
-          </button>
         </div>
       </div>
+      
+      {/* 抽屉底部操作区 */}
+      <div className="p-4 border-t border-magic-700/30 flex space-x-2">
+        <button
+          onClick={handleCopy}
+          className="flex items-center space-x-1 px-3 py-2 bg-magic-600/30 hover:bg-magic-600/50 rounded-md transition-colors"
+        >
+          {copySuccess ? (
+            <>
+              <Check size={14} className="text-green-400" />
+              <span className="text-xs text-magic-200 font-medium">Copied</span>
+            </>
+          ) : (
+            <>
+              <Copy size={14} className="text-magic-400" />
+              <span className="text-xs text-magic-200 font-medium">Copy</span>
+            </>
+          )}
+        </button>
+        
+        <button
+          onClick={isContentEditing || isTitleEditing ? handleSaveEdit : handleStartEditContent}
+          className="flex items-center space-x-1 px-3 py-2 bg-magic-600/30 hover:bg-magic-600/50 rounded-md transition-colors"
+        >
+          <span className="text-xs text-magic-200 font-medium">
+            {isContentEditing || isTitleEditing ? "Save" : "Edit"}
+          </span>
+        </button>
+        
+        <div className="flex-1"></div>
+        
+        <button
+          onClick={handleDelete}
+          className="flex items-center space-x-1 px-3 py-2 bg-red-900/30 hover:bg-red-800/50 rounded-md transition-colors"
+        >
+          <Trash2 size={14} className="text-red-400" />
+          <span className="text-xs text-red-300 font-medium">Remove</span>
+        </button>
+      </div>
+      
+      {/* 确认对话框 */}
+      <ConfirmDialog
+        isOpen={confirmDialogOpen}
+        onClose={() => setConfirmDialogOpen(false)}
+        onConfirm={confirmDelete}
+        message="Are you sure you want to remove this prompt from your library?"
+        confirmText="Remove"
+        cancelText="Cancel"
+        fastAnimation={true}
+      />
     </div>
   );
 } 

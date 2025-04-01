@@ -95,9 +95,9 @@ export function formatContentPreview(content: string, maxLength = 400): string {
  * @returns 格式化后的标题
  */
 export function formatVersionTitle(id: number, isEdited: boolean = false): string {
-  let title = `优化版本 v${id}`;
+  let title = `Optimization v${id}`;
   if (isEdited) {
-    title += ' (已编辑)';
+    title += ' (Edited)';
   }
   return title.length > 24 ? title.substring(0, 21) + '...' : title;
 }
@@ -108,7 +108,7 @@ export function formatVersionTitle(id: number, isEdited: boolean = false): strin
  * @returns 是否为错误版本
  */
 export function isErrorVersion(content: string): boolean {
-  return content.startsWith('优化失败:');
+  return content.startsWith('Optimization failed:');
 }
 
 /**

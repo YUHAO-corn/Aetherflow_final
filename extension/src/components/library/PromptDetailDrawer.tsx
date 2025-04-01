@@ -39,7 +39,7 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
   
   // 处理删除提示词
   const handleDelete = async () => {
-    if (window.confirm('确定要删除这个提示词吗？')) {
+    if (window.confirm('Are you sure you want to delete this prompt?')) {
       await deletePrompt(prompt.id);
       onClose();
     }

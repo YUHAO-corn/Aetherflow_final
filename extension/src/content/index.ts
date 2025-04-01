@@ -339,11 +339,23 @@ const contentService = {
     // 监听选择事件
     document.addEventListener('selectionchange', () => {
       const selection = window.getSelection();
-      const selectedText = selection?.toString()?.trim() || '';
+      if (!selection) return;
+      
+      // 重要：使用原始文本，不进行trim()以确保保留所有空白字符（包括换行符）
+      const selectedText = selection.toString() || '';
+      
+      // 仅用于判断是否有选择的变量
+      const hasSelection = selectedText.trim().length > 0;
       
       // 更新全局状态
-      globalState.selection.text = selectedText;
-      globalState.selection.hasSelection = selectedText.length > 0;
+      globalState.selection.text = selectedText; // 保存原始文本，不进行trim
+      globalState.selection.hasSelection = hasSelection;
+      
+      console.log('[AetherFlow-DEBUG] 文本选择更新:', {
+        hasSelection,
+        textLength: selectedText.length,
+        previewText: selectedText.substring(0, 30).replace(/\n/g, '\\n') // 显示换行符，仅用于日志
+      });
     });
     
     // 创建自定义右键菜单
@@ -354,8 +366,15 @@ const contentService = {
       // 文本过长时不处理（设置一个合理的长度限制，例如10000字符）
       if (globalState.selection.text.length > 10000) return;
       
-      // 存储选中的文本，在处理程序中使用
+      // 存储选中的文本，在处理程序中使用（保持原始格式）
       const selectedText = globalState.selection.text;
+      
+      console.log('[AetherFlow-DEBUG] 右键菜单事件:', {
+        hasSelection: true,
+        textLength: selectedText.length,
+        containsNewlines: selectedText.includes('\n'),
+        lineCount: selectedText.split('\n').length
+      });
       
       // 延迟执行，确保浏览器的默认上下文菜单已经显示
       setTimeout(() => {
@@ -364,9 +383,9 @@ const contentService = {
           type: 'ADD_CONTEXT_MENU_ITEM',
           data: {
             id: 'capture-prompt',
-            title: 'Aetherflow-收藏提示词',
+            title: 'Aetherflow-Add to Library',
             contexts: ['selection'],
-            selectedText
+            selectedText  // 直接传递原始文本，不做修改
           }
         });
       }, 10);
@@ -376,29 +395,35 @@ const contentService = {
   // 将选中文本保存为提示词
   captureSelectionAsPrompt: async (selectedText: string): Promise<void> => {
     try {
-      console.log('[AetherFlow] 捕获选中文本作为提示词, 长度:', selectedText.length);
+      console.log('[AetherFlow] 捕获选中文本作为提示词:', {
+        长度: selectedText.length,
+        包含换行符: selectedText.includes('\n'),
+        行数: selectedText.split('\n').length,
+        前30字符: selectedText.substring(0, 30).replace(/\n/g, '\\n')
+      });
       
+      // 直接发送原始文本，不做任何修改
       // 发送消息到后台脚本处理保存提示词
       chrome.runtime.sendMessage({
         type: 'CAPTURE_SELECTION_AS_PROMPT',
         data: {
-          content: selectedText
+          content: selectedText  // 保持原始格式，包括换行符
         }
       }, (response) => {
         console.log('[AetherFlow] 收到保存提示词响应:', response);
         
         if (response && response.success) {
           // 显示成功提示
-          showNotification('提示词已成功添加到收藏夹', 'success');
+          showNotification('Prompt has been added to library', 'success');
         } else {
-          const errorMsg = response?.error ? `保存失败: ${response.error}` : '保存提示词失败，请重试';
+          const errorMsg = response?.error ? `Save failed: ${response.error}` : 'Failed to save prompt, please try again';
           console.error('[AetherFlow] 保存提示词失败:', response?.error || '未知错误');
           showNotification(errorMsg, 'error');
         }
       });
     } catch (error) {
       console.error('[AetherFlow] 捕获选中文本失败:', error);
-      showNotification('保存提示词失败，请重试', 'error');
+      showNotification('Failed to save prompt, please try again', 'error');
     }
   }
 };
@@ -518,7 +543,18 @@ function initialize() {
         return false; // 让全局监听器处理
       }
       
-      if (message.type === 'CAPTURE_SELECTION') {
+      if (message.type === 'GET_SELECTED_TEXT') {
+        // 返回当前选中的文本（包括换行符）
+        const selectedText = globalState.selection.text;
+        console.log('[AetherFlow-DEBUG] 响应获取选中文本请求:', {
+          长度: selectedText.length,
+          包含换行符: selectedText.includes('\n'),
+          行数: selectedText.split('\n').length,
+          前30字符: selectedText.substring(0, 30).replace(/\n/g, '\\n')
+        });
+        sendResponse({ text: selectedText });
+        return true;
+      } else if (message.type === 'CAPTURE_SELECTION') {
         // 处理选中文本捕获
         const selectedText = globalState.selection.text;
         if (selectedText) {

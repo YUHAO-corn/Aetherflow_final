@@ -28,7 +28,7 @@
     }
   ],
   "action": {
-    "default_title": "AetherFlow - AI提示词管理"
+    "default_title": "AetherFlow - AI Prompt Management"
   },
   "icons": {
     "16": "assets/icons/icon16.png",

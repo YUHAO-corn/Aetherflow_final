@@ -31,21 +31,21 @@ export function OptimizationModeSelector({
   const modeOptions: OptimizationModeOption[] = [
     {
       id: 'standard',
-      name: '标准模式',
+      name: 'Standard Mode',
       icon: <Sparkles className="w-4 h-4 text-purple-400" />,
-      description: '平衡优化效果'
+      description: 'Balanced optimization'
     },
     {
       id: 'creative',
-      name: '创意模式',
+      name: 'Creative Mode',
       icon: <Lightbulb className="w-4 h-4 text-blue-400" />,
-      description: '增强创意表达'
+      description: 'Enhanced creativity'
     },
     {
       id: 'concise',
-      name: '简洁模式',
+      name: 'Concise Mode',
       icon: <Scissors className="w-4 h-4 text-green-400" />,
-      description: '精简冗余内容'
+      description: 'Eliminate redundancy'
     }
   ];
   

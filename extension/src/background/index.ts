@@ -383,19 +383,19 @@ addMessageListener((message: Message, sender, sendResponse) => {
 
 // 设置侧边栏行为，点击扩展图标时打开侧边栏
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error: Error) => {
-  console.error('设置侧边栏行为失败:', error);
+  console.error('Failed to set sidebar behavior:', error);
 });
 
 // 处理扩展安装或更新事件
 chrome.runtime.onInstalled.addListener(async (details) => {
-  console.log('扩展已安装/更新:', details.reason);
+  console.log('Extension installed/updated:', details.reason);
   
   // 执行数据迁移
   try {
-    console.log('开始执行数据迁移...');
+    console.log('Starting data migration...');
     const result = await migratePromptsData();
     if (result.migrated) {
-      console.log(`数据迁移成功，共迁移${result.count}条提示词`);
+      console.log(`Data migration successful, migrated ${result.count} prompts`);
     } else {
       console.log('无需进行数据迁移');
     }
@@ -429,7 +429,7 @@ function setupContextMenu() {
     // 创建菜单项
     chrome.contextMenus.create({
       id: 'aetherflow-capture-prompt',
-      title: 'Aetherflow-收藏提示词',
+      title: 'Aetherflow-Add to Library',
       contexts: ['selection']
     }, () => {
       if (chrome.runtime.lastError) {
@@ -447,7 +447,7 @@ function setupContextMenu() {
     if (info.menuItemId === 'aetherflow-capture-prompt') {
       console.log('[AetherFlow] 处理收藏提示词请求');
       
-      // 确保有选中的文本
+      // 确保有选中的文本（仅做基本检查）
       if (!info.selectionText) {
         console.warn('[AetherFlow] 没有选中文本');
         return;
@@ -459,70 +459,110 @@ function setupContextMenu() {
         return;
       }
       
-      // 日志记录选中的文本内容，便于调试
-      console.log('[AetherFlow] 选中文本长度:', info.selectionText.length);
-      console.log('[AetherFlow] 选中文本预览:', info.selectionText.substring(0, 50) + (info.selectionText.length > 50 ? '...' : ''));
+      console.log('[AetherFlow] Chrome API提供的选中文本预览:', 
+        info.selectionText.substring(0, 50) + (info.selectionText.length > 50 ? '...' : ''));
       
-      // 捕获选中文本为提示词
-      captureSelectionAsPrompt(info.selectionText)
-        .then(async result => {
-          console.log('[AetherFlow] 提示词保存结果:', result);
-          
-          // 使用安全发送通知方法
-          if (tab.id) {
-            const message = result ? '提示词已成功添加到收藏夹' : '保存提示词失败';
-            const type = result ? 'success' : 'error';
-            
-            console.log('[AetherFlow] 发送通知:', message, '类型:', type);
-            await safelySendNotification(tab.id, message, type);
-            
-            // 手动广播提示词更新消息
-            try {
-              chrome.runtime.sendMessage({ 
-                type: 'PROMPT_UPDATED',
-                from: 'context_menu'
-              });
-              console.log('[AetherFlow] 已发送PROMPT_UPDATED消息通知UI更新');
-            } catch (notifyError) {
-              console.warn('[AetherFlow] 发送PROMPT_UPDATED消息失败:', notifyError);
-            }
-          }
-        })
-        .catch(async error => {
-          console.error('[AetherFlow] 保存提示词出错:', error);
-          
-          // 发送错误通知
-          if (tab.id) {
-            const errorMessage = '保存提示词失败: ' + (error.message || '未知错误');
-            await safelySendNotification(tab.id, errorMessage, 'error');
-          }
-        });
+      // 重要：从内容脚本获取真正的选中文本（保留换行符）
+      // 而不是使用info.selectionText（Chrome API可能已处理过）
+      chrome.tabs.sendMessage(tab.id, { type: 'GET_SELECTED_TEXT' }, function(response) {
+        if (chrome.runtime.lastError) {
+          console.error('[AetherFlow] 获取选中文本失败:', chrome.runtime.lastError);
+          // 如果无法获取，回退到使用info.selectionText
+          handleCapturePrompt(info.selectionText || '', tab);
+          return;
+        }
+        
+        // 使用内容脚本返回的原始文本（保留换行符）
+        if (response && response.text) {
+          console.log('[AetherFlow] 从内容脚本获取到选中文本:', {
+            长度: response.text.length,
+            包含换行符: response.text.includes('\n'),
+            行数: response.text.split('\n').length,
+            前30字符: response.text.substring(0, 30).replace(/\n/g, '\\n')
+          });
+          handleCapturePrompt(response.text, tab);
+        } else {
+          console.warn('[AetherFlow] 内容脚本未返回选中文本，使用Chrome API提供的文本');
+          handleCapturePrompt(info.selectionText || '', tab);
+        }
+      });
     }
   });
+  
+  // 处理捕获选中文本为提示词
+  async function handleCapturePrompt(content: string, tab: chrome.tabs.Tab): Promise<void> {
+    try {
+      console.log('[AetherFlow] 开始处理捕获提示词，文本长度:', content.length);
+      
+      // 捕获选中文本为提示词
+      const result = await captureSelectionAsPrompt(content);
+      console.log('[AetherFlow] 提示词保存结果:', result);
+      
+      // 使用安全发送通知方法
+      if (tab.id) {
+        const message = result ? 'Prompt has been added to library' : 'Failed to save prompt';
+        const type = result ? 'success' : 'error';
+        
+        console.log('[AetherFlow] 发送通知:', message, '类型:', type);
+        await safelySendNotification(tab.id, message, type);
+        
+        // 手动广播提示词更新消息
+        try {
+          chrome.runtime.sendMessage({ 
+            type: 'PROMPT_UPDATED',
+            from: 'context_menu'
+          });
+          console.log('[AetherFlow] 已发送PROMPT_UPDATED消息通知UI更新');
+        } catch (notifyError) {
+          console.warn('[AetherFlow] 发送PROMPT_UPDATED消息失败:', notifyError);
+        }
+      }
+    } catch (error: any) {
+      console.error('[AetherFlow] 保存提示词出错:', error);
+      
+      // 发送错误通知
+      if (tab.id) {
+        const errorMessage = 'Failed to save prompt: ' + (error.message || 'Unknown error');
+        await safelySendNotification(tab.id, errorMessage, 'error');
+      }
+    }
+  }
 }
 
 // 将选中文本保存为提示词
 async function captureSelectionAsPrompt(content: string): Promise<boolean> {
   try {
-    console.log('[AetherFlow] 处理选中内容，准备保存为提示词，长度:', content.length);
+    // 记录更详细的日志，包括换行符信息
+    console.log('[AetherFlow] 处理选中内容，准备保存为提示词:', {
+      长度: content.length,
+      包含换行符: content.includes('\n'),
+      行数: content.split('\n').length,
+      前30字符: content.substring(0, 30).replace(/\n/g, '\\n') // 仅用于日志显示
+    });
     
-    // 检查内容是否为空
+    // 检查内容是否为空(使用trim来判断是否为空，但保留原始内容以保持格式)
     if (!content || content.trim().length === 0) {
-      console.warn('[AetherFlow] 内容为空，不保存');
+      console.warn('[AetherFlow] 内容为空或仅包含空白字符，不保存');
       return false;
     }
     
-    console.log('[AetherFlow] 准备创建新提示词...');
+    console.log('[AetherFlow] 准备创建新提示词，保留原始格式...');
     
     // 提前创建提示词对象进行检查
     const promptData = {
-      content,
+      content, // 保持原始内容，不做处理以保留换行符
       isFavorite: true,
       favorite: true, // 兼容旧版
       source: 'user' as 'user' // 显式类型转换为'user'类型
     };
     
-    console.log('[AetherFlow] 创建提示词输入数据:', JSON.stringify(promptData));
+    // 为了避免日志中输出过多内容，只记录内容的摘要信息
+    console.log('[AetherFlow] 创建提示词输入数据:', {
+      contentLength: content.length,
+      contentSample: content.substring(0, 50).replace(/\n/g, '\\n') + (content.length > 50 ? '...' : ''),
+      isFavorite: true,
+      source: 'user'
+    });
     
     // 使用服务层创建提示词，自动处理标题生成
     const newPrompt = await createPrompt(promptData);
@@ -531,6 +571,8 @@ async function captureSelectionAsPrompt(content: string): Promise<boolean> {
       id: newPrompt.id,
       title: newPrompt.title,
       contentLength: newPrompt.content.length,
+      contentHasNewlines: newPrompt.content.includes('\n'),
+      lineCount: newPrompt.content.split('\n').length,
       isFavorite: newPrompt.isFavorite
     });
     

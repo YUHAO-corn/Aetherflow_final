@@ -8,6 +8,7 @@ import { PromptDetailDrawer } from './PromptDetailDrawer';
 import { Prompt } from '../../../services/prompt/types';
 import { Menu, MenuItem } from '../../../components/common/Menu';
 import { usePromptsData } from '../../../hooks/usePromptsData';
+import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
 
 type SortOption = 'updatedDesc' | 'updatedAsc' | 'createdDesc' | 'createdAsc' | 'useCount';
 
@@ -32,6 +33,11 @@ export function LibraryTab() {
   const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // 确认对话框状态
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [promptToDelete, setPromptToDelete] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<'delete' | 'unfavorite'>('delete');
   
   // 使用API数据
   const prompts = apiPrompts;
@@ -83,12 +89,12 @@ export function LibraryTab() {
   // 获取排序选项显示名称
   const getSortOptionName = (option: SortOption): string => {
     switch (option) {
-      case 'updatedDesc': return '编辑时间（新→旧）';
-      case 'updatedAsc': return '编辑时间（旧→新）';
-      case 'createdDesc': return '创建时间（新→旧）';
-      case 'createdAsc': return '创建时间（旧→新）';
-      case 'useCount': return '使用频率';
-      default: return '默认排序';
+      case 'updatedDesc': return 'Last Edited (New→Old)';
+      case 'updatedAsc': return 'Last Edited (Old→New)';
+      case 'createdDesc': return 'Created Date (New→Old)';
+      case 'createdAsc': return 'Created Date (Old→New)';
+      case 'useCount': return 'Usage Frequency';
+      default: return 'Default Sort';
     }
   };
   
@@ -119,9 +125,20 @@ export function LibraryTab() {
   
   // 处理删除提示词
   const handleDelete = async (id: string) => {
-    if (window.confirm('确定要取消收藏这个提示词吗？')) {
-      // 调用API删除
-      await deletePrompt(id);
+    setPromptToDelete(id);
+    setConfirmAction('delete');
+    setConfirmDialogOpen(true);
+  };
+  
+  // 确认操作
+  const confirmAction1 = async () => {
+    if (promptToDelete) {
+      if (confirmAction === 'delete') {
+        await deletePrompt(promptToDelete);
+      } else if (confirmAction === 'unfavorite') {
+        await toggleFavorite(promptToDelete);
+      }
+      setPromptToDelete(null);
     }
   };
   
@@ -141,9 +158,9 @@ export function LibraryTab() {
   const handleToggleFavorite = async (promptId: string, isFavorited: boolean) => {
     if (isFavorited) {
       // 如果已收藏，则显示确认对话框
-      if (window.confirm('确定要移出收藏夹吗？')) {
-        await toggleFavorite(promptId);
-      }
+      setPromptToDelete(promptId);
+      setConfirmAction('unfavorite');
+      setConfirmDialogOpen(true);
     } else {
       // 如果未收藏，直接收藏
       await toggleFavorite(promptId);
@@ -184,7 +201,7 @@ export function LibraryTab() {
           <Input
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="搜索提示词..."
+            placeholder="Search prompts..."
             icon={<Search size={16} />}
           />
         </div>
@@ -193,7 +210,7 @@ export function LibraryTab() {
         <button
           onClick={handleAddNew}
           className="p-2 bg-magic-700 hover:bg-magic-600 rounded-md text-magic-200 transition-colors"
-          title="添加至收藏夹"
+          title="Add to Library"
         >
           <Plus size={18} />
         </button>
@@ -203,7 +220,7 @@ export function LibraryTab() {
           <button
             onClick={() => setIsSortMenuOpen(!isSortMenuOpen)}
             className="p-2 bg-magic-700 hover:bg-magic-600 rounded-md text-magic-200 transition-colors"
-            title={`排序：${getSortOptionName(sortOption)}`}
+            title={`Sort: ${getSortOptionName(sortOption)}`}
           >
             <ArrowDownUp size={18} />
           </button>
@@ -214,31 +231,31 @@ export function LibraryTab() {
               selected={sortOption === 'updatedDesc'} 
               onClick={() => { setSortOption('updatedDesc'); setIsSortMenuOpen(false); }}
             >
-              编辑时间（新→旧）
+              Last Edited (New→Old)
             </MenuItem>
             <MenuItem 
               selected={sortOption === 'updatedAsc'} 
               onClick={() => { setSortOption('updatedAsc'); setIsSortMenuOpen(false); }}
             >
-              编辑时间（旧→新）
+              Last Edited (Old→New)
             </MenuItem>
             <MenuItem 
               selected={sortOption === 'createdDesc'} 
               onClick={() => { setSortOption('createdDesc'); setIsSortMenuOpen(false); }}
             >
-              创建时间（新→旧）
+              Created Date (New→Old)
             </MenuItem>
             <MenuItem 
               selected={sortOption === 'createdAsc'} 
               onClick={() => { setSortOption('createdAsc'); setIsSortMenuOpen(false); }}
             >
-              创建时间（旧→新）
+              Created Date (Old→New)
             </MenuItem>
             <MenuItem 
               selected={sortOption === 'useCount'} 
               onClick={() => { setSortOption('useCount'); setIsSortMenuOpen(false); }}
             >
-              使用频率
+              Usage Frequency
             </MenuItem>
           </Menu>
         </div>
@@ -256,7 +273,7 @@ export function LibraryTab() {
         <div className="space-y-3">
           {filteredPrompts.length === 0 ? (
             <div className="text-center text-magic-400 py-8">
-              {searchTerm ? "没有找到匹配的提示词" : "收藏夹为空"}
+              {searchTerm ? "No matching prompts found" : "Library is empty"}
             </div>
           ) : (
             filteredPrompts.map(prompt => (
@@ -281,7 +298,7 @@ export function LibraryTab() {
                           handleToggleFavorite(prompt.id, isFavorited);
                         }}
                         className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
-                        title={prompt.isFavorite || prompt.favorite ? "移出收藏夹" : "加入收藏夹"}
+                        title={prompt.isFavorite || prompt.favorite ? "Remove from Library" : "Add to Library"}
                       >
                         <Star size={14} className={prompt.isFavorite || prompt.favorite ? "text-yellow-400 fill-yellow-400" : "text-magic-400"} />
                       </button>
@@ -291,7 +308,7 @@ export function LibraryTab() {
                           handleCopy(prompt.id, prompt.content);
                         }}
                         className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
-                        title="复制提示词内容"
+                        title="Copy prompt content"
                       >
                         <Copy size={14} className="text-magic-400" />
                       </button>
@@ -299,14 +316,14 @@ export function LibraryTab() {
                   </div>
                   
                   {/* 提示词内容 */}
-                  <p className="text-xs text-magic-200 mb-3 relative z-10 whitespace-pre-line break-words line-clamp-6">
+                  <p className="text-[10px] text-magic-200 mb-3 relative z-10 whitespace-pre-line break-words line-clamp-6">
                     {formatContentPreview(prompt.content)}
                   </p>
                   
                   {/* 底部元信息 */}
                   <div className="text-xs text-magic-500 flex justify-between mt-2">
                     <span>
-                      使用次数: {prompt.useCount || 0}
+                      Used: {prompt.useCount || 0} times
                     </span>
                     <span>
                       {new Date(prompt.updatedAt).toLocaleDateString()}
@@ -318,6 +335,20 @@ export function LibraryTab() {
           )}
         </div>
       )}
+
+      {/* 确认对话框 */}
+      <ConfirmDialog
+        isOpen={confirmDialogOpen}
+        onClose={() => {
+          setConfirmDialogOpen(false);
+          setPromptToDelete(null);
+        }}
+        onConfirm={confirmAction1}
+        message="Are you sure you want to remove this prompt from your library?"
+        confirmText="Remove"
+        cancelText="Cancel"
+        fastAnimation={true}
+      />
 
       {/* 提示词详情抽屉 */}
       {selectedPrompt && (

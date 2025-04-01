@@ -19,7 +19,7 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
       >
         <div className="flex items-center justify-center space-x-2">
           <BookMarked size={16} />
-          <span>提示词收藏夹</span>
+          <span>Prompt Library</span>
         </div>
       </button>
       <button
@@ -32,7 +32,7 @@ export function Navigation({ activeTab, onTabChange }: NavigationProps) {
       >
         <div className="flex items-center justify-center space-x-2">
           <Wand2 size={16} />
-          <span>提示词优化</span>
+          <span>Prompt Optimizer</span>
         </div>
       </button>
     </div>

@@ -76,6 +76,16 @@ module.exports = {
             filter: 'brightness(1) blur(0)'
           }
         },
+        'magic-reveal-fast': {
+          '0%': { 
+            opacity: '0',
+            filter: 'brightness(0.5) blur(2px)'
+          },
+          '100%': {
+            opacity: '1',
+            filter: 'brightness(1) blur(0)'
+          }
+        },
         pulse: {
           '0%, 100%': { opacity: 1 },
           '50%': { opacity: 0.5 }
@@ -91,6 +101,7 @@ module.exports = {
         bounce: 'bounce 1s ease-in-out infinite',
         'slide-in': 'slide-in 0.6s ease-out forwards',
         'magic-reveal': 'magic-reveal 1.2s ease-out forwards',
+        'magic-reveal-fast': 'magic-reveal-fast 0.3s ease-out forwards',
         pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
       },
       backgroundImage: {

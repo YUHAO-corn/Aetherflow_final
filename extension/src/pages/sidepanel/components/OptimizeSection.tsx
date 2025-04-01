@@ -79,7 +79,7 @@ export function OptimizeSection({
         <textarea
           value={input}
           onChange={e => onInputChange(e.target.value)}
-          placeholder="请输入需要优化的提示词..."
+          placeholder="Enter a prompt to optimize..."
           className="w-full h-32 p-3 bg-magic-800/30 border border-magic-700/50 rounded-lg text-sm text-magic-200 placeholder-magic-500 focus:outline-none focus:ring-2 focus:ring-magic-500 focus:border-transparent resize-none transition-all duration-300"
         />
         <div className="flex items-center">
@@ -92,7 +92,7 @@ export function OptimizeSection({
               <Sparkles
                 className={`w-4 h-4 ${isOptimizing ? 'animate-spin' : 'group-hover:animate-bounce'}`}
               />
-              <span>{isOptimizing ? '优化中...' : '开始优化'}</span>
+              <span>{isOptimizing ? 'Optimizing...' : 'Start Optimization'}</span>
             </span>
             {isOptimizing && (
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer-fast" />
@@ -155,7 +155,7 @@ export function OptimizeSection({
                           handleToggleFavorite(version.id, version);
                         }}
                         className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
-                        title={isFavorite ? "已收藏" : "添加到收藏"}
+                        title={isFavorite ? "Saved" : "Add to Library"}
                       >
                         <Star 
                           size={14} 
@@ -171,7 +171,7 @@ export function OptimizeSection({
                         onCopy(displayContent);
                       }}
                       className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
-                      title="复制内容"
+                      title="Copy Content"
                     >
                       <Copy size={14} className="text-magic-400" />
                     </button>
@@ -180,7 +180,7 @@ export function OptimizeSection({
               </div>
               
               {/* 内容预览部分 */}
-              <div className="text-xs text-magic-300 line-clamp-8 mb-4 whitespace-pre-line">
+              <div className="text-[10px] text-magic-300 line-clamp-8 mb-4 whitespace-pre-line">
                 {version.isLoading 
                   ? <div className="h-4 bg-magic-700/50 rounded w-3/4 animate-pulse mb-2"></div>
                   : formatContentPreview(displayContent)
@@ -202,7 +202,7 @@ export function OptimizeSection({
                       <Wand2
                         className={`w-4 h-4 ${isOptimizing ? 'animate-spin' : 'group-hover:animate-bounce'}`}
                       />
-                      <span>{isOptimizing ? '优化中...' : '继续优化'}</span>
+                      <span>{isOptimizing ? 'Optimizing...' : 'Continue Optimization'}</span>
                     </span>
                     {isOptimizing && (
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer-fast" />
@@ -233,7 +233,7 @@ export function OptimizeSection({
                   >
                     <span className="flex items-center justify-center space-x-2">
                       <AlertTriangle className="w-4 h-4" />
-                      <span>重新尝试</span>
+                      <span>Try Again</span>
                     </span>
                   </button>
                 </div>

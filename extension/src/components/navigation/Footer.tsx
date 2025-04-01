@@ -17,7 +17,7 @@ export function Footer() {
         onClick={() => setIsSettingsOpen(true)}
       >
         <Settings size={14} />
-        <span>设置</span>
+        <span>Settings</span>
       </button>
 
       <SettingsDrawer 

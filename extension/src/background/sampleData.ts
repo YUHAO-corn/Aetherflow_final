@@ -2,201 +2,201 @@ import { storageService } from '../services/storage';
 import { Prompt } from '../services/prompt/types';
 import { v4 as uuidv4 } from 'uuid';
 
-// 初始示例提示词数据
+// Initial sample prompt data
 const samplePrompts: Omit<Prompt, 'id'>[] = [
   {
-    title: '如何高效学习',
-    content: `# 如何高效学习
+    title: 'How to Study Efficiently',
+    content: `# How to Study Efficiently
 
-## 背景与目标
-请提供一套系统化的高效学习策略，帮助提升知识获取、记忆保持和应用能力。
+## Background and Goals
+Please provide a systematic set of efficient learning strategies to help improve knowledge acquisition, memory retention, and application ability.
 
-## 具体要求
-1. **学习前准备**
-   - 如何设定明确的学习目标
-   - 环境优化建议
-   - 时间管理技巧
+## Specific Requirements
+1. **Preparation Before Learning**
+   - How to set clear learning objectives
+   - Environment optimization suggestions
+   - Time management techniques
 
-2. **核心学习技巧**
-   - 主动学习方法
-   - 信息处理策略
-   - 注意力管理
+2. **Core Learning Techniques**
+   - Active learning methods
+   - Information processing strategies
+   - Attention management
 
-3. **记忆与巩固**
-   - 有效的记忆技巧
-   - 间隔重复系统
-   - 知识应用方法
+3. **Memory and Consolidation**
+   - Effective memory techniques
+   - Spaced repetition systems
+   - Knowledge application methods
 
-4. **评估与调整**
-   - 学习效果评估指标
-   - 常见问题解决方案
-   - 个性化调整建议
+4. **Evaluation and Adjustment**
+   - Learning effectiveness evaluation metrics
+   - Solutions to common problems
+   - Personalized adjustment suggestions
 
-## 输出要求
-- 采用分步骤的清晰结构
-- 包含科学依据和实用技巧
-- 提供具体可操作的示例
-- 适合不同学习场景的变通方案
-- 语言简洁明了，避免学术术语堆砌`,
+## Output Requirements
+- Use a clear step-by-step structure
+- Include scientific basis and practical tips
+- Provide specific actionable examples
+- Include adaptable approaches for different learning scenarios
+- Use concise and clear language, avoid academic jargon`,
     isFavorite: true,
     favorite: true,
     createdAt: Date.now() - 100000,
     updatedAt: Date.now() - 50000,
     useCount: 15,
     lastUsed: Date.now() - 10000,
-    tags: ['学习', '效率', '方法论'],
+    tags: ['Learning', 'Efficiency', 'Methodology'],
     source: 'predefined',
-    category: '学习方法',
+    category: 'Learning Methods',
     isActive: true
   },
   {
-    title: '科学有效的身材管理',
-    content: `# 如何科学有效地身材管理
+    title: 'Scientific and Effective Body Management',
+    content: `# How to Manage Your Body Scientifically and Effectively
 
-## 核心目标
-**通过系统化的方法实现健康、可持续的身材管理**，包括体重控制、体型塑造和整体健康提升。
+## Core Goal
+**Achieve healthy, sustainable body management through a systematic approach**, including weight control, body shaping, and overall health improvement.
 
-## 关键要素
+## Key Elements
 
-### 1. 营养管理
-- **均衡饮食**：采用多样化膳食结构，确保三大营养素合理配比
-- **热量控制**：根据目标（减脂/增肌/维持）制定合理的热量摄入计划
-- **饮食质量**：优先选择天然、未加工食品，控制精制糖和反式脂肪摄入
+### 1. Nutrition Management
+- **Balanced Diet**: Adopt a diverse meal structure with reasonable proportions of the three major nutrients
+- **Calorie Control**: Develop appropriate calorie intake plans based on goals (fat loss/muscle gain/maintenance)
+- **Diet Quality**: Prioritize natural, unprocessed foods, control refined sugar and trans fat intake
 
-### 2. 运动方案
-- **有氧运动**：每周3-5次，每次30-60分钟（如跑步、游泳、骑行）
-- **力量训练**：每周2-3次全身性抗阻训练
-- **灵活性训练**：每周2-3次拉伸或瑜伽练习
+### 2. Exercise Plan
+- **Cardio Exercise**: 3-5 times per week, 30-60 minutes each session (e.g., running, swimming, cycling)
+- **Strength Training**: 2-3 times per week of full-body resistance training
+- **Flexibility Training**: 2-3 stretch or yoga sessions per week
 
-### 3. 生活习惯
-- **睡眠管理**：保证7-9小时优质睡眠
-- **压力调节**：通过冥想、深呼吸等方式管理压力水平
-- **水分摄入**：每日保持1.5-2升水摄入量
+### 3. Lifestyle Habits
+- **Sleep Management**: Ensure 7-9 hours of quality sleep
+- **Stress Regulation**: Manage stress levels through meditation, deep breathing, etc.
+- **Hydration**: Maintain 1.5-2 liters of water intake daily
 
-## 监测与调整
-- 定期测量体脂率、围度等关键指标
-- 建立饮食和运动记录系统
-- 每4-6周评估进展并调整方案
+## Monitoring and Adjustment
+- Regularly measure key indicators such as body fat percentage and circumference
+- Establish a diet and exercise recording system
+- Evaluate progress and adjust plans every 4-6 weeks
 
-## 注意事项
-- 避免极端节食或过度运动
-- 设定现实可行的阶段性目标
-- 必要时寻求专业营养师或健身教练指导
+## Precautions
+- Avoid extreme dieting or excessive exercise
+- Set realistic, achievable phased goals
+- Seek professional nutritionist or fitness coach guidance when necessary
 
-**期望输出**：请提供一份为期4周的个性化身材管理计划，包含具体的饮食建议、运动安排和生活习惯调整方案，要求内容科学、可执行且符合健康原则。`,
+**Expected Output**: Please provide a 4-week personalized body management plan, including specific dietary suggestions, exercise arrangements, and lifestyle adjustment plans that are scientific, executable, and consistent with health principles.`,
     isFavorite: true,
     favorite: true,
     createdAt: Date.now() - 900000,
     updatedAt: Date.now() - 80000,
     useCount: 8,
     lastUsed: Date.now() - 40000,
-    tags: ['健康', '运动', '饮食'],
+    tags: ['Health', 'Exercise', 'Diet'],
     source: 'predefined',
-    category: '健康管理',
+    category: 'Health Management',
     isActive: true
   },
   {
-    title: '心情调节指南',
-    content: `# 我的心情不好怎么办？
+    title: 'Mood Regulation Guide',
+    content: `# What Should I Do When I Feel Down?
 
-请提供一份**全面且结构化**的情绪调节指南，包含以下要素：
+Please provide a **comprehensive and structured** emotional regulation guide that includes the following elements:
 
-1. **即时情绪调节技巧**
-   - 快速缓解负面情绪的身体调节方法
-   - 认知重构的实用步骤
-   - 环境调整建议
+1. **Immediate Emotion Regulation Techniques**
+   - Physical methods for quickly relieving negative emotions
+   - Practical steps for cognitive restructuring
+   - Environmental adjustment suggestions
 
-2. **中长期情绪管理策略**
-   - 日常情绪维护习惯
-   - 预防性情绪调节方法
-   - 建立情绪韧性的训练方案
+2. **Medium to Long-term Emotional Management Strategies**
+   - Daily emotional maintenance habits
+   - Preventive emotional regulation methods
+   - Training plans for building emotional resilience
 
-3. **专业支持建议**
-   - 何时需要寻求专业帮助的判断标准
-   - 心理咨询/治疗的选择指南
-   - 自助资源的可靠推荐
+3. **Professional Support Recommendations**
+   - Criteria for determining when to seek professional help
+   - Guidelines for choosing psychological counseling/therapy
+   - Reliable recommendations for self-help resources
 
-**输出要求**：
-- 按上述结构分章节呈现
-- 每项建议需说明科学依据
-- 包含具体可操作步骤
-- 使用通俗易懂的语言
-- 避免笼统建议，提供细节说明`,
+**Output Requirements**:
+- Present in sections according to the above structure
+- Explain the scientific basis for each suggestion
+- Include specific actionable steps
+- Use easy-to-understand language
+- Avoid general advice, provide detailed explanations`,
     isFavorite: true,
     favorite: true,
     createdAt: Date.now() - 700000,
     updatedAt: Date.now() - 70000,
     useCount: 12,
     lastUsed: Date.now() - 20000,
-    tags: ['心理', '情绪', '健康'],
+    tags: ['Psychology', 'Emotions', 'Health'],
     source: 'predefined',
-    category: '心理健康',
+    category: 'Mental Health',
     isActive: true
   },
   {
-    title: '前端模板集成指南',
-    content: `# 如何以前端为模版实现集成
-请基于以下要求，详细说明如何将前端界面设计和模块作为模板实现全流程跑通：
+    title: 'Frontend Template Integration Guide',
+    content: `# How to Implement Integration Using Frontend Templates
+Please provide detailed instructions on how to implement end-to-end integration using frontend interface design and modules as templates, based on the following requirements:
 
-**背景信息：**
-- 前端界面设计和功能模块已通过验收
-- 需要以现有前端为基准进行全流程开发
+**Background Information:**
+- Frontend interface design and functional modules have been approved
+- Need to develop the complete process based on existing frontend as the standard
 
-**具体要求：**
-1. **技术实现方案**：
-   - 说明如何将前端设计转化为可复用的模板
-   - 详细描述接口对接的具体方法
-   - 列出必要的技术栈和工具链
+**Specific Requirements:**
+1. **Technical Implementation Plan**:
+   - Explain how to convert frontend designs into reusable templates
+   - Describe specific methods for interface integration
+   - List necessary technology stack and toolchain
 
-2. **流程跑通步骤**：
-   - 分阶段说明从模板到实际运行的完整流程
-   - 每个阶段的关键节点和验收标准
-   - 可能遇到的技术难点及解决方案
+2. **Process Implementation Steps**:
+   - Explain the complete process from template to actual operation in stages
+   - Key milestones and acceptance criteria for each stage
+   - Potential technical challenges and solutions
 
-3. **质量保证措施**：
-   - 如何确保前后端数据一致性
-   - 性能优化和异常处理方案
-   - 测试策略和验证方法
+3. **Quality Assurance Measures**:
+   - How to ensure frontend-backend data consistency
+   - Performance optimization and exception handling solutions
+   - Testing strategies and verification methods
 
-**输出要求：**
-- 采用分步骤的详细说明格式
-- 包含必要的技术细节但不失可读性
-- 重点突出从设计到实现的转换过程
-- 提供可量化的评估指标`,
+**Output Requirements:**
+- Use a detailed step-by-step explanation format
+- Include necessary technical details without sacrificing readability
+- Emphasize the conversion process from design to implementation
+- Provide quantifiable evaluation metrics`,
     isFavorite: true,
     favorite: true,
     createdAt: Date.now() - 500000,
     updatedAt: Date.now() - 30000,
     useCount: 5,
     lastUsed: Date.now() - 15000,
-    tags: ['前端', '开发', '集成'],
+    tags: ['Frontend', 'Development', 'Integration'],
     source: 'predefined',
-    category: '技术开发',
+    category: 'Technical Development',
     isActive: true
   }
 ];
 
 /**
- * 初始化示例提示词数据
- * 用于新安装或无数据时
+ * Initialize sample prompt data
+ * Used for new installations or when no data exists
  */
 export async function initializeSampleData(): Promise<void> {
   try {
-    console.log('[SampleData] 开始初始化示例提示词数据...');
+    console.log('[SampleData] Starting to initialize sample prompt data...');
     
-    // 批量保存示例提示词
+    // Batch save sample prompts
     for (const samplePrompt of samplePrompts) {
       const prompt: Prompt = {
         ...samplePrompt,
-        id: uuidv4() // 生成唯一ID
+        id: uuidv4() // Generate unique ID
       };
       
       await storageService.savePrompt(prompt);
     }
     
-    console.log('[SampleData] 示例提示词数据初始化完成');
+    console.log('[SampleData] Sample prompt data initialization completed');
   } catch (error) {
-    console.error('[SampleData] 初始化示例数据失败:', error);
+    console.error('[SampleData] Failed to initialize sample data:', error);
     throw error;
   }
 } 

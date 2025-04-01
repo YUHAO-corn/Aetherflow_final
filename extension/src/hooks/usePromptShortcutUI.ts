@@ -380,8 +380,8 @@ export function usePromptShortcutUI(
   
   // 确定需要显示的标题文本
   const headerTitle = displayTerm 
-    ? `提示词搜索: ${displayTerm}` 
-    : '推荐提示词';
+    ? `Prompt Search: ${displayTerm}` 
+    : 'Recommended Prompts';
   
   return {
     // 状态

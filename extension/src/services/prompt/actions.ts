@@ -196,11 +196,17 @@ export async function createPrompt(input: CreatePromptInput): Promise<Prompt> {
       title = await generateTitleForPrompt(input.content);
     }
     
-    // 创建新提示词
+    // 记录是否包含换行符
+    const hasNewlines = input.content.includes('\n');
+    if (hasNewlines) {
+      console.log('[createPrompt] 内容包含换行符，行数:', input.content.split('\n').length);
+    }
+    
+    // 创建新提示词 - 内容处理中保留换行符
     const newPrompt: Prompt = {
       id: generateId(),
       title: title,
-      content: input.content.trim(),
+      content: input.content, // 不使用trim()，保留原始格式包括换行符
       isFavorite: true,
       createdAt: now,
       updatedAt: now,
@@ -483,7 +489,7 @@ export async function exportPrompts(ids?: string[]): Promise<Prompt[]> {
     return prompts;
   } catch (error) {
     console.error('导出提示词失败:', error);
-    throw new PromptError('导出提示词失败', PromptErrorCode.EXPORT_ERROR);
+    throw new PromptError('Failed to export prompts', PromptErrorCode.EXPORT_ERROR);
   }
 }
 

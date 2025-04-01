@@ -105,7 +105,7 @@ export function LibraryTab() {
   
   // 处理删除提示词
   const handleDelete = async (id: string) => {
-    if (window.confirm('确定要删除这个提示词吗？')) {
+    if (window.confirm('Are you sure you want to delete this prompt?')) {
       await deletePrompt(id);
     }
   };

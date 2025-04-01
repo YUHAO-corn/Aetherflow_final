@@ -21,11 +21,11 @@ export function useExport() {
         // 2秒后重置成功状态
         setTimeout(() => setSuccess(false), 2000);
       } else {
-        setError('导出失败，请稍后重试');
+        setError('Export failed, please try again later');
       }
     } catch (err) {
       console.error('导出过程中发生错误:', err);
-      setError('导出过程中发生错误');
+      setError('Error occurred during export');
     } finally {
       setLoading(false);
     }

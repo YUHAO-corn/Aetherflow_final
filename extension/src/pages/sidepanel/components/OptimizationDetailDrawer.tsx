@@ -67,7 +67,7 @@ export function OptimizationDetailDrawer({
   const displayContent = getVersionDisplayContent(version);
   
   // 创建日期
-  const created = version.createdAt ? formatDate(version.createdAt) : '未知时间';
+  const created = version.createdAt ? formatDate(version.createdAt) : 'Unknown time';
   
   // 处理复制内容
   const handleCopy = () => {
@@ -79,7 +79,7 @@ export function OptimizationDetailDrawer({
           setCopySuccess(true);
         })
         .catch(err => {
-          console.error('复制失败:', err);
+          console.error('Copy failed:', err);
           // 也可以在这里显示错误反馈
         });
     }
@@ -142,7 +142,7 @@ export function OptimizationDetailDrawer({
         // 更新UI状态
         setIsFavorite(getFavoriteStatus(version.id, updatedFavorites));
       } catch (error) {
-        console.error('切换收藏状态失败:', error);
+        console.error('Switch favorite status failed:', error);
       }
     }
   };
@@ -158,7 +158,7 @@ export function OptimizationDetailDrawer({
     <div className={`fixed inset-y-0 right-0 w-80 bg-gradient-to-br from-magic-800 to-magic-900 border-l border-magic-700/30 shadow-xl z-30 transform transition-transform duration-300 flex flex-col ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}>
       {/* 抽屉头部 */}
       <div className="flex items-center justify-between p-4 border-b border-magic-700/30 flex-shrink-0">
-        <h3 className="text-lg font-semibold text-magic-200 truncate">优化版本详情</h3>
+        <h3 className="text-lg font-semibold text-magic-200 truncate">Optimization Details</h3>
         <button
           onClick={onClose}
           className="p-1 hover:bg-magic-700/50 rounded-full transition-colors"
@@ -170,26 +170,26 @@ export function OptimizationDetailDrawer({
       {/* 抽屉内容 - 使用flex-1和overflow-y-auto使内容区域可滚动 */}
       <div className="flex-1 overflow-y-auto p-4">
         {/* 版本标题 */}
-        <h2 className="text-lg font-bold text-magic-200 mb-4">
-          版本 v{version.id} {version.isEdited ? '(已编辑)' : ''}
+        <h2 className="text-base font-bold text-magic-200 mb-4">
+          Version v{version.id} {version.isEdited ? '(Edited)' : ''}
         </h2>
         
         {/* 内容 */}
         <div className="mb-6">
-          <h4 className="text-sm font-medium text-magic-400 mb-2">内容</h4>
+          <h4 className="text-sm font-medium text-magic-400 mb-2">Content</h4>
           {isEditing ? (
             <div>
               <textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
-                className="w-full bg-magic-800 border border-magic-600 rounded-md p-3 text-magic-200 max-h-[300px] min-h-[150px] scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800"
+                className="w-full bg-magic-800 border border-magic-600 rounded-md p-3 text-magic-200 max-h-[300px] min-h-[150px] scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800 text-xs"
                 autoFocus
               />
-              <div className="text-xs text-magic-400 mt-1 mb-2">点击外部保存</div>
+              <div className="text-xs text-magic-400 mt-1 mb-2">Click outside to save</div>
             </div>
           ) : (
             <div 
-              className="bg-magic-800/50 border border-magic-700/30 rounded-md p-3 text-magic-200 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800 cursor-text whitespace-pre-wrap"
+              className="bg-magic-800/50 border border-magic-700/30 rounded-md p-3 text-magic-200 text-xs max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-thumb-magic-600 scrollbar-track-magic-800 cursor-text whitespace-pre-wrap"
               onDoubleClick={handleDoubleClick}
             >
               {displayContent}
@@ -201,12 +201,12 @@ export function OptimizationDetailDrawer({
         <div className="mb-6 space-y-2">
           <div className="flex items-center text-sm text-magic-400">
             <Clock className="w-4 h-4 mr-2" /> 
-            <span>创建于: {created}</span>
+            <span>Created at: {created}</span>
           </div>
           {version.parentId && (
             <div className="flex items-center text-sm text-magic-400">
               <Clock className="w-4 h-4 mr-2" /> 
-              <span>基于版本: v{version.parentId}</span>
+              <span>Based on version: v{version.parentId}</span>
             </div>
           )}
         </div>
@@ -220,14 +220,14 @@ export function OptimizationDetailDrawer({
                 className="flex-1 flex items-center justify-center px-4 py-2 bg-green-600/80 text-white rounded-md hover:bg-green-500/80 transition-colors"
               >
                 <Save className="w-4 h-4 mr-2" />
-                保存修改
+                Save changes
               </button>
               <button
                 onClick={handleCancelEdit}
                 className="flex-1 flex items-center justify-center px-4 py-2 bg-magic-700/50 text-magic-200 rounded-md hover:bg-magic-600/50 transition-colors"
               >
                 <X className="w-4 h-4 mr-2" />
-                取消
+                Cancel
               </button>
             </div>
           ) : (
@@ -236,7 +236,7 @@ export function OptimizationDetailDrawer({
                 onClick={handleContinueOptimize}
                 className="flex items-center justify-center px-4 py-2 bg-magic-600 text-white rounded-md hover:bg-magic-500 transition-colors"
               >
-                基于此版本继续优化
+                Continue optimizing based on this version
               </button>
               
               <div className="flex space-x-2">
@@ -245,7 +245,7 @@ export function OptimizationDetailDrawer({
                   className="flex-1 flex items-center justify-center px-4 py-2 bg-magic-700/50 text-magic-200 rounded-md hover:bg-magic-600/50 transition-colors"
                 >
                   <Edit className="w-4 h-4 mr-2" />
-                  编辑
+                  Edit
                 </button>
                 <button
                   onClick={handleCopy}
@@ -254,12 +254,12 @@ export function OptimizationDetailDrawer({
                   {copySuccess ? (
                     <>
                       <Check className="w-4 h-4 mr-2 text-green-400" />
-                      <span className="text-green-400">已复制</span>
+                      <span className="text-green-400">Copied</span>
                     </>
                   ) : (
                     <>
                       <Copy className="w-4 h-4 mr-2" />
-                      复制
+                      Copy
                     </>
                   )}
                 </button>
@@ -274,7 +274,7 @@ export function OptimizationDetailDrawer({
                 } rounded-md hover:bg-magic-600/50 transition-colors`}
               >
                 <Star className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-yellow-300' : ''}`} />
-                {isFavorite ? '已收藏' : '添加到收藏'}
+                {isFavorite ? 'Favorited' : 'Add to favorites'}
               </button>
             </>
           )}

@@ -110,7 +110,7 @@ export function App() {
         favorite: true
       });
     } catch (error) {
-      console.error("保存到收藏夹失败:", error);
+      console.error("Failed to save to library:", error);
     }
   };
 
@@ -159,7 +159,7 @@ export function App() {
           className="flex items-center text-magic-400 hover:text-magic-200"
         >
           <Settings size={18} className="mr-1" />
-          <span>设置</span>
+          <span>Settings</span>
         </button>
       </footer>
 
