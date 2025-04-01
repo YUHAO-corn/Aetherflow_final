@@ -81,6 +81,23 @@ window.addEventListener('load', () => {
   }, 500);
 });
 
+// 监听重新初始化事件
+window.addEventListener('aetherflow-reinitialize', () => {
+  console.log('[AetherFlow-DEBUG] 收到重新初始化事件', {
+    time: new Date().toISOString(),
+    url: window.location.href
+  });
+  
+  // 重置初始化状态
+  window.aetherflowInitialized = false;
+  
+  // 重新初始化
+  initialize();
+  
+  // 重新发送就绪消息
+  sendReadyMessage();
+});
+
 // 在内容脚本加载时立即发送就绪消息给后台脚本
 function sendReadyMessage() {
   console.log('[AetherFlow-DEBUG] 发送内容脚本就绪消息:', {

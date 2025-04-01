@@ -141,6 +141,91 @@ function isContentScriptReady(tabId: number): Promise<boolean> {
   });
 }
 
+// 强制显示通知，绕过内容脚本
+async function forceShowNotification(tabId: number, message: string, type: 'success' | 'error'): Promise<boolean> {
+  try {
+    console.log(`[AetherFlow] 强制显示通知: ID=${tabId}, 消息=${message}`);
+    
+    // 使用executeScript直接在页面中注入通知
+    const result = await chrome.scripting.executeScript({
+      target: { tabId },
+      func: (msg, typ) => {
+        console.log('[AetherFlow-INJECT] 强制显示通知:', msg);
+        
+        // 移除已有的通知
+        const existingNotification = document.getElementById('aetherflow-notification');
+        if (existingNotification) {
+          document.body.removeChild(existingNotification);
+        }
+        
+        // 创建通知元素
+        const notification = document.createElement('div');
+        notification.id = 'aetherflow-notification';
+        
+        // 设置样式
+        notification.style.position = 'fixed';
+        notification.style.right = '20px';
+        notification.style.bottom = '20px';
+        notification.style.padding = '12px 20px';
+        notification.style.borderRadius = '4px';
+        notification.style.zIndex = '2147483647';
+        notification.style.fontSize = '14px';
+        notification.style.fontWeight = 'bold';
+        notification.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+        notification.style.transition = 'all 0.3s ease-in-out';
+        notification.style.opacity = '0';
+        notification.style.transform = 'translateY(20px)';
+        notification.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+        
+        // 设置颜色
+        if (typ === 'success') {
+          notification.style.backgroundColor = '#4CAF50';
+          notification.style.color = 'white';
+          notification.style.border = '1px solid #43A047';
+        } else {
+          notification.style.backgroundColor = '#F44336';
+          notification.style.color = 'white';
+          notification.style.border = '1px solid #E53935';
+        }
+        
+        // 添加图标
+        const icon = typ === 'success' ? '✓' : '✗';
+        notification.textContent = `${icon} ${msg}`;
+        
+        // 添加到页面
+        document.body.appendChild(notification);
+        
+        // 显示动画
+        setTimeout(() => {
+          notification.style.opacity = '1';
+          notification.style.transform = 'translateY(0)';
+        }, 10);
+        
+        // 3秒后隐藏
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          notification.style.transform = 'translateY(20px)';
+          
+          // 动画完成后移除
+          setTimeout(() => {
+            if (notification.parentNode) {
+              document.body.removeChild(notification);
+            }
+          }, 300);
+        }, 3000);
+        
+        return true;
+      },
+      args: [message, type]
+    });
+    
+    return result && result[0] && result[0].result === true;
+  } catch (error) {
+    console.error(`[AetherFlow] 强制显示通知失败:`, error);
+    return false;
+  }
+}
+
 // 安全地向内容脚本发送通知
 async function safelySendNotification(tabId: number, message: string, type: 'success' | 'error'): Promise<boolean> {
   console.log(`[AetherFlow-DEBUG] 尝试发送通知: ID=${tabId}, 消息=${message}, 类型=${type}`);
@@ -153,93 +238,22 @@ async function safelySendNotification(tabId: number, message: string, type: 'suc
   try {
     // 先检查内容脚本是否就绪
     console.log(`[AetherFlow-DEBUG] 发送通知前检查内容脚本: ID=${tabId}`);
-    const isReady = await isContentScriptReady(tabId);
+    
+    // 设置超时，防止检查卡住
+    const checkPromise = isContentScriptReady(tabId);
+    const timeoutPromise = new Promise<boolean>(resolve => {
+      setTimeout(() => resolve(false), 1000);
+    });
+    
+    // 使用Promise.race实现超时机制
+    const isReady = await Promise.race([checkPromise, timeoutPromise]);
     
     if (!isReady) {
-      console.warn(`[AetherFlow-DEBUG] 目标标签页内容脚本未就绪，尝试强制注入: ID=${tabId}`);
+      console.warn(`[AetherFlow-DEBUG] 目标标签页内容脚本未就绪或检查超时，尝试强制注入: ID=${tabId}`);
       
       try {
         // 尝试通过executeScript强制注入通知函数
-        const result = await chrome.scripting.executeScript({
-          target: { tabId },
-          func: (message: string, type: string) => {
-            console.log('[AetherFlow-INJECT] 执行注入的通知函数');
-            
-            // 简化版通知函数
-            function showInjectedNotification(msg: string, typ: string) {
-              console.log('[AetherFlow-INJECT] 显示注入的通知:', msg, typ);
-              
-              // 移除已有的通知
-              const existingNotification = document.getElementById('aetherflow-notification');
-              if (existingNotification) {
-                document.body.removeChild(existingNotification);
-              }
-              
-              // 创建通知容器
-              const notification = document.createElement('div');
-              notification.id = 'aetherflow-notification';
-              notification.textContent = msg;
-              notification.style.position = 'fixed';
-              notification.style.right = '20px';
-              notification.style.bottom = '20px';
-              notification.style.padding = '12px 20px';
-              notification.style.borderRadius = '4px';
-              notification.style.zIndex = '2147483647';
-              notification.style.fontSize = '14px';
-              notification.style.fontWeight = 'bold';
-              notification.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-              notification.style.transition = 'all 0.3s ease-in-out';
-              notification.style.opacity = '0';
-              notification.style.transform = 'translateY(20px)';
-              notification.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-              
-              // 设置样式
-              if (typ === 'success') {
-                notification.style.backgroundColor = '#4CAF50';
-                notification.style.color = 'white';
-                notification.style.border = '1px solid #43A047';
-              } else {
-                notification.style.backgroundColor = '#F44336';
-                notification.style.color = 'white';
-                notification.style.border = '1px solid #E53935';
-              }
-              
-              // 添加图标
-              const icon = typ === 'success' ? '✓' : '✗';
-              notification.textContent = `${icon} ${msg}`;
-              
-              // 添加到页面
-              document.body.appendChild(notification);
-              
-              // 显示动画
-              setTimeout(() => {
-                notification.style.opacity = '1';
-                notification.style.transform = 'translateY(0)';
-              }, 10);
-              
-              // 2秒后淡出
-              setTimeout(() => {
-                notification.style.opacity = '0';
-                notification.style.transform = 'translateY(20px)';
-                
-                // 动画结束后移除元素
-                setTimeout(() => {
-                  if (notification.parentNode) {
-                    document.body.removeChild(notification);
-                  }
-                }, 300);
-              }, 2000);
-              
-              return true;
-            }
-            
-            return showInjectedNotification(message, type);
-          },
-          args: [message, type]
-        });
-        
-        console.log(`[AetherFlow-DEBUG] 强制注入通知执行结果:`, result);
-        return result[0]?.result === true;
+        return await forceShowNotification(tabId, message, type);
       } catch (injectError) {
         console.error(`[AetherFlow-DEBUG] 强制注入通知失败: ID=${tabId}`, injectError);
         return false;
@@ -249,6 +263,11 @@ async function safelySendNotification(tabId: number, message: string, type: 'suc
     // 脚本就绪，发送通知
     console.log(`[AetherFlow-DEBUG] 内容脚本就绪，发送通知消息: ID=${tabId}`);
     return new Promise(resolve => {
+      const timeoutId = setTimeout(() => {
+        console.warn(`[AetherFlow-DEBUG] 发送通知消息超时: ID=${tabId}`);
+        resolve(false);
+      }, 2000); // 2秒超时
+      
       chrome.tabs.sendMessage(
         tabId, 
         {
@@ -259,6 +278,8 @@ async function safelySendNotification(tabId: number, message: string, type: 'suc
           }
         }, 
         response => {
+          clearTimeout(timeoutId);
+          
           if (chrome.runtime.lastError) {
             console.warn(`[AetherFlow-DEBUG] 发送通知消息错误: ID=${tabId}, 错误=${chrome.runtime.lastError.message}`);
             resolve(false);
@@ -462,35 +483,120 @@ function setupContextMenu() {
       console.log('[AetherFlow] Chrome API提供的选中文本预览:', 
         info.selectionText.substring(0, 50) + (info.selectionText.length > 50 ? '...' : ''));
       
-      // 重要：从内容脚本获取真正的选中文本（保留换行符）
-      // 而不是使用info.selectionText（Chrome API可能已处理过）
-      chrome.tabs.sendMessage(tab.id, { type: 'GET_SELECTED_TEXT' }, function(response) {
-        if (chrome.runtime.lastError) {
-          console.error('[AetherFlow] 获取选中文本失败:', chrome.runtime.lastError);
-          // 如果无法获取，回退到使用info.selectionText
+      // 增加超时处理以防止无响应情况
+      let hasResponded = false;
+      const timeoutId = setTimeout(() => {
+        if (!hasResponded) {
+          console.warn('[AetherFlow] 获取选中文本请求超时，使用API提供的文本作为备选');
           handleCapturePrompt(info.selectionText || '', tab);
-          return;
+          hasResponded = true;
         }
+      }, 1000); // 1秒超时
+      
+      // 尝试从内容脚本获取原始选中文本
+      try {
+        chrome.tabs.sendMessage(tab.id, { type: 'GET_SELECTED_TEXT' }, function(response) {
+          // 清除超时定时器
+          clearTimeout(timeoutId);
+          
+          // 如果已经通过超时处理过，不再处理
+          if (hasResponded) return;
+          hasResponded = true;
+          
+          if (chrome.runtime.lastError) {
+            console.error('[AetherFlow] 获取选中文本失败:', chrome.runtime.lastError);
+            
+            // 检查内容脚本是否存活，如果不存活则尝试刷新
+            if (tab.id && tab.id > 0) {
+              checkContentScriptAndRecover(tab.id).then((recovered) => {
+                if (recovered) {
+                  // 如果恢复成功，使用Chrome API提供的文本（至少能保证功能）
+                  console.log('[AetherFlow] 已恢复内容脚本，继续使用Chrome API提供的文本');
+                  handleCapturePrompt(info.selectionText || '', tab);
+                } else {
+                  // 仍然使用API提供的文本，但显示错误通知
+                  console.warn('[AetherFlow] 无法恢复内容脚本，使用备选方案');
+                  handleCapturePrompt(info.selectionText || '', tab, true);
+                }
+              });
+            } else {
+              // 标签页ID无效，直接使用API提供的文本
+              console.warn('[AetherFlow] 标签页ID无效，使用API提供的文本');
+              handleCapturePrompt(info.selectionText || '', tab);
+            }
+            return;
+          }
+          
+          // 使用内容脚本返回的原始文本
+          if (response && response.text) {
+            console.log('[AetherFlow] 从内容脚本获取到选中文本:', {
+              长度: response.text.length,
+              包含换行符: response.text.includes('\n'),
+              行数: response.text.split('\n').length,
+              前30字符: response.text.substring(0, 30).replace(/\n/g, '\\n')
+            });
+            handleCapturePrompt(response.text, tab);
+          } else {
+            console.warn('[AetherFlow] 内容脚本未返回选中文本，使用Chrome API提供的文本');
+            handleCapturePrompt(info.selectionText || '', tab);
+          }
+        });
+      } catch (error) {
+        // 清除超时定时器
+        clearTimeout(timeoutId);
         
-        // 使用内容脚本返回的原始文本（保留换行符）
-        if (response && response.text) {
-          console.log('[AetherFlow] 从内容脚本获取到选中文本:', {
-            长度: response.text.length,
-            包含换行符: response.text.includes('\n'),
-            行数: response.text.split('\n').length,
-            前30字符: response.text.substring(0, 30).replace(/\n/g, '\\n')
-          });
-          handleCapturePrompt(response.text, tab);
-        } else {
-          console.warn('[AetherFlow] 内容脚本未返回选中文本，使用Chrome API提供的文本');
-          handleCapturePrompt(info.selectionText || '', tab);
-        }
-      });
+        // 如果已经通过超时处理过，不再处理
+        if (hasResponded) return;
+        hasResponded = true;
+        
+        console.error('[AetherFlow] 获取选中文本时发生异常:', error);
+        handleCapturePrompt(info.selectionText || '', tab);
+      }
     }
   });
   
+  // 检查内容脚本状态并尝试恢复
+  async function checkContentScriptAndRecover(tabId: number): Promise<boolean> {
+    console.log(`[AetherFlow] 检查内容脚本状态并尝试恢复, 标签页ID=${tabId}`);
+    
+    // 确保有效的标签页ID
+    if (!tabId || tabId <= 0) {
+      console.error(`[AetherFlow] 无效的标签页ID: ${tabId}`);
+      return false;
+    }
+    
+    // 重置内容脚本注册状态
+    contentScriptRegistry.delete(tabId);
+    
+    // 尝试重新注入内容脚本（通过刷新扩展）
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId },
+        func: () => {
+          // 在页面中添加一个标记，表示需要重新初始化
+          window.dispatchEvent(new CustomEvent('aetherflow-reinitialize'));
+          console.log('[AetherFlow-PAGE] 触发重新初始化事件');
+          
+          // 立即返回以避免阻塞
+          return true;
+        }
+      });
+      
+      // 等待一段时间，让内容脚本有机会重新初始化
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // 检查内容脚本是否已恢复
+      const ready = await isContentScriptReady(tabId);
+      console.log(`[AetherFlow] 内容脚本恢复结果: 标签页ID=${tabId}, 就绪=${ready}`);
+      return ready;
+    } catch (error) {
+      console.error(`[AetherFlow] 尝试恢复内容脚本失败:`, error);
+      return false;
+    }
+  }
+  
   // 处理捕获选中文本为提示词
-  async function handleCapturePrompt(content: string, tab: chrome.tabs.Tab): Promise<void> {
+  async function handleCapturePrompt(content: string, tab: chrome.tabs.Tab, showConnectError = false): Promise<void> {
     try {
       console.log('[AetherFlow] 开始处理捕获提示词，文本长度:', content.length);
       
@@ -498,13 +604,30 @@ function setupContextMenu() {
       const result = await captureSelectionAsPrompt(content);
       console.log('[AetherFlow] 提示词保存结果:', result);
       
-      // 使用安全发送通知方法
+      // 显示通知
       if (tab.id) {
-        const message = result ? 'Prompt has been added to library' : 'Failed to save prompt';
+        // 如果有连接错误，同时显示
+        let message = result ? 'Prompt has been added to library' : 'Failed to save prompt';
         const type = result ? 'success' : 'error';
         
-        console.log('[AetherFlow] 发送通知:', message, '类型:', type);
-        await safelySendNotification(tab.id, message, type);
+        if (showConnectError) {
+          message += ' (Warning: Extension connection issue detected)';
+        }
+        
+        try {
+          console.log('[AetherFlow] 发送通知:', message, '类型:', type);
+          const notified = await safelySendNotification(tab.id, message, type);
+          
+          // 如果通知发送失败，尝试使用替代方法
+          if (!notified) {
+            console.warn('[AetherFlow] 常规通知失败，尝试使用强制注入');
+            await forceShowNotification(tab.id, message, type);
+          }
+        } catch (notifyError) {
+          console.error('[AetherFlow] 通知发送失败:', notifyError);
+          // 尝试强制注入通知
+          await forceShowNotification(tab.id, message, type);
+        }
         
         // 手动广播提示词更新消息
         try {
@@ -523,7 +646,12 @@ function setupContextMenu() {
       // 发送错误通知
       if (tab.id) {
         const errorMessage = 'Failed to save prompt: ' + (error.message || 'Unknown error');
-        await safelySendNotification(tab.id, errorMessage, 'error');
+        try {
+          await safelySendNotification(tab.id, errorMessage, 'error');
+        } catch (notifyError) {
+          console.error('[AetherFlow] 错误通知发送失败:', notifyError);
+          await forceShowNotification(tab.id, errorMessage, 'error');
+        }
       }
     }
   }
