@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Loader2, Settings, Sparkles, Wand2 } from 'lucide-react';
 import { OptimizeSection } from './OptimizeSection';
 import { LibraryTab } from './LibraryTab';
@@ -16,7 +16,7 @@ export function App() {
   const logoTimeoutRef = useRef<number | null>(null);
 
   // 获取提示词库数据
-  const { addPrompt } = usePromptsData();
+  const { addPrompt, refresh } = usePromptsData();
   
   // 获取优化功能
   const { 
@@ -32,6 +32,38 @@ export function App() {
     generateTitle,
     updateVersion
   } = useOptimize();
+
+  // 监听提示词更新消息
+  useEffect(() => {
+    console.log('[SidePanel] 设置提示词更新消息监听器');
+    
+    const handlePromptUpdated = (message: any) => {
+      if (message.type === 'PROMPT_UPDATED') {
+        console.log('[SidePanel] 收到提示词更新消息:', message);
+        
+        // 延迟刷新，确保存储已完成更新
+        setTimeout(() => {
+          console.log('[SidePanel] 开始刷新提示词数据');
+          refresh();
+        }, 300);
+      }
+    };
+    
+    // 添加消息监听器
+    chrome.runtime.onMessage.addListener(handlePromptUpdated);
+    
+    // 添加额外的刷新逻辑，确保初始加载时能正确获取数据
+    setTimeout(() => {
+      console.log('[SidePanel] 初始化时额外刷新提示词数据');
+      refresh();
+    }, 500);
+    
+    // 清理函数
+    return () => {
+      console.log('[SidePanel] 移除提示词更新消息监听器');
+      chrome.runtime.onMessage.removeListener(handlePromptUpdated);
+    };
+  }, [refresh]);
 
   const handleLogoHover = () => {
     if (!isLogoHovered) {

@@ -54,10 +54,13 @@ export class ChromeStorageService implements StorageService {
    */
   async savePrompt(prompt: Prompt): Promise<void> {
     if (!prompt.id) {
+      console.error('[ChromeStorage] 提示词ID缺失，无法保存');
       throw new Error('提示词ID是必需的');
     }
     
     try {
+      console.log(`[ChromeStorage] 开始保存提示词: ID=${prompt.id}, 标题=${prompt.title}, 内容长度=${prompt.content.length}`);
+      
       // 确保所有必要字段存在
       const now = Date.now();
       const completePrompt: Prompt = {
@@ -72,9 +75,25 @@ export class ChromeStorageService implements StorageService {
       };
       
       const key = `${STORAGE_KEYS.PROMPT_PREFIX}${prompt.id}`;
+      console.log(`[ChromeStorage] 将提示词保存到键名: ${key}`);
+      
       await chrome.storage.local.set({ [key]: completePrompt });
+      
+      // 验证保存是否成功
+      const savedPrompt = await this.getPrompt(prompt.id);
+      if (!savedPrompt) {
+        console.error(`[ChromeStorage] 保存后未能读取提示词: ID=${prompt.id}`);
+        throw new Error('提示词保存失败，无法验证存储结果');
+      }
+      
+      console.log(`[ChromeStorage] 提示词保存成功: ID=${prompt.id}`);
     } catch (error) {
       console.error(`[ChromeStorage] 保存提示词失败:`, error);
+      // 记录更详细的错误信息
+      if (error instanceof Error) {
+        console.error(`[ChromeStorage] 错误详情: ${error.name}: ${error.message}`);
+        console.error(`[ChromeStorage] 错误堆栈: ${error.stack}`);
+      }
       throw error;
     }
   }

@@ -403,7 +403,7 @@ const contentService = {
   }
 };
 
-// 显示通知提示 - 优化版
+// 显示通知
 function showNotification(message: string, type: 'success' | 'error' = 'success'): void {
   console.log('[AetherFlow-DEBUG] 显示通知:', {
     message,
@@ -411,74 +411,74 @@ function showNotification(message: string, type: 'success' | 'error' = 'success'
     time: new Date().toISOString()
   });
   
-  // 移除已有的通知
-  const existingNotification = document.getElementById('aetherflow-notification');
-  if (existingNotification) {
-    document.body.removeChild(existingNotification);
-    console.log('[AetherFlow-DEBUG] 移除已有通知');
-  }
-  
-  // 创建通知容器
-  const notification = document.createElement('div');
-  notification.id = 'aetherflow-notification';
-  notification.textContent = message;
-  notification.style.position = 'fixed';
-  notification.style.right = '20px';
-  notification.style.bottom = '20px';
-  notification.style.padding = '12px 20px';
-  notification.style.borderRadius = '4px';
-  notification.style.zIndex = '2147483647'; // 最高层级
-  notification.style.fontSize = '14px';
-  notification.style.fontWeight = 'bold';
-  notification.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
-  notification.style.transition = 'all 0.3s ease-in-out';
-  notification.style.opacity = '0';
-  notification.style.transform = 'translateY(20px)';
-  notification.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-  
-  // 设置不同类型的样式
-  if (type === 'success') {
-    notification.style.backgroundColor = '#4CAF50';
-    notification.style.color = 'white';
-    notification.style.border = '1px solid #43A047';
-  } else {
-    notification.style.backgroundColor = '#F44336';
-    notification.style.color = 'white';
-    notification.style.border = '1px solid #E53935';
-  }
-  
-  // 添加图标
-  const icon = type === 'success' ? '✓' : '✗';
-  notification.textContent = `${icon} ${message}`;
-  
   try {
+    // 移除旧的通知(如果存在)
+    const existingNotification = document.getElementById('aetherflow-notification');
+    if (existingNotification) {
+      document.body.removeChild(existingNotification);
+    }
+    
+    // 创建通知元素
+    const notification = document.createElement('div');
+    notification.id = 'aetherflow-notification';
+    
+    // 设置样式
+    notification.style.position = 'fixed';
+    notification.style.right = '20px';
+    notification.style.bottom = '20px';
+    notification.style.padding = '12px 20px';
+    notification.style.borderRadius = '4px';
+    notification.style.zIndex = '2147483647'; // 最高层级
+    notification.style.fontSize = '14px';
+    notification.style.fontWeight = 'bold';
+    notification.style.fontFamily = '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+    notification.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+    notification.style.transition = 'all 0.3s ease-in-out';
+    notification.style.opacity = '0';
+    notification.style.transform = 'translateY(20px)';
+    
+    // 根据类型设置颜色
+    if (type === 'success') {
+      notification.style.backgroundColor = '#4CAF50';
+      notification.style.color = 'white';
+      notification.style.border = '1px solid #43A047';
+    } else {
+      notification.style.backgroundColor = '#F44336';
+      notification.style.color = 'white';
+      notification.style.border = '1px solid #E53935';
+    }
+    
+    // 添加图标
+    const icon = type === 'success' ? '✓' : '✗';
+    notification.textContent = `${icon} ${message}`;
+    
     // 添加到页面
     document.body.appendChild(notification);
-    console.log('[AetherFlow-DEBUG] 通知元素已添加到DOM');
+    console.log('[AetherFlow-DEBUG] 已创建通知DOM元素');
     
     // 显示动画
     setTimeout(() => {
       notification.style.opacity = '1';
       notification.style.transform = 'translateY(0)';
-      console.log('[AetherFlow-DEBUG] 通知显示动画开始');
+      console.log('[AetherFlow-DEBUG] 通知动画开始显示');
     }, 10);
     
-    // 2秒后淡出
+    // 3秒后自动隐藏
     setTimeout(() => {
       notification.style.opacity = '0';
       notification.style.transform = 'translateY(20px)';
-      console.log('[AetherFlow-DEBUG] 通知开始淡出');
+      console.log('[AetherFlow-DEBUG] 通知开始自动隐藏');
       
-      // 动画结束后移除元素
+      // 动画完成后移除元素
       setTimeout(() => {
         if (notification.parentNode) {
           document.body.removeChild(notification);
-          console.log('[AetherFlow-DEBUG] 通知元素已移除');
+          console.log('[AetherFlow-DEBUG] 通知DOM元素已移除');
         }
       }, 300);
-    }, 2000);
+    }, 3000);
   } catch (error) {
-    console.error('[AetherFlow-DEBUG] 显示通知出错:', error);
+    console.error('[AetherFlow-DEBUG] 显示通知失败:', error);
   }
 }
 
