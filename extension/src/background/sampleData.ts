@@ -6,38 +6,31 @@ import { v4 as uuidv4 } from 'uuid';
 const samplePrompts: Omit<Prompt, 'id'>[] = [
   {
     title: 'How to Study Efficiently',
-    content: `# How to Study Efficiently
+    content: `How to Study Efficiently
 
-## Background and Goals
-Please provide a systematic set of efficient learning strategies to help improve knowledge acquisition, memory retention, and application ability.
+Background
+I need a systematic guide for effective learning strategies to improve my study habits.
 
-## Specific Requirements
-1. **Preparation Before Learning**
-   - How to set clear learning objectives
-   - Environment optimization suggestions
-   - Time management techniques
+Requirements
+1. Preparation Techniques
+   • Setting clear objectives
+   • Environment optimization
+   • Time management
 
-2. **Core Learning Techniques**
-   - Active learning methods
-   - Information processing strategies
-   - Attention management
+2. Learning Methods
+   • Active learning approaches
+   • Memory techniques
+   • Focus maintenance
 
-3. **Memory and Consolidation**
-   - Effective memory techniques
-   - Spaced repetition systems
-   - Knowledge application methods
+3. Application & Review
+   • Knowledge application
+   • Progress evaluation
+   • Problem-solving strategies
 
-4. **Evaluation and Adjustment**
-   - Learning effectiveness evaluation metrics
-   - Solutions to common problems
-   - Personalized adjustment suggestions
-
-## Output Requirements
-- Use a clear step-by-step structure
-- Include scientific basis and practical tips
-- Provide specific actionable examples
-- Include adaptable approaches for different learning scenarios
-- Use concise and clear language, avoid academic jargon`,
+Output Format
+• Use clear structure with practical examples
+• Include scientific basis where relevant
+• Provide adaptable methods for different subjects`,
     isFavorite: true,
     favorite: true,
     createdAt: Date.now() - 100000,
@@ -50,40 +43,33 @@ Please provide a systematic set of efficient learning strategies to help improve
     isActive: true
   },
   {
-    title: 'Scientific and Effective Body Management',
-    content: `# How to Manage Your Body Scientifically and Effectively
+    title: 'Scientific Body Management',
+    content: `Scientific Body Management Plan
 
-## Core Goal
-**Achieve healthy, sustainable body management through a systematic approach**, including weight control, body shaping, and overall health improvement.
+Goal
+Create a balanced 4-week health plan for [GOAL] (weight management/muscle building/general fitness).
 
-## Key Elements
+Key Components
 
-### 1. Nutrition Management
-- **Balanced Diet**: Adopt a diverse meal structure with reasonable proportions of the three major nutrients
-- **Calorie Control**: Develop appropriate calorie intake plans based on goals (fat loss/muscle gain/maintenance)
-- **Diet Quality**: Prioritize natural, unprocessed foods, control refined sugar and trans fat intake
+1. Nutrition
+• Balanced meal structure with appropriate macronutrients
+• Calorie guidelines based on activity level
+• Food quality recommendations
 
-### 2. Exercise Plan
-- **Cardio Exercise**: 3-5 times per week, 30-60 minutes each session (e.g., running, swimming, cycling)
-- **Strength Training**: 2-3 times per week of full-body resistance training
-- **Flexibility Training**: 2-3 stretch or yoga sessions per week
+2. Exercise
+• Weekly cardio schedule (3-5 sessions)
+• Strength training plan (2-3 sessions)
+• Flexibility and mobility work
 
-### 3. Lifestyle Habits
-- **Sleep Management**: Ensure 7-9 hours of quality sleep
-- **Stress Regulation**: Manage stress levels through meditation, deep breathing, etc.
-- **Hydration**: Maintain 1.5-2 liters of water intake daily
+3. Lifestyle
+• Sleep optimization
+• Stress management techniques
+• Hydration guidelines
 
-## Monitoring and Adjustment
-- Regularly measure key indicators such as body fat percentage and circumference
-- Establish a diet and exercise recording system
-- Evaluate progress and adjust plans every 4-6 weeks
+Expected Output
+Provide a practical 4-week plan with specific recommendations for nutrition, exercise, and lifestyle habits tailored to my goal.
 
-## Precautions
-- Avoid extreme dieting or excessive exercise
-- Set realistic, achievable phased goals
-- Seek professional nutritionist or fitness coach guidance when necessary
-
-**Expected Output**: Please provide a 4-week personalized body management plan, including specific dietary suggestions, exercise arrangements, and lifestyle adjustment plans that are scientific, executable, and consistent with health principles.`,
+Note: Simply replace [GOAL] with your specific health objective.`,
     isFavorite: true,
     favorite: true,
     createdAt: Date.now() - 900000,
@@ -97,31 +83,33 @@ Please provide a systematic set of efficient learning strategies to help improve
   },
   {
     title: 'Mood Regulation Guide',
-    content: `# What Should I Do When I Feel Down?
+    content: `Emotional Regulation Guide
 
-Please provide a **comprehensive and structured** emotional regulation guide that includes the following elements:
+As a mental health professional, provide practical strategies for managing [EMOTION] (anxiety/sadness/anger/stress).
 
-1. **Immediate Emotion Regulation Techniques**
-   - Physical methods for quickly relieving negative emotions
-   - Practical steps for cognitive restructuring
-   - Environmental adjustment suggestions
+Structure
 
-2. **Medium to Long-term Emotional Management Strategies**
-   - Daily emotional maintenance habits
-   - Preventive emotional regulation methods
-   - Training plans for building emotional resilience
+1. Immediate Relief Techniques
+   • Physical methods (breathing, exercise)
+   • Cognitive approaches (thought restructuring)
+   • Environmental adjustments
 
-3. **Professional Support Recommendations**
-   - Criteria for determining when to seek professional help
-   - Guidelines for choosing psychological counseling/therapy
-   - Reliable recommendations for self-help resources
+2. Long-term Management
+   • Daily emotional maintenance practices
+   • Preventive strategies
+   • Resilience-building methods
 
-**Output Requirements**:
-- Present in sections according to the above structure
-- Explain the scientific basis for each suggestion
-- Include specific actionable steps
-- Use easy-to-understand language
-- Avoid general advice, provide detailed explanations`,
+3. Professional Support
+   • When to seek help
+   • Types of appropriate therapy
+   • Reliable self-help resources
+
+Output Format
+• Provide scientifically-backed, actionable strategies
+• Include specific steps for implementation
+• Use accessible language without oversimplification
+
+Note: Replace [EMOTION] with the specific emotion you're experiencing.`,
     isFavorite: true,
     favorite: true,
     createdAt: Date.now() - 700000,
@@ -134,44 +122,182 @@ Please provide a **comprehensive and structured** emotional regulation guide tha
     isActive: true
   },
   {
-    title: 'Frontend Template Integration Guide',
-    content: `# How to Implement Integration Using Frontend Templates
-Please provide detailed instructions on how to implement end-to-end integration using frontend interface design and modules as templates, based on the following requirements:
+    title: 'Assignment Feedback Generator',
+    content: `Educational Assignment Feedback
 
-**Background Information:**
-- Frontend interface design and functional modules have been approved
-- Need to develop the complete process based on existing frontend as the standard
+As an experienced educator, review the attached [ASSIGNMENT_TYPE] (essay/report/project/problem set) for [SUBJECT] and provide structured feedback.
 
-**Specific Requirements:**
-1. **Technical Implementation Plan**:
-   - Explain how to convert frontend designs into reusable templates
-   - Describe specific methods for interface integration
-   - List necessary technology stack and toolchain
+Evaluation Framework
 
-2. **Process Implementation Steps**:
-   - Explain the complete process from template to actual operation in stages
-   - Key milestones and acceptance criteria for each stage
-   - Potential technical challenges and solutions
+1. Content Assessment
+• Accuracy and depth of understanding
+• Application of key concepts
+• Critical thinking and creativity
+• Use of evidence and examples
 
-3. **Quality Assurance Measures**:
-   - How to ensure frontend-backend data consistency
-   - Performance optimization and exception handling solutions
-   - Testing strategies and verification methods
+2. Structure & Technical Elements
+• Organization and logical flow
+• Language usage and clarity
+• Format and presentation
+• Citation and referencing (if applicable)
 
-**Output Requirements:**
-- Use a detailed step-by-step explanation format
-- Include necessary technical details without sacrificing readability
-- Emphasize the conversion process from design to implementation
-- Provide quantifiable evaluation metrics`,
+Feedback Structure
+
+1. Strengths Summary (2-3 key points)
+2. Areas for Improvement (2-3 priorities)
+3. Specific Examples (referencing particular sections)
+4. Growth Recommendations (3-5 actionable steps)
+
+Use constructive, supportive language while maintaining academic standards.
+
+Note: Simply attach student work and specify the assignment type and subject.`,
     isFavorite: true,
     favorite: true,
-    createdAt: Date.now() - 500000,
-    updatedAt: Date.now() - 30000,
-    useCount: 5,
-    lastUsed: Date.now() - 15000,
-    tags: ['Frontend', 'Development', 'Integration'],
+    createdAt: Date.now() - 300000,
+    updatedAt: Date.now() - 20000,
+    useCount: 18,
+    lastUsed: Date.now() - 5000,
+    tags: ['Education', 'Teaching', 'Feedback'],
     source: 'predefined',
-    category: 'Technical Development',
+    category: 'Educational Tools',
+    isActive: true
+  },
+  {
+    title: 'Content Creation Engine',
+    content: `SEO Content Creator
+
+As a content strategist, create a [CONTENT_TYPE] (article/blog post/social media/email) about [TOPIC] optimized for [TARGET_AUDIENCE].
+
+Content Framework
+
+1. SEO Elements
+• Strategic keyword incorporation
+• SEO-optimized headline and structure
+• Meta description recommendation
+• Internal/external linking suggestions
+
+2. Content Structure
+• Engaging introduction with hook
+• Logical section organization
+• Compelling conclusion with call-to-action
+• Supporting evidence and examples
+
+3. Engagement Features
+• Data points or statistics
+• Relevant analogies or metaphors
+• Visual content suggestions
+• Interactive elements (questions, polls)
+
+Delivery Requirements
+• Professionally written, publication-ready content
+• Proper formatting with headers and lists
+• Balanced creativity and clarity
+• 600-1000 words (adjustable based on content type)
+
+Note: Simply specify content type, topic, and target audience to generate customized content.`,
+    isFavorite: true,
+    favorite: true,
+    createdAt: Date.now() - 250000,
+    updatedAt: Date.now() - 15000,
+    useCount: 22,
+    lastUsed: Date.now() - 3000,
+    tags: ['Marketing', 'SEO', 'Content Creation'],
+    source: 'predefined',
+    category: 'Marketing Tools',
+    isActive: true
+  },
+  {
+    title: 'Research Paper Analyzer',
+    content: `Research Paper Analysis
+
+As a research methodology expert, analyze the attached paper on [TOPIC] and provide a comprehensive evaluation.
+
+Analysis Framework
+
+1. Methodology Assessment
+• Research design appropriateness
+• Data collection and analysis methods
+• Validity and reliability considerations
+• Limitations and their handling
+
+2. Contribution Evaluation
+• Positioning within existing literature
+• Theoretical and practical significance
+• Innovation in approach or findings
+• Implications for the field
+
+3. Quality Analysis
+• Argument coherence and logic
+• Evidence strength and relevance
+• Alternative interpretations
+• Ethical considerations
+
+Output Format
+
+1. Executive Summary (200 words)
+2. Strengths & Weaknesses (3-5 points each)
+3. Key Implications (theoretical and practical)
+4. Future Research Directions (2-3 suggestions)
+
+Include specific examples from the paper to support your analysis.
+
+Note: Simply attach the research paper and specify the topic to receive a tailored analysis.`,
+    isFavorite: true,
+    favorite: true,
+    createdAt: Date.now() - 400000,
+    updatedAt: Date.now() - 25000,
+    useCount: 14,
+    lastUsed: Date.now() - 8000,
+    tags: ['Research', 'Academic', 'Analysis'],
+    source: 'predefined',
+    category: 'Academic Tools',
+    isActive: true
+  },
+  {
+    title: 'Legal Document Analyzer',
+    content: `Legal Document Analysis
+
+As a legal specialist, review the attached [DOCUMENT_TYPE] (contract/agreement/policy) and provide a comprehensive assessment.
+
+Analysis Framework
+
+1. Structural Review
+• Document organization and completeness
+• Required legal elements and compliance
+• Formatting and referencing standards
+• Missing or incomplete sections
+
+2. Content Evaluation
+• Terms and definitions clarity
+• Rights and obligations specification
+• Liability and risk allocation
+• Dispute resolution mechanisms
+
+3. Risk Assessment
+• Potential enforceability issues
+• Legal vulnerabilities or loopholes
+• Compliance with relevant regulations
+• Protection adequacy for involved parties
+
+Output Format
+
+1. Executive Summary (document quality assessment)
+2. Critical Issues (3-5 priority concerns)
+3. Improvement Recommendations (specific language suggestions)
+4. Implementation Guidance (next steps and priorities)
+
+Provide practical, actionable advice based on established legal principles.
+
+Note: Simply attach your legal document and specify the document type to receive tailored analysis.`,
+    isFavorite: true,
+    favorite: true,
+    createdAt: Date.now() - 450000,
+    updatedAt: Date.now() - 22000,
+    useCount: 10,
+    lastUsed: Date.now() - 7000,
+    tags: ['Legal', 'Contracts', 'Analysis'],
+    source: 'predefined',
+    category: 'Legal Tools',
     isActive: true
   }
 ];

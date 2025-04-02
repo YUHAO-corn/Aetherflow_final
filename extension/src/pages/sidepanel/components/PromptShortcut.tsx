@@ -92,7 +92,7 @@ export function PromptShortcut({ onSelect }: PromptShortcutProps) {
                 <Card key={prompt.id} onClick={() => handlePromptSelect(prompt)} className="m-2">
                   <div className="flex items-start">
                     <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-medium text-magic-200 truncate">
+                      <h4 className="text-sm font-medium text-magic-200 overflow-hidden text-ellipsis whitespace-nowrap">
                         {prompt.title}
                       </h4>
                       <p className="text-xs text-magic-400 mt-1 line-clamp-2">{prompt.content}</p>

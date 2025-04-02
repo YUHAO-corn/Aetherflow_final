@@ -22,8 +22,14 @@ function getSystemPrompt(mode: OptimizationMode): string {
 ## 核心任务
 你是一位专业的提示词优化专家，负责改进用户提供的提示词的表达方式和结构。这是一个提示词优化工具，不是问答工具。你的任务是优化提示词本身，而非回答提示词中的问题内容。
 
+【语言要求】：
+- 必须严格保持输出语言与待优化提示词的语言一致
+- 如果待优化提示词是英文，输出必须是英文
+- 如果待优化提示词是中文，输出必须是中文
+- 禁止在优化过程中改变原始语言
+
 ## 输出要求
-直接输出优化后的提示词内容，不要添加任何引导语（如"优化后的提示词："）、解释、评论或前言。保持输出语言与输入提示词语言一致。
+直接输出优化后的提示词内容，不要添加任何引导语（如"优化后的提示词："）、解释、评论或前言。必须保持输出语言与输入提示词语言一致。
 
 ## 优化原则（按重要性排序）
 1. **保持原意**：确保保留提示词的原始核心意图和目标
@@ -231,24 +237,55 @@ function getSystemPrompt(mode: OptimizationMode): string {
 }
 
 /**
+ * 检测内容语言并确保语言一致性
+ * @param originalContent 原始提示词内容
+ * @param optimizedContent 优化后的内容
+ * @returns 修正后的内容
+ */
+function ensureLanguageConsistency(originalContent: string, optimizedContent: string): string {
+  // 简单的语言检测规则
+  const isOriginalChinese = /[\u4e00-\u9fa5]/.test(originalContent);
+  const isOptimizedChinese = /[\u4e00-\u9fa5]/.test(optimizedContent);
+  
+  // 如果语言不一致，重新请求优化
+  if (isOriginalChinese !== isOptimizedChinese) {
+    console.warn('[OptimizationService] 检测到语言不一致，尝试修正');
+    
+    // 构建更强调语言要求的提示
+    const languagePrompt = isOriginalChinese 
+      ? "请注意：输入内容是中文，必须用中文回复。请重新优化以下提示词："
+      : "IMPORTANT: The input is in English. Please optimize the following prompt in English ONLY:";
+    
+    // 返回带有明确语言要求的原始内容
+    return `${languagePrompt}\n\n${originalContent}`;
+  }
+  
+  return optimizedContent;
+}
+
+/**
  * 对模型返回的内容进行标准化处理
  * 确保在存储前格式就已经统一，使所有地方显示一致
  * @param content 模型返回的原始内容
+ * @param originalContent 原始提示词内容
  */
-function postProcessResponse(content: string): string {
+function postProcessResponse(content: string, originalContent: string): string {
   // 1. 移除中英文引导语，只匹配内容开头
   let processed = content.replace(/^(优化后的提示词[:：]|以下是优化后的提示词[:：]|优化结果[:：]|以下是[^:：]*优化[^:：]*[:：]|Optimized Prompt[:：]?|Here is the optimized prompt[:：]?|The optimized version[:：]?|Optimized Result[:：]?|Optimization Result[:：]?|Here's the optimized prompt[:：]?)/i, '').trim();
   
-  // 2. 转换Markdown为人类可读的纯文本
+  // 2. 检查语言一致性
+  processed = ensureLanguageConsistency(originalContent, processed);
+  
+  // 3. 转换Markdown为人类可读的纯文本
   processed = convertMarkdownToPlainText(processed);
   
-  // 3. 处理过多的空行（超过2个连续空行的情况）
+  // 4. 处理过多的空行（超过2个连续空行的情况）
   processed = processed.replace(/\n{3,}/g, '\n\n');
   
-  // 4. 移除末尾的空行
+  // 5. 移除末尾的空行
   processed = processed.replace(/\n+$/g, '');
   
-  // 5. 确保开头没有空行
+  // 6. 确保开头没有空行
   processed = processed.replace(/^\n+/, '');
   
   return processed;
@@ -467,7 +504,7 @@ export async function optimizePrompt(
         },
         {
           role: 'user',
-          content: `需要优化的提示词: "${content}"\n\n请记住：你的任务是优化上述提示词的结构和表达，而不是回答提示词中的问题。`
+          content: `需要优化的提示词: ${content}\n\n请记住：你的任务是优化上述提示词的结构和表达，而不是回答提示词中的问题。`
         }
       ],
       temperature: mode === 'creative' ? 0.8 : 0.3,
@@ -480,8 +517,34 @@ export async function optimizePrompt(
     let optimizedContent = response.data.choices[0].message.content;
     console.log('[OptimizationService] 获取到AI优化内容，长度:', optimizedContent.length);
     
-    // 对响应内容进行标准化处理
-    optimizedContent = postProcessResponse(optimizedContent);
+    // 对响应内容进行标准化处理，传入原始内容用于语言检测
+    optimizedContent = postProcessResponse(optimizedContent, content);
+    
+    // 如果返回的是带有语言提示的原始内容，说明需要重新优化
+    if (optimizedContent.includes("请注意：输入内容是中文") || 
+        optimizedContent.includes("IMPORTANT: The input is in English")) {
+      console.log('[OptimizationService] 检测到语言不一致，正在重新请求优化...');
+      
+      // 使用更新后的内容重新发起请求
+      const retryData = {
+        ...data,
+        messages: [
+          {
+            role: 'system',
+            content: systemPrompt
+          },
+          {
+            role: 'user',
+            content: optimizedContent
+          }
+        ]
+      };
+      
+      const retryResponse = await makeAPIRequestWithRetry(API_URL, retryData, headers);
+      optimizedContent = retryResponse.data.choices[0].message.content;
+      // 再次进行后处理，但这次不需要重试
+      optimizedContent = postProcessResponse(optimizedContent, content);
+    }
     
     return optimizedContent;
   } catch (error: unknown) {
@@ -569,7 +632,7 @@ export async function continueOptimize(
         },
         {
           role: 'user',
-          content: `需要进一步优化的提示词: "${content}"\n\n请记住：你的任务是优化上述提示词，使其更${mode === 'standard' ? '有效和结构化' : mode === 'creative' ? '有创意和启发性' : '简洁和精确'}，而不是回答提示词中的问题。`
+          content: `需要进一步优化的提示词: ${content}\n\n请记住：你的任务是优化上述提示词，使其更${mode === 'standard' ? '有效和结构化' : mode === 'creative' ? '有创意和启发性' : '简洁和精确'}，而不是回答提示词中的问题。`
         }
       ],
       temperature: mode === 'creative' ? 0.8 : 0.3,
@@ -583,7 +646,7 @@ export async function continueOptimize(
     console.log('[OptimizationService] 获取到AI继续优化内容，长度:', optimizedContent.length);
     
     // 对响应内容进行标准化处理
-    optimizedContent = postProcessResponse(optimizedContent);
+    optimizedContent = postProcessResponse(optimizedContent, content);
     
     return optimizedContent;
   } catch (error: unknown) {
@@ -650,7 +713,7 @@ export function testProcessingFunctions(content: string): {
   const afterRemovingPrefixes = content.replace(/^(优化后的提示词[:：]|以下是优化后的提示词[:：]|优化结果[:：]|以下是[^:：]*优化[^:：]*[:：]|Optimized Prompt[:：]?|Here is the optimized prompt[:：]?|The optimized version[:：]?|Optimized Result[:：]?|Optimization Result[:：]?|Here's the optimized prompt[:：]?)/i, '').trim();
   
   // 测试完整处理流程
-  const finalResult = postProcessResponse(content);
+  const finalResult = postProcessResponse(content, content);
   
   return {
     afterRemovingPrefixes,

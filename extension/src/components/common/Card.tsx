@@ -20,7 +20,7 @@ export function Card({ title, children, actions, className = '', onClick }: Card
         } ${className}`}
       >
         {title && (
-          <h3 className="text-sm font-medium text-magic-200 mb-2 relative z-10">{title}</h3>
+          <h3 className="text-sm font-medium text-magic-200 mb-2 relative z-10 overflow-hidden text-ellipsis whitespace-nowrap">{title}</h3>
         )}
         <div className="relative z-10">{children}</div>
         {actions && (

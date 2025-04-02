@@ -186,7 +186,7 @@ export function PromptDetailDrawer({ prompt, isOpen, onClose, onEdit }: PromptDe
           </div>
         ) : (
           <h2 
-            className="text-base font-bold text-magic-200 mb-4 cursor-text"
+            className="text-base font-bold text-magic-200 mb-4 cursor-text break-words"
             onDoubleClick={handleStartEditTitle}
             title="Double-click to edit title"
           >

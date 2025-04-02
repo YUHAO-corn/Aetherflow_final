@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { Prompt, CreatePromptInput, createPrompt } from '../services/prompt';
 import { syncStorage } from '../services/storage';
 import { OptimizationVersion, OptimizeOptions } from '../services/optimize/types';
+import { continueOptimize } from '../services/optimizationService'; // 导入优化服务
 
 // 定义状态接口
 interface AppState {
@@ -370,13 +371,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         optimizationVersions: updatedVersions
       }));
       
-      // 模拟API调用延迟
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // 实际调用API进行优化，而不是使用模拟数据
+      const optimizedContent = await continueOptimize(contentToOptimize, state.currentOptimizeMode);
+      console.log('[AppContext] 获取到继续优化的内容，长度:', optimizedContent.length);
       
       // 优化结果
       const optimizedVersion: OptimizationVersion = {
         id: newVersionId,
-        content: contentToOptimize + ` [${state.currentOptimizeMode}模式优化]`,
+        content: optimizedContent,
         isLoading: false,
         isNew: true,
         createdAt: Date.now(),
@@ -387,8 +389,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const finalVersions = [
         ...state.optimizationVersions.slice(0, sourceIndex + 1),
         optimizedVersion,
-        ...state.optimizationVersions.slice(sourceIndex + 1)
-      ].filter(v => v.id !== placeholderVersion.id);
+        ...state.optimizationVersions.slice(sourceIndex + 2) // +2 因为要跳过占位符版本
+      ];
       
       setState(prev => ({
         ...prev,
