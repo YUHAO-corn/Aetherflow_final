@@ -134,6 +134,7 @@ declare global {
   interface Window {
     aetherflowInitialized?: boolean;
     aetherflowRefreshHintShown?: boolean;
+    aetherflowStorageHintShown?: boolean; // 存储提示显示标记
     aetherflowBackgroundCheck?: any; // 后台脚本检查计时器
     aetherflowLastBackgroundAlive?: number; // 上次后台脚本活跃时间
   }
@@ -170,6 +171,166 @@ const globalState = {
     hasSelection: false
   }
 };
+
+// 全局消息ID计数器
+let messageIdCounter = 0;
+
+// 生成唯一消息ID
+function generateMessageId(): string {
+  return `msg_${Date.now()}_${messageIdCounter++}`;
+}
+
+/**
+ * 可靠消息发送函数 - 带重试、超时和备用机制
+ * @param type 消息类型
+ * @param data 消息数据
+ * @param options 配置选项
+ * @returns 返回一个Promise，包含响应结果
+ */
+async function sendReliableMessage<T>(
+  type: string, 
+  data: any, 
+  options: {
+    timeoutMs?: number;       // 超时时间（毫秒）
+    maxRetries?: number;      // 最大重试次数
+    retryDelayMs?: number;    // 重试延迟基础时间（毫秒）
+    useStorageFallback?: boolean; // 是否在失败后使用存储作为备选
+    storageKey?: string;      // 存储键前缀
+  } = {}
+): Promise<T | null> {
+  // 默认选项
+  const {
+    timeoutMs = 5000,
+    maxRetries = 2,
+    retryDelayMs = 1000,
+    useStorageFallback = false,
+    storageKey = 'reliable_msg'
+  } = options;
+
+  // 生成唯一消息ID
+  const messageId = generateMessageId();
+  
+  console.log(`[AetherFlow] 发送可靠消息: ${type}, ID=${messageId}`);
+  
+  // 检查后台脚本连接
+  const isBackgroundActive = await ensureBackgroundActive();
+  if (!isBackgroundActive) {
+    console.warn(`[AetherFlow] 后台脚本未响应，消息可能无法送达: ${type}`);
+  }
+  
+  // 带重试的消息发送函数
+  const sendWithRetry = async (retryCount: number): Promise<T | null> => {
+    console.log(`[AetherFlow] 尝试发送消息 ${type} [${retryCount}/${maxRetries}]`);
+    
+    try {
+      // 如果不是第一次尝试，先唤醒后台脚本
+      if (retryCount > 0) {
+        wakeupBackgroundScript();
+        // 给后台脚本一点时间启动
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+      // 使用Promise包装消息发送
+      return await new Promise<T | null>((resolve, reject) => {
+        // 设置超时
+        const timeoutId = setTimeout(() => {
+          console.warn(`[AetherFlow] 消息 ${messageId} 发送超时`);
+          reject(new Error('Message timeout'));
+        }, timeoutMs);
+        
+        // 发送消息
+        chrome.runtime.sendMessage({
+          type,
+          data: {
+            ...data,
+            messageId,
+            timestamp: Date.now()
+          }
+        }, (response) => {
+          // 清除超时
+          clearTimeout(timeoutId);
+          
+          // 检查运行时错误
+          const error = chrome.runtime.lastError;
+          if (error) {
+            console.error(`[AetherFlow] 消息 ${messageId} 发送失败:`, error.message);
+            reject(error);
+            return;
+          }
+          
+          // 更新后台脚本活跃状态
+          window.aetherflowLastBackgroundAlive = Date.now();
+          
+          console.log(`[AetherFlow] 消息 ${messageId} 发送成功，收到响应:`, response);
+          resolve(response as T);
+        });
+      });
+    } catch (error) {
+      console.error(`[AetherFlow] 消息 ${messageId} 处理错误:`, error);
+      
+      // 如果还有重试次数，进行重试
+      if (retryCount < maxRetries) {
+        const delay = retryDelayMs * (retryCount + 1);
+        console.log(`[AetherFlow] 将在 ${delay}ms 后重试消息 ${messageId}`);
+        
+        // 延迟后重试
+        await new Promise(resolve => setTimeout(resolve, delay));
+        return sendWithRetry(retryCount + 1);
+      }
+      
+      // 已达到最大重试次数，检查是否使用存储备选方案
+      if (useStorageFallback) {
+        console.warn(`[AetherFlow] 消息 ${messageId} 重试已达上限，使用存储备选方案`);
+        return await useStorageFallbackStrategy();
+      }
+      
+      // 无备选方案，返回null
+      return null;
+    }
+  };
+  
+  // 存储备选策略
+  const useStorageFallbackStrategy = async (): Promise<T | null> => {
+    try {
+      // 生成唯一存储键
+      const uniqueStorageKey = `${storageKey}_${Date.now()}`;
+      
+      // 保存到存储
+      await new Promise<void>((resolve, reject) => {
+        chrome.storage.local.set({
+          [uniqueStorageKey]: {
+            type,
+            data,
+            timestamp: Date.now(),
+            pending: true,
+            messageId
+          }
+        }, () => {
+          if (chrome.runtime.lastError) {
+            reject(chrome.runtime.lastError);
+          } else {
+            resolve();
+          }
+        });
+      });
+      
+      console.log(`[AetherFlow] 消息 ${messageId} 已保存到本地存储: ${uniqueStorageKey}`);
+      
+      // 返回一个模拟响应，表示消息已暂存
+      return {
+        success: true,
+        usedFallback: true,
+        storageKey: uniqueStorageKey
+      } as unknown as T;
+    } catch (storageError) {
+      console.error(`[AetherFlow] 消息 ${messageId} 存储备选方案失败:`, storageError);
+      return null;
+    }
+  };
+  
+  // 开始发送过程
+  return await sendWithRetry(0);
+}
 
 // 内容服务
 const contentService = {
@@ -444,112 +605,42 @@ const contentService = {
         前30字符: selectedText.substring(0, 30).replace(/\n/g, '\\n')
       });
       
-      // 先尝试唤醒后台脚本
-      await ensureBackgroundActive();
-      
-      // 添加错误处理和重试逻辑
-      const sendCaptureMessage = (retryCount = 0) => {
-        const maxRetries = 3; // 增加到3次重试
-        
-        console.log(`[AetherFlow] 发送捕获请求 ${retryCount > 0 ? `(重试 ${retryCount}/${maxRetries})` : ''}`);
-        
-        // 先尝试唤醒Service Worker
-        if (retryCount > 0) {
-          // 尝试多种方法唤醒Service Worker
-          wakeupBackgroundScript();
-          
-          // 给Service Worker一点启动时间
-          setTimeout(() => sendActualMessage(), 500); // 增加等待时间
-        } else {
-          sendActualMessage();
+      // 使用增强的可靠消息发送函数
+      const response = await sendReliableMessage<{success: boolean; error?: string; promptId?: string;}>(
+        'CAPTURE_SELECTION_AS_PROMPT',
+        { content: selectedText },
+        {
+          timeoutMs: 8000,        // 更长的超时时间
+          maxRetries: 3,          // 最多重试3次
+          retryDelayMs: 1000,     // 重试间隔1秒递增
+          useStorageFallback: true, // 启用存储备选
+          storageKey: 'temp_capture' // 存储键前缀
         }
-        
-        function sendActualMessage() {
-          chrome.runtime.sendMessage({
-            type: 'CAPTURE_SELECTION_AS_PROMPT',
-            data: {
-              content: selectedText,  // 保持原始格式，包括换行符
-              timestamp: Date.now()   // 添加时间戳以区分不同请求
-            }
-          }, (response) => {
-            // 检查runtime.lastError，在消息发送失败时会设置
-            const error = chrome.runtime.lastError;
-            
-            if (error) {
-              console.error('[AetherFlow] 发送消息失败:', error.message);
-              
-              // 检测是否为连接问题
-              const isConnectionError = error && error.message ? (
-                error.message.includes('disconnected') || 
-                error.message.includes('connect') ||
-                error.message.includes('recipient is undefined')
-              ) : false;
-              
-              // 如果是连接问题，尝试更积极地唤醒
-              if (isConnectionError) {
-                console.warn('[AetherFlow] 检测到连接问题，尝试恢复后台脚本...');
-                
-                // 立即更新后台脚本状态
-                window.aetherflowLastBackgroundAlive = 0; // 强制标记为需要唤醒
-                wakeupBackgroundScript();
-              }
-              
-              // 如果未超过最大重试次数，尝试重试
-              if (retryCount < maxRetries) {
-                const delay = (retryCount + 1) * 1000; // 逐渐增加延迟
-                console.log(`[AetherFlow] 将在${delay/1000}秒后重试 (${retryCount + 1}/${maxRetries})`);
-                setTimeout(() => sendCaptureMessage(retryCount + 1), delay);
-                return;
-              }
-              
-              // 超过重试次数，尝试备用保存方法
-              console.warn('[AetherFlow] 通过消息发送失败，尝试备用方法存储...');
-              
-              // 使用存储API作为备选方案
-              try {
-                const tempKey = `temp_capture_${Date.now()}`;
-                chrome.storage.local.set({
-                  [tempKey]: {
-                    content: selectedText,
-                    timestamp: Date.now(),
-                    pendingCapture: true
-                  }
-                }, () => {
-                  if (chrome.runtime.lastError) {
-                    console.error('[AetherFlow] 备用存储也失败:', chrome.runtime.lastError);
-                    showNotification('Failed to save prompt: Service is not responding', 'error');
-                  } else {
-                    console.log('[AetherFlow] 已使用备用方法临时保存，等待后台脚本处理');
-                    showNotification('Prompt saved. Will be processed when extension service is available.', 'info');
-                  }
-                });
-              } catch (storageError) {
-                console.error('[AetherFlow] 备用存储失败:', storageError);
-                showNotification('Failed to save prompt: Service is not responding, try refreshing the page', 'error');
-              }
-              
-              return;
-            }
-            
-            console.log('[AetherFlow] 收到保存提示词响应:', response);
-            
-            // 更新后台脚本活跃状态
-            window.aetherflowLastBackgroundAlive = Date.now();
-            
-            if (response && response.success) {
-              // 显示成功提示
-              showNotification('Prompt has been added to library', 'success');
-            } else {
-              const errorMsg = response?.error ? `Save failed: ${response.error}` : 'Failed to save prompt, please try again';
-              console.error('[AetherFlow] 保存提示词失败:', response?.error || '未知错误');
-              showNotification(errorMsg, 'error');
-            }
-          });
-        }
-      };
+      );
       
-      // 开始发送消息过程
-      sendCaptureMessage();
+      if (!response) {
+        // 所有尝试都失败
+        console.error('[AetherFlow] 所有保存尝试都失败');
+        showNotification('Failed to save prompt: Service is not responding, try refreshing the page', 'error');
+        return;
+      }
+      
+      // 检查是否使用了备选方案
+      if ('usedFallback' in response && response.usedFallback) {
+        console.log('[AetherFlow] 已使用备用方法临时保存，等待后台脚本处理');
+        showNotification('Prompt saved. Will be processed when extension service is available.', 'info');
+        return;
+      }
+      
+      // 处理正常响应
+      if (response.success) {
+        // 显示成功提示
+        showNotification('Prompt has been added to library', 'success');
+      } else {
+        const errorMsg = response.error ? `Save failed: ${response.error}` : 'Failed to save prompt, please try again';
+        console.error('[AetherFlow] 保存提示词失败:', response.error || '未知错误');
+        showNotification(errorMsg, 'error');
+      }
     } catch (error) {
       console.error('[AetherFlow] 捕获选中文本失败:', error);
       showNotification('Failed to save prompt, please try again', 'error');
@@ -622,10 +713,149 @@ function showNotification(message: string, type: 'success' | 'error' | 'info' = 
   }, 5000);
 }
 
+// 显示可操作的错误通知
+function showActionableNotification(
+  message: string, 
+  actionText: string, 
+  actionCallback: () => void,
+  type: 'error' | 'warning' = 'error'
+): void {
+  console.log('[AetherFlow-DEBUG] 显示可操作通知:', message, actionText);
+  
+  // 检查是否已存在通知容器
+  let notificationContainer = document.getElementById('aetherflow-notification-container');
+  if (!notificationContainer) {
+    notificationContainer = document.createElement('div');
+    notificationContainer.id = 'aetherflow-notification-container';
+    notificationContainer.style.position = 'fixed';
+    notificationContainer.style.bottom = '20px';
+    notificationContainer.style.right = '20px';
+    notificationContainer.style.zIndex = '9999';
+    document.body.appendChild(notificationContainer);
+  }
+  
+  // 创建新通知元素
+  const notification = document.createElement('div');
+  notification.style.padding = '12px 15px';
+  notification.style.marginBottom = '10px';
+  notification.style.borderRadius = '4px';
+  notification.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.15)';
+  notification.style.fontSize = '14px';
+  notification.style.fontFamily = 'Arial, sans-serif';
+  notification.style.transition = 'opacity 0.3s, transform 0.3s';
+  notification.style.opacity = '0';
+  notification.style.transform = 'translateY(20px)';
+  notification.style.maxWidth = '320px';
+  notification.style.wordWrap = 'break-word';
+  notification.style.display = 'flex';
+  notification.style.flexDirection = 'column';
+  notification.style.gap = '10px';
+  
+  // 根据类型设置样式
+  if (type === 'error') {
+    notification.style.backgroundColor = '#ff4d4f';
+    notification.style.color = '#fff';
+  } else if (type === 'warning') {
+    notification.style.backgroundColor = '#faad14';
+    notification.style.color = '#fff';
+  }
+  
+  // 创建消息文本
+  const messageElement = document.createElement('div');
+  messageElement.textContent = message;
+  messageElement.style.marginBottom = '5px';
+  
+  // 创建操作按钮
+  const actionButton = document.createElement('button');
+  actionButton.textContent = actionText;
+  actionButton.style.padding = '5px 10px';
+  actionButton.style.borderRadius = '4px';
+  actionButton.style.border = 'none';
+  actionButton.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+  actionButton.style.color = 'white';
+  actionButton.style.cursor = 'pointer';
+  actionButton.style.alignSelf = 'flex-start';
+  actionButton.style.fontSize = '12px';
+  actionButton.style.fontWeight = 'bold';
+  
+  // 悬停效果
+  actionButton.addEventListener('mouseover', () => {
+    actionButton.style.backgroundColor = 'rgba(255, 255, 255, 0.3)';
+  });
+  
+  actionButton.addEventListener('mouseout', () => {
+    actionButton.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+  });
+  
+  // 点击事件
+  actionButton.addEventListener('click', () => {
+    // 执行回调
+    actionCallback();
+    
+    // 关闭通知
+    notification.style.opacity = '0';
+    notification.style.transform = 'translateY(20px)';
+    
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.parentNode.removeChild(notification);
+      }
+    }, 300);
+  });
+  
+  // 添加元素到通知
+  notification.appendChild(messageElement);
+  notification.appendChild(actionButton);
+  
+  // 添加到容器
+  notificationContainer.appendChild(notification);
+  
+  // 触发动画
+  setTimeout(() => {
+    notification.style.opacity = '1';
+    notification.style.transform = 'translateY(0)';
+  }, 10);
+  
+  // 设置自动消失（点击按钮外的情况）
+  setTimeout(() => {
+    // 如果通知已经不在DOM中，不处理
+    if (!notification.parentNode) return;
+    
+    notification.style.opacity = '0';
+    notification.style.transform = 'translateY(20px)';
+    
+    // 移除元素
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.parentNode.removeChild(notification);
+      }
+    }, 300);
+  }, 15000); // 15秒后自动关闭
+}
+
 // 初始化内容脚本
 function initialize() {
   if (window.aetherflowInitialized) {
     console.log('[AetherFlow-DEBUG] 内容脚本已经初始化，跳过');
+    return;
+  }
+  
+  // 增强DOM就绪状态检查，确保DOM已完全加载
+  if (document.readyState !== 'complete') {
+    console.log('[AetherFlow-DEBUG] 页面尚未完全加载，等待DOMContentLoaded事件...');
+    
+    // 等待DOM完全加载后再初始化
+    const domReadyHandler = () => {
+      console.log('[AetherFlow-DEBUG] DOM已完全加载，开始初始化内容脚本');
+      document.removeEventListener('DOMContentLoaded', domReadyHandler);
+      window.removeEventListener('load', domReadyHandler);
+      
+      // 短暂延迟确保DOM稳定
+      setTimeout(() => initialize(), 100);
+    };
+    
+    document.addEventListener('DOMContentLoaded', domReadyHandler);
+    window.addEventListener('load', domReadyHandler); // 双重保险
     return;
   }
   
@@ -717,13 +947,57 @@ function initialize() {
     // 标记初始化完成
     window.aetherflowInitialized = true;
     
+    // 设置页面可见性变化检测，用于处理标签页切换后的功能恢复
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
     // 日志输出表明内容脚本已就绪
     console.log('[AetherFlow-DEBUG] 内容脚本初始化完成，已就绪:', {
       time: new Date().toISOString(),
       url: window.location.href
     });
+    
+    // 发送就绪消息到后台脚本
+    sendReadyMessage();
+    
+    // 设置自动健康检查和恢复系统
+    setupAutoRecoverySystem();
+    
+    // 设置功能降级系统
+    setupFallbackFunctionality();
+    
   } catch (error) {
     console.error('[AetherFlow-DEBUG] 内容脚本初始化失败:', error);
+    
+    // 清除初始化状态，以便后续可以重试
+    window.aetherflowInitialized = false;
+    
+    // 1分钟后自动重试初始化
+    setTimeout(() => {
+      console.log('[AetherFlow-DEBUG] 尝试重新初始化内容脚本');
+      initialize();
+    }, 60000);
+  }
+}
+
+// 处理页面可见性变化
+function handleVisibilityChange() {
+  // 当页面变为可见时，检查内容脚本的功能完整性
+  if (document.visibilityState === 'visible') {
+    console.log('[AetherFlow-DEBUG] 页面变为可见，检查内容脚本状态');
+    
+    // 检查内容脚本是否已初始化
+    if (!window.aetherflowInitialized) {
+      console.warn('[AetherFlow-DEBUG] 检测到内容脚本未初始化，重新初始化');
+      initialize();
+      return;
+    }
+    
+    // 检查后台脚本连接
+    ensureBackgroundActive().then(isActive => {
+      if (!isActive) {
+        console.warn('[AetherFlow-DEBUG] 后台脚本连接检查失败，可能需要用户干预');
+      }
+    });
   }
 }
 
@@ -834,4 +1108,350 @@ async function ensureBackgroundActive(): Promise<boolean> {
       }, 500);
     });
   });
+}
+
+// 增强的内容脚本健康检查系统
+interface HealthCheckResult {
+  contentScriptLoaded: boolean;
+  backgroundResponsive: boolean;
+  storageFunctional: boolean;
+  domAccessible: boolean;
+  timestamp: number;
+}
+
+// 执行全面健康检查
+async function performHealthCheck(): Promise<HealthCheckResult> {
+  console.log('[AetherFlow-DEBUG] 执行内容脚本健康检查...');
+  
+  // 默认健康状态
+  const healthStatus: HealthCheckResult = {
+    contentScriptLoaded: !!window.aetherflowInitialized,
+    backgroundResponsive: false,
+    storageFunctional: false,
+    domAccessible: false,
+    timestamp: Date.now()
+  };
+  
+  // 检查DOM访问
+  try {
+    // 尝试执行一个简单的DOM操作来检查是否能访问DOM
+    const testDiv = document.createElement('div');
+    testDiv.id = 'aetherflow-health-check';
+    testDiv.style.display = 'none';
+    document.body.appendChild(testDiv);
+    document.body.removeChild(testDiv);
+    healthStatus.domAccessible = true;
+  } catch (error) {
+    console.warn('[AetherFlow-DEBUG] 健康检查: DOM访问失败', error);
+  }
+  
+  // 检查后台脚本响应
+  try {
+    const isActive = await ensureBackgroundActive();
+    healthStatus.backgroundResponsive = isActive;
+  } catch (error) {
+    console.warn('[AetherFlow-DEBUG] 健康检查: 后台脚本连接失败', error);
+  }
+  
+  // 检查存储功能
+  try {
+    // 尝试使用存储API存储和读取一个健康检查值
+    const healthCheckKey = 'aetherflow_health_check';
+    const healthCheckValue = Date.now();
+    
+    await new Promise<void>((resolve, reject) => {
+      chrome.storage.local.set({ [healthCheckKey]: healthCheckValue }, () => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        } else {
+          chrome.storage.local.get(healthCheckKey, (result) => {
+            if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError);
+            } else if (result[healthCheckKey] === healthCheckValue) {
+              healthStatus.storageFunctional = true;
+              resolve();
+            } else {
+              reject(new Error('Storage read value mismatch'));
+            }
+          });
+        }
+      });
+    });
+  } catch (error) {
+    console.warn('[AetherFlow-DEBUG] 健康检查: 存储功能失败', error);
+  }
+  
+  console.log('[AetherFlow-DEBUG] 健康检查完成:', healthStatus);
+  
+  // 记录健康检查结果到存储中，以便稍后分析
+  try {
+    const key = 'aetherflow_health_history';
+    chrome.storage.local.get(key, (data) => {
+      const history = data[key] || [];
+      history.push(healthStatus);
+      
+      // 只保留最近10条记录
+      if (history.length > 10) {
+        history.splice(0, history.length - 10);
+      }
+      
+      chrome.storage.local.set({ [key]: history });
+    });
+  } catch (e) {
+    // 忽略记录失败错误
+  }
+  
+  return healthStatus;
+}
+
+// 根据健康检查结果尝试自动恢复
+async function attemptAutoRecovery(health: HealthCheckResult): Promise<boolean> {
+  console.log('[AetherFlow-DEBUG] 尝试根据健康检查结果进行自动恢复...');
+  
+  let recoverySuccessful = true;
+  
+  // 如果内容脚本未初始化，尝试重新初始化
+  if (!health.contentScriptLoaded) {
+    console.warn('[AetherFlow-DEBUG] 内容脚本未初始化，尝试重新初始化');
+    try {
+      // 重置初始化状态
+      window.aetherflowInitialized = false;
+      
+      // 重新初始化
+      initialize();
+      
+      // 验证初始化成功
+      recoverySuccessful = recoverySuccessful && !!window.aetherflowInitialized;
+    } catch (error) {
+      console.error('[AetherFlow-DEBUG] 内容脚本重新初始化失败:', error);
+      recoverySuccessful = false;
+    }
+  }
+  
+  // 如果后台脚本无响应，尝试唤醒
+  if (!health.backgroundResponsive) {
+    console.warn('[AetherFlow-DEBUG] 后台脚本无响应，尝试唤醒');
+    try {
+      // 尝试唤醒后台脚本
+      wakeupBackgroundScript();
+      
+      // 等待一段时间让后台脚本唤醒
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // 再次检查
+      const isActive = await ensureBackgroundActive();
+      recoverySuccessful = recoverySuccessful && isActive;
+      
+      // 如果唤醒失败，提供用户指导
+      if (!isActive) {
+        // 避免重复显示提示
+        if (!window.aetherflowRefreshHintShown) {
+          window.aetherflowRefreshHintShown = true;
+          
+          // 显示可操作的通知
+          showActionableNotification(
+            'AetherFlow连接问题：扩展服务可能未响应',
+            '刷新页面',
+            () => {
+              // 刷新页面
+              window.location.reload();
+            },
+            'warning'
+          );
+        }
+      }
+    } catch (error) {
+      console.error('[AetherFlow-DEBUG] 后台脚本唤醒失败:', error);
+      recoverySuccessful = false;
+    }
+  }
+  
+  // 如果存储功能失败
+  if (!health.storageFunctional) {
+    console.warn('[AetherFlow-DEBUG] 存储功能不可用，可能影响数据保存');
+    
+    // 避免重复显示提示
+    if (!window.aetherflowStorageHintShown) {
+      window.aetherflowStorageHintShown = true;
+      
+      // 显示存储问题通知
+      showActionableNotification(
+        'AetherFlow存储问题：无法访问扩展存储，可能影响提示词保存',
+        '查看帮助',
+        () => {
+          // 打开扩展选项页或文档
+          try {
+            chrome.runtime.openOptionsPage();
+          } catch (e) {
+            // 如果无法打开选项页，尝试打开扩展管理页
+            window.open('chrome://extensions/?id=' + chrome.runtime.id);
+          }
+        },
+        'warning'
+      );
+    }
+  }
+  
+  if (recoverySuccessful) {
+    console.log('[AetherFlow-DEBUG] 自动恢复成功');
+    
+    // 重置提示标记
+    window.aetherflowRefreshHintShown = false;
+    window.aetherflowStorageHintShown = false;
+  } else {
+    console.warn('[AetherFlow-DEBUG] 自动恢复部分失败，可能需要用户干预');
+  }
+  
+  return recoverySuccessful;
+}
+
+// 设置自动健康检查和恢复系统
+function setupAutoRecoverySystem() {
+  console.log('[AetherFlow-DEBUG] 设置自动健康检查和恢复系统');
+  
+  // 每5分钟进行一次健康检查
+  const healthCheckIntervalMinutes = 5;
+  
+  // 在后台运行的健康检查
+  const runBackgroundHealthCheck = async () => {
+    try {
+      // 执行健康检查
+      const healthStatus = await performHealthCheck();
+      
+      // 检查是否需要恢复
+      const needsRecovery = !healthStatus.contentScriptLoaded || 
+                           !healthStatus.backgroundResponsive;
+      
+      if (needsRecovery) {
+        console.warn('[AetherFlow-DEBUG] 健康检查发现问题，尝试自动恢复');
+        await attemptAutoRecovery(healthStatus);
+      }
+    } catch (error) {
+      console.error('[AetherFlow-DEBUG] 健康检查或恢复过程出错:', error);
+    }
+  };
+  
+  // 立即执行一次健康检查
+  runBackgroundHealthCheck();
+  
+  // 设置定期健康检查
+  setInterval(runBackgroundHealthCheck, healthCheckIntervalMinutes * 60 * 1000);
+  
+  // 在页面可见性变化时执行健康检查
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      console.log('[AetherFlow-DEBUG] 页面变为可见，执行健康检查');
+      runBackgroundHealthCheck();
+    }
+  });
+  
+  // 注册处理程序来响应网络状态变化
+  window.addEventListener('online', () => {
+    console.log('[AetherFlow-DEBUG] 网络恢复在线，执行健康检查');
+    runBackgroundHealthCheck();
+  });
+}
+
+// 在内容脚本初始化后设置自动恢复系统
+if (document.readyState === 'complete') {
+  // 如果页面已加载，立即设置
+  setupAutoRecoverySystem();
+} else {
+  // 否则等待页面加载完成
+  window.addEventListener('load', setupAutoRecoverySystem);
+}
+
+// 功能降级系统 - 确保在出现问题时能提供基础功能
+function setupFallbackFunctionality() {
+  console.log('[AetherFlow-DEBUG] 设置功能降级系统');
+  
+  // 后台脚本不可用时的捕获提示词备选方案
+  const capturePromptFallback = async (content: string): Promise<boolean> => {
+    console.log('[AetherFlow-DEBUG] 使用备选方案保存提示词');
+    
+    try {
+      // 生成唯一ID
+      const tempId = `temp_capture_${Date.now()}`;
+      
+      // 保存到本地存储
+      await new Promise<void>((resolve, reject) => {
+        chrome.storage.local.set({
+          [tempId]: {
+            content,
+            timestamp: Date.now(),
+            pendingCapture: true
+          }
+        }, () => {
+          if (chrome.runtime.lastError) {
+            reject(chrome.runtime.lastError);
+          } else {
+            resolve();
+          }
+        });
+      });
+      
+      // 显示成功通知
+      showNotification('Prompt saved temporarily. Will be processed when extension service is available.', 'info');
+      
+      // 尝试通知后台处理
+      try {
+        chrome.runtime.sendMessage({ 
+          type: 'PROCESS_PENDING_CAPTURES'
+        });
+      } catch (e) {
+        // 忽略通知错误
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('[AetherFlow-DEBUG] 备选方案保存失败:', error);
+      return false;
+    }
+  };
+  
+  // 拦截contentService.captureSelectionAsPrompt方法，添加降级功能
+  const originalCaptureMethod = contentService.captureSelectionAsPrompt;
+  
+  // 替换为带降级功能的版本
+  contentService.captureSelectionAsPrompt = async (selectedText: string): Promise<void> => {
+    try {
+      // 先检查后台脚本状态
+      const isBackgroundActive = await ensureBackgroundActive();
+      
+      if (isBackgroundActive) {
+        // 正常功能可用，使用原始方法
+        await originalCaptureMethod(selectedText);
+      } else {
+        // 后台脚本不可用，使用备选方案
+        console.warn('[AetherFlow-DEBUG] 后台脚本不可用，使用备选保存方案');
+        
+        const success = await capturePromptFallback(selectedText);
+        
+        if (!success) {
+          // 备选方案也失败，提供用户指导
+          showActionableNotification(
+            'AetherFlow服务不可用，无法保存提示词',
+            '重启扩展',
+            () => {
+              // 尝试通过刷新页面重启
+              window.location.reload();
+            },
+            'error'
+          );
+        }
+      }
+    } catch (error) {
+      console.error('[AetherFlow-DEBUG] 捕获提示词出错 (含降级处理):', error);
+      
+      // 尝试使用备选方案
+      try {
+        await capturePromptFallback(selectedText);
+      } catch (fallbackError) {
+        // 备选方案也失败，显示错误
+        showNotification('Failed to save prompt: All methods failed', 'error');
+      }
+    }
+  };
+  
+  console.log('[AetherFlow-DEBUG] 功能降级系统已设置');
 }

@@ -25,8 +25,8 @@ const STOP_WORDS = [
  * 从文本内容中分析并提取或生成合适的标题
  */
 export class TitleGenerator {
-  // 标题最大字节限制（40字节）与doubao-title-generator保持一致
-  private static readonly MAX_BYTES = 45;
+  // 标题最大字节限制（50字节）与doubao-title-generator保持一致
+  private static readonly MAX_BYTES = 50;
   
   /**
    * 分析内容类型并生成标题
