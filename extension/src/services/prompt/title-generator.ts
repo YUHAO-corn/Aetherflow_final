@@ -2,6 +2,8 @@
  * 提示词标题生成服务
  * 提供各种策略从提示词内容中提取或生成合适的标题
  */
+import { TITLE_LIMITS } from '../../utils/constants';
+import { calculateByteLength, smartTruncate } from '../../utils/stringUtils';
 
 /**
  * 常见停用词列表，用于过滤掉不具有实际意义的词汇
@@ -25,9 +27,6 @@ const STOP_WORDS = [
  * 从文本内容中分析并提取或生成合适的标题
  */
 export class TitleGenerator {
-  // 标题最大字节限制（50字节）与doubao-title-generator保持一致
-  private static readonly MAX_BYTES = 50;
-  
   /**
    * 分析内容类型并生成标题
    * @param content 提示词内容
@@ -81,18 +80,18 @@ export class TitleGenerator {
       title = this.formatTitle(title, text);
       
       // 确保标题不超过字节限制
-      title = this.smartTruncate(title, this.MAX_BYTES);
+      title = smartTruncate(title, TITLE_LIMITS.PROCESSING, false);
       
-      console.log('[TitleGenerator] 生成最终标题:', title, '字节数:', this.calculateByteLength(title));
+      console.log('[TitleGenerator] 生成最终标题:', title, '字节数:', calculateByteLength(title));
       return title || '未命名提示词';
       
     } catch (error) {
       console.error('[TitleGenerator] 标题生成错误:', error);
       // 错误处理时也确保返回值不超过字节限制
       const fallbackTitle = '未命名提示词';
-      return this.calculateByteLength(fallbackTitle) <= this.MAX_BYTES 
+      return calculateByteLength(fallbackTitle) <= TITLE_LIMITS.PROCESSING 
         ? fallbackTitle 
-        : this.smartTruncate(text, this.MAX_BYTES);
+        : smartTruncate(text, TITLE_LIMITS.PROCESSING, false);
     }
   }
   
@@ -340,85 +339,30 @@ export class TitleGenerator {
    * 格式化和规范化标题
    */
   private static formatTitle(title: string, originalText: string): string {
-    if (!title) {
-      return '未命名提示词';
+    // 如果提取或生成的标题为空，使用原文的前一部分作为标题
+    if (!title || title.trim().length === 0) {
+      // 获取第一行非空内容，或前30个字符
+      const firstLine = originalText.split('\n').find(line => line.trim().length > 0) || '';
+      
+      if (firstLine.length > 0) {
+        return firstLine;
+      } else {
+        return originalText.length > 30 ? originalText.substring(0, 30) : originalText;
+      }
     }
     
-    // 清理特殊字符
-    title = title
-      .replace(/^[^\w\u4e00-\u9fa5]+|[^\w\u4e00-\u9fa5.!?。！？]+$/g, '')
-      .replace(/\s{2,}/g, ' ');
+    // 移除标题中的多余空格
+    title = title.trim().replace(/\s+/g, ' ');
     
-    // 处理空标题
-    if (title.length < 5) {
-      const shortTitle = this.smartTruncate(originalText, this.MAX_BYTES);
-      return shortTitle || '未命名提示词';
-    }
+    // 移除可能的终止符号
+    title = title.replace(/[.。!！?？:：;；,，]$/, '');
     
     return title;
-  }
-  
-  /**
-   * 计算字符串字节长度（中文2字节，其他1字节）
-   */
-  private static calculateByteLength(str: string): number {
-    let byteLen = 0;
-    for (let i = 0; i < str.length; i++) {
-      // 中文字符范围
-      if (/[\u4e00-\u9fa5]/.test(str[i])) {
-        byteLen += 2;
-      } else {
-        byteLen += 1;
-      }
-    }
-    return byteLen;
-  }
-  
-  /**
-   * 智能截断确保不超过指定字节数
-   */
-  private static smartTruncate(title: string, maxBytes: number = this.MAX_BYTES): string {
-    if (!title) return '未命名';
-    
-    if (this.calculateByteLength(title) <= maxBytes) {
-      return title;
-    }
-    
-    let result = '';
-    let currentBytes = 0;
-    
-    // 按字符依次添加，直到接近字节限制
-    for (let i = 0; i < title.length; i++) {
-      const char = title[i];
-      const charBytes = /[\u4e00-\u9fa5]/.test(char) ? 2 : 1;
-      
-      if (currentBytes + charBytes > maxBytes - 3) { // 保留3字节给"..."
-        break;
-      }
-      
-      result += char;
-      currentBytes += charBytes;
-    }
-    
-    // 避免以空格结尾
-    result = result.trim();
-    
-    // 避免在单词中间截断（对于英文）
-    if (/[a-zA-Z]$/.test(result)) {
-      const lastSpaceIndex = result.lastIndexOf(' ');
-      if (lastSpaceIndex > result.length / 2) {
-        result = result.substring(0, lastSpaceIndex);
-      }
-    }
-    
-    return result + '...';
   }
 }
 
 /**
- * 智能生成标题的主函数
- * @param content 提示词内容
- * @returns 生成的标题
+ * 导出标题生成函数
  */
 export async function generateTitle(content: string): Promise<string> {
   return TitleGenerator.generate(content);

@@ -555,13 +555,29 @@ export async function deletePrompts(): Promise<boolean> {
  */
 export async function generateTitleForPrompt(content: string): Promise<string> {
   try {
-    // 使用新的豆包API生成标题
+    // 首先尝试使用豆包API生成标题
     const title = await generateTitle(content);
-    return title;
+    
+    // 验证结果并返回
+    if (title && title.trim().length > 0) {
+      return title;
+    } else {
+      throw new Error('豆包生成的标题为空');
+    }
   } catch (error) {
-    console.error('[PromptService] 标题生成失败:', error);
-    // 错误处理时，返回截断的内容作为标题
-    return content.length > 30 ? content.substring(0, 27) + '...' : content;
+    // 豆包API失败，尝试使用本地生成（实际已在低级别实现，这里做双重保障）
+    console.error('[PromptService] 豆包API标题生成失败，尝试备选方案:', error);
+    
+    try {
+      // 尝试从本地标题生成器导入
+      const { generateTitle: generateLocalTitle } = await import('./title-generator');
+      const localTitle = await generateLocalTitle(content);
+      return localTitle;
+    } catch (localError) {
+      console.error('[PromptService] 本地标题生成也失败:', localError);
+      // 最终降级处理
+      return content.length > 30 ? content.substring(0, 27) : content;
+    }
   }
 }
 

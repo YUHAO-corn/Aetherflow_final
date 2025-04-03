@@ -9,6 +9,8 @@ import { Prompt } from '../../../services/prompt/types';
 import { Menu, MenuItem } from '../../../components/common/Menu';
 import { usePromptsData } from '../../../hooks/usePromptsData';
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
+import { calculateByteLength, smartTruncate } from '../../../utils/stringUtils';
+import { TITLE_LIMITS } from '../../../utils/constants';
 
 type SortOption = 'updatedDesc' | 'updatedAsc' | 'createdDesc' | 'createdAsc' | 'useCount';
 
@@ -173,50 +175,12 @@ export function LibraryTab() {
     return content.replace(/\n{3,}/g, '\n\n');
   };
   
-  // 限制卡片标题长度，针对不同语言有不同处理
+  // 修改formatTitle函数
   const formatTitle = (title: string) => {
     if (!title) return '';
     
-    // 计算字节长度（中文2字节，其他1字节）
-    const calculateBytes = (str: string): number => {
-      let bytes = 0;
-      for (let i = 0; i < str.length; i++) {
-        bytes += /[\u4e00-\u9fa5]/.test(str[i]) ? 2 : 1;
-      }
-      return bytes;
-    };
-    
-    const MAX_DISPLAY_BYTES = 50; // 显示限制比生成限制略大，确保可以完整显示从AI获取的标题
-    
-    if (calculateBytes(title) <= MAX_DISPLAY_BYTES) {
-      return title;
-    }
-    
-    // 智能截断
-    let result = '';
-    let bytes = 0;
-    
-    for (let i = 0; i < title.length; i++) {
-      const char = title[i];
-      const charBytes = /[\u4e00-\u9fa5]/.test(char) ? 2 : 1;
-      
-      if (bytes + charBytes > MAX_DISPLAY_BYTES - 3) { // 为...预留3字节
-        break;
-      }
-      
-      result += char;
-      bytes += charBytes;
-    }
-    
-    // 确保不在单词中间截断
-    if (/[a-zA-Z0-9]$/.test(result)) {
-      const lastSpaceIndex = result.lastIndexOf(' ');
-      if (lastSpaceIndex > 0 && lastSpaceIndex > result.length - 8) {
-        result = result.substring(0, lastSpaceIndex);
-      }
-    }
-    
-    return result.trim() + '...';
+    // 使用统一的字节限制和截断逻辑，不添加省略号
+    return smartTruncate(title, TITLE_LIMITS.DISPLAY, false);
   };
 
   // 映射排序选项到API排序类型
@@ -326,7 +290,7 @@ export function LibraryTab() {
                 <div className="relative">
                   {/* 标题和操作按钮部分 */}
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-xs font-medium text-magic-300 max-w-[80%] overflow-hidden text-ellipsis">
+                    <h3 className="text-xs font-medium text-magic-300 w-full break-words">
                       {formatTitle(prompt.title)}
                     </h3>
                     

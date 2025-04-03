@@ -59,8 +59,8 @@ export async function generateOptimizationTitle(content: string): Promise<string
     return await generateTitleForPrompt(content);
   } catch (error) {
     console.error('生成标题失败:', error);
-    // 简单截取作为标题
-    return content.length > 30 ? content.substring(0, 30) + '...' : content;
+    // 简单截取作为标题，不添加省略号
+    return content.length > 30 ? content.substring(0, 30) : content;
   }
 }
 
