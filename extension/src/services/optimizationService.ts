@@ -3,6 +3,26 @@ import axios, { AxiosError } from 'axios';
 // 优化模式类型
 export type OptimizationMode = 'standard' | 'creative' | 'concise';
 
+// 优化版本类型
+export interface OptimizationVersion {
+  id: number;
+  content: string;
+  isLoading?: boolean;
+  isNew?: boolean;
+  createdAt?: number;
+  parentId?: number;
+  editedContent?: string;
+  isEdited?: boolean;
+  position?: number;
+}
+
+// 优化选项类型
+export interface OptimizeOptions {
+  mode?: OptimizationMode;
+  temperature?: number;
+  maxTokens?: number;
+}
+
 // DeepSeek API配置
 const API_KEY = 'sk-e7eb50c23c684a1fbfceedf6623e4a3d';
 const API_URL = 'https://api.deepseek.com/v1/chat/completions';

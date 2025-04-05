@@ -3,7 +3,7 @@ import { Loader2, Settings, Sparkles, Wand2 } from 'lucide-react';
 import { OptimizeSection } from './OptimizeSection';
 import { LibraryTab } from './LibraryTab';
 import { Navigation } from './Navigation';
-import { SettingsDrawer } from '../../../components/navigation/SettingsDrawer';
+import { SettingsDrawer } from './SettingsDrawer';
 import type { Prompt } from '../../../services/prompt/types';
 import { usePromptsData } from '../../../hooks/usePromptsData';
 import { useOptimize } from '../../../hooks/useOptimize';

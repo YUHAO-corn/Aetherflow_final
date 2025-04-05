@@ -1,3 +1,10 @@
+/**
+ * 错误边界组件 - 捕获并优雅处理React渲染错误
+ * 
+ * @note 此组件当前未在项目中主动使用，但保留作为通用组件库的一部分
+ * 推荐在顶层组件中使用此组件包裹，以捕获渲染错误
+ */
+
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle } from 'lucide-react';
 

@@ -34,6 +34,19 @@ export interface PlatformAdapter {
    * @returns 是否成功替换
    */
   replaceTextAndSetCursor(element: HTMLElement, newText: string, cursorPosition: number): boolean;
+  
+  // 基本信息
+  getPlatformName(): string;
+  getPageInfo(): { url: string; title: string };
+  
+  // DOM相关
+  getSelectionText(): string;
+  injectStyles(styles: string): void;
+  injectScript(code: string): void;
+  
+  // 事件相关
+  setupListeners(): void;
+  cleanup(): void;
 }
 
 /**
@@ -86,6 +99,41 @@ class TextareaAdapter implements PlatformAdapter {
     textarea.selectionEnd = cursorPosition;
     
     return true;
+  }
+  
+  getPlatformName(): string {
+    return 'textarea';
+  }
+  
+  getPageInfo(): { url: string; title: string } {
+    return {
+      url: window.location.href,
+      title: document.title
+    };
+  }
+  
+  getSelectionText(): string {
+    return window.getSelection()?.toString() || '';
+  }
+  
+  injectStyles(styles: string): void {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = styles;
+    document.head.appendChild(styleElement);
+  }
+  
+  injectScript(code: string): void {
+    const scriptElement = document.createElement('script');
+    scriptElement.textContent = code;
+    document.head.appendChild(scriptElement);
+  }
+  
+  setupListeners(): void {
+    // 基础实现，可根据需要扩展
+  }
+  
+  cleanup(): void {
+    // 基础实现，可根据需要扩展
   }
 }
 
@@ -227,6 +275,41 @@ class ContentEditableAdapter implements PlatformAdapter {
     
     return null;
   }
+  
+  getPlatformName(): string {
+    return 'contenteditable';
+  }
+  
+  getPageInfo(): { url: string; title: string } {
+    return {
+      url: window.location.href,
+      title: document.title
+    };
+  }
+  
+  getSelectionText(): string {
+    return window.getSelection()?.toString() || '';
+  }
+  
+  injectStyles(styles: string): void {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = styles;
+    document.head.appendChild(styleElement);
+  }
+  
+  injectScript(code: string): void {
+    const scriptElement = document.createElement('script');
+    scriptElement.textContent = code;
+    document.head.appendChild(scriptElement);
+  }
+  
+  setupListeners(): void {
+    // 基础实现，可根据需要扩展
+  }
+  
+  cleanup(): void {
+    // 基础实现，可根据需要扩展
+  }
 }
 
 /**
@@ -270,5 +353,40 @@ export class GenericAdapter implements PlatformAdapter {
       return this.contentEditableAdapter.replaceTextAndSetCursor(element, newText, cursorPosition);
     }
     return false;
+  }
+  
+  getPlatformName(): string {
+    return 'generic';
+  }
+  
+  getPageInfo(): { url: string; title: string } {
+    return {
+      url: window.location.href,
+      title: document.title
+    };
+  }
+  
+  getSelectionText(): string {
+    return window.getSelection()?.toString() || '';
+  }
+  
+  injectStyles(styles: string): void {
+    const styleElement = document.createElement('style');
+    styleElement.textContent = styles;
+    document.head.appendChild(styleElement);
+  }
+  
+  injectScript(code: string): void {
+    const scriptElement = document.createElement('script');
+    scriptElement.textContent = code;
+    document.head.appendChild(scriptElement);
+  }
+  
+  setupListeners(): void {
+    // 设置通用的事件监听器
+  }
+  
+  cleanup(): void {
+    // 清理通用的事件监听器
   }
 } 

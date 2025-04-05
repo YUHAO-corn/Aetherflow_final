@@ -1,3 +1,10 @@
+/**
+ * 错误消息组件 - 用于显示友好的错误提示
+ * 
+ * @note 此组件当前未在项目中主动使用，但保留作为通用组件库的一部分
+ * 可用于任何需要显示错误信息的场景
+ */
+
 import React from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 

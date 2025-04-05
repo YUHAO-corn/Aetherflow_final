@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Prompt, CreatePromptInput, createPrompt } from '../services/prompt';
 import { syncStorage } from '../services/storage';
-import { OptimizationVersion, OptimizeOptions } from '../services/optimize/types';
+import { OptimizationVersion, OptimizeOptions, OptimizationMode } from '../services/optimizationService';
 import { continueOptimize } from '../services/optimizationService'; // 导入优化服务
 
 // 定义状态接口
