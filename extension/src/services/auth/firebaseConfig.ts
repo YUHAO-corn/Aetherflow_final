@@ -1,4 +1,4 @@
-// Firebase配置信息
+// Firebase 配置信息
 export const firebaseConfig = {
   apiKey: "AIzaSyCulWQxvrzxDOLGOxzi2ngj9n0DwzvqJFw",
   authDomain: "aetherflow-b6459.firebaseapp.com",

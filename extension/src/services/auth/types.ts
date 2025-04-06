@@ -1,8 +1,10 @@
+import { User as FirebaseUser } from 'firebase/auth';
+
 /**
- * 认证服务的类型定义
+ * 认证服务类型定义
  */
 
-// 用户信息类型
+// 用户类型
 export interface User {
   uid: string;
   email: string | null;
@@ -10,20 +12,52 @@ export interface User {
   photoURL: string | null;
   isAnonymous: boolean;
   emailVerified: boolean;
+  providerData: {
+    providerId: string;
+    uid: string;
+    displayName: string | null;
+    email: string | null;
+    phoneNumber: string | null;
+    photoURL: string | null;
+  }[];
+  lastLoginAt?: string;
+  createdAt?: string;
+  isPremium?: boolean;
+}
+
+// 注册输入类型
+export interface RegisterInput {
+  email: string;
+  password: string;
+  displayName?: string;
+}
+
+// 登录输入类型
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
+// 认证状态类型
+export interface AuthState {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+  initialized: boolean;
 }
 
 // 认证服务接口
 export interface AuthService {
   // 用户注册
-  registerUser(email: string, password: string): Promise<User>;
+  registerUser(input: RegisterInput): Promise<User>;
   
   // 用户登录
-  loginUser(email: string, password: string): Promise<User>;
+  loginUser(input: LoginInput): Promise<User>;
   
-  // 第三方登录(Google)
+  // Google登录
   loginWithGoogle(): Promise<User>;
   
-  // 用户登出
+  // 登出
   logoutUser(): Promise<void>;
   
   // 获取当前用户
@@ -32,48 +66,18 @@ export interface AuthService {
   // 重置密码
   resetPassword(email: string): Promise<void>;
   
+  // 删除用户账户
+  deleteAccount(): Promise<void>;
+  
   // 更新用户资料
-  updateUserProfile(displayName?: string, photoURL?: string): Promise<void>;
+  updateUserProfile(profile: {displayName?: string; photoURL?: string}): Promise<void>;
   
-  // 监听认证状态变化
+  // 观察认证状态变化
   onAuthStateChanged(callback: (user: User | null) => void): () => void;
-}
-
-// 认证错误类型
-export enum AuthErrorCode {
-  INVALID_EMAIL = 'auth/invalid-email',
-  USER_DISABLED = 'auth/user-disabled',
-  USER_NOT_FOUND = 'auth/user-not-found',
-  WRONG_PASSWORD = 'auth/wrong-password',
-  EMAIL_ALREADY_IN_USE = 'auth/email-already-in-use',
-  WEAK_PASSWORD = 'auth/weak-password',
-  OPERATION_NOT_ALLOWED = 'auth/operation-not-allowed',
-  POPUP_CLOSED_BY_USER = 'auth/popup-closed-by-user',
-  UNAUTHORIZED_DOMAIN = 'auth/unauthorized-domain',
-  NETWORK_ERROR = 'auth/network-request-failed',
-  TOO_MANY_REQUESTS = 'auth/too-many-requests',
-  INTERNAL_ERROR = 'auth/internal-error',
-  REQUIRES_RECENT_LOGIN = 'auth/requires-recent-login',
-  UNKNOWN = 'auth/unknown'
-}
-
-// 认证错误类
-export class AuthError extends Error {
-  code: AuthErrorCode;
   
-  constructor(code: string, message: string) {
-    super(message);
-    this.code = (Object.values(AuthErrorCode).includes(code as AuthErrorCode))
-      ? code as AuthErrorCode
-      : AuthErrorCode.UNKNOWN;
-    this.name = 'AuthError';
-  }
+  // 检查认证状态
+  isAuthenticated(): boolean;
 }
 
-// 认证状态类型
-export enum AuthStatus {
-  INITIAL = 'initial',
-  AUTHENTICATED = 'authenticated',
-  UNAUTHENTICATED = 'unauthenticated',
-  LOADING = 'loading'
-} 
+// Firebase User 到应用 User 的转换函数类型
+export type UserMapper = (firebaseUser: FirebaseUser) => User; 

@@ -4,6 +4,7 @@ import { OptimizeSection } from './OptimizeSection';
 import { LibraryTab } from './LibraryTab';
 import { Navigation } from './Navigation';
 import { SettingsDrawer } from './SettingsDrawer';
+import LoginButton from './LoginButton';
 import type { Prompt } from '../../../services/prompt/types';
 import { usePromptsData } from '../../../hooks/usePromptsData';
 import { useOptimize } from '../../../hooks/useOptimize';
@@ -117,16 +118,20 @@ export function App() {
   return (
     <div className="flex flex-col h-screen bg-magic-900 text-magic-200">
       <header className="p-4 border-b border-magic-700/30 bg-magic-800/50 backdrop-blur-sm">
-        <div className="flex items-center">
-          <div 
-            className="cursor-pointer" 
-            onMouseEnter={handleLogoHover}
-          >
-            <Sparkles 
-              className={`w-6 h-6 mr-2 ${isLogoHovered ? 'logo-hover text-indigo-400' : 'text-purple-400'}`} 
-            />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center">
+            <div 
+              className="cursor-pointer" 
+              onMouseEnter={handleLogoHover}
+            >
+              <Sparkles 
+                className={`w-6 h-6 mr-2 ${isLogoHovered ? 'logo-hover text-indigo-400' : 'text-purple-400'}`} 
+              />
+            </div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-md animate-[pulse_4s_ease-in-out_infinite]">AetherFlow</h1>
           </div>
-          <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-md animate-[pulse_4s_ease-in-out_infinite]">AetherFlow</h1>
+          
+          <LoginButton />
         </div>
       </header>
 

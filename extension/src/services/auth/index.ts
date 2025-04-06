@@ -1,26 +1,15 @@
-/**
- * 认证服务统一导出
- */
+// 导出所有类型
+export * from './types';
 
-// 导出类型
-export type { User, AuthService } from './types';
-export { AuthError, AuthErrorCode, AuthStatus } from './types';
+// 导出 Firebase 初始化函数和 auth 相关功能
+export { 
+  initializeFirebase, 
+  getFirebaseAuth,
+  mapFirebaseUser
+} from './firebase';
 
-// 导出 Firebase 服务实例
-export { firebaseAuthService } from './firebase';
-
-// 导出认证操作函数
-export {
-  registerUser,
-  loginUser,
-  loginWithGoogle,
-  logoutUser,
-  getCurrentUser,
-  resetPassword,
-  updateUserProfile,
-  getAuthErrorMessage
-} from './actions';
-
-// 提供默认认证服务
-import { firebaseAuthService } from './firebase';
-export default firebaseAuthService; 
+// 导出认证服务和辅助函数
+export { 
+  authService,
+  loadAuthStateFromStorage
+} from './actions'; 
