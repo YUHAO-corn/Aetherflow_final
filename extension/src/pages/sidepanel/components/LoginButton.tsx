@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { User, LogIn, UserCircle, Crown } from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth';
 import { createPortal } from 'react-dom';
@@ -11,6 +11,31 @@ interface LoginButtonProps {
 const LoginButton: React.FC<LoginButtonProps> = ({ className = '', onAuthClick }) => {
   const { user, loading, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  
+  // 监听点击事件，点击菜单和按钮之外的区域时关闭菜单
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        isMenuOpen && 
+        menuRef.current && 
+        buttonRef.current && 
+        !menuRef.current.contains(event.target as Node) && 
+        !buttonRef.current.contains(event.target as Node)
+      ) {
+        setIsMenuOpen(false);
+      }
+    };
+    
+    // 添加全局点击事件监听器
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    // 清理事件监听
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMenuOpen]);
   
   // Toggle user menu
   const toggleMenu = () => {
@@ -52,11 +77,12 @@ const LoginButton: React.FC<LoginButtonProps> = ({ className = '', onAuthClick }
     // 使用Portal将菜单渲染到body末尾，避免被其他元素遮挡
     return createPortal(
       <div 
-        className="fixed inset-0 w-full h-full z-highest pointer-events-none"
+        className="fixed inset-0 w-full h-full z-highest"
         onClick={() => setIsMenuOpen(false)}
       >
         <div 
-          className="absolute right-3 top-12 w-[180px] rounded-md shadow-lg bg-magic-800/90 backdrop-blur-[15px] ring-1 ring-magic-700 pointer-events-auto z-dropdown-menu"
+          ref={menuRef}
+          className="absolute right-3 top-12 w-[180px] rounded-md shadow-lg bg-magic-800/90 backdrop-blur-[15px] ring-1 ring-magic-700 z-dropdown-menu"
           onClick={e => e.stopPropagation()}
         >
           <div className="py-1" role="menu" aria-orientation="vertical">
@@ -97,6 +123,7 @@ const LoginButton: React.FC<LoginButtonProps> = ({ className = '', onAuthClick }
     return (
       <div className={`relative ${className}`}>
         <button
+          ref={buttonRef}
           onClick={toggleMenu}
           className="relative flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-r from-[#4f46e5] to-[#8b5cf6] text-white font-medium hover:opacity-90 hover:shadow-[0_0_15px_rgba(99,102,241,0.6)] transition-all"
         >
