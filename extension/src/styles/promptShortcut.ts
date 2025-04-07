@@ -2,6 +2,11 @@
  * 提示词快捷输入组件的样式
  */
 export const promptShortcutStyles = `
+/* 定义z-index变量 */
+:root {
+  --content-z-dropdown: 10100;
+}
+
 .af-shortcut-container {
   position: absolute;
   width: 320px;
@@ -10,7 +15,7 @@ export const promptShortcutStyles = `
   border: 1px solid #2f3146;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  z-index: 10000;
+  z-index: var(--content-z-dropdown);
   font-family: system-ui, -apple-system, sans-serif;
   overflow: hidden;
   color: #e2e8f0;

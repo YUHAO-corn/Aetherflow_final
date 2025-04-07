@@ -62,14 +62,14 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
     <>
       {/* 背景遮罩 - 点击关闭抽屉 */}
       <div 
-        className={`fixed inset-0 bg-black/50 z-20 transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}
+        className={`fixed inset-0 bg-black/50 z-drawer-backdrop transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}
         onClick={onClose}
       />
       
       {/* 设置抽屉 */}
       <div 
         ref={drawerRef}
-        className={`fixed inset-y-0 right-0 w-80 bg-gradient-to-br from-magic-800 to-magic-900 border-l border-magic-700/30 shadow-xl z-30 transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed inset-y-0 right-0 w-80 bg-gradient-to-br from-magic-800 to-magic-900 border-l border-magic-700/30 shadow-xl z-drawer-container transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
         {/* 抽屉头部 */}
         <div className="flex items-center justify-between p-4 border-b border-magic-700/30">

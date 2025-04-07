@@ -108,7 +108,7 @@ export function OptimizationModeSelector({
         ref={dropdownRef}
         className="fixed w-52 bg-magic-800 rounded-lg shadow-lg border border-magic-600/30 p-1"
         style={{
-          zIndex: 999999,
+          zIndex: 'var(--z-dropdown-selector)',
           top: dropdownPosition.top,
           right: dropdownPosition.right,
           boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',

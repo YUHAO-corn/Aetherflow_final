@@ -30,7 +30,7 @@ export function Modal({ isOpen, onClose, title, children, className = '' }: Moda
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-magic-900/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-magic-900/80 backdrop-blur-sm z-modal-backdrop flex items-center justify-center p-4">
       <div
         className={`bg-gradient-to-br from-magic-800 to-magic-900 rounded-lg w-full shadow-xl border border-magic-700/30 animate-magic-reveal ${className}`}
       >

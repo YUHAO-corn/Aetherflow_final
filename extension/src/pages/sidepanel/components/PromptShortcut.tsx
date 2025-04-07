@@ -81,7 +81,10 @@ export function PromptShortcut({ onSelect }: PromptShortcutProps) {
       </div>
 
       {searchTerm.startsWith('/') && (
-        <div className="absolute w-full mt-2 bg-magic-800 border border-magic-700/50 rounded-lg shadow-xl overflow-hidden z-50">
+        <div 
+          className="absolute w-full mt-2 bg-magic-800 border border-magic-700/50 rounded-lg shadow-xl overflow-hidden"
+          style={{ zIndex: 'var(--content-z-dropdown)' }}
+        >
           {loading ? (
             <div className="p-4">
               <LoadingIndicator size="sm" />
@@ -89,7 +92,12 @@ export function PromptShortcut({ onSelect }: PromptShortcutProps) {
           ) : searchResults.length > 0 ? (
             <div className="max-h-64 overflow-y-auto">
               {searchResults.map((prompt: Prompt) => (
-                <Card key={prompt.id} onClick={() => handlePromptSelect(prompt)} className="m-2">
+                <Card 
+                  key={prompt.id} 
+                  onClick={() => handlePromptSelect(prompt)} 
+                  className="m-2"
+                  title={prompt.title}
+                >
                   <div className="flex items-start">
                     <div className="flex-1 min-w-0">
                       <h4 className="text-sm font-medium text-magic-200 overflow-hidden text-ellipsis whitespace-nowrap">

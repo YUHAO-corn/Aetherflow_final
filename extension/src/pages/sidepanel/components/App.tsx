@@ -5,14 +5,17 @@ import { LibraryTab } from './LibraryTab';
 import { Navigation } from './Navigation';
 import { SettingsDrawer } from './SettingsDrawer';
 import LoginButton from './LoginButton';
+import AuthDrawer from './AuthModal';
 import type { Prompt } from '../../../services/prompt/types';
 import { usePromptsData } from '../../../hooks/usePromptsData';
 import { useOptimize } from '../../../hooks/useOptimize';
 import type { OptimizationMode, OptimizationVersion } from '../../../services/optimization';
 
-export function App() {
+// 默认导出App组件以便sidepanel/index.tsx可以正确导入
+const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'library' | 'optimize'>('library');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isLogoHovered, setIsLogoHovered] = useState(false);
   const logoTimeoutRef = useRef<number | null>(null);
 
@@ -33,6 +36,15 @@ export function App() {
     generateTitle,
     updateVersion
   } = useOptimize();
+
+  // Auth drawer handlers
+  const handleOpenAuth = () => {
+    setIsAuthOpen(true);
+  };
+
+  const handleCloseAuth = () => {
+    setIsAuthOpen(false);
+  };
 
   // 监听提示词更新消息
   useEffect(() => {
@@ -117,7 +129,7 @@ export function App() {
 
   return (
     <div className="flex flex-col h-screen bg-magic-900 text-magic-200">
-      <header className="p-4 border-b border-magic-700/30 bg-magic-800/50 backdrop-blur-sm">
+      <header className="p-2 border-b border-magic-700/30 bg-magic-800/50 backdrop-blur-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center">
             <div 
@@ -125,13 +137,13 @@ export function App() {
               onMouseEnter={handleLogoHover}
             >
               <Sparkles 
-                className={`w-6 h-6 mr-2 ${isLogoHovered ? 'logo-hover text-indigo-400' : 'text-purple-400'}`} 
+                className={`w-5 h-5 mr-2 ${isLogoHovered ? 'logo-hover text-indigo-400' : 'text-purple-400'}`} 
               />
             </div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-md animate-[pulse_4s_ease-in-out_infinite]">AetherFlow</h1>
+            <h1 className="text-lg font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-md animate-[pulse_4s_ease-in-out_infinite]">AetherFlow</h1>
           </div>
           
-          <LoginButton />
+          <LoginButton onAuthClick={handleOpenAuth} />
         </div>
       </header>
 
@@ -168,12 +180,18 @@ export function App() {
         </button>
       </footer>
 
+      {/* App-level drawers */}
       <SettingsDrawer
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
       />
+      
+      <AuthDrawer
+        isOpen={isAuthOpen}
+        onClose={handleCloseAuth}
+      />
     </div>
   );
-}
+};
 
 export default App; 

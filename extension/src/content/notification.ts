@@ -1,5 +1,14 @@
 // 显示通知
 export function showNotification(message: string, type: 'success' | 'error' | 'info' = 'success'): void {
+  // 获取CSS变量
+  const styleElement = document.createElement('style');
+  styleElement.textContent = `
+    :root {
+      --content-z-notification: 10600;
+    }
+  `;
+  document.head.appendChild(styleElement);
+
   // 创建通知容器
   const container = document.createElement('div');
   container.style.cssText = `
@@ -9,7 +18,7 @@ export function showNotification(message: string, type: 'success' | 'error' | 'i
     padding: 12px 24px;
     border-radius: 4px;
     font-size: 14px;
-    z-index: 999999;
+    z-index: var(--content-z-notification);
     transition: all 0.3s ease;
     opacity: 0;
     transform: translateY(-20px);
@@ -49,6 +58,10 @@ export function showNotification(message: string, type: 'success' | 'error' | 'i
     container.style.transform = 'translateY(-20px)';
     setTimeout(() => {
       document.body.removeChild(container);
+      // 清理style元素
+      if (document.head.contains(styleElement)) {
+        document.head.removeChild(styleElement);
+      }
     }, 300);
   }, 3000);
 }
@@ -60,6 +73,15 @@ export function showActionableNotification(
   actionCallback: () => void,
   type: 'error' | 'warning' = 'error'
 ): void {
+  // 获取CSS变量
+  const styleElement = document.createElement('style');
+  styleElement.textContent = `
+    :root {
+      --content-z-notification: 10600;
+    }
+  `;
+  document.head.appendChild(styleElement);
+
   // 创建通知容器
   const container = document.createElement('div');
   container.style.cssText = `
@@ -69,7 +91,7 @@ export function showActionableNotification(
     padding: 12px;
     border-radius: 4px;
     font-size: 14px;
-    z-index: 999999;
+    z-index: var(--content-z-notification);
     display: flex;
     align-items: center;
     gap: 12px;
@@ -111,6 +133,10 @@ export function showActionableNotification(
   button.addEventListener('click', () => {
     actionCallback();
     document.body.removeChild(container);
+    // 清理style元素
+    if (document.head.contains(styleElement)) {
+      document.head.removeChild(styleElement);
+    }
   });
   
   container.appendChild(button);
@@ -132,6 +158,10 @@ export function showActionableNotification(
       setTimeout(() => {
         if (document.body.contains(container)) {
           document.body.removeChild(container);
+        }
+        // 清理style元素
+        if (document.head.contains(styleElement)) {
+          document.head.removeChild(styleElement);
         }
       }, 300);
     }

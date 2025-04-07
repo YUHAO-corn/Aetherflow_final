@@ -14,6 +14,28 @@ interface MenuItemProps {
   className?: string;
 }
 
+/**
+ * 下拉菜单组件
+ * 
+ * 用于显示一个上下文菜单或下拉选项
+ * 
+ * @example
+ * ```jsx
+ * const [isMenuOpen, setIsMenuOpen] = useState(false);
+ * 
+ * // 在组件中
+ * <div className="relative">
+ *   <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+ *     Options
+ *   </button>
+ *   
+ *   <Menu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)}>
+ *     <button className="menu-item">Option 1</button>
+ *     <button className="menu-item">Option 2</button>
+ *   </Menu>
+ * </div>
+ * ```
+ */
 export function Menu({ children, isOpen, onClose, className = '' }: MenuProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   
@@ -48,7 +70,7 @@ export function Menu({ children, isOpen, onClose, className = '' }: MenuProps) {
   return (
     <div 
       ref={menuRef}
-      className={`absolute top-full right-0 mt-1 w-48 z-20 bg-magic-800 border border-magic-700/30 rounded-md shadow-lg overflow-hidden ${className}`}
+      className={`absolute top-full right-0 mt-1 w-48 z-dropdown bg-magic-800 border border-magic-700/30 rounded-md shadow-lg overflow-hidden ${className}`}
     >
       <div className="py-1">
         {children}

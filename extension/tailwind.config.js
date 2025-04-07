@@ -17,6 +17,23 @@ module.exports = {
           900: '#0f172a',
         },
       },
+      zIndex: {
+        'base': 'var(--z-base)',
+        'raised': 'var(--z-raised)',
+        'dropdown': 'var(--z-dropdown)',
+        'sticky': 'var(--z-sticky)',
+        'drawer': 'var(--z-drawer)',
+        'overlay': 'var(--z-overlay)',
+        'modal': 'var(--z-modal)',
+        'notification': 'var(--z-notification)',
+        'highest': 'var(--z-highest)',
+        'drawer-backdrop': 'var(--z-drawer-backdrop)',
+        'drawer-container': 'var(--z-drawer-container)',
+        'modal-backdrop': 'var(--z-modal-backdrop)',
+        'modal-container': 'var(--z-modal-container)',
+        'auth-backdrop': 'var(--z-auth-backdrop)',
+        'auth-container': 'var(--z-auth-container)',
+      },
       keyframes: {
         shimmer: {
           '0%': { backgroundPosition: '200% 0' },
