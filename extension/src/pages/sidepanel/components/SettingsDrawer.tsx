@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Download, Check } from 'lucide-react';
+import { X, Download, Check, Cloud } from 'lucide-react';
 import { useExport } from '../../../hooks/useExport';
+import { setStorageMode } from '../../../services/storage';
+import { useAuth } from '../../../hooks/useAuth';
 
 interface SettingsDrawerProps {
   isOpen: boolean;
@@ -11,6 +13,19 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const { exportToCSV, loading, success, error } = useExport();
+  const { user } = useAuth();
+  
+  // 检查是否启用云存储
+  const [useCloudStorage, setUseCloudStorage] = useState(() => {
+    return localStorage.getItem('USE_CLOUD_STORAGE') === 'true';
+  });
+
+  // 切换云存储状态
+  const toggleCloudStorage = () => {
+    const newState = !useCloudStorage;
+    setUseCloudStorage(newState);
+    setStorageMode(newState);
+  };
 
   // 设置挂载状态以触发动画
   useEffect(() => {
@@ -85,7 +100,43 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
         
         {/* 抽屉内容 */}
         <div className="p-4">
-          <h4 className="text-md font-bold text-magic-200 mb-6">Data Management</h4>
+          <h4 className="text-md font-bold text-magic-200 mb-4">Cloud Sync</h4>
+          
+          <div className="mb-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <Cloud className="w-5 h-5 text-magic-400 mr-2" />
+                <span className="text-magic-300">Enable Cloud Sync</span>
+              </div>
+              <button 
+                onClick={toggleCloudStorage}
+                disabled={!user}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                  useCloudStorage ? 'bg-magic-500' : 'bg-magic-700'
+                } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                <span 
+                  className={`inline-block h-4 w-4 transform rounded-full bg-white shadow-lg transition-transform ${
+                    useCloudStorage ? 'translate-x-6' : 'translate-x-1'
+                  }`} 
+                />
+              </button>
+            </div>
+            
+            {!user && (
+              <div className="text-sm text-amber-400 pl-7">
+                Login required to use cloud sync
+              </div>
+            )}
+            
+            {user && (
+              <div className="text-xs text-magic-400 pl-7">
+                Your prompts will be synced across all your devices when you are logged in
+              </div>
+            )}
+          </div>
+          
+          <h4 className="text-md font-bold text-magic-200 mb-4">Data Management</h4>
           
           <div className="space-y-4">
             <button

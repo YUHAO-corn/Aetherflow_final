@@ -7,8 +7,32 @@ import { createPrompt } from '../services/prompt';
 import { initializeSampleData } from './sampleData';
 import { initPromptMessaging } from '../services/prompt/messaging';
 import { migratePromptsData } from '../services/storage';
+import { initializeFirebase } from '../services/auth/firebase';
+import { cloudStorageService } from '../services/storage/cloudStorage';
+import { setStorageMode } from '../services/storage';
+import { getFirebaseAuth } from '../services/auth/firebase';
+
+// 为Window接口添加新属性声明
+declare global {
+  interface Window {
+    USE_CLOUD_STORAGE?: boolean;
+  }
+}
 
 console.log('[AetherFlow] 后台脚本加载成功');
+
+// 调试辅助：设置云存储为启用状态
+(function forceEnableCloudStorage() {
+  try {
+    const previousSetting = localStorage.getItem('USE_CLOUD_STORAGE');
+    localStorage.setItem('USE_CLOUD_STORAGE', 'true');
+    console.log('[AetherFlow] 强制启用云存储模式，之前的设置为:', previousSetting);
+    // 设置全局标志，确保所有组件可以访问
+    window.USE_CLOUD_STORAGE = true;
+  } catch (error) {
+    console.error('[AetherFlow] 无法设置云存储模式:', error);
+  }
+})();
 
 // 设置Service Worker保活机制
 setupServiceWorkerKeepAlive();
@@ -492,6 +516,54 @@ chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error
   console.error('Failed to set sidebar behavior:', error);
 });
 
+// 初始化Firebase和云存储服务
+async function initializeServices() {
+  try {
+    // 初始化Firebase
+    initializeFirebase();
+    console.log('[Background] Firebase初始化成功');
+    
+    // 检查是否应使用云存储
+    const useCloudStorage = localStorage.getItem('USE_CLOUD_STORAGE') === 'true';
+    console.log('[Background] 云存储设置状态:', useCloudStorage ? '已启用' : '未启用');
+    
+    if (useCloudStorage) {
+      console.log('[Background] 启用云存储服务');
+      // 确保云存储服务已初始化
+      if (cloudStorageService.isAuthenticated()) {
+        console.log('[Background] 用户已登录，准备同步数据');
+        try {
+          // 执行同步
+          const stats = await cloudStorageService.syncAllPrompts();
+          console.log('[Background] 同步完成:', stats);
+        } catch (error) {
+          console.error('[Background] 同步失败:', error);
+        }
+      } else {
+        console.log('[Background] 用户未登录，云存储处于待命状态');
+      }
+    } else {
+      console.log('[Background] 使用本地存储服务');
+    }
+    
+    // 添加详细的认证状态日志
+    const auth = getFirebaseAuth();
+    const user = auth.currentUser;
+    console.log('[Background] 当前认证状态:', user ? '已登录' : '未登录');
+    if (user) {
+      console.log('[Background] 登录用户:', user.email);
+    }
+  } catch (error) {
+    console.error('[Background] 服务初始化失败:', error);
+  }
+}
+
+// 在扩展启动时初始化服务
+chrome.runtime.onStartup.addListener(() => {
+  console.log('[Background] 扩展启动，初始化服务');
+  initializeServices();
+});
+
 // 处理扩展安装或更新事件
 chrome.runtime.onInstalled.addListener(async (details) => {
   console.log('Extension installed/updated:', details.reason);
@@ -524,6 +596,9 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   
   // 初始化右键菜单
   setupContextMenu();
+  
+  // 初始化云存储服务
+  initializeServices();
 });
 
 // 设置右键菜单

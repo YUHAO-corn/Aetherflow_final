@@ -2,6 +2,7 @@ import { StorageArea, StorageService } from './types';
 import { STORAGE_KEYS, STORAGE_LIMITS } from './constants';
 import { chromeStorageService } from './chromeStorage';
 import { mockStorageService } from './mockStorage';
+import { cloudStorageService } from './cloudStorage';
 import { Prompt } from '../prompt/types';
 
 // 存储操作的最大重试次数
@@ -99,25 +100,34 @@ const isDevelopment = typeof window !== 'undefined' &&
 
 // 默认使用Chrome存储服务
 let useMockData = false;
+let useCloudStorage = false;
 
 // 尝试从localStorage读取标志
 try {
   // 从localStorage读取是否使用模拟数据的标志
   // 注意这里使用的是原生localStorage，而不是之前定义的Storage实例
   useMockData = isDevelopment && window.localStorage.getItem('USE_MOCK_DATA') === 'true';
+  
+  // 读取是否使用云存储的标志
+  useCloudStorage = window.localStorage.getItem('USE_CLOUD_STORAGE') === 'true';
 } catch (error) {
-  console.error('[Storage] 读取模拟数据标志失败', error);
+  console.error('[Storage] 读取存储配置标志失败', error);
 }
 
 /**
  * 获取适合当前环境的存储服务
  * 在开发环境中，如果设置了USE_MOCK_DATA=true，则使用模拟存储
- * 否则使用Chrome存储API
+ * 否则根据USE_CLOUD_STORAGE标志决定使用云存储服务还是Chrome存储API
  */
 export function getStorageService(): StorageService {
   if (isDevelopment && useMockData) {
     console.log('[Storage] 使用模拟存储服务');
     return mockStorageService;
+  }
+  
+  if (useCloudStorage) {
+    console.log('[Storage] 使用云存储服务');
+    return cloudStorageService;
   }
   
   console.log('[Storage] 使用Chrome存储服务');
@@ -133,7 +143,26 @@ export * from './types';
 export * from './constants';
 
 // 导出具体存储服务，用于特殊场景
-export { chromeStorageService, mockStorageService };
+export { chromeStorageService, mockStorageService, cloudStorageService };
+
+/**
+ * 设置存储模式
+ * @param useCloud 是否使用云存储
+ */
+export function setStorageMode(useCloud: boolean): void {
+  try {
+    window.localStorage.setItem('USE_CLOUD_STORAGE', useCloud ? 'true' : 'false');
+    useCloudStorage = useCloud;
+    console.log(`[Storage] 存储模式已切换为: ${useCloud ? '云存储' : 'Chrome存储'}`);
+    
+    // 刷新页面以应用新设置
+    if (window.location) {
+      window.location.reload();
+    }
+  } catch (error) {
+    console.error('[Storage] 切换存储模式失败:', error);
+  }
+}
 
 /**
  * 数据迁移函数 - 将旧格式的提示词数组转换为新格式的单独存储

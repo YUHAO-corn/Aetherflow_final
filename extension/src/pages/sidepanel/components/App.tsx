@@ -6,6 +6,7 @@ import { Navigation } from './Navigation';
 import { SettingsDrawer } from './SettingsDrawer';
 import LoginButton from './LoginButton';
 import AuthDrawer from './AuthModal';
+import { SyncStatusIndicator } from '../../../components/common';
 import type { Prompt } from '../../../services/prompt/types';
 import { usePromptsData } from '../../../hooks/usePromptsData';
 import { useOptimize } from '../../../hooks/useOptimize';
@@ -170,7 +171,8 @@ const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="p-2 border-t border-magic-700/30 flex justify-end">
+      <footer className="p-2 border-t border-magic-700/30 flex justify-between items-center">
+        <SyncStatusIndicator className="ml-2" />
         <button 
           onClick={() => setIsSettingsOpen(true)}
           className="flex items-center text-magic-400 hover:text-magic-200"
