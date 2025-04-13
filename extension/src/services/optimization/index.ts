@@ -8,9 +8,66 @@ export type { OptimizationMode } from '../optimizationService';
 import { OptimizationVersion, OptimizationError } from './types';
 export type { OptimizationVersion, OptimizationError } from './types';
 import { generateTitleForPrompt } from '../prompt/actions';
+import { paymentService } from "../payment";
+import { QuotaExceededError, QuotaType } from "../payment/types";
 
 // 导出版本管理服务的所有功能
 export * from './versionManager';
+
+/**
+ * 在执行优化前检查配额
+ * 如果超出配额，将抛出错误
+ */
+export async function checkQuotaBeforeOptimize(): Promise<void> {
+  try {
+    // 检查优化配额
+    const quotaInfo = await paymentService.checkOptimizeQuota();
+    
+    // 如果配额已达上限，抛出错误
+    if (quotaInfo.isLimitReached) {
+      throw new QuotaExceededError(
+        `每日优化次数已达上限 (${quotaInfo.currentCount}/${quotaInfo.limit})，请明天再试或升级会员`,
+        QuotaType.OPTIMIZE,
+        quotaInfo.currentCount,
+        quotaInfo.limit
+      );
+    }
+  } catch (error) {
+    console.error('[Optimization] 检查优化配额失败:', error);
+    throw error; // 重新抛出错误以便上层处理
+  }
+}
+
+/**
+ * 在优化完成后记录使用
+ */
+export async function recordOptimizeUsage(): Promise<void> {
+  try {
+    await paymentService.recordOptimizeUsage();
+  } catch (error) {
+    console.error('[Optimization] 记录优化使用失败:', error);
+    // 记录失败不应阻止优化功能的完成
+  }
+}
+
+/**
+ * 获取当前优化配额状态
+ */
+export async function getOptimizeQuotaStatus(): Promise<{
+  used: number;
+  limit: number;
+  resetsIn: number;
+  isPremium: boolean;
+}> {
+  const quotaInfo = await paymentService.checkOptimizeQuota();
+  
+  return {
+    used: quotaInfo.currentCount,
+    limit: quotaInfo.limit,
+    resetsIn: quotaInfo.resetsAt ? quotaInfo.resetsAt - Date.now() : 0,
+    isPremium: quotaInfo.isPremium
+  };
+}
 
 /**
  * 处理优化版本列表

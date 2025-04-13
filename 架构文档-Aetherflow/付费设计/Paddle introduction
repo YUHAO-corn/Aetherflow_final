@@ -1,0 +1,684 @@
+# Paddle 出海收款完整操作指南
+
+## 1. Paddle介绍与基础知识
+
+### 1.1 什么是Paddle
+
+Paddle是一个全球性的收款服务提供商，专为数字产品和服务设计，尤其适合SaaS和Chrome扩展等软件产品。作为"商家记录"(Merchant of Record)，Paddle能够处理全球支付、税务合规、订阅管理等复杂问题，让开发者专注于产品本身。
+
+### 1.2 Paddle的主要优势
+
+- **一站式解决方案**：支付处理+订阅管理+VAT计算与缴纳
+- **无需境外公司**：个人开发者可直接使用
+- **覆盖全球主流支付方式**：信用卡、PayPal、Apple Pay等
+- **合规处理**：自动处理全球税务合规问题
+- **完整的订阅管理功能**：试用、升级、降级、取消等
+
+### 1.3 费率结构
+
+- **标准费用**：5% + $0.5/笔
+- **实际优化成本**：可降至10-12%（含税务和转账成本）
+- **月流水$3000+**：可申请费率降至4%
+
+## 2. Paddle注册流程详解
+
+### 2.1 前置准备工作
+
+在开始注册Paddle之前，请先准备以下材料：
+- 有效身份证件（护照最佳，其次是身份证）
+- 可用于国际支付的银行卡（VISA或Mastercard）
+- 个人邮箱（建议使用Gmail）
+- 手机号码（能接收国际短信）
+- 个人地址证明（水电费账单、银行对账单等）
+
+### 2.2 注册步骤
+
+1. **创建基础账户**
+   - 访问 https://vendors.paddle.com/signup
+   - 填写基本信息（邮箱、密码等）
+   - 注册后会直接进入Paddle后台
+
+2. **开始账户验证**
+   - 在左侧菜单找到"Verify account"按钮（通常标记为"1/4"）
+   - 点击开始验证流程
+
+3. **填写产品信息**
+   - 当系统询问"What will you be selling on Paddle?"时，选择"Software/SaaS"
+   - 在产品描述栏填写类似以下内容：
+   ```
+   AetherFlow is a Chrome browser extension that helps users manage and optimize AI prompts. The product offers a free tier with basic features and a premium subscription with advanced capabilities, including unlimited prompt storage, more optimization attempts, and advanced data export features.
+
+   Key features:
+   - AI prompt library management
+   - Prompt optimization using AI algorithms
+   - Cloud synchronization across devices
+   - Quick input of saved prompts
+   ```
+
+4. **网站域名验证**
+   - 系统会要求提供您的网站域名
+   - 作为Chrome扩展开发者，您需要创建一个简单网站（后续会详细介绍）
+   - 填写您的网站URL和相关页面链接（服务条款、隐私政策等）
+
+### 2.3 账户验证要求
+
+根据Paddle官方文档，您的网站必须包含以下信息：
+
+- 产品功能的清晰描述
+- 定价信息
+- 服务条款、隐私政策和退款政策
+- 您的公司法定名称（或个人全名）
+- 网站必须是在线状态且有SSL证书（HTTPS）
+
+这些信息可以分布在您网站的不同页面上，但必须易于查找。
+
+### 2.4 提交身份验证
+
+在网站验证后，您需要完成个人身份验证：
+
+1. **上传身份证明**
+   - 上传您的护照或身份证扫描件（正反面）
+   - 确保图像清晰可读
+
+2. **地址证明**
+   - 上传近3个月内的水电费账单或银行对账单
+   - 文件必须显示您的姓名和地址
+
+3. **等待审核**
+   - 审核通常需要1-3个工作日
+   - 审核期间Paddle可能会要求提供额外信息
+
+## 3. 网站要求与解决方案
+
+### 3.1 Chrome扩展开发者的挑战
+
+作为Chrome扩展开发者，您可能没有传统意义上的产品网站。然而，Paddle要求所有商家必须有一个网站，并包含特定页面。以下是解决方案：
+
+### 3.2 使用GitHub Pages创建简单网站
+
+GitHub Pages提供了免费、简单的方式来创建产品网站：
+
+1. **创建新的GitHub仓库**
+   - 可命名为"aetherflow-website"
+   - 启用GitHub Pages功能
+
+2. **所需页面**
+   - 首页：产品介绍、功能描述
+   - 服务条款页面：`/terms-of-service.html`
+   - 隐私政策页面：`/privacy-policy.html`
+   - 退款政策页面：`/refund-policy.html`
+   - 定价页面：`/pricing.html`
+
+3. **域名选择**
+   - 可以使用默认的GitHub Pages域名：`yourusername.github.io/aetherflow-website`
+   - 或购买自定义域名（如`aetherflow.com`）并指向GitHub Pages
+
+> **注意**：根据Paddle规定，您需要提交用于启动结账页面的每个域名和子域名，但只需一个经批准的域名即可继续验证流程。
+
+### 3.3 网站内容要求
+
+您的网站应包含以下关键内容：
+
+1. **产品描述**
+   - 清晰说明AetherFlow的功能和价值
+   - 包含关键特性和使用场景
+
+2. **定价信息**
+   - 免费版和付费版的详细对比
+   - 清晰的价格标注（与Paddle上设置一致）
+
+3. **法律文档**
+   - 服务条款
+   - 隐私政策
+   - 退款政策
+   - 自动续费说明
+
+按照Paddle的规定，这些内容可以分布在不同页面，但必须易于发现和访问。
+
+## 4. GitHub Pages网站创建详细指南
+
+### 4.1 创建GitHub仓库
+
+1. **登录GitHub**
+   - 访问 https://github.com
+   - 使用您的账号登录（如没有账号，请先注册）
+
+2. **创建新仓库**
+   - 点击右上角"+"图标，选择"New repository"
+   - 仓库名称：`aetherflow-website`
+   - 描述：`Website for AetherFlow Chrome Extension`
+   - 选择"Public"（公开）
+   - 勾选"Initialize this repository with a README"
+   - 点击"Create repository"
+
+### 4.2 设置GitHub Pages
+
+1. **启用GitHub Pages**
+   - 进入新创建的仓库
+   - 点击"Settings"选项卡
+   - 滚动到"GitHub Pages"部分
+   - 在"Source"下拉菜单中选择"main"分支
+   - 点击"Save"
+
+2. **选择主题（可选）**
+   - 在GitHub Pages设置中点击"Choose a theme"
+   - 选择一个适合您网站的主题
+   - 点击"Select theme"
+
+3. **确认网站URL**
+   - 设置保存后，GitHub会显示您的网站URL
+   - 通常格式为：`https://yourusername.github.io/aetherflow-website`
+   - 记下此URL，稍后将在Paddle验证中使用
+
+### 4.3 创建基本页面结构
+
+在仓库中创建以下基本文件：
+
+1. **首页 (index.md / index.html)**
+   - 如果您使用Markdown，创建`index.md`
+   - 如果您偏好HTML，创建`index.html`
+
+2. **必需页面**
+   - `terms-of-service.md` - 服务条款
+   - `privacy-policy.md` - 隐私政策
+   - `refund-policy.md` - 退款政策
+   - `pricing.md` - 定价页面
+
+3. **布局模板（可选）**
+   - 如果您有前端经验，可以创建`_layouts`目录
+   - 添加自定义模板以统一网站风格
+
+### 4.4 首页内容示例
+
+以下是`index.md`的示例内容：
+
+```markdown
+---
+title: AetherFlow - AI Prompt Management Chrome Extension
+layout: default
+---
+
+# AetherFlow
+
+## AI提示词管理与优化助手
+
+AetherFlow是一款创新的Chrome浏览器扩展，致力于帮助用户高效管理和优化AI提示词。在大模型时代，提示词质量直接决定了AI输出效果，我们的产品让用户能够随时随地捕获、优化、存储和复用高质量提示词，显著提升AI交互效率。
+
+### 核心功能
+
+- **提示词快捷输入**：使用`/`快捷指令瞬间调用已保存的提示词
+- **提示词库管理**：卡片式设计，直观展示所有已存储提示词
+- **提示词优化**：基于大语言模型的智能分析与改进
+- **跨设备同步**：所有数据在您的设备间无缝同步
+
+### 两种使用模式
+
+- **免费版**：基础功能，有限使用
+- **专业版**：完整功能，无限制使用
+
+[查看定价方案](./pricing.html) | [安装扩展](https://chrome.google.com/webstore/detail/aetherflow/extension-id)
+
+### 关于我们
+
+AetherFlow由一支充满激情的团队创建，致力于提升AI工作流程效率。
+
+[服务条款](./terms-of-service.html) | [隐私政策](./privacy-policy.html) | [退款政策](./refund-policy.html)
+```
+
+### 4.5 定价页面示例
+
+以下是`pricing.md`的示例内容：
+
+```markdown
+---
+title: AetherFlow - Pricing
+layout: default
+---
+
+# AetherFlow定价方案
+
+选择最适合您需求的方案。
+
+## 免费版
+
+**完全免费**
+
+- 存储最多5个提示词
+- 每日3次优化尝试
+- 基础功能访问
+- 单设备使用
+
+[立即开始](https://chrome.google.com/webstore/detail/aetherflow/extension-id)
+
+## 专业版
+
+**$4.99/月** 或 **$39.99/年（节省33%）**
+
+- 存储最多100个提示词
+- 每日50次优化尝试
+- 所有高级功能
+- 多设备同步
+- 多格式数据导出
+- 优先支持
+
+[升级到专业版](https://app.paddle.com/checkout/your-checkout-id)
+
+**自动续订说明**：订阅将自动续订，除非您在当前订阅期结束前至少24小时取消。您可以随时在账户设置中管理您的订阅。
+
+[服务条款](./terms-of-service.html) | [隐私政策](./privacy-policy.html) | [退款政策](./refund-policy.html)
+```
+
+## 5. 法律文档生成指南
+
+### 5.1 使用在线生成器
+
+以下在线工具可以帮助您快速生成基本的法律文档：
+
+1. **隐私政策生成器**
+   - 推荐：[Termly](https://termly.io/products/privacy-policy-generator/)或[PrivacyPolicies.com](https://www.privacypolicies.com/)
+   - 输入您的产品和企业信息
+   - 根据提示回答问题，系统会生成适合的隐私政策
+   - 复制生成的内容，粘贴到`privacy-policy.md`文件中
+
+2. **服务条款生成器**
+   - 推荐：[Termsfeed](https://www.termsfeed.com/terms-conditions-generator/)
+   - 同样根据提示填写信息
+   - 确保包括订阅服务特有条款
+   - 复制内容到`terms-of-service.md`文件中
+
+3. **退款政策生成器**
+   - 推荐：[Shopify's Refund Policy Generator](https://www.shopify.com/tools/policy-generator/refund)
+   - 定义您的退款条件和时限
+   - 复制生成的内容到`refund-policy.md`文件中
+
+### 5.2 关键法律条款
+
+无论使用哪种生成器，请确保您的法律文档包含以下关键内容：
+
+1. **服务条款**
+   - 服务描述
+   - 使用限制
+   - 账户责任
+   - 订阅续订条款
+   - 终止条件
+   - 知识产权声明
+   - 免责声明
+
+2. **隐私政策**
+   - 收集的数据类型
+   - 数据使用方式
+   - 第三方共享
+   - 用户权利
+   - Cookie使用
+   - 数据保留期限
+   - 联系方式
+
+3. **退款政策**
+   - 退款条件
+   - 退款时限
+   - 处理方式
+   - 例外情况
+   - 取消订阅方法
+
+### 5.3 自动续订声明
+
+由于您提供订阅服务，必须在定价页面和服务条款中包含明确的自动续订声明，如：
+
+```
+订阅将按照所选计划（月付或年付）自动续费，除非您在当前订阅期结束前至少24小时取消订阅。您可以随时在账户设置中取消自动续订。一旦取消，您将继续享有当前订阅期内的服务，但不会在期满后继续收费。
+```
+
+### 5.4 文档本地化
+
+为提高全球用户体验，考虑提供多语言版本的法律文档：
+
+1. **英文版本（必需）**
+   - 所有法律文档首先以英文提供
+   - 确保语言清晰、专业
+
+2. **中文版本（可选）**
+   - 考虑提供中文翻译版本
+   - 确保翻译准确，尤其是法律术语
+
+3. **多语言切换（高级）**
+   - 如有资源，可提供语言切换功能
+   - 确保各语言版本内容一致
+
+## 6. Paddle产品和订阅设置
+
+### 6.1 创建产品
+
+在完成网站设置和账户验证后，您需要在Paddle后台创建产品：
+
+1. **进入产品管理**
+   - 登录Paddle后台
+   - 导航到"Catalog" → "Products"
+   - 点击"Create Product"
+
+2. **选择产品类型**
+   - 选择"Subscription"（订阅）
+
+3. **填写产品信息**
+   - 产品名称：`AetherFlow Pro`
+   - 产品描述：简要描述您的产品和主要功能
+   - 上传产品图片（建议尺寸：1200x600像素）
+
+4. **设置产品显示**
+   - 添加产品标签（如"Chrome Extension"、"AI Tools"）
+   - 配置产品排序和分组（如适用）
+
+### 6.2 创建订阅计划
+
+每个产品可以有多个订阅计划。根据AetherFlow的设计，创建两个计划：
+
+1. **月度计划**
+   - 在产品详情页点击"Create Price"
+   - 价格：`$4.99`
+   - 计费周期：`Monthly`
+   - 启用自动续订
+   - 设置试用期（可选，如7天免费试用）
+
+2. **年度计划**
+   - 创建另一个价格计划
+   - 价格：`$39.99`
+   - 计费周期：`Yearly`
+   - 启用自动续订
+   - 添加促销信息（如"节省33%"）
+
+### 6.3 配置结账页面
+
+自定义用户支付体验：
+
+1. **结账页面设置**
+   - 导航到产品详情下的"Checkout"选项卡
+   - 上传品牌LOGO
+   - 自定义页面标题和说明
+   - 调整页面配色以匹配您的品牌
+
+2. **付款方式**
+   - 启用信用卡、PayPal等支付选项
+   - 配置各地区可用的支付方式
+
+3. **确认邮件**
+   - 自定义支付确认邮件的内容
+   - 添加您的支持邮箱和链接
+
+### 6.4 设置客户门户
+
+为您的订阅用户提供管理订阅的界面：
+
+1. **客户门户设置**
+   - 导航到"Checkout" → "Customer Billing Portal"
+   - 启用客户门户功能
+   - 自定义门户界面
+
+2. **配置可用操作**
+   - 允许客户查看订阅详情
+   - 允许取消订阅
+   - 允许更新支付方式
+   - 允许访问收据和发票
+
+## 7. 技术集成
+
+### 7.1 设置Webhook接收端点
+
+为接收Paddle的支付通知，您需要设置一个Webhook端点：
+
+1. **创建Firebase Function**
+   - 在您的Firebase项目中创建新的函数
+   - 函数应接收POST请求并处理Paddle事件
+   - 示例代码：
+
+```javascript
+// Firebase Function接收Paddle Webhook
+exports.paddleWebhook = functions.https.onRequest(async (req, res) => {
+  // 验证Webhook签名
+  if (!verifyPaddleSignature(req)) {
+    return res.status(403).send('Invalid signature');
+  }
+  
+  // 处理不同事件类型
+  const eventType = req.body.alert_name;
+  
+  switch (eventType) {
+    case 'subscription_created':
+      await handleSubscriptionCreated(req.body);
+      break;
+    case 'subscription_cancelled':
+      await handleSubscriptionCancelled(req.body);
+      break;
+    case 'subscription_payment_succeeded':
+      await handlePaymentSucceeded(req.body);
+      break;
+    // 处理其他事件...
+  }
+  
+  res.status(200).send('Webhook processed');
+});
+
+// 验证Paddle签名
+function verifyPaddleSignature(req) {
+  // 实现签名验证逻辑
+  // 参考Paddle文档: https://developer.paddle.com/webhook-reference/verifying-webhooks
+}
+```
+
+2. **配置Paddle Webhook**
+   - 在Paddle后台导航到"Developer Tools" → "Webhooks"
+   - 点击"Create Webhook"
+   - 输入您的Function URL（例如：`https://us-central1-your-project.cloudfunctions.net/paddleWebhook`）
+   - 选择需要接收的事件（至少选择订阅相关事件）
+   - 保存并记下生成的密钥
+
+### 7.2 前端集成
+
+在您的Chrome扩展中集成Paddle支付：
+
+1. **添加Paddle.js**
+   - 在扩展的支付页面中引入Paddle的JavaScript库：
+   ```html
+   <script src="https://cdn.paddle.com/paddle/paddle.js"></script>
+   ```
+
+2. **初始化Paddle**
+   - 使用您的Vendor ID初始化Paddle：
+   ```javascript
+   Paddle.Setup({ vendor: YOUR_VENDOR_ID });
+   ```
+
+3. **创建支付按钮**
+   - 实现打开支付窗口的函数：
+   ```javascript
+   function openPaddleCheckout(planId) {
+     Paddle.Checkout.open({
+       product: planId,          // 产品/计划ID
+       email: user.email,        // 用户邮箱（如已知）
+       successCallback: handlePaymentSuccess,
+       closeCallback: handlePaymentCancelled
+     });
+   }
+   ```
+
+### 7.3 处理支付结果
+
+1. **支付成功回调**
+   ```javascript
+   async function handlePaymentSuccess(data) {
+     // 显示支付处理中状态
+     showPaymentProcessingFeedback();
+     
+     // 开始轮询检查订阅状态
+     const isSubscriptionActive = await pollSubscriptionStatus();
+     
+     if (isSubscriptionActive) {
+       // 更新UI，显示专业版功能
+       updateUIForPremium();
+     } else {
+       // 显示问题处理指南
+       showSubscriptionIssueHelp();
+     }
+   }
+   ```
+
+2. **轮询检查订阅状态**
+   ```javascript
+   async function pollSubscriptionStatus(maxAttempts = 5, interval = 3000) {
+     for (let i = 0; i < maxAttempts; i++) {
+       try {
+         // 调用您的API检查订阅状态
+         const status = await checkSubscriptionStatus();
+         
+         if (status.isActive) {
+           return true;
+         }
+         
+         // 等待一段时间后再次检查
+         await new Promise(resolve => setTimeout(resolve, interval));
+       } catch (error) {
+         console.error('检查订阅状态出错:', error);
+       }
+     }
+     
+     return false; // 超过最大尝试次数
+   }
+   ```
+
+### 7.4 测试支付流程
+
+在正式环境上线前，使用Paddle的沙箱环境测试支付：
+
+1. **启用沙箱模式**
+   ```javascript
+   Paddle.Environment.set('sandbox');
+   ```
+
+2. **测试卡号**
+   - 成功支付：`4242 4242 4242 4242`
+   - 支付失败：`4000 0000 0000 0002`
+   - 有效期：任意未来日期
+   - CVV：任意3位数字
+
+3. **测试完整流程**
+   - 订阅创建
+   - 付款处理
+   - Webhook通知
+   - 状态更新
+
+## 8. 资金接收与税务处理
+
+### 8.1 设置资金提现方式
+
+Paddle支持多种资金提现方式：
+
+1. **设置Wise账户（推荐）**
+   - 在Paddle后台导航到"Finance" → "Payout Details"
+   - 选择添加银行账户
+   - 填写Wise提供的账户信息
+   - 设置提现阈值（默认$50）
+
+2. **提现流程**
+   - Paddle → Wise → 香港账户 → 内地银行
+   - 每月自动处理，无需手动操作
+   - 费用：Wise转账约0.5%-1%
+
+### 8.2 税务合规
+
+作为个人开发者，需要注意以下税务事项：
+
+1. **国际税务**
+   - Paddle自动处理所有国际销售税（VAT、GST等）
+   - 无需单独注册或申报国际税务
+
+2. **中国税务**
+   - 个人从境外获得的收入需申报个人所得税
+   - 年收入不超过6万元可能免征个税
+   - 建议咨询专业税务顾问
+
+3. **税务申报**
+   - 保存所有Paddle生成的收入报表
+   - 在年度个人所得税申报中包含此收入
+   - 按"劳务报酬所得"或"经营所得"申报
+
+### 8.3 收入监控与分析
+
+有效管理您的收入和增长：
+
+1. **关键指标**
+   - 月度经常性收入(MRR)
+   - 客户获取成本(CAC)
+   - 客户终身价值(LTV)
+   - 流失率(Churn Rate)
+
+2. **使用ProfitWell**
+   - Paddle提供免费的ProfitWell Metrics服务
+   - 自动生成收入分析和趋势报告
+   - 帮助优化定价和留存策略
+
+## 9. 常见问题与解决方案
+
+### 9.1 账户验证问题
+
+1. **验证被拒绝**
+   - 检查网站是否包含所有必需信息
+   - 确保法律文档完整且易于访问
+   - 上传更清晰的身份证明文件
+   - 联系Paddle支持寻求帮助
+
+2. **验证延迟**
+   - 验证通常需要1-3个工作日
+   - 通过support@paddle.com跟进进度
+   - 在等待期间使用沙箱环境测试功能
+
+### 9.2 技术集成问题
+
+1. **Webhook未触发**
+   - 检查URL是否正确配置
+   - 验证Firebase Function是否部署成功
+   - 测试端点是否可访问
+   - 检查日志寻找错误信息
+
+2. **订阅状态不同步**
+   - 实现订阅状态轮询机制
+   - 添加手动刷新选项
+   - 设置订阅状态检查的日志记录
+
+### 9.3 用户支持问题
+
+为避免用户困惑，提前准备以下内容：
+
+1. **常见问题解答**
+   - 如何取消订阅
+   - 如何更新支付方式
+   - 退款政策说明
+   - 账户访问问题
+
+2. **支持渠道**
+   - 提供专门的支持邮箱
+   - 考虑添加在线聊天支持
+   - 清晰说明支持时间和响应期望
+
+## 10. 推广与增长策略
+
+### 10.1 初始用户获取
+
+1. **Chrome商店优化**
+   - 优化扩展描述和关键词
+   - 添加高质量截图和演示视频
+   - 鼓励用户评价
+
+2. **内容营销**
+   - 在Medium、Dev.to等平台发布相关文章
+   - 创建关于AI提示词优化的教程
+   - 分享使用案例和成功故事
+
+### 10.2 转化优化
+
+1. **免费用户转化**
+   - 设置适当的免费版限制
+   - 在关键功能点展示升级提示
+   - 提供限时优惠激励转化
+
+2. **价格实验**
+   - 考虑不同市场的定价策略
+   - 测试不同的试用期长度
+   - 实验年付折扣幅度
