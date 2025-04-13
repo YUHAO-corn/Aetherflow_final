@@ -127,7 +127,7 @@ date: 2023-12-01
           - 创建ProPlanCard组件，展示会员权益和价格
           - 实现卡片动画和样式
           - 添加升级按钮和查看详情链接
-          - 将卡片与ProBadge悬停事件关联
+          - 将卡片与ProBadge/upgrade_button悬停事件关联
         
         acceptance_criteria:
           - 鼠标悬停在ProBadge上显示预览卡片
@@ -460,7 +460,7 @@ date: 2023-12-01
       description: 悬浮显示的会员计划简介
       content:
         # 核心价值主张
-        - 醒目标题: "10X Productivity"
+        - 醒目标题: "your best AI conversations, always at your fingertips"
         - 图标: 火箭图标(渐变紫蓝色)
         
         # 核心权益(简洁精炼)

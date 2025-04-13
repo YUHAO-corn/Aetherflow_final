@@ -7,7 +7,7 @@ import { SettingsDrawer } from './SettingsDrawer';
 import LoginButton from './LoginButton';
 import AuthDrawer from './AuthModal';
 import { SyncStatusIndicator } from '../../../components/common';
-import { UpgradeButton, DevMembershipTools, ProBadge } from '../../../components/membership';
+import { UpgradeButton, DevMembershipTools, ProBadge, PlanCardConnector } from '../../../components/membership';
 import type { Prompt } from '../../../services/prompt/types';
 import { usePromptsData } from '../../../hooks/usePromptsData';
 import { useOptimize } from '../../../hooks/useOptimize';
@@ -158,11 +158,13 @@ const App: React.FC = () => {
           <div className="flex items-center">
             {/* PRO标识，显示在用户头像左侧 */}
             <div className="mr-2">
-              <ProBadge 
-                isActive={isProMember}
-                onClick={handleProBadgeClick}
-                size="sm"
-              />
+              <PlanCardConnector triggerType="hover" source="badge">
+                <ProBadge 
+                  isActive={isProMember}
+                  onClick={handleProBadgeClick}
+                  size="sm"
+                />
+              </PlanCardConnector>
             </div>
             <LoginButton onAuthClick={handleOpenAuth} />
           </div>
@@ -197,7 +199,9 @@ const App: React.FC = () => {
           <SyncStatusIndicator className="ml-2" />
           {/* 升级按钮，位于云存储图标右侧 */}
           <div className="ml-2">
-            <UpgradeButton isProMember={isProMember} />
+            <PlanCardConnector triggerType="hover" source="upgrade_button">
+              <UpgradeButton isProMember={isProMember} />
+            </PlanCardConnector>
           </div>
         </div>
         <button 

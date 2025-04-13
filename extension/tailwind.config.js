@@ -16,6 +16,9 @@ module.exports = {
           800: '#1e293b',
           900: '#0f172a',
         },
+        // 品牌蓝色
+        'brand-blue': '#4A90E2',
+        'brand-blue-dark': '#3A7BC8',
       },
       zIndex: {
         'base': 'var(--z-base)',
@@ -79,6 +82,26 @@ module.exports = {
             filter: 'brightness(1)'
           }
         },
+        'slide-in-down': {
+          '0%': { 
+            opacity: '0',
+            transform: 'translateY(-10px)'
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)'
+          }
+        },
+        'slide-in-up': {
+          '0%': { 
+            opacity: '0',
+            transform: 'translateY(10px)'
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)'
+          }
+        },
         'magic-reveal': {
           '0%': { 
             opacity: '0',
@@ -117,6 +140,8 @@ module.exports = {
         float: 'float 3s ease-in-out infinite',
         bounce: 'bounce 1s ease-in-out infinite',
         'slide-in': 'slide-in 0.6s ease-out forwards',
+        'slide-in-down': 'slide-in-down 0.12s ease-out forwards',
+        'slide-in-up': 'slide-in-up 0.12s ease-out forwards',
         'magic-reveal': 'magic-reveal 1.2s ease-out forwards',
         'magic-reveal-fast': 'magic-reveal-fast 0.3s ease-out forwards',
         pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
