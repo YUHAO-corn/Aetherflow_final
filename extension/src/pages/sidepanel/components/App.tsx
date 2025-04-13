@@ -7,9 +7,11 @@ import { SettingsDrawer } from './SettingsDrawer';
 import LoginButton from './LoginButton';
 import AuthDrawer from './AuthModal';
 import { SyncStatusIndicator } from '../../../components/common';
+import { UpgradeButton, DevMembershipTools, ProBadge } from '../../../components/membership';
 import type { Prompt } from '../../../services/prompt/types';
 import { usePromptsData } from '../../../hooks/usePromptsData';
 import { useOptimize } from '../../../hooks/useOptimize';
+import { useMembership } from '../../../hooks/useMembership';
 import type { OptimizationMode, OptimizationVersion } from '../../../services/optimization';
 
 // 默认导出App组件以便sidepanel/index.tsx可以正确导入
@@ -38,6 +40,9 @@ const App: React.FC = () => {
     updateVersion
   } = useOptimize();
 
+  // 获取会员状态
+  const { isProMember } = useMembership();
+
   // Auth drawer handlers
   const handleOpenAuth = () => {
     setIsAuthOpen(true);
@@ -45,6 +50,12 @@ const App: React.FC = () => {
 
   const handleCloseAuth = () => {
     setIsAuthOpen(false);
+  };
+
+  // 处理ProBadge点击事件
+  const handleProBadgeClick = () => {
+    // 在开发环境中显示消息，提醒使用测试工具切换状态
+    console.log('点击了PRO标识，请使用右下角的会员状态测试工具切换会员状态');
   };
 
   // 监听提示词更新消息
@@ -144,7 +155,17 @@ const App: React.FC = () => {
             <h1 className="text-lg font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent drop-shadow-md animate-[pulse_4s_ease-in-out_infinite]">AetherFlow</h1>
           </div>
           
-          <LoginButton onAuthClick={handleOpenAuth} />
+          <div className="flex items-center">
+            {/* PRO标识，显示在用户头像左侧 */}
+            <div className="mr-2">
+              <ProBadge 
+                isActive={isProMember}
+                onClick={handleProBadgeClick}
+                size="sm"
+              />
+            </div>
+            <LoginButton onAuthClick={handleOpenAuth} />
+          </div>
         </div>
       </header>
 
@@ -172,7 +193,13 @@ const App: React.FC = () => {
       </main>
 
       <footer className="p-2 border-t border-magic-700/30 flex justify-between items-center">
-        <SyncStatusIndicator className="ml-2" />
+        <div className="flex items-center">
+          <SyncStatusIndicator className="ml-2" />
+          {/* 升级按钮，位于云存储图标右侧 */}
+          <div className="ml-2">
+            <UpgradeButton isProMember={isProMember} />
+          </div>
+        </div>
         <button 
           onClick={() => setIsSettingsOpen(true)}
           className="flex items-center text-magic-400 hover:text-magic-200"
@@ -192,6 +219,9 @@ const App: React.FC = () => {
         isOpen={isAuthOpen}
         onClose={handleCloseAuth}
       />
+
+      {/* 开发环境专用的会员状态测试工具 */}
+      <DevMembershipTools />
     </div>
   );
 };

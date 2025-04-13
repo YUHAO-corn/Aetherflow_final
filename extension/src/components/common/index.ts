@@ -14,4 +14,7 @@ export * from './MagicParticles';
 export * from './HoverEffect';
 
 // 导出同步状态指示器组件
-export { default as SyncStatusIndicator } from './SyncStatusIndicator'; 
+export { default as SyncStatusIndicator } from './SyncStatusIndicator';
+
+// 会员相关组件
+export { ProBadge, UpgradeButton, DevMembershipTools } from '../membership'; 

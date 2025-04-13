@@ -70,7 +70,7 @@ date: 2023-12-01
           - 集成到Navigation组件中
         
         acceptance_criteria:
-          - ProBadge组件在导航栏正确显示
+          - ProBadge组件在用户头像左边正确显示
           - 免费用户显示灰色未激活状态
           - 组件样式与设计规范一致
           - 鼠标悬停有适当的视觉反馈

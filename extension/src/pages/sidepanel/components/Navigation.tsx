@@ -1,5 +1,7 @@
 import React from 'react';
 import { BookMarked, Wand2 } from 'lucide-react';
+import { ProBadge } from '../../../components/membership';
+import { useMembership } from '../../../hooks/useMembership';
 
 interface NavigationProps {
   activeTab: 'library' | 'optimize';
@@ -7,6 +9,9 @@ interface NavigationProps {
 }
 
 export function Navigation({ activeTab, onTabChange }: NavigationProps) {
+  // 获取会员状态
+  const { isProMember } = useMembership();
+  
   return (
     <div className="flex border-b border-magic-700/30">
       <button

@@ -8,11 +8,82 @@ export type { OptimizationMode } from '../optimizationService';
 import { OptimizationVersion, OptimizationError } from './types';
 export type { OptimizationVersion, OptimizationError } from './types';
 import { generateTitleForPrompt } from '../prompt/actions';
-import { paymentService } from "../payment";
-import { QuotaExceededError, QuotaType } from "../payment/types";
+
+// 定义配额相关类型
+export enum QuotaType {
+  OPTIMIZE = 'optimize',
+  STORAGE = 'storage'
+}
+
+export class QuotaExceededError extends Error {
+  constructor(
+    message: string,
+    public quotaType: QuotaType,
+    public currentCount: number,
+    public limit: number
+  ) {
+    super(message);
+    this.name = 'QuotaExceededError';
+  }
+}
 
 // 导出版本管理服务的所有功能
 export * from './versionManager';
+
+// 默认优化配额设置
+const FREE_OPTIMIZE_LIMIT = 3;
+const PRO_OPTIMIZE_LIMIT = 50;
+
+// 在localStorage中存储优化使用次数的键名
+const OPTIMIZE_COUNT_KEY = 'optimize_count';
+const OPTIMIZE_RESET_TIME_KEY = 'optimize_reset_time';
+
+// 默认的会员状态 - 开发环境使用
+const DEFAULT_IS_PREMIUM = false; // 默认为免费用户
+
+/**
+ * 获取优化配额信息
+ * 
+ * @returns 配额信息
+ */
+async function getOptimizeQuotaInfo(): Promise<{
+  currentCount: number;
+  limit: number;
+  isLimitReached: boolean;
+  isPremium: boolean;
+  resetsAt: number | null;
+}> {
+  // 检查是否需要重置计数器（每24小时）
+  const resetTimeStr = localStorage.getItem(OPTIMIZE_RESET_TIME_KEY);
+  const resetTime = resetTimeStr ? parseInt(resetTimeStr) : 0;
+  const now = Date.now();
+  
+  let currentCount = 0;
+  
+  // 如果超过24小时，重置计数
+  if (now - resetTime > 24 * 60 * 60 * 1000) {
+    localStorage.setItem(OPTIMIZE_COUNT_KEY, '0');
+    localStorage.setItem(OPTIMIZE_RESET_TIME_KEY, now.toString());
+  } else {
+    const countStr = localStorage.getItem(OPTIMIZE_COUNT_KEY);
+    currentCount = countStr ? parseInt(countStr) : 0;
+  }
+  
+  // 计算下次重置时间
+  const nextResetTime = resetTime + 24 * 60 * 60 * 1000;
+  
+  // 根据会员状态设置配额限制
+  const isPremium = DEFAULT_IS_PREMIUM;
+  const limit = isPremium ? PRO_OPTIMIZE_LIMIT : FREE_OPTIMIZE_LIMIT;
+  
+  return {
+    currentCount,
+    limit,
+    isLimitReached: currentCount >= limit,
+    isPremium,
+    resetsAt: nextResetTime
+  };
+}
 
 /**
  * 在执行优化前检查配额
@@ -21,7 +92,7 @@ export * from './versionManager';
 export async function checkQuotaBeforeOptimize(): Promise<void> {
   try {
     // 检查优化配额
-    const quotaInfo = await paymentService.checkOptimizeQuota();
+    const quotaInfo = await getOptimizeQuotaInfo();
     
     // 如果配额已达上限，抛出错误
     if (quotaInfo.isLimitReached) {
@@ -43,7 +114,17 @@ export async function checkQuotaBeforeOptimize(): Promise<void> {
  */
 export async function recordOptimizeUsage(): Promise<void> {
   try {
-    await paymentService.recordOptimizeUsage();
+    // 获取当前计数
+    const countStr = localStorage.getItem(OPTIMIZE_COUNT_KEY) || '0';
+    const count = parseInt(countStr) + 1;
+    
+    // 更新计数
+    localStorage.setItem(OPTIMIZE_COUNT_KEY, count.toString());
+    
+    // 如果重置时间未设置，设置重置时间
+    if (!localStorage.getItem(OPTIMIZE_RESET_TIME_KEY)) {
+      localStorage.setItem(OPTIMIZE_RESET_TIME_KEY, Date.now().toString());
+    }
   } catch (error) {
     console.error('[Optimization] 记录优化使用失败:', error);
     // 记录失败不应阻止优化功能的完成
@@ -59,7 +140,7 @@ export async function getOptimizeQuotaStatus(): Promise<{
   resetsIn: number;
   isPremium: boolean;
 }> {
-  const quotaInfo = await paymentService.checkOptimizeQuota();
+  const quotaInfo = await getOptimizeQuotaInfo();
   
   return {
     used: quotaInfo.currentCount,
