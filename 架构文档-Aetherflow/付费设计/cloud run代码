@@ -1,0 +1,324 @@
+const functions = require('@google-cloud/functions-framework');
+const admin = require('firebase-admin');
+const express = require('express');
+const cors = require('cors');
+const crypto = require('crypto');
+
+// 初始化Firebase Admin SDK
+admin.initializeApp();
+
+// Paddle API密钥（用于验证webhook签名）
+const PADDLE_PUBLIC_KEY = process.env.PADDLE_PUBLIC_KEY || '';
+
+// 创建Express应用
+const app = express();
+
+// 启用CORS
+app.use(cors({ origin: true }));
+
+// 验证Paddle Webhook签名的函数
+function verifyPaddleSignature(req) {
+  // 从请求中获取签名
+  const signature = req.body.p_signature;
+  if (!signature) {
+    console.error('No signature found in webhook payload');
+    return false;
+  }
+
+  // 删除签名字段，因为它不是签名计算的一部分
+  delete req.body.p_signature;
+
+  // 按字母顺序对字段进行排序
+  const serialized = Object.keys(req.body)
+    .sort()
+    .map(key => `${key}=${req.body[key]}`)
+    .join('&');
+
+  // 使用Paddle公钥验证签名
+  try {
+    const verifier = crypto.createVerify('sha1WithRSAEncryption');
+    verifier.update(serialized);
+    return verifier.verify(PADDLE_PUBLIC_KEY, signature, 'base64');
+  } catch (error) {
+    console.error('Error verifying signature:', error.message);
+    return false;
+  }
+}
+
+// 处理订阅创建事件
+async function handleSubscriptionCreated(payload) {
+  // 新版API数据在data字段中
+  const data = payload.data;
+  if (!data) {
+    console.error('No data found in subscription created webhook');
+    return;
+  }
+
+  const customerId = data.customer_id;
+  const subscriptionId = data.id;
+  const status = data.status;
+  const nextBillDate = data.next_billed_at;
+
+  if (!customerId) {
+    console.error('No customer_id found in subscription created webhook');
+    return;
+  }
+
+  try {
+    // 使用set而不是update，确保即使文档不存在也能正常工作
+    await admin.firestore().collection('users').doc(customerId).set({
+      subscriptionId: subscriptionId,
+      subscriptionStatus: status,
+      membershipTier: 'premium',
+      membershipExpiry: new Date(nextBillDate).getTime(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    
+    console.log(`Subscription created for customer ${customerId}, subscription ID: ${subscriptionId}`);
+  } catch (error) {
+    console.error(`Error creating subscription for ${customerId}: ${error.message}`);
+  }
+}
+
+// 处理订阅已取消事件
+async function handleSubscriptionCancelled(payload) {
+  const data = payload.data;
+  if (!data) {
+    console.error('No data found in subscription cancelled webhook');
+    return;
+  }
+
+  const customerId = data.customer_id;
+  const subscriptionId = data.id;
+
+  if (!customerId) {
+    console.error('No customer_id found in subscription cancelled webhook');
+    return;
+  }
+
+  try {
+    // 使用set而不是update
+    await admin.firestore().collection('users').doc(customerId).set({
+      subscriptionStatus: 'cancelled',
+      cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    
+    console.log(`Subscription cancelled for customer ${customerId}, subscription ID: ${subscriptionId}`);
+  } catch (error) {
+    console.error(`Error cancelling subscription for ${customerId}: ${error.message}`);
+  }
+}
+
+// 处理付款成功事件
+async function handlePaymentSucceeded(payload) {
+  const data = payload.data;
+  if (!data) {
+    console.error('No data found in payment succeeded webhook');
+    return;
+  }
+
+  const customerId = data.customer_id;
+  const transactionId = data.transaction_id;
+
+  if (!customerId) {
+    console.error('No customer_id found in payment succeeded webhook');
+    return;
+  }
+
+  try {
+    // 提取价格信息
+    let amount = null;
+    let currency = data.currency_code || 'USD';
+    
+    if (data.items && data.items.length > 0 && data.items[0].price && data.items[0].price.unit_price) {
+      amount = data.items[0].price.unit_price.amount;
+    }
+
+    // 记录支付历史
+    await admin.firestore().collection('users').doc(customerId)
+      .collection('paymentHistory').add({
+        subscriptionId: data.id,
+        transactionId: transactionId,
+        amount: amount,
+        currency: currency,
+        paymentDate: new Date(payload.occurred_at).getTime(),
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+    
+    // 更新用户的付款状态
+    await admin.firestore().collection('users').doc(customerId).set({
+      lastPaymentDate: new Date(payload.occurred_at).getTime(),
+      paymentStatus: 'paid',
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    
+    console.log(`Payment recorded for customer ${customerId}, transaction ID: ${transactionId}`);
+  } catch (error) {
+    console.error(`Error recording payment for ${customerId}: ${error.message}`);
+  }
+}
+
+// 处理订阅更新事件
+async function handleSubscriptionUpdated(payload) {
+  const data = payload.data;
+  if (!data) {
+    console.error('No data found in subscription updated webhook');
+    return;
+  }
+
+  const customerId = data.customer_id;
+  const subscriptionId = data.id;
+  const status = data.status;
+  const nextBillDate = data.next_billed_at;
+
+  if (!customerId) {
+    console.error('No customer_id found in subscription updated webhook');
+    return;
+  }
+
+  try {
+    await admin.firestore().collection('users').doc(customerId).set({
+      subscriptionId: subscriptionId,
+      subscriptionStatus: status,
+      membershipExpiry: nextBillDate ? new Date(nextBillDate).getTime() : null,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    
+    console.log(`Subscription updated for customer ${customerId}, subscription ID: ${subscriptionId}`);
+  } catch (error) {
+    console.error(`Error updating subscription for ${customerId}: ${error.message}`);
+  }
+}
+
+// 处理订阅暂停事件
+async function handleSubscriptionPaused(payload) {
+  const data = payload.data;
+  if (!data) {
+    console.error('No data found in subscription paused webhook');
+    return;
+  }
+
+  const customerId = data.customer_id;
+  const subscriptionId = data.id;
+
+  if (!customerId) {
+    console.error('No customer_id found in subscription paused webhook');
+    return;
+  }
+
+  try {
+    await admin.firestore().collection('users').doc(customerId).set({
+      subscriptionStatus: 'paused',
+      pausedAt: new Date(data.paused_at || payload.occurred_at).getTime(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    
+    console.log(`Subscription paused for customer ${customerId}, subscription ID: ${subscriptionId}`);
+  } catch (error) {
+    console.error(`Error pausing subscription for ${customerId}: ${error.message}`);
+  }
+}
+
+// 处理订阅恢复事件
+async function handleSubscriptionResumed(payload) {
+  const data = payload.data;
+  if (!data) {
+    console.error('No data found in subscription resumed webhook');
+    return;
+  }
+
+  const customerId = data.customer_id;
+  const subscriptionId = data.id;
+  const status = data.status;
+  const nextBillDate = data.next_billed_at;
+
+  if (!customerId) {
+    console.error('No customer_id found in subscription resumed webhook');
+    return;
+  }
+
+  try {
+    await admin.firestore().collection('users').doc(customerId).set({
+      subscriptionStatus: status,
+      membershipExpiry: nextBillDate ? new Date(nextBillDate).getTime() : null,
+      resumedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+    
+    console.log(`Subscription resumed for customer ${customerId}, subscription ID: ${subscriptionId}`);
+  } catch (error) {
+    console.error(`Error resuming subscription for ${customerId}: ${error.message}`);
+  }
+}
+
+// 注册HTTP函数
+functions.http('paddle-webhooks', (req, res) => {
+  // 只处理POST请求，其他请求类型直接返回欢迎信息
+  if (req.method !== 'POST') {
+    res.status(200).send('Hello from Paddle Webhook Handler!');
+    return;
+  }
+  
+  // 确保请求体存在
+  if (!req.body) {
+    console.log('接收到空请求体');
+    res.status(200).send('Received but empty body');
+    return;
+  }
+  
+  // 验证是否为Paddle Webhook数据
+  if (!req.body.event_type) {
+    console.log('请求体不包含event_type，可能不是有效的Paddle webhook:', JSON.stringify(req.body).substring(0, 200) + '...');
+    res.status(200).send('Received but not a valid Paddle webhook');
+    return;
+  }
+  
+  const eventType = req.body.event_type;
+  console.log('处理Paddle webhook事件:', eventType);
+  
+  // 验证请求签名（生产环境中启用）
+  // if (!verifyPaddleSignature(req)) {
+  //   console.error('Invalid webhook signature');
+  //   return res.status(401).send('Invalid signature');
+  // }
+  
+  try {
+    // 根据事件类型处理不同的webhook
+    switch (eventType) {
+      case 'subscription.created':
+        handleSubscriptionCreated(req.body);
+        break;
+      case 'subscription.updated':
+        handleSubscriptionUpdated(req.body);
+        break;
+      case 'subscription.cancelled':
+        handleSubscriptionCancelled(req.body);
+        break;
+      case 'subscription.paused':
+        handleSubscriptionPaused(req.body);
+        break;
+      case 'subscription.resumed':
+        handleSubscriptionResumed(req.body);
+        break;
+      case 'subscription.payment.succeeded':
+        handlePaymentSucceeded(req.body);
+        break;
+      // 可以添加更多事件处理
+      default:
+        console.log(`未处理的webhook事件类型: ${eventType}`);
+    }
+    
+    // 返回成功响应
+    res.status(200).send('Webhook processed successfully');
+  } catch (error) {
+    // 即使出错也返回200，避免Paddle重试
+    console.error(`处理webhook时出错: ${error.message}`);
+    res.status(200).send('Error processing webhook, but acknowledged');
+  }
+});
+
+// 添加一个测试端点
+functions.http('helloWorld', (req, res) => {
+  res.send('Hello from Paddle Webhook Handler!');
+});
