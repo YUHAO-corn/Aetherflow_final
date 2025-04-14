@@ -16,12 +16,31 @@ Client-side tokens:
 live_74080bad93a7d3b962f98a52c93
 
 ```
+之前用了cloud run的时候建立的webhook
 
+正式用：
 Destination id：
 ntfset_01jrfxc0gg6e9n6ejc9s70ptwn
 
 Destination url:
 https://paddle-webhooks-423266303314.us-central1.run.app
 
+测试用：
+Destination id：
+ntfset_01jrfy9rajmtwc7501nd2qkcs9
+
+Destination url:
+https://paddle-webhooks-423266303314.us-central1.run.app
+
+```
+
+```
+现在用GitHub的时候建立的webhook
+
+Destination id：
+ntfset_01jrsptqfw8cwx8r71kwnpv5d0
+
+Destination url:
+https://api.aetherflow-app.com/webhook/paddle
 ```
 
