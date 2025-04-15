@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { membershipService, MembershipState, MembershipQuota } from '../services/membership';
+import { authService, User } from '../services/auth';
 
 /**
  * 会员状态钩子返回值接口
@@ -42,6 +43,31 @@ export function useMembership(): UseMembershipReturn {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<Error | null>(null);
 
+  // 刷新会员状态
+  const refresh = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // 刷新会员状态
+      const state = await membershipService.refreshMembershipState();
+      setMembershipState(state);
+      
+      // 更新Pro状态
+      const isPro = await membershipService.isProMember();
+      setIsProMember(isPro);
+      
+      // 更新会员权益配额
+      const memberQuota = await membershipService.getMembershipQuota();
+      setQuota(memberQuota);
+    } catch (err) {
+      console.error('[useMembership] 刷新会员状态失败:', err);
+      setError(err instanceof Error ? err : new Error('刷新会员状态失败'));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   // 初始化加载会员状态
   useEffect(() => {
     let isMounted = true;
@@ -83,7 +109,7 @@ export function useMembership(): UseMembershipReturn {
     loadMembershipState();
     
     // 订阅会员状态变更
-    const unsubscribe = membershipService.onMembershipChange(async (state) => {
+    const unsubscribeMembership = membershipService.onMembershipChange(async (state) => {
       if (isMounted) {
         setMembershipState(state);
         
@@ -98,36 +124,27 @@ export function useMembership(): UseMembershipReturn {
       }
     });
     
+    // 监听认证状态变化
+    const unsubscribeAuth = authService.onAuthStateChanged(async (user: User | null) => {
+      if (!isMounted) return;
+      
+      if (user) {
+        // 用户登录，尝试从服务器获取最新会员状态
+        console.log('[useMembership] 用户登录，刷新会员状态');
+        await refresh();
+      } else {
+        // 用户登出，重新加载本地会员状态
+        console.log('[useMembership] 用户登出，重置为本地会员状态');
+        loadMembershipState();
+      }
+    });
+    
     return () => {
       isMounted = false;
-      unsubscribe();
+      unsubscribeMembership();
+      unsubscribeAuth();
     };
-  }, []);
-
-  // 刷新会员状态
-  const refresh = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      // 刷新会员状态
-      const state = await membershipService.refreshMembershipState();
-      setMembershipState(state);
-      
-      // 更新Pro状态
-      const isPro = await membershipService.isProMember();
-      setIsProMember(isPro);
-      
-      // 更新会员权益配额
-      const memberQuota = await membershipService.getMembershipQuota();
-      setQuota(memberQuota);
-    } catch (err) {
-      console.error('[useMembership] 刷新会员状态失败:', err);
-      setError(err instanceof Error ? err : new Error('刷新会员状态失败'));
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  }, [refresh]);
 
   // 开发者工具方法
   const _devTools = {
