@@ -1,39 +1,87 @@
-产品ID:
-pro_01jrcqtf7wa1mwr0hy4h31p9v
-月度计划ID:
-pri_01jrfcwajex91zya4346h9ek32
-年度计划ID:
-pri_01jrfcz25f4zdktr7rtt1pnzpw
+# Paddle 配置信息
 
+## 生产环境 (Production)
+
+### 账户信息
+- **Vendor ID / Seller ID**: 223800
+- **API Key**: e4a5866dc2b41f75a90333d4664979026c0ea1b65140d7bf7d
+- **Client-side Token**: live_74080bad93a7d3b962f98a52c93
+
+### 产品和计划
+- **产品ID**: pro_01jrcqtf7wa1mwr0hy4h31p9v
+- **月度计划ID**: pri_01jrfcwajex91zya4346h9ek32
+- **年度计划ID**: pri_01jrfcz25f4zdktr7rtt1pnzpw
+
+### Webhook 配置
+- **Destination ID**: ntfset_01jrfxc0gg6e9n6ejc9s70ptwn
+- **Destination URL**: https://paddle-webhooks-423266303314.us-central1.run.app
+
+### 其他信息
+- **拓展ID（开发者环境临时）**: ldpadjcdbfndeghcklogoppmbnmphbki
+
+## 沙盒环境 (Sandbox)
+
+### 访问地址
+- **控制台地址**: https://sandbox.paddle.com/
+
+### 账户信息
+- **Vendor ID / Seller ID**: 29838
+- **API Key**: d614bb3a2711aab445f39201466015df2d88c9776c3d761fe3
+- **Client-side Token**: test_c624a7a4c9993fc8965d9c37db6
+
+### 产品和计划
+- **产品ID**: pro_01jrw0cx348x89jy2y47fmfeyx
+- **月度计划ID**: pri_01jrw0em3kydrg4rw523w6s574
+- **年度计划ID**: pri_01jrw0f7y1kfw9jc967eswbnrs
+
+### Webhook 配置
+- **Destination ID**: ntfset_01jrw072nyyvf2cxs3ewfrhnem
+
+## 已废弃的配置
+
+- **自定义域名Webhook**:
+  - Destination ID: ntfset_01jrsptqfw8cwx8r71kwnpv5d0
+  - Destination URL: https://api.aetherflow-app.com/webhook/paddle
+
+## 集成说明
+
+### 本地开发和沙盒环境
+```javascript
+// 初始化Paddle (本地开发使用沙盒环境)
+function initializePaddle() {
+    const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const vendorId = isLocalhost ? '29838' : '223800'; // 沙盒 : 生产
+    
+    const paddleOptions = { 
+        vendor: vendorId, 
+        debug: isLocalhost
+    };
+    
+    // 添加适当的client token
+    if (!isLocalhost) {
+        paddleOptions.token = 'live_74080bad93a7d3b962f98a52c93'; // 生产环境
+    } else {
+        paddleOptions.token = 'test_c624a7a4c9993fc8965d9c37db6'; // 沙盒环境
+        Paddle.Environment.set('sandbox'); // 设置沙盒环境
+    }
+    
+    Paddle.Setup(paddleOptions);
+}
 ```
 
-API key：
-e4a5866dc2b41f75a90333d4664979026c0ea1b65140d7bf7d
+### 测试卡信息 (仅限沙盒环境)
+- **推荐测试卡**: 4000 0566 5566 5556
+- **无3DS验证卡**: 4242 4242 4242 4242
+- **有3DS验证卡**: 4000 0038 0000 0446
+- **拒绝支付卡**: 4000 0000 0000 0002
 
-```
+任意有效的到期日和CVV即可（例如：12/25 和 123）。
 
-Client-side tokens:
-live_74080bad93a7d3b962f98a52c93
+## 官方文档
+https://developer.paddle.com/build/onboarding/overview
+https://developer.paddle.com/build/onboarding/set-up-checklist
+https://developer.paddle.com/concepts/sell/self-serve-checkout
+https://developer.paddle.com/build/checkout/build-pricing-page
+https://developer.paddle.com/build/checkout/build-overlay-checkout
 
-```
-之前用了cloud run的时候建立的webhook，现在继续沿用
-
-正式用+测试用：
-Destination id：
-ntfset_01jrfxc0gg6e9n6ejc9s70ptwn
-
-Destination url:
-https://paddle-webhooks-423266303314.us-central1.run.app
-
-```
-
-```
-自定义域名，但由于懒得搭建新的cloud run，这个废弃了
-
-Destination id：
-ntfset_01jrsptqfw8cwx8r71kwnpv5d0
-
-Destination url:
-https://api.aetherflow-app.com/webhook/paddle
-```
 

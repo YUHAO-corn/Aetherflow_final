@@ -11,6 +11,7 @@ import { initializeFirebase } from '../services/auth/firebase';
 import { cloudStorageService } from '../services/storage/cloudStorage';
 import { setStorageMode } from '../services/storage';
 import { getFirebaseAuth } from '../services/auth/firebase';
+import { membershipService } from '../services/membership';
 
 // 为Window接口添加新属性声明
 declare global {
@@ -967,3 +968,97 @@ async function processPendingCaptures() {
     console.error('[AetherFlow] 处理暂存的捕获请求时出错:', error);
   }
 }
+
+// 添加支付成功消息处理
+chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
+  console.log('[AetherFlow] 收到外部消息:', message);
+  
+  // 处理支付成功消息
+  if (message && message.type === 'PAYMENT_SUCCESS') {
+    console.log('[AetherFlow] 收到支付成功消息:', message);
+    
+    // 处理支付成功
+    handlePaymentSuccess(message)
+      .then(result => {
+        console.log('[AetherFlow] 支付成功处理完成:', result);
+        sendResponse({ success: true, message: '支付成功处理完成' });
+      })
+      .catch(error => {
+        console.error('[AetherFlow] 处理支付失败:', error);
+        sendResponse({ success: false, error: String(error) });
+      });
+    
+    return true; // 异步响应
+  }
+  
+  // 不处理其他消息
+  return false;
+});
+
+// 支付成功处理函数
+async function handlePaymentSuccess(data: any): Promise<boolean> {
+  try {
+    console.log('[AetherFlow] 处理支付成功:', data);
+    
+    // 获取计划类型和检查ID
+    const planType = data.planType || 'monthly';
+    const checkoutId = data.checkoutId || '';
+    
+    if (!checkoutId) {
+      console.error('[AetherFlow] 支付数据不完整，缺少checkoutId');
+      return false;
+    }
+    
+    // 计算到期时间
+    const now = Date.now();
+    const monthInMs = 30 * 24 * 60 * 60 * 1000; // 30天
+    const yearInMs = 365 * 24 * 60 * 60 * 1000; // 365天
+    
+    const expiresAt = planType === 'annual' 
+      ? now + yearInMs
+      : now + monthInMs;
+    
+    // 更新会员状态
+    await membershipService.handleSuccessfulPayment({
+      subscriptionId: checkoutId,
+      customerId: `cus_${Date.now()}`, // 生成临时客户ID
+      plan: planType === 'annual' ? 'annual' : 'monthly',
+      expiresAt
+    });
+    
+    console.log('[AetherFlow] 支付成功处理完成，会员状态已更新');
+    return true;
+  } catch (error) {
+    console.error('[AetherFlow] 处理支付失败:', error);
+    throw error;
+  }
+}
+
+// 检查localStorage中是否有支付成功标记
+chrome.runtime.onStartup.addListener(() => {
+  try {
+    const paymentSuccess = localStorage.getItem('aetherflow_payment_success');
+    if (paymentSuccess === 'true') {
+      const checkoutId = localStorage.getItem('aetherflow_checkout_id') || '';
+      const planType = localStorage.getItem('aetherflow_plan_type') || 'monthly';
+      
+      console.log('[AetherFlow] 检测到本地存储的支付成功标记，处理支付:', { checkoutId, planType });
+      
+      // 处理支付成功
+      handlePaymentSuccess({ checkoutId, planType })
+        .then(() => {
+          // 清除本地标记
+          localStorage.removeItem('aetherflow_payment_success');
+          localStorage.removeItem('aetherflow_checkout_id');
+          localStorage.removeItem('aetherflow_plan_type');
+          
+          console.log('[AetherFlow] 本地存储的支付成功已处理');
+        })
+        .catch(error => {
+          console.error('[AetherFlow] 处理本地存储的支付失败:', error);
+        });
+    }
+  } catch (error) {
+    console.error('[AetherFlow] 检查本地支付标记失败:', error);
+  }
+});

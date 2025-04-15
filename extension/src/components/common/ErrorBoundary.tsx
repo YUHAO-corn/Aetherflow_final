@@ -56,16 +56,16 @@ export class ErrorBoundary extends Component<Props, State> {
         <div className="p-4 flex flex-col items-center justify-center min-h-[200px] text-center bg-magic-800/50 border border-red-800/50 rounded-lg">
           <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
           <h2 className="text-lg font-medium text-magic-200 mb-2">
-            出现了一些问题
+            Something went wrong
           </h2>
           <p className="text-sm text-magic-400 mb-4">
-            应用遇到了错误，请尝试刷新页面
+            The application encountered an error. Please try refreshing the page.
           </p>
           <button
             onClick={() => window.location.reload()}
             className="px-4 py-2 bg-magic-700 hover:bg-magic-600 text-magic-200 rounded-md transition-colors"
           >
-            刷新页面
+            Refresh page
           </button>
         </div>
       );

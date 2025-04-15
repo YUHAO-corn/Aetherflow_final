@@ -70,8 +70,8 @@ export const UpgradeButton: React.FC<UpgradeButtonProps> = ({
     <button
       className={getButtonClasses()}
       onClick={handleClick}
-      aria-label={isProMember ? 'Pro 会员已激活' : '升级到 Pro 版本'}
-      title={isProMember ? 'Pro 会员已激活' : '升级到 Pro 版本'}
+      aria-label={isProMember ? 'Pro Membership Activated' : 'Upgrade to Pro Version'}
+      title={isProMember ? 'Pro Membership Activated' : 'Upgrade to Pro Version'}
     >
       {isProMember ? (
         <Zap size={18} className="animate-pulse" />
