@@ -621,138 +621,115 @@ date: 2023-12-01
         - 加密策略: 无需额外加密(不包含敏感信息)
         - 缓存策略: 每次启动和关键操作时验证
     
-    # 配额数据模型
-    quota_model:
-      description: 描述用户资源使用配额的数据结构
-      schema: |
-        interface QuotaLimits {
-          // 提示词存储上限
-          maxPrompts: number;
-          
-          // 每日优化次数上限
-          dailyOptimizations: number;
-          
-          // 是否允许导出功能
-          canExport: boolean;
-          
-          // 是否有优先支持特权
-          hasPrioritySupport: boolean;
-        }
-        
-        interface QuotaUsage {
-          // 已存储提示词数量
-          promptCount: number;
-          
-          // 今日已使用优化次数
-          optimizationsUsedToday: number;
-          
-          // 优化次数重置时间
-          optimizationResetTime: number;
-          
-          // 上次使用时间
-          lastUsedAt: number;
-        }
-      
-      constants:
-        free_limits:
-          maxPrompts: 5
-          dailyOptimizations: 3
-          canExport: false
-          hasPrioritySupport: false
-        
-        pro_limits:
-          maxPrompts: 100
-          dailyOptimizations: 50
-          canExport: true
-          hasPrioritySupport: true
-      
-      storage_strategy:
-        - 本地存储: chrome.storage.local
-        - 使用计数: 操作执行前增加计数
-        - 重置机制: 基于用户本地时区每日0点重置
+      actual_implementation:
+        - 已在extension/src/services/membership/types.ts中完整实现
+        - 添加了会员状态类型和订阅计划类型定义
+        - 提供了默认免费会员状态的常量定义
+        - 实现了自动过期检测机制
+        - 网络离线时依赖本地存储，恢复后自动同步
     
-    # 订阅计划数据模型
-    subscription_plan:
-      description: 描述可用订阅计划的数据结构
-      schema: |
-        interface SubscriptionPlan {
-          // 计划ID(用于支付系统)
-          id: string;
+    # 同步状态类型
+    sync_status:
+      description: 描述会员状态同步的当前状态
+      implementation: |
+        // 同步状态类型
+        type SyncStatus = 'idle' | 'syncing' | 'synced' | 'error' | 'offline';
           
-          // 计划名称: monthly(月付), annual(年付)
-          name: 'monthly' | 'annual';
+        // 默认的服务器同步间隔（24小时）
+        const DEFAULT_SYNC_INTERVAL = 24 * 60 * 60 * 1000;
           
-          // 价格(美元)
-          price: number;
-          
-          // 周期(天数)
-          interval: number;
-          
-          // 显示名称
-          displayName: string;
-          
-          // 是否推荐(在UI中突出显示)
-          isRecommended: boolean;
-          
-          // 折扣信息(相比另一计划)
-          discount?: {
-            percent: number;
-            reference: 'monthly' | 'annual';
-          };
-        }
+        // 上次同步时间的存储键
+        const LAST_SYNC_TIME_KEY = 'membership_last_sync_time';
       
-      constants:
-        plans:
-          - id: 'pro_monthly'
-            name: 'monthly'
-            price: 3.99
-            interval: 30
-            displayName: '月度订阅'
-            isRecommended: false
-          
-          - id: 'pro_annual'
-            name: 'annual'
-            price: 39.99
-            interval: 365
-            displayName: '年度订阅'
-            isRecommended: true
-            discount:
-              percent: 17
-              reference: 'monthly'
+      sync_mechanisms:
+        - 定时自动同步: 每24小时自动同步一次
+        - 网络恢复同步: 从离线恢复后自动同步
+        - 登录触发同步: 用户登录时自动从服务器获取最新状态
+        - 状态更新同步: 本地状态更新后异步同步到服务器
+        - 支付成功同步: 支付成功后强制同步到服务器
     
-    # 支付结果数据模型
-    payment_result:
-      description: 描述支付处理结果的数据结构
-      schema: |
-        interface PaymentResult {
-          // 是否成功
-          success: boolean;
-          
-          // 会话ID
-          sessionId: string;
-          
-          // 订单ID
-          orderId?: string;
-          
-          // 订阅ID
-          subscriptionId?: string;
-          
-          // 客户ID
-          customerId?: string;
-          
-          // 状态
-          status: 'completed' | 'pending' | 'failed';
-          
-          // 消息(错误原因或成功提示)
-          message?: string;
-          
-          // 订阅信息
-          subscription?: {
-            plan: 'monthly' | 'annual';
-            startedAt: number;
-            expiresAt: number;
+    # 网络状态监控
+    network_monitoring:
+      description: 监控网络状态变化，确保离线与在线时的服务可用性
+      implementation: |
+        /**
+         * 设置网络监听器
+         * 网络恢复时尝试同步
+         */
+        private setupNetworkListener(): void {
+          if (typeof window !== 'undefined') {
+            window.addEventListener('online', this.handleNetworkOnline.bind(this));
+            window.addEventListener('offline', () => {
+              this.syncStatus = 'offline';
+              console.log('[MembershipService] 网络离线，暂停同步');
+            });
           }
         }
+        
+        /**
+         * 处理网络恢复在线
+         */
+        private async handleNetworkOnline(): Promise<void> {
+          console.log('[MembershipService] 网络恢复在线，尝试同步会员状态');
+          this.syncStatus = 'idle';
+          
+          try {
+            // 检查上次同步时间，如果超过12小时，则进行同步
+            const lastSyncTime = await this.getLastSyncTime();
+            const now = Date.now();
+            
+            if (now - lastSyncTime > 12 * 60 * 60 * 1000) { // 12小时
+              await this.refreshMembershipState();
+            }
+          } catch (error) {
+            console.error('[MembershipService] 网络恢复后同步失败:', error);
+          }
+        }
+      
+      auto_sync:
+        - 设计意图: 确保用户会员状态始终与服务器保持一致
+        - 关键场景: 
+            1. 用户在多设备上使用时保持状态一致
+            2. 支付事件发生后及时更新本地状态
+            3. 网络不稳定时保持服务可用性
+        - 实现方式:
+            1. 使用window事件监听网络状态变化
+            2. 网络恢复后自动检查同步时间间隔
+            3. 使用setInterval实现定期同步
+        - 优化策略:
+            1. 阻止重复同步请求
+            2. 同步失败时使用本地状态作为回退
+            3. 非阻塞式异步同步减少对用户体验的影响
+    
+    # 防抖处理
+    debounce_handling:
+      description: 避免短时间内频繁触发状态更新通知
+      implementation: |
+        /**
+         * 通知所有观察者
+         * 使用防抖处理，避免短时间内多次通知
+         */
+        private notifyObservers = debounce((state: MembershipState): void => {
+          observers.forEach(callback => {
+            try {
+              callback(state);
+            } catch (error) {
+              console.error('[MembershipService] 通知观察者失败:', error);
+            }
+          });
+        }, 100);  // 100ms防抖时间
+      
+      benefits:
+        - 减少UI重渲染频率，提高性能
+        - 避免由于频繁状态更新导致的闪烁
+        - 确保观察者收到最终稳定的状态
+        - 降低对React渲染周期的干扰
+      
+      implementation_details:
+        - 使用自定义debounce工具函数(utils/debounce.ts)
+        - 配置100ms的延迟时间
+        - 确保在连续调用结束后才执行通知
+        - 错误隔离确保单个观察者失败不影响其他观察者
 
 ## 状态管理设计:
   state_management:
@@ -763,30 +740,46 @@ date: 2023-12-01
         - 采用观察者模式进行状态变更通知
         - 单一数据源确保状态一致性
         - 本地缓存与服务器验证相结合
+        - 防抖处理避免短时间内频繁通知
+        - 网络状态监听确保离线与在线无缝切换
       
       implementation: |
-        // 会员状态管理类
-        class MembershipStateManager {
-          private state: MembershipState;
-          private listeners: Array<(state: MembershipState) => void> = [];
+        // 会员状态管理服务
+        class MembershipService {
+          private currentState: MembershipState | null = null;
+          private maxRetryCount = 3;
+          private retryDelay = 500; // 毫秒
+          private syncStatus: SyncStatus = 'idle';
+          private autoSyncInterval: number | null = null;
+          private syncIntervalTime: number = 24 * 60 * 60 * 1000; // 24小时
           
-          // 获取当前状态
-          getState(): MembershipState { ... }
+          constructor() {
+            // 初始化启动自动同步
+            this.setupAutoSync();
+            // 监听网络状态变化
+            this.setupNetworkListener();
+          }
           
-          // 更新状态并通知监听器
-          updateState(newState: Partial<MembershipState>): void { ... }
+          // 获取当前会员状态
+          async getCurrentMembership(): Promise<MembershipState> { ... }
           
-          // 添加状态变化监听器
-          subscribe(listener: (state: MembershipState) => void): () => void { ... }
+          // 检查用户是否为Pro会员
+          async isProMember(): Promise<boolean> { ... }
           
-          // 从服务器验证状态
-          async verifyStateWithServer(): Promise<void> { ... }
+          // 更新会员状态
+          async updateMembershipState(updates: Partial<MembershipState>): Promise<MembershipState> { ... }
           
-          // 持久化状态到本地存储
-          private persistState(): Promise<void> { ... }
+          // 从服务器验证会员状态
+          async verifyMembershipWithServer(): Promise<MembershipState | null> { ... }
           
-          // 从本地存储加载状态
-          private loadStateFromStorage(): Promise<void> { ... }
+          // 刷新会员状态(从服务器获取最新状态)
+          async refreshMembershipState(): Promise<MembershipState> { ... }
+          
+          // 订阅会员状态变化
+          onMembershipChange(callback: MembershipObserver): () => void { ... }
+          
+          // 使用防抖处理的通知观察者方法
+          private notifyObservers = debounce((state: MembershipState): void => { ... }, 100);
         }
     
     # 状态同步策略
@@ -797,34 +790,101 @@ date: 2023-12-01
         - 关键操作同步：支付完成、配额检查等关键点强制同步
         - 乐观本地更新：本地立即更新状态，异步确认服务器状态
         - 冲突解决策略：服务器状态优先，本地状态作为回退
+        - 网络恢复同步：检测网络从离线恢复后自动同步
+        - 同步状态跟踪：维护最后同步时间和当前同步状态
       
       implementation: |
-        async function syncMembershipState() {
+        /**
+         * 将本地会员状态同步到Firestore
+         * 仅在用户登录时进行
+         */
+        private async syncStateToServer(state: MembershipState): Promise<void> {
           try {
-            // 尝试从服务器获取最新状态
-            const serverState = await apiClient.getMembershipState();
+            const currentUser = await authService.getCurrentUser();
+            if (!currentUser) {
+              // 用户未登录，无法同步到服务器
+              return;
+            }
             
-            // 获取本地状态
-            const localState = await storageService.getMembershipState();
+            const db = getFirestore(getApp());
+            const userDoc = doc(db, 'users', currentUser.uid);
             
-            // 合并状态(服务器优先)
-            const mergedState = {
-              ...localState,
-              ...serverState,
-              lastVerifiedAt: Date.now()
+            // 更新用户文档中的会员信息
+            await setDoc(userDoc, {
+              membership: {
+                status: state.status,
+                plan: state.plan,
+                startedAt: state.startedAt,
+                expiresAt: state.expiresAt,
+                cancelAtPeriodEnd: state.cancelAtPeriodEnd,
+                subscriptionId: state.subscriptionId,
+                customerId: state.customerId,
+                updatedAt: Date.now()
+              }
+            }, { merge: true });
+            
+            console.log('[MembershipService] 会员状态已同步到服务器');
+          } catch (error) {
+            console.error('[MembershipService] 同步状态到服务器失败:', error);
+            throw error;
+          }
+        }
+    
+        /**
+         * 从服务器验证会员状态
+         */
+        async verifyMembershipWithServer(): Promise<MembershipState | null> {
+          if (this.syncStatus === 'syncing') {
+            console.log('[MembershipService] 正在进行同步，跳过此次验证');
+            return null;
+          }
+          
+          this.syncStatus = 'syncing';
+          
+          try {
+            const currentUser = await authService.getCurrentUser();
+            if (!currentUser) {
+              // 用户未登录，无法从服务器验证
+              this.syncStatus = 'idle';
+              return null;
+            }
+            
+            const db = getFirestore(getApp());
+            const userDoc = doc(db, 'users', currentUser.uid);
+            const docSnap = await getDoc(userDoc);
+            
+            if (!docSnap.exists() || !docSnap.data().membership) {
+              console.log('[MembershipService] 服务器上无会员记录');
+              this.syncStatus = 'synced';
+              await this.updateLastSyncTime();
+              return null;
+        }
+    
+            const serverMembership = docSnap.data().membership;
+            
+            // 构建新的会员状态(服务器数据优先)
+            const newState: MembershipState = {
+              status: serverMembership.status || 'free',
+              plan: serverMembership.plan || null,
+              startedAt: serverMembership.startedAt || null,
+              expiresAt: serverMembership.expiresAt || null,
+              cancelAtPeriodEnd: serverMembership.cancelAtPeriodEnd || false,
+              lastVerifiedAt: Date.now(),
+              subscriptionId: serverMembership.subscriptionId || null,
+              customerId: serverMembership.customerId || null
             };
             
             // 更新本地状态
-            await storageService.setMembershipState(mergedState);
+            await this.saveMembershipState(newState);
             
-            // 通知状态变化
-            membershipStateManager.updateState(mergedState);
+            this.syncStatus = 'synced';
+            await this.updateLastSyncTime();
             
-            return mergedState;
+            return newState;
           } catch (error) {
-            // 服务器验证失败，使用本地状态
-            console.error('Failed to sync membership state:', error);
-            return membershipStateManager.getState();
+            console.error('[MembershipService] 从服务器验证会员状态失败:', error);
+            this.syncStatus = 'error';
+            return null;
           }
         }
     
@@ -834,30 +894,71 @@ date: 2023-12-01
       implementation:
         - 前端权限控制: UI显示/隐藏、操作允许/禁止
         - 服务层权限控制: 业务逻辑中的配额和权限检查
-        - 全局HOC组件: 用于包装需要会员权限的React组件
+        - 全局Hook: useMembership钩子提供状态和权限检查
+        - 自动过期检测: 主动检测会员过期并更新状态
       
-      example_code: |
-        // React高阶组件示例 - 会员功能访问控制
-        function withProMemberAccess<P>(
-          Component: React.ComponentType<P>,
-          fallback: React.ReactNode = <UpgradePrompt />
-        ) {
-          return function ProProtectedComponent(props: P) {
-            const { isProMember, loading } = useMembership();
+      actual_implementation: |
+        // useMembership钩子提供会员状态访问
+        export function useMembership(): UseMembershipReturn {
+          const [membershipState, setMembershipState] = useState<MembershipState | null>(null);
+          const [isProMember, setIsProMember] = useState<boolean>(false);
+          const [quota, setQuota] = useState<MembershipQuota>({
+            maxPrompts: 5,
+            dailyOptimizations: 3,
+            canExport: false,
+            hasPrioritySupport: false
+          });
+          
+          // 初始化加载会员状态
+          useEffect(() => {
+            // 订阅会员状态变更
+            const unsubscribeMembership = membershipService.onMembershipChange(async (state) => {
+              // 状态变更时更新UI组件
+            });
             
-            // 加载中显示加载状态
-            if (loading) return <LoadingSpinner />;
+            // 监听认证状态变化
+            const unsubscribeAuth = authService.onAuthStateChanged(async (user) => {
+              if (user) {
+                // 用户登录，尝试从服务器获取最新会员状态
+                await refresh();
+              } else {
+                // 用户登出，重新加载本地会员状态
+                loadMembershipState();
+              }
+            });
             
-            // 非会员显示升级提示
-            if (!isProMember) return fallback;
-            
-            // 会员显示实际组件
-            return <Component {...props} />;
+            return () => {
+              unsubscribeMembership();
+              unsubscribeAuth();
+            };
+          }, []);
+          
+          // 组件API
+          return {
+            membershipState,
+            isProMember,
+            quota,
+            loading,
+            error,
+            refresh
           };
         }
         
-        // 使用示例
-        const ExportFeature = withProMemberAccess(ExportComponent);
+        // 会员权限检查实现
+        async function isProMember(): Promise<boolean> {
+          const membershipState = await this.getCurrentMembership();
+          // 检查是否为Pro状态，并且未过期
+          const isPro = membershipState.status === 'pro';
+          const isExpired = membershipState.expiresAt ? membershipState.expiresAt < Date.now() : false;
+            
+          // 已过期，但尚未更新状态，主动更新为免费状态
+          if (isPro && isExpired) {
+            await this.handleMembershipExpiration();
+            return false;
+          }
+          
+          return isPro && !isExpired;
+        }
     
     # 状态变更处理
     state_transitions:
@@ -869,528 +970,9 @@ date: 2023-12-01
         - 订阅失败: pro → free (立即降级)
         - 降级处理: 超出配额处理、锁定内容
       
-      handling_approach:
-        - 使用状态机模式管理转换
-        - 每种转换配有明确的处理逻辑
-        - 转换前后触发相应的生命周期钩子
-        - 提供撤销机制(如订阅恢复)
-
-## 支付系统集成:
-  payment_integration:
-    # Paddle集成架构
-    paddle_integration:
-      description: 与Paddle支付平台的集成方案
-      components:
-        - 前端结账流程: Paddle Checkout.js
-        - 后端验证: Paddle API
-        - 事件处理: Webhook接收与处理
-      
-      implementation_steps:
-        - 初始化Paddle: 在官方网站注册并获取API密钥
-        - 配置产品: 在Paddle后台创建订阅产品
-        - 前端集成: 引入Paddle Checkout.js
-        - 处理回调: 实现支付成功回调页面
-        - 配置Webhook: 设置事件通知URL
-      
-      code_example: |
-        // Paddle前端初始化示例
-        function initPaddleCheckout() {
-          const script = document.createElement('script');
-          script.src = 'https://cdn.paddle.com/paddle/paddle.js';
-          script.async = true;
-          
-          script.onload = () => {
-            // 初始化Paddle
-            window.Paddle.Setup({ 
-              vendor: PADDLE_VENDOR_ID,
-              eventCallback: handlePaddleEvent
-            });
-          };
-          
-          document.body.appendChild(script);
-        }
-        
-        // 打开Paddle结账窗口
-        function openPaddleCheckout(planId: string) {
-          window.Paddle.Checkout.open({
-            product: planId,
-            email: userService.getCurrentUser()?.email,
-            successCallback: handleCheckoutSuccess,
-            closeCallback: handleCheckoutClose
-          });
-        }
-    
-    # 支付流程设计
-    payment_flow:
-      description: 完整的支付处理流程
-      sequence:
-        - 用户点击升级按钮
-        - 前端应用引导至官网支付页面
-        - 用户选择订阅计划
-        - 初始化Paddle结账流程
-        - 用户填写支付信息并确认
-        - Paddle处理支付并返回结果
-        - 返回应用并更新会员状态
-      
-      success_flow:
-        - 支付成功后Paddle回调成功页面
-        - 传递订阅ID和客户ID等信息
-        - 前端接收参数并调用会员服务
-        - 会员服务验证订阅状态并更新
-        - 更新UI以反映会员状态变化
-      
-      error_handling:
-        - 用户取消支付: 返回应用不做状态更改
-        - 支付处理失败: 显示友好错误信息，提供重试选项
-        - 验证失败: 显示临时会员状态，后台异步重试验证
-    
-    # Webhook处理
-    webhook_handling:
-      description: 处理Paddle发送的事件通知
-      key_events:
-        - subscription_created: 订阅创建成功
-        - subscription_updated: 订阅信息更新
-        - subscription_cancelled: 订阅被取消
-        - subscription_payment_succeeded: 订阅支付成功
-        - subscription_payment_failed: 订阅支付失败
-      
-      implementation: |
-        // Webhook处理函数示例
-        async function handlePaddleWebhook(req, res) {
-          try {
-            // 验证webhook签名
-            const isValid = verifyPaddleWebhookSignature(req.body);
-            if (!isValid) {
-              return res.status(401).send('Invalid signature');
-            }
-            
-            const { alert_name, ...data } = req.body;
-            
-            // 根据事件类型处理
-            switch (alert_name) {
-              case 'subscription_created':
-                await handleSubscriptionCreated(data);
-                break;
-              
-              case 'subscription_payment_succeeded':
-                await handleSubscriptionPaymentSucceeded(data);
-                break;
-              
-              case 'subscription_cancelled':
-                await handleSubscriptionCancelled(data);
-                break;
-              
-              // 处理其他事件...
-            }
-            
-            // 返回成功响应
-            res.status(200).send('Webhook processed');
-          } catch (error) {
-            console.error('Webhook processing error:', error);
-            // 即使出错也返回200以避免Paddle重试
-            // 但记录错误并触发告警
-            res.status(200).send('Webhook received');
-          }
-        }
-      
-      security_considerations:
-        - 验证webhook签名确保请求真实性
-        - 实现幂等处理避免重复事件问题
-        - 使用队列机制处理高峰期事件
-        - 提供手动重试机制应对处理失败
-    
-    # 数据安全处理
-    payment_security:
-      description: 支付相关数据的安全处理策略
-      key_practices:
-        - 不存储敏感支付信息(如信用卡)
-        - 使用Paddle托管支付页面处理支付
-        - 验证所有支付相关回调和webhook
-        - 实现防重放攻击机制
-      
-      implementation:
-        - 对webhook请求进行签名验证
-        - 使用HTTPS加密所有API通信
-        - 订阅状态定期验证防止篡改
-        - 会员权益访问前进行权限检查
-
-## UI组件体系:
-  ui_component_system:
-    # 关键业务组件
-    key_business_components:
-      description: 基于UI设计定义的6个核心业务组件
-      components:
-        - ProBadge (PRO标识): 显示在用户头像旁的会员状态标识
-        - UpgradeButton (升级按钮): 左下角的会员升级按钮(云存储旁)
-        - ProPlanCard (会员计划预览卡片): 悬浮显示的会员计划简介
-        - QuotaBanner (配额限制横幅): 当用户达到免费限制时显示的横幅
-        - LockedPromptCard (锁定提示词卡片): 超出免费配额的只读提示词卡片
-        - MembershipCenter (会员中心页面): 会员状态和订阅管理页面(侧边抽屉)
-      
-      implementation_focus:
-        - 确保核心业务组件的完整功能实现
-        - 保持组件间风格和交互的一致性
-        - 优先完成这些组件以实现基本业务流程
-    
-    # 组件拆分与复用策略
-    component_reuse_strategy:
-      description: 从实现角度对组件进行合理拆分和复用
-      reusable_components:
-        # 可复用的UI元素
-        ui_elements:
-          - ProBadge: 从PRO标识中抽取的可复用徽章组件
-          - UpgradeButton: 从升级按钮中抽取的可复用按钮组件
-          - QuotaIndicator: 用于显示资源使用情况的指示器组件
-          - PlanCard: 用于展示计划信息的卡片组件
-        
-        # 功能性容器组件
-        container_components:
-          - MembershipProvider: 提供会员状态Context的容器组件
-          - QuotaManager: 管理配额状态的功能性组件
-          - ProFeatureGate: 控制Pro功能访问权限的组件
-      
-      component_relationship: |
-        ProBadge (PRO标识) → 可作为独立基础组件复用
-        UpgradeButton (升级按钮) → 可作为独立基础组件复用
-        ProPlanCard (会员计划预览卡片) → 由PlanCard等基础组件组合而成
-        QuotaBanner (配额限制横幅) → 可包含QuotaIndicator等指示器
-        LockedPromptCard (锁定提示词卡片) → 特化的卡片组件，可包含基础UI元素
-        MembershipCenter (会员中心页面) → 由多个基础组件和容器组件组成
-    
-    # 组件接口设计
-    component_api:
-      description: 关键组件的接口设计
-      
-      # ProBadge组件
-      pro_badge_api: |
-        // ProBadge组件接口
-        interface ProBadgeProps {
-          // 是否为活跃PRO会员
-          isActive: boolean;
-          
-          // 点击处理函数
-          onClick?: () => void;
-          
-          // 尺寸变体: 'sm', 'md', 'lg'
-          size?: 'sm' | 'md' | 'lg';
-          
-          // 附加类名
-          className?: string;
-        }
-      
-      # UpgradeButton组件
-      upgrade_button_api: |
-        // UpgradeButton组件接口
-        interface UpgradeButtonProps {
-          // 来源标识(用于跟踪)
-          source: string;
-          
-          // 按钮文本(默认为"Upgrade")
-          label?: string;
-          
-          // 点击处理函数(默认为打开升级页面)
-          onClick?: () => void;
-          
-          // 按钮变体: 'primary', 'text', 'icon'
-          variant?: 'primary' | 'text' | 'icon';
-          
-          // 是否显示图标
-          showIcon?: boolean;
-        }
-      
-      # QuotaBanner组件
-      quota_banner_api: |
-        // QuotaBanner组件接口
-        interface QuotaBannerProps {
-          // 配额类型
-          type: 'storage' | 'optimization';
-          
-          // 当前使用量
-          current: number;
-          
-          // 限制值
-          limit: number;
-          
-          // 关闭处理函数
-          onClose?: () => void;
-          
-          // 升级点击处理函数
-          onUpgradeClick?: () => void;
-          
-          // 自定义消息
-          message?: string;
-        }
-    
-    # 组件状态管理
-    component_state:
-      description: 组件状态管理策略
-      patterns:
-        - 使用React Context提供会员状态
-        - 实现自定义hooks简化状态访问
-        - 确保一致的状态传递和更新
-      
-      implementation: |
-        // 会员状态Context
-        const MembershipContext = React.createContext<MembershipContextValue | null>(null);
-        
-        // 会员状态Provider
-        function MembershipProvider({ children }) {
-          const [state, setState] = useState<MembershipState>(initialState);
-          const [loading, setLoading] = useState(true);
-          
-          // 初始化和同步逻辑
-          useEffect(() => {
-            async function initMembershipState() {
-              try {
-                setLoading(true);
-                const membershipState = await membershipService.getCurrentMembership();
-                setState(membershipState);
-              } catch (error) {
-                console.error('Failed to initialize membership state:', error);
-              } finally {
-                setLoading(false);
-              }
-            }
-            
-            initMembershipState();
-            
-            // 订阅状态变更
-            const unsubscribe = membershipService.onMembershipChange((newState) => {
-              setState(newState);
-            });
-            
-            return unsubscribe;
-          }, []);
-          
-          // 暴露API
-          const contextValue = {
-            ...state,
-            loading,
-            isProMember: state.status === 'pro',
-            refresh: async () => {
-              setLoading(true);
-              try {
-                const newState = await membershipService.refreshMembershipState();
-                setState(newState);
-                return newState;
-              } finally {
-                setLoading(false);
-              }
-            }
-          };
-          
-          return (
-            <MembershipContext.Provider value={contextValue}>
-              {children}
-            </MembershipContext.Provider>
-          );
-        }
-        
-        // 自定义Hook
-        function useMembership() {
-          const context = useContext(MembershipContext);
-          if (!context) {
-            throw new Error('useMembership must be used within MembershipProvider');
-          }
-          return context;
-        }
-    
-    # 视觉一致性策略
-    visual_consistency:
-      description: 确保会员相关UI元素视觉一致的策略
-      key_approaches:
-        - 定义Pro元素专用色彩变量
-        - 统一使用指定图标和徽章样式
-        - 确保所有升级入口风格一致
-        - 在设计系统中添加会员状态变体
-      
-      implementation:
-        - 使用CSS变量定义会员状态样式
-        - 创建专有设计令牌(design tokens)
-        - 实现一致的会员状态过渡动画
-        - 统一错误和限制状态的视觉反馈
-
-## 权限控制机制:
-  permission_control:
-    # 前端权限控制
-    frontend_permissions:
-      description: 在前端实现的会员权限控制机制
-      mechanisms:
-        # React组件权限控制
-        component_level:
-          - 使用高阶组件(HOC)包装需要权限的组件
-          - 实现专用的ProFeatureGate组件
-          - 针对锁定内容实现视觉反馈
-        
-        # 操作权限控制  
-        action_level:
-          - 在关键操作前检查会员状态
-          - 针对非会员提供适当升级提示
-          - 保留基本功能确保良好体验
-        
-        # 路由权限控制
-        route_level:
-          - 会员中心页面仅对会员可见
-          - 特定设置项目需要会员权限
-      
-      code_example: |
-        // 操作级别权限检查示例
-        async function handleExportAction() {
-          // 检查会员权限
-          const { isProMember } = useMembership();
-          
-          if (!isProMember) {
-            // 显示升级提示
-            upgradeService.showUpgradePrompt('export_feature');
-            return;
-          }
-          
-          // 执行导出逻辑
-          await exportService.exportPrompts();
-        }
-    
-    # 服务层权限控制
-    service_permissions:
-      description: 在服务层实现的会员权限控制机制
-      mechanisms:
-        # 配额限制实现
-        quota_enforcement:
-          - 在核心服务方法前添加配额检查
-          - 返回标准格式的配额状态信息
-          - 在达到限制时提供清晰错误信息
-        
-        # 权限验证中间件
-        permission_middleware:
-          - 实现通用权限检查逻辑
-          - 用装饰器标记需要会员权限的方法
-          - 统一处理权限错误和升级提示
-      
-      code_example: |
-        // 服务方法配额检查示例
-        class PromptService {
-          // 创建提示词方法
-          async createPrompt(input: CreatePromptInput): Promise<Prompt> {
-            // 检查存储配额
-            const quotaInfo = await quotaService.checkPromptStorageQuota();
-            
-            // 如果达到限制，抛出标准错误
-            if (quotaInfo.isLimitReached) {
-              throw new QuotaExceededError('prompt_storage', quotaInfo);
-            }
-            
-            // 配额未达限制，继续创建提示词
-            const prompt = await this._createPrompt(input);
-            return prompt;
-          }
-        }
-    
-    # 配额管理实现
-    quota_management:
-      description: 配额检查和限制的实现机制
-      key_aspects:
-        - 在多个层次实现配额检查
-        - 明确定义不同会员级别的配额限制
-        - 提供配额监控和预警机制
-        - 实现降级时的超额内容处理
-      
-      implementation:
-        - 存储配额: 基于已存储提示词数量
-        - 优化配额: 基于24小时周期的使用次数
-        - 导出功能: 基于会员状态的功能开关
-        - 数据同步: 本地与远程双重验证
-      
-      quota_reset:
-        - 周期性配额: 基于用户本地时区每日0点重置
-        - 重置实现: 使用定时任务检查和更新
-        - 状态持久化: 记录上次重置时间和下次重置时间
-      
-      downgrade_handling:
-        - 存储超额处理: 保留最近使用的5条提示词
-        - 功能降级: 优雅禁用Pro专属功能
-        - 用户通知: 明确说明降级原因和处理方式
-    
-    # 错误处理策略
-    error_handling:
-      description: 处理权限和配额相关错误的策略
-      error_types:
-        - QuotaExceededError: 配额超出限制
-        - PermissionDeniedError: 没有访问权限
-        - SubscriptionExpiredError: 订阅已过期
-        - PaymentRequiredError: 需要付费访问
-      
-      handling_approach:
-        - 在UI层捕获并显示友好错误提示
-        - 提供明确的后续操作指引
-        - 避免中断用户工作流程
-        - 保持错误状态的一致性
-      
-      code_example: |
-        // 错误处理示例
-        try {
-          await promptService.createPrompt(newPrompt);
-        } catch (error) {
-          if (error instanceof QuotaExceededError) {
-            // 显示配额限制提示
-            notificationService.showQuotaExceededNotification({
-              type: error.quotaType,
-              currentUsage: error.quotaInfo.currentCount,
-              limit: error.quotaInfo.limit,
-              onUpgradeClick: () => upgradeService.showUpgradePrompt('quota_exceeded')
-            });
-          } else {
-            // 处理其他错误
-            notificationService.showErrorNotification({
-              message: 'Failed to create prompt',
-              details: error.message
-            });
-          }
-        }
-
-## 用户旅程分析:
-  free_to_paid_journey:
-    # 付费入口发现阶段
-    discovery_phase:
-      - 用户在侧边栏看到付费指示器：
-        - 未付费状态下的暗淡"PRO"标识（位于用户头像旁）
-        - 左下角的"Upgrade"按钮在云存储旁边（配小火箭图标）
-      - 参考设计: Notion的右下角升级按钮、Grammarly的crown图标
-    
-    # 付费价值展示阶段
-    value_presentation_phase:
-      - 主要入口:
-        - hover在PRO标识上：显示轻量级付费计划预览窗口
-        - 点击Upgrade按钮：直接跳转到官网付费页面
-      - 参考设计: 
-        - Figma的悬浮价格卡片，简洁展示免费版和专业版差异
-        - Arc浏览器的会员特权展示，强调核心价值而非价格
-    
-    # 付费流程阶段
-    payment_process_phase:
-      - 跳转至官网付费页面(独立页面)
-      - 选择月度/年度计划
-      - 通过Paddle完成支付
-      - 支付成功提示
-      - 返回扩展，状态自动更新为PRO
-      - 参考设计: 
-        - Raindrop.io的简洁付费页，突出核心价值而非功能列表
-        - 官网复用现有GitHub pages界面: https://aetherflow-app.github.io/pricing.html
-    
-    # 会员使用阶段
-    member_usage_phase:
-      - 会员状态指示:
-        - PRO标识亮起
-        - Upgrade按钮变为"闪电按钮"(表示已激活高级功能)
-      - 会员中心访问:
-        - 点击PRO标识或用户菜单中的会员选项
-        - 查看会员状态、权益情况和订阅管理
-      - 参考设计: Notion的会员中心，简洁展示订阅状态和管理选项
-    
-    # 会员权益提醒阶段
-    membership_reminder_phase:
-      - 非会员限制提醒:
-        - 存储达上限时提示横幅
-        - 优化次数用尽时提示横幅
-        - 点击Pro功能时的升级提示
-      - 参考设计: 
-        - Pocket的友好限制提示，不阻断体验但明确指出升级价值
-        - Todoist的配额用尽提醒，提示清晰但不打断工作流
+      implemented_features:
+        - 实现了handleSuccessfulPayment处理支付成功
+        - 实现了handleMembershipExpiration处理会员到期
+        - 自动检测过期状态并降级
+        - 状态变更通知所有已注册的观察者
+        - 状态变更异步同步到服务器
