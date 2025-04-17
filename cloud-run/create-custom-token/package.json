@@ -1,0 +1,19 @@
+{
+  "name": "create-custom-token-function",
+  "version": "1.0.0",
+  "description": "Cloud Run function to verify Firebase ID Token and create Custom Token.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=16" 
+  },
+  "dependencies": {
+    "firebase-admin": "^12.1.0", 
+    "express": "^4.19.2",
+    "cors": "^2.8.5" 
+  },
+  "author": "AetherFlow Team",
+  "license": "UNLICENSED"
+} 

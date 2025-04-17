@@ -1,0 +1,575 @@
+我看到了问题所在。根据错误日志，遇到了以下明确的错误：
+
+```
+令牌登录失败: FirebaseError: Firebase: The custom token format is incorrect. Please check the documentation. (auth/invalid-custom-token)
+```
+
+这个问题是由于网站端使用了`signInWithCustomToken`方法，但从扩展获取的是ID令牌（使用`getIdToken()`方法）。这两种令牌是不同的：
+
+- `getIdToken()` 获取的是 ID 令牌，用于验证已登录用户的身份
+- `signInWithCustomToken()` 需要的是自定义令牌，这通常由服务器端生成
+
+## 解决方案
+
+我们需要改变认证方式，有两种方案：
+
+### 方案一：使用邮箱和密码直接登录
+
+1. 在扩展中保存用户的邮箱（不保存密码），当用户点击"Upgrade"时：
+   - 将用户邮箱作为参数传递给网站
+   - 在网站端显示一个半自动填充的登录表单
+
+### 方案二（推荐）：使用 Firebase Auth 的持久化会话
+
+这是更安全也是行业常用的做法：
+
+```typescript:extension/src/services/auth/actions.ts
+  /**
+   * 生成带认证信息的官网URL
+   * 用于从扩展无缝跳转到官网并自动登录
+   * @param targetPath 目标页面路径，如 '/pricing.html'
+   * @param params 额外的URL参数
+   * @returns 包含认证信息的完整URL
+   */
+  async generateWebsiteAuthUrl(targetPath: string, params?: Record<string, string>): Promise<string> {
+    try {
+      const auth = getFirebaseAuth();
+      const currentUser = auth.currentUser;
+      
+      if (!currentUser) {
+        throw new Error('没有登录的用户，无法生成认证URL');
+      }
+      
+      // 构建基础URL - 针对当前的测试环境使用GitHub Pages地址
+      const baseUrl = 'https://aetherflow-app.github.io';
+      let url = `${baseUrl}${targetPath}`;
+      
+      // 构建查询参数
+      const urlParams = new URLSearchParams();
+      
+      // 使用email作为身份标识符，而不是令牌
+      // 这样网站端可以根据email查找对应的用户
+      if (currentUser.email) {
+        urlParams.set('auth_email', currentUser.email);
+      }
+      
+      // 如果有用户UID，也传递过去作为二次校验
+      if (currentUser.uid) {
+        urlParams.set('auth_uid', currentUser.uid);
+      }
+      
+      // 添加时间戳防止缓存
+      urlParams.set('auth_ts', Date.now().toString());
+      
+      // 添加额外参数
+      if (params) {
+        Object.entries(params).forEach(([key, value]) => {
+          urlParams.set(key, value);
+        });
+      }
+      
+      // 组合最终URL
+      url = `${url}?${urlParams.toString()}`;
+      
+      // 使用Firebase持久化登录
+      // 确保在转到网站前使用持久化登录状态
+      await auth.setPersistence('local');
+      
+      return url;
+    } catch (error: any) {
+      console.error('生成认证URL失败:', error);
+      throw new Error(error.message || '生成认证URL失败');
+    }
+  }
+```
+
+```typescript:extension/src/services/auth/actions.ts
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword,
+  signInWithPopup,
+  signOut,
+  sendPasswordResetEmail,
+  updateProfile,
+  deleteUser,
+  onAuthStateChanged as fbOnAuthStateChanged,
+  User as FirebaseUser,
+  browserLocalPersistence
+} from 'firebase/auth';
+// ... existing code ...
+
+      // 组合最终URL
+      url = `${url}?${urlParams.toString()}`;
+      
+      // 使用Firebase持久化登录
+      // 确保在转到网站前使用持久化登录状态
+      await auth.setPersistence(browserLocalPersistence);
+      
+      return url;
+```
+现在，我们需要在网站端修改认证处理逻辑，使用共享会话而不是令牌：
+
+```html:Aetherflow-app.github.io/pricing.html
+// ... existing code ...
+        // 检查URL中的认证信息
+        function checkForAuthToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const authEmail = urlParams.get('auth_email');
+            const authUid = urlParams.get('auth_uid');
+            
+            // 优先检查Firebase的持久化会话
+            firebase.auth().onAuthStateChanged(function(user) {
+                if (user) {
+                    // 用户已经登录了，显示成功提示
+                    console.log('用户已登录:', user.email);
+                    showAuthSuccessToast();
+                    
+                    // 清除URL中的认证参数
+                    cleanAuthParamsFromUrl();
+                    
+                    // 检查是否有待处理的支付
+                    checkPendingPayment();
+                } else if (authEmail) {
+                    // 如果有email参数但用户未登录，显示快速登录界面
+                    showAuthLoadingToast();
+                    showQuickSignInModal(authEmail, authUid);
+                } else if (token) {
+                    // 向后兼容：如果有token参数，尝试使用自定义令牌登录
+                    // 显示加载状态提示
+                    showAuthLoadingToast();
+                    
+                    // 使用令牌登录
+                    firebase.auth().signInWithCustomToken(token)
+                        .then(() => {
+                            // 登录成功
+                            showAuthSuccessToast();
+                            
+                            // 清除URL参数
+                            cleanAuthParamsFromUrl();
+                            
+                            // 检查是否有待处理的支付
+                            checkPendingPayment();
+                        })
+                        .catch((error) => {
+                            console.error('令牌登录失败:', error);
+                            showAuthErrorToast(error.message);
+                            
+                            // 如果有email参数，尝试显示快速登录界面
+                            if (authEmail) {
+                                showQuickSignInModal(authEmail, authUid);
+                            }
+                        });
+                }
+            });
+        }
+        
+        // 清除URL中的认证参数
+        function cleanAuthParamsFromUrl() {
+            // 获取当前URL参数
+            const newParams = new URLSearchParams(window.location.search);
+            
+            // 删除所有认证相关参数
+            newParams.delete('token');
+            newParams.delete('auth_email');
+            newParams.delete('auth_uid');
+            newParams.delete('auth_ts');
+            
+            // 构建新URL
+            const newUrl = newParams.toString() 
+                ? `${window.location.pathname}?${newParams.toString()}`
+                : window.location.pathname;
+            
+            // 更新浏览器历史记录
+            window.history.replaceState({}, document.title, newUrl);
+        }
+        
+        // 检查是否有待处理的支付
+        function checkPendingPayment() {
+            // 检查是否有待处理的支付
+            const pendingPlan = localStorage.getItem('aetherflow_pending_plan');
+            if (pendingPlan) {
+                openCheckout(pendingPlan);
+                localStorage.removeItem('aetherflow_pending_plan');
+            }
+        }
+        
+        // 显示快速登录模态框
+        function showQuickSignInModal(email, uid) {
+            // 检查是否已有模态框
+            let modal = document.getElementById('quick-auth-modal');
+            
+            if (modal) {
+                modal.style.display = 'flex';
+                return;
+            }
+            
+            // 创建模态框
+            modal = document.createElement('div');
+            modal.id = 'quick-auth-modal';
+            modal.className = 'auth-modal quick-auth';
+            modal.style.display = 'flex';
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            modal.style.justifyContent = 'center';
+            modal.style.alignItems = 'center';
+            modal.style.zIndex = '1000';
+            
+            // 创建模态框内容
+            const modalContent = document.createElement('div');
+            modalContent.className = 'auth-modal-content';
+            modalContent.style.width = '100%';
+            modalContent.style.maxWidth = '400px';
+            modalContent.style.backgroundColor = '#fff';
+            modalContent.style.borderRadius = 'var(--border-radius-lg)';
+            modalContent.style.padding = '24px';
+            modalContent.style.boxShadow = 'var(--box-shadow-lg)';
+            modalContent.style.position = 'relative';
+            
+            // 添加关闭按钮
+            const closeButton = document.createElement('button');
+            closeButton.innerHTML = '&times;';
+            closeButton.style.position = 'absolute';
+            closeButton.style.top = '15px';
+            closeButton.style.right = '15px';
+            closeButton.style.border = 'none';
+            closeButton.style.background = 'none';
+            closeButton.style.fontSize = '24px';
+            closeButton.style.cursor = 'pointer';
+            closeButton.style.color = 'var(--gray)';
+            closeButton.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            // 创建标题
+            const title = document.createElement('h3');
+            title.textContent = '请登录继续';
+            title.style.marginBottom = '16px';
+            title.style.fontSize = '20px';
+            title.style.fontWeight = '600';
+            
+            // 创建描述
+            const description = document.createElement('p');
+            description.textContent = `从扩展检测到账号 ${email}，请输入密码登录继续。`;
+            description.style.marginBottom = '20px';
+            description.style.color = 'var(--gray)';
+            
+            // 创建登录表单
+            const loginForm = document.createElement('form');
+            loginForm.id = 'quick-login-form';
+            
+            loginForm.innerHTML = `
+                <div style="margin-bottom: 16px;">
+                    <label for="quick-login-email" style="display: block; margin-bottom: 8px; font-weight: 500;">Email</label>
+                    <input type="email" id="quick-login-email" value="${email}" readonly style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: var(--border-radius); outline: none; background-color: #f5f5f5;">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label for="quick-login-password" style="display: block; margin-bottom: 8px; font-weight: 500;">Password</label>
+                    <input type="password" id="quick-login-password" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: var(--border-radius); outline: none;" autofocus>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                <div style="margin-top: 20px; text-align: center;">
+                    <p style="margin-bottom: 12px; color: var(--gray);">或者使用其他账号登录</p>
+                    <button type="button" id="quick-google-signin" class="btn btn-outline" style="width: 100%;">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width: 18px; margin-right: 8px; vertical-align: middle;">
+                        Google
+                    </button>
+                </div>
+            `;
+            
+            // 组装模态框
+            modalContent.appendChild(closeButton);
+            modalContent.appendChild(title);
+            modalContent.appendChild(description);
+            modalContent.appendChild(loginForm);
+            modal.appendChild(modalContent);
+            
+            // 添加到DOM
+            document.body.appendChild(modal);
+            
+            // 设置表单提交事件
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const password = document.getElementById('quick-login-password').value;
+                
+                // 显示加载中状态
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.textContent;
+                submitButton.textContent = 'Logging in...';
+                submitButton.disabled = true;
+                
+                // 尝试登录
+                firebase.auth().signInWithEmailAndPassword(email, password)
+                    .then(() => {
+                        // 登录成功
+                        showAuthSuccessToast();
+                        modal.style.display = 'none';
+                        
+                        // 检查是否有待处理的支付
+                        checkPendingPayment();
+                    })
+                    .catch((error) => {
+                        // 登录失败
+                        showAuthErrorToast(error.message);
+                        
+                        // 恢复按钮状态
+                        submitButton.textContent = originalText;
+                        submitButton.disabled = false;
+                    });
+            });
+            
+            // 设置Google登录
+            document.getElementById('quick-google-signin').addEventListener('click', function() {
+                signInWithGoogle();
+                modal.style.display = 'none';
+            });
+            
+            // 点击模态框外部关闭
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+// ... existing code ...
+```
+
+```html:Aetherflow-app.github.io/pricing.html
+// ... existing code ...
+
+        // 处理支付按钮点击
+        function handleCheckoutButtonClick(planType) {
+            // 检查用户是否已登录
+            if (!firebase.auth().currentUser) {
+                // 用户未登录，显示登录模态框
+                showAuthModal();
+                // 存储计划类型，以便登录后继续
+                localStorage.setItem('aetherflow_pending_plan', planType);
+                return;
+            }
+            
+            // 用户已登录，继续支付流程
+            openCheckout(planType);
+        }
+        
+        // 检查URL中的认证信息
+        function checkForAuthToken() {
+// ... existing code ...
+```
+同样的修改也需要应用到index.html中，确保两个页面使用相同的认证机制：
+
+```html:Aetherflow-app.github.io/index.html
+// ... existing code ...
+        // 检查URL中的认证信息
+        function checkForAuthToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            const authEmail = urlParams.get('auth_email');
+            const authUid = urlParams.get('auth_uid');
+            
+            // 优先检查Firebase的持久化会话
+            firebase.auth().onAuthStateChanged(function(user) {
+                if (user) {
+                    // 用户已经登录了，显示成功提示
+                    console.log('用户已登录:', user.email);
+                    showAuthSuccessToast();
+                    
+                    // 清除URL中的认证参数
+                    cleanAuthParamsFromUrl();
+                } else if (authEmail) {
+                    // 如果有email参数但用户未登录，显示快速登录界面
+                    showAuthLoadingToast();
+                    showQuickSignInModal(authEmail, authUid);
+                } else if (token) {
+                    // 向后兼容：如果有token参数，尝试使用自定义令牌登录
+                    // 显示加载状态提示
+                    showAuthLoadingToast();
+                    
+                    // 使用令牌登录
+                    firebase.auth().signInWithCustomToken(token)
+                        .then(() => {
+                            // 登录成功
+                            showAuthSuccessToast();
+                            
+                            // 清除URL参数
+                            cleanAuthParamsFromUrl();
+                        })
+                        .catch(error => {
+                            console.error("认证失败:", error);
+                            showAuthErrorToast(error.message);
+                            
+                            // 如果有email参数，尝试显示快速登录界面
+                            if (authEmail) {
+                                showQuickSignInModal(authEmail, authUid);
+                            }
+                        });
+                }
+            });
+        }
+        
+        // 清除URL中的认证参数
+        function cleanAuthParamsFromUrl() {
+            // 获取当前URL参数
+            const newParams = new URLSearchParams(window.location.search);
+            
+            // 删除所有认证相关参数
+            newParams.delete('token');
+            newParams.delete('auth_email');
+            newParams.delete('auth_uid');
+            newParams.delete('auth_ts');
+            
+            // 构建新URL
+            const newUrl = newParams.toString() 
+                ? `${window.location.pathname}?${newParams.toString()}`
+                : window.location.pathname;
+            
+            // 更新浏览器历史记录
+            window.history.replaceState({}, document.title, newUrl);
+        }
+        
+        // 显示快速登录模态框
+        function showQuickSignInModal(email, uid) {
+            // 检查是否已有模态框
+            let modal = document.getElementById('quick-auth-modal');
+            
+            if (modal) {
+                modal.style.display = 'flex';
+                return;
+            }
+            
+            // 创建模态框
+            modal = document.createElement('div');
+            modal.id = 'quick-auth-modal';
+            modal.className = 'auth-modal quick-auth';
+            modal.style.display = 'flex';
+            modal.style.position = 'fixed';
+            modal.style.top = '0';
+            modal.style.left = '0';
+            modal.style.width = '100%';
+            modal.style.height = '100%';
+            modal.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            modal.style.justifyContent = 'center';
+            modal.style.alignItems = 'center';
+            modal.style.zIndex = '1000';
+            
+            // 创建模态框内容
+            const modalContent = document.createElement('div');
+            modalContent.className = 'auth-modal-content';
+            modalContent.style.width = '100%';
+            modalContent.style.maxWidth = '400px';
+            modalContent.style.backgroundColor = '#fff';
+            modalContent.style.borderRadius = 'var(--border-radius-lg)';
+            modalContent.style.padding = '24px';
+            modalContent.style.boxShadow = 'var(--box-shadow-lg)';
+            modalContent.style.position = 'relative';
+            
+            // 添加关闭按钮
+            const closeButton = document.createElement('button');
+            closeButton.innerHTML = '&times;';
+            closeButton.style.position = 'absolute';
+            closeButton.style.top = '15px';
+            closeButton.style.right = '15px';
+            closeButton.style.border = 'none';
+            closeButton.style.background = 'none';
+            closeButton.style.fontSize = '24px';
+            closeButton.style.cursor = 'pointer';
+            closeButton.style.color = 'var(--gray)';
+            closeButton.addEventListener('click', function() {
+                modal.style.display = 'none';
+            });
+            
+            // 创建标题
+            const title = document.createElement('h3');
+            title.textContent = '请登录继续';
+            title.style.marginBottom = '16px';
+            title.style.fontSize = '20px';
+            title.style.fontWeight = '600';
+            
+            // 创建描述
+            const description = document.createElement('p');
+            description.textContent = `从扩展检测到账号 ${email}，请输入密码登录继续。`;
+            description.style.marginBottom = '20px';
+            description.style.color = 'var(--gray)';
+            
+            // 创建登录表单
+            const loginForm = document.createElement('form');
+            loginForm.id = 'quick-login-form';
+            
+            loginForm.innerHTML = `
+                <div style="margin-bottom: 16px;">
+                    <label for="quick-login-email" style="display: block; margin-bottom: 8px; font-weight: 500;">Email</label>
+                    <input type="email" id="quick-login-email" value="${email}" readonly style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: var(--border-radius); outline: none; background-color: #f5f5f5;">
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label for="quick-login-password" style="display: block; margin-bottom: 8px; font-weight: 500;">Password</label>
+                    <input type="password" id="quick-login-password" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: var(--border-radius); outline: none;" autofocus>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
+                <div style="margin-top: 20px; text-align: center;">
+                    <p style="margin-bottom: 12px; color: var(--gray);">或者使用其他账号登录</p>
+                    <button type="button" id="quick-google-signin" class="btn btn-outline" style="width: 100%;">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" style="width: 18px; margin-right: 8px; vertical-align: middle;">
+                        Google
+                    </button>
+                </div>
+            `;
+            
+            // 组装模态框
+            modalContent.appendChild(closeButton);
+            modalContent.appendChild(title);
+            modalContent.appendChild(description);
+            modalContent.appendChild(loginForm);
+            modal.appendChild(modalContent);
+            
+            // 添加到DOM
+            document.body.appendChild(modal);
+            
+            // 设置表单提交事件
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const password = document.getElementById('quick-login-password').value;
+                
+                // 显示加载中状态
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.textContent;
+                submitButton.textContent = 'Logging in...';
+                submitButton.disabled = true;
+                
+                // 尝试登录
+                firebase.auth().signInWithEmailAndPassword(email, password)
+                    .then(() => {
+                        // 登录成功
+                        showAuthSuccessToast();
+                        modal.style.display = 'none';
+                    })
+                    .catch((error) => {
+                        // 登录失败
+                        showAuthErrorToast(error.message);
+                        
+                        // 恢复按钮状态
+                        submitButton.textContent = originalText;
+                        submitButton.disabled = false;
+                    });
+            });
+            
+            // 设置Google登录
+            document.getElementById('quick-google-signin').addEventListener('click', function() {
+                signInWithGoogle();
+                modal.style.display = 'none';
+            });
+            
+            // 点击模态框外部关闭
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+// ... existing code ...
+```

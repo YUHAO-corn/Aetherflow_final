@@ -1,0 +1,542 @@
+# Paddle Billing 入门指南 (v2版本)
+
+## 概述
+
+Paddle Billing 是一个完整的数字产品销售和订阅管理平台，专为现代软件企业设计。该平台采用 API 优先的设计理念，负责处理支付、税务、本地化和订阅管理等事务。本文档将指导您如何开始使用 Paddle Billing(v2) 进行支付集成。
+
+> **重要提示**：本文档专门针对 Paddle Billing(v2) 版本，不适用于 Paddle Classic。如果您仍在使用 Paddle Classic，请参考官方迁移指南进行升级。
+
+## 快速入门步骤
+
+### 1. 注册 Paddle 账户
+
+开始使用 Paddle 的第一步是注册账户：
+
+- **沙盒账户**：用于测试和评估
+- **正式账户**：用于向客户销售产品
+
+建议先注册一个沙盒账户进行测试，待集成完成后再升级到正式账户。
+
+### 2. 设置产品目录
+
+Paddle Billing 的产品目录包括订阅计划、循环附加组件、一次性收费等项目。在 Paddle 中，一个完整的产品由两部分组成：
+
+1. **产品实体**：描述项目的名称、说明和图片等
+2. **价格实体**：描述产品的计费金额和频率
+
+设置步骤：
+- 前往 Paddle 控制面板的 **Catalog > Products** 部分
+- 点击 **New product** 创建新产品
+- 添加产品详情并保存
+- 在产品页面的 **Prices** 部分，点击 **New price** 添加价格
+- 设置计费周期（月度、年度等）并保存
+
+### 3. 构建定价页面
+
+使用 Paddle.js（Paddle 的轻量级 JavaScript 库）构建定价页面，可以根据潜在客户的国家/地区显示本地化价格。
+
+步骤：
+1. 获取客户端令牌
+   - 前往 **Developer tools > Authentication**
+   - 生成客户端令牌（沙盒环境以`test_`开头，生产环境以`live_`开头）
+   - 复制令牌用于前端代码
+
+2. 构建页面
+   - 使用 `Paddle.Initialize()` 初始化 Paddle
+   - 通过 API 获取和显示产品价格
+   - 设置本地化和货币处理
+
+### 4. 集成结账功能
+
+Paddle Billing 提供两种结账体验：
+- **覆盖式结账**：在网站上作为一个浮动层
+- **内联式结账**：嵌入到您的网页中
+
+集成步骤：
+1. 设置默认支付链接（前往 **Checkout > Checkout settings > Default payment link**）
+2. 使用 `Paddle.Checkout.open()` 方法打开结账页面
+3. 配置结账设置（项目列表、客户信息等）
+
+### 5. 配置 Webhook 接收
+
+Webhook 让您能够及时了解 Paddle 账户中发生的重要事件，如新客户注册、订阅创建等。
+
+设置步骤：
+1. 前往 **Developer Tools > Notifications**
+2. 创建新的通知目标
+3. 配置 Webhook 端点 URL
+4. 选择需要接收的事件
+5. 保存设置
+
+主要 Webhook 事件：
+- `transaction.created`：交易创建
+- `customer.created`：客户创建
+- `transaction.paid`：交易支付成功
+- `subscription.created`：订阅创建
+- `transaction.completed`：交易完成
+
+## 上线前检查清单
+
+在正式上线前，请确保完成以下步骤：
+
+1. **基本设置**
+   - 完成业务详情配置
+   - 设置支付接收方式
+   - 配置税务信息
+
+2. **产品与价格**
+   - 创建所有产品和价格
+   - 配置产品图像和描述
+   - 设置合适的税务类别
+
+3. **结账体验**
+   - 设置默认支付链接
+   - 配置品牌定制选项
+   - 测试不同国家/地区的结账流程
+
+4. **集成与测试**
+   - 实现 Webhook 处理逻辑
+   - 完成端到端测试
+   - 测试全部订阅周期（创建、更新、取消）
+
+5. **合规与安全**
+   - 审核隐私政策
+   - 确保符合支付卡行业数据安全标准
+   - 验证退款流程
+
+## 常见问题解决
+
+### 结账页面不加载
+- 检查客户端令牌是否正确（沙盒令牌以 `test_` 开头）
+- 验证价格 ID 是否正确（价格 ID 以 `pri_` 开头）
+- 确保没有在项目列表中重复使用相同的 Paddle ID
+- 确认已经设置并批准了默认支付链接
+
+### Webhook 未收到
+- 确认通知目标设置正确
+- 检查用途类型是否设置为 **platform only** 或 **both**
+- 验证是否勾选了所有需要的事件
+- 查看 Paddle 通知日志
+
+## Paddle.js API指南 (v2版本)
+
+### 引入Paddle.js
+
+```html
+<!-- 在HTML头部引入Paddle.js v2版本库 -->
+<script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+```
+
+### 初始化Paddle
+
+```javascript
+// 如果是沙盒环境，先设置环境（生产环境不需要此步骤）
+Paddle.Environment.set("sandbox");
+
+// 初始化Paddle
+Paddle.Initialize({
+  token: 'YOUR_CLIENT_SIDE_TOKEN' // 替换为您的客户端令牌
+});
+
+// 检查Paddle是否正确加载
+if (typeof Paddle !== 'undefined') {
+  console.log('Paddle SDK v2已成功加载');
+}
+```
+
+> **注意**：v2版本中`Paddle.Initialize`不再接受`environment`参数。请使用单独的`Paddle.Environment.set()`方法设置环境。
+
+### 价格预览功能
+
+```javascript
+// 价格预览 - 显示本地化价格
+Paddle.PricePreview.load({
+  items: [
+    {
+      priceId: 'pri_12345678', // 替换为您的价格ID
+      quantity: 1
+    }
+  ]
+})
+.then(prices => {
+  // 更新UI显示价格
+  document.getElementById('monthly-price').textContent = prices.recurring.total;
+  document.getElementById('currency').textContent = prices.recurring.currency;
+  
+  // 可选：显示含税价格
+  document.getElementById('tax-amount').textContent = prices.recurring.tax;
+})
+.catch(error => {
+  console.error('获取价格信息失败', error);
+});
+```
+
+## 结账设置配置指南
+
+Paddle提供了多种方式来配置结账设置，可以针对单个结账或为页面上的所有结账设置默认配置。
+
+### 设置方式
+
+您可以通过以下三种方式传递结账设置：
+
+1. **使用HTML数据属性**：在触发结账的按钮元素上添加数据属性
+2. **仅为当前结账设置**：在调用`Paddle.Checkout.open()`时传递`settings`参数
+3. **为页面上所有结账设置默认配置**：在调用`Paddle.Initialize()`时传递`checkout.settings`参数
+
+### 初始化时设置默认配置
+
+如果您的页面上有多个结账按钮，且它们使用相同的设置，建议在初始化时设置默认配置：
+
+```javascript
+Paddle.Initialize({
+  token: 'YOUR_CLIENT_SIDE_TOKEN',
+  checkout: {
+    settings: {
+      displayMode: 'overlay',  // 覆盖式结账
+      theme: 'light',          // 使用亮色主题
+      locale: 'zh-CN',         // 设置语言为中文
+      variant: 'multi-page',   // 多页式结账体验（默认值）
+      showAddDiscounts: true,  // 显示添加折扣选项
+      showAddTaxId: true       // 显示添加税号选项
+    }
+  },
+  eventCallback: function(data) {
+    // 事件回调，用于调试和跟踪用户行为
+    console.log('Paddle事件:', data);
+  }
+});
+```
+
+### 为单个结账设置配置
+
+对于需要特定配置的结账按钮，可以在调用`Paddle.Checkout.open()`时传递设置：
+
+```javascript
+function openCheckout(priceId) {
+  Paddle.Checkout.open({
+    items: [
+      {
+        priceId: priceId,
+        quantity: 1
+      }
+    ],
+    settings: {
+      displayMode: 'overlay',
+      theme: 'dark',           // 此结账使用暗色主题
+      locale: 'zh-CN',
+      allowLogout: false,      // 禁止更改客户邮箱
+      successUrl: 'https://aetherflow-app.com/thank-you'
+    }
+  });
+}
+```
+
+### 使用HTML数据属性配置结账
+
+对于CMS系统或有限的JavaScript自定义环境，可以使用HTML数据属性：
+
+```html
+<button 
+  data-paddle-product="true"
+  data-paddle-theme="dark"
+  data-paddle-locale="zh-CN"
+  data-paddle-allow-logout="false"
+  data-paddle-items='[{"priceId":"pri_12345678","quantity":1}]'>
+  订阅专业版
+</button>
+```
+
+### 推荐的结账设置
+
+1. **一页式结账体验**：
+   ```javascript
+   settings: {
+     variant: 'one-page' // 在单页上显示客户信息和支付表单
+   }
+   ```
+
+2. **暗色模式**：
+   ```javascript
+   settings: {
+     theme: 'dark' // 适合深色网站主题
+   }
+   ```
+
+3. **禁用退出选项**：
+   ```javascript
+   settings: {
+     allowLogout: false // 适用于已知客户的升级流程
+   }
+   ```
+
+4. **本地化**：
+   ```javascript
+   settings: {
+     locale: 'zh-CN' // 根据用户选择的语言设置
+   }
+   ```
+
+5. **隐藏折扣选项**：
+   ```javascript
+   settings: {
+     showAddDiscounts: false // 如果您不提供折扣码
+   }
+   ```
+
+6. **隐藏税号选项**：
+   ```javascript
+   settings: {
+     showAddTaxId: false // 如果您不面向企业客户
+   }
+   ```
+
+### 内联结账必需设置
+
+如果您使用内联结账（嵌入到页面中），以下设置是必需的：
+
+```javascript
+Paddle.Checkout.open({
+  items: [{ priceId: priceId, quantity: 1 }],
+  settings: {
+    displayMode: 'inline',               // 必需：内联显示模式
+    frameTarget: 'checkout-container',   // 必需：容器元素的ID
+    frameInitialHeight: '450',           // 建议：初始高度（像素）
+    frameStyle: 'width: 100%; min-width: 312px; background-color: transparent; border: none;' // 建议
+  }
+});
+```
+
+> **注意**：内联结账页脚包含商户记录信息，出于合规要求，内联结账框架必须调整大小，使页脚信息可见。
+
+## 处理Paddle事件
+
+```javascript
+// 在初始化Paddle时设置事件回调
+Paddle.Initialize({
+  token: "YOUR_CLIENT_SIDE_TOKEN",
+  eventCallback: function(eventData) {
+    switch(eventData.name) {
+      case 'checkout.completed':
+        // 支付完成后的操作
+        console.log('支付成功！', eventData.data);
+        // 可以在这里触发成功动画或重定向
+        break;
+        
+      case 'checkout.closed':
+        // 用户关闭结账窗口
+        console.log('结账已关闭');
+        break;
+        
+      case 'checkout.error':
+        // 结账过程中发生错误
+        console.error('结账错误:', eventData.data);
+        // 可以在这里显示错误提示
+        break;
+    }
+  }
+});
+```
+
+### 常见问题与错误排查
+
+#### 错误写法与正确写法对比
+
+**错误写法（旧版API）：**
+```javascript
+// 已不再支持的旧版Classic方法
+Paddle.Setup({ vendor: 12345 });
+Paddle.Checkout.open({
+  product: 12345,
+  email: 'customer@example.com'
+});
+```
+
+**正确写法（v2版本）：**
+```javascript
+// 只在沙盒环境需要设置环境
+Paddle.Environment.set("sandbox"); // 生产环境无需此行
+Paddle.Initialize({
+  token: "YOUR_CLIENT_SIDE_TOKEN"
+});
+Paddle.Checkout.open({
+  items: [{ priceId: "pri_12345678", quantity: 1 }],
+  customer: { email: 'customer@example.com' }
+});
+```
+
+#### URL参数规范
+
+Paddle结账配置中的URL参数必须按照以下规范使用：
+
+| 正确参数名 | 错误参数名 | 说明 |
+|-----------|------------|------|
+| `successUrl` | `successURL` | 支付成功后跳转URL，注意"Url"的大小写 |
+| `closeUrl` | `cancelUrl`/`cancelURL` | 关闭结账页面时跳转URL，官方推荐使用`closeUrl` |
+
+```javascript
+// 正确示例
+Paddle.Checkout.open({
+  items: [{ priceId: 'pri_12345678', quantity: 1 }],
+  settings: {
+    successUrl: 'https://aetherflow-app.com/thank-you',  // 正确：小写的u
+    closeUrl: 'https://aetherflow-app.com/pricing'       // 正确：使用closeUrl
+  }
+});
+```
+
+## 官方完整示例
+
+以下是Paddle官方推荐的结账实现完整示例，可直接复制使用：
+
+### 覆盖式结账完整示例
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paddle结账示例</title>
+  
+  <!-- 1. 引入Paddle.js -->
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+  
+  <!-- 2. 初始化Paddle -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 仅在沙盒环境需要设置
+      Paddle.Environment.set('sandbox');
+      
+      // 初始化Paddle
+      Paddle.Initialize({
+        token: 'YOUR_CLIENT_SIDE_TOKEN',
+        eventCallback: function(eventData) {
+          console.log('Paddle事件:', eventData);
+        }
+      });
+      
+      // 设置结账点击处理函数
+      document.getElementById('checkout-button').addEventListener('click', function() {
+        openCheckout();
+      });
+    });
+    
+    // 3. 打开结账窗口
+    function openCheckout() {
+      Paddle.Checkout.open({
+        // 必要参数：商品信息
+        items: [
+          {
+            priceId: 'pri_12345678',  // 替换为您的价格ID
+            quantity: 1
+          }
+        ],
+        
+        // 可选参数：客户信息
+        customer: {
+          email: 'customer@example.com'  // 可选的预填邮箱
+        },
+        
+        // 可选参数：自定义数据（将在webhook中返回）
+        customData: {
+          plan: 'monthly',
+          source: 'website'
+        },
+        
+        // 可选参数：结账设置
+        settings: {
+          displayMode: 'overlay',           // 覆盖式结账
+          theme: 'light',                   // 主题：light或dark
+          locale: 'zh-CN',                  // 语言设置
+          successUrl: '/thank-you',         // 成功页面URL
+          closeUrl: '/pricing'              // 关闭页面URL
+        }
+      });
+    }
+  </script>
+</head>
+<body>
+  <h1>Paddle结账示例</h1>
+  <button id="checkout-button">立即订阅</button>
+</body>
+</html>
+```
+
+### 内联结账完整示例
+
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Paddle内联结账示例</title>
+  
+  <!-- 引入Paddle.js -->
+  <script src="https://cdn.paddle.com/paddle/v2/paddle.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // 仅在沙盒环境需要设置
+      Paddle.Environment.set('sandbox');
+      
+      // 初始化Paddle
+      Paddle.Initialize({
+        token: 'YOUR_CLIENT_SIDE_TOKEN'
+      });
+      
+      // 直接加载内联结账
+      Paddle.Checkout.open({
+        items: [
+          {
+            priceId: 'pri_12345678',  // 替换为您的价格ID
+            quantity: 1
+          }
+        ],
+        settings: {
+          displayMode: 'inline',                  // 内联模式
+          frameTarget: 'checkout-container',      // 容器ID
+          frameInitialHeight: '450',              // 初始高度
+          frameStyle: 'width: 100%; min-width: 312px; background-color: transparent; border: none;'
+        }
+      });
+    });
+  </script>
+  
+  <style>
+    #checkout-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Paddle内联结账示例</h1>
+  <!-- 内联结账将加载到这个容器中 -->
+  <div id="checkout-container"></div>
+</body>
+</html>
+```
+
+## 测试支付
+
+在沙盒环境中，您可以使用以下测试卡信息进行支付测试：
+
+| 字段 | 测试值 |
+|------|--------|
+| 卡号 | 4242 4242 4242 4242 |
+| 有效期 | 任何未来日期 |
+| 安全码 | 100 |
+| 持卡人姓名 | 任意名称 |
+| 邮箱地址 | 您可访问的有效邮箱 |
+| 国家 | 任何Paddle支持的国家 |
+| 邮政编码 | 任何有效的邮政编码 |
+
+## 参考链接
+- [Paddle Billing 官方文档](https://developer.paddle.com/)
+- [Paddle.js API 参考](https://developer.paddle.com/paddlejs/overview)
+- [结账集成指南](https://developer.paddle.com/build/checkout/overview)
+- [覆盖式结账教程](https://developer.paddle.com/build/checkout/build-overlay-checkout)
+- [设置检查清单](https://developer.paddle.com/build/onboarding/set-up-checklist)
+- [上线检查清单](https://developer.paddle.com/build/onboarding/go-live-checklist)

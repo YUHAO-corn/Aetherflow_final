@@ -16,6 +16,26 @@ module.exports = {
           800: '#1e293b',
           900: '#0f172a',
         },
+        // 品牌蓝色
+        'brand-blue': '#4A90E2',
+        'brand-blue-dark': '#3A7BC8',
+      },
+      zIndex: {
+        'base': 'var(--z-base)',
+        'raised': 'var(--z-raised)',
+        'dropdown': 'var(--z-dropdown)',
+        'sticky': 'var(--z-sticky)',
+        'drawer': 'var(--z-drawer)',
+        'overlay': 'var(--z-overlay)',
+        'modal': 'var(--z-modal)',
+        'notification': 'var(--z-notification)',
+        'highest': 'var(--z-highest)',
+        'drawer-backdrop': 'var(--z-drawer-backdrop)',
+        'drawer-container': 'var(--z-drawer-container)',
+        'modal-backdrop': 'var(--z-modal-backdrop)',
+        'modal-container': 'var(--z-modal-container)',
+        'auth-backdrop': 'var(--z-auth-backdrop)',
+        'auth-container': 'var(--z-auth-container)',
       },
       keyframes: {
         shimmer: {
@@ -25,6 +45,13 @@ module.exports = {
         'shimmer-fast': {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(100%)' },
+        },
+        'shimmer-interval': {
+          '0%': { transform: 'translateX(-100%)', opacity: 0 },
+          '10%': { opacity: 1 },
+          '40%': { transform: 'translateX(100%)', opacity: 1 },
+          '41%': { opacity: 0 },
+          '100%': { opacity: 0, transform: 'translateX(-100%)' },
         },
         glow: {
           '0%, 100%': { opacity: 1 },
@@ -55,6 +82,26 @@ module.exports = {
             filter: 'brightness(1)'
           }
         },
+        'slide-in-down': {
+          '0%': { 
+            opacity: '0',
+            transform: 'translateY(-10px)'
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)'
+          }
+        },
+        'slide-in-up': {
+          '0%': { 
+            opacity: '0',
+            transform: 'translateY(10px)'
+          },
+          '100%': {
+            opacity: '1',
+            transform: 'translateY(0)'
+          }
+        },
         'magic-reveal': {
           '0%': { 
             opacity: '0',
@@ -62,6 +109,16 @@ module.exports = {
           },
           '50%': {
             opacity: '0.5',
+            filter: 'brightness(0.5) blur(2px)'
+          },
+          '100%': {
+            opacity: '1',
+            filter: 'brightness(1) blur(0)'
+          }
+        },
+        'magic-reveal-fast': {
+          '0%': { 
+            opacity: '0',
             filter: 'brightness(0.5) blur(2px)'
           },
           '100%': {
@@ -77,11 +134,16 @@ module.exports = {
       animation: {
         shimmer: 'shimmer 8s linear infinite',
         'shimmer-fast': 'shimmer-fast 1.5s ease-in-out infinite',
+        'shimmer-slow': 'shimmer-fast 4.5s ease-in-out infinite',
+        'shimmer-interval': 'shimmer-interval 5.5s ease-in-out infinite',
         glow: 'glow 2s ease-in-out infinite',
         float: 'float 3s ease-in-out infinite',
         bounce: 'bounce 1s ease-in-out infinite',
         'slide-in': 'slide-in 0.6s ease-out forwards',
+        'slide-in-down': 'slide-in-down 0.12s ease-out forwards',
+        'slide-in-up': 'slide-in-up 0.12s ease-out forwards',
         'magic-reveal': 'magic-reveal 1.2s ease-out forwards',
+        'magic-reveal-fast': 'magic-reveal-fast 0.3s ease-out forwards',
         pulse: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
       },
       backgroundImage: {
@@ -90,5 +152,7 @@ module.exports = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    require('tailwind-scrollbar')({ nocompatible: true }),
+  ],
 };

@@ -1,0 +1,196 @@
+# AetherFlow自动标题生成功能改进方案
+
+## 一、设计目标
+
+为AetherFlow项目提供一个智能化的自动标题生成功能，能够从提示词内容中提取核心信息，生成精炼、连贯且吸引人的标题，**严格限制在24字节以内**。
+
+## 二、核心逻辑分层实现
+
+### 1. 信息提取层
+
+#### 实体识别
+- 识别并提取内容中的关键实体：品牌、产品、人物、事件、价格等
+- 对于常见领域（科技、教育、商业等）预设实体类型库
+- 使用规则引擎初步实现，后续可升级为NLP模型
+
+#### 关键词权重计算
+- 基础权重：词频统计（TF-IDF算法）
+- 位置权重：首段/结尾词汇权重×2
+- 语法权重：优先保留"动词+名词"组合
+- 特殊词权重：数字、专有名词、技术术语等权重提升
+
+```typescript
+// 示例实现
+private static extractKeywordsWithWeight(text: string): Array<{word: string, weight: number}> {
+  // 分段获取位置加权
+  const paragraphs = text.split('\n\n').filter(p => p.trim().length > 0);
+  const firstPara = paragraphs[0] || '';
+  const lastPara = paragraphs[paragraphs.length-1] || '';
+  
+  // 词频统计基础
+  const wordFreq: Record<string, number> = {};
+  const words = text.toLowerCase()
+    .replace(/[^\w\s\u4e00-\u9fa5]/g, ' ')
+    .split(/\s+/)
+    .filter(word => word.length > 1 && !STOP_WORDS.includes(word));
+    
+  words.forEach(word => {
+    wordFreq[word] = (wordFreq[word] || 0) + 1;
+  });
+  
+  // 加权计算
+  return Object.entries(wordFreq).map(([word, freq]) => {
+    let weight = freq;
+    
+    // 位置加权
+    if (firstPara.includes(word)) weight *= 1.5;
+    if (lastPara.includes(word)) weight *= 1.3;
+    
+    // 特殊词加权
+    if (/\d+/.test(word)) weight *= 1.2; // 数字
+    if (/^[A-Z]/.test(word)) weight *= 1.4; // 专有名词（英文首字母大写）
+    
+    return { word, weight };
+  }).sort((a, b) => b.weight - a.weight);
+}
+```
+
+### 2. 语义总结层
+
+#### 内容类型识别
+- 增强现有类型识别，细分为更多专业类别：
+  - 技术文档
+  - 新闻/事件
+  - 教程指南
+  - 问答/FAQ
+  - 商品/产品
+  - 观点/评论
+
+#### 模板匹配系统
+- 为每种内容类型设计2-3个标题模板
+- 模板包含占位符，根据关键实体和词汇填充
+
+```typescript
+private static templates = {
+  news: [
+    '{事件}：{关键结论}',
+    '{主体}{动作}，{影响/结果}'
+  ],
+  product: [
+    '{品牌}{产品} {特点}，{价格/评价}',
+    '{动作}{品牌}{产品}：{卖点}'
+  ],
+  tutorial: [
+    '{动作}教程：{目标}{方法}',
+    '{如何}{目标}：{方法/步骤}'
+  ],
+  // 更多模板...
+};
+```
+
+#### 动态裁剪机制
+- 按权重顺序保留关键词，确保标题在24字节内
+- 优先保留实体名词和核心动词
+- 确保语法完整性和可读性
+
+### 3. 优化层
+
+#### 连接词智能补充
+- 根据内容类型和语境，添加适当连接词提升可读性
+- 常用连接词库：揭秘、首发、教你、必看等
+
+#### 字节精确计算
+- 中文按2字节/字计算
+- 英文/数字/符号按1字节/字符计算
+- 混合文本精确累加计算总字节数
+
+```typescript
+// 字节长度计算
+private static calculateByteLength(str: string): number {
+  let byteLen = 0;
+  for (let i = 0; i < str.length; i++) {
+    // 中文字符范围
+    if (/[\u4e00-\u9fa5]/.test(str[i])) {
+      byteLen += 2;
+    } else {
+      byteLen += 1;
+    }
+  }
+  return byteLen;
+}
+
+// 智能截断确保不超过24字节
+private static smartTruncate(title: string, maxBytes: number = 24): string {
+  if (this.calculateByteLength(title) <= maxBytes) {
+    return title;
+  }
+  
+  let result = '';
+  let currentBytes = 0;
+  
+  // 按字符依次添加，直到接近字节限制
+  for (let i = 0; i < title.length; i++) {
+    const char = title[i];
+    const charBytes = /[\u4e00-\u9fa5]/.test(char) ? 2 : 1;
+    
+    if (currentBytes + charBytes > maxBytes - 3) { // 保留3字节给"..."
+      break;
+    }
+    
+    result += char;
+    currentBytes += charBytes;
+  }
+  
+  return result + '...';
+}
+```
+
+## 三、实现路径
+
+### 阶段一：基础改进（1-2周）
+1. 修改`App.tsx`中的`handleSaveToLibrary`方法：
+   ```typescript
+   // 替换简单截取为智能标题生成
+   title: await generateTitleForPrompt(content),
+   ```
+
+2. 强化TitleGenerator关键词提取：
+   - 添加位置权重计算
+   - 实现字节精确控制
+
+3. 改进标题格式化逻辑：
+   - 替换简单截断为智能裁剪
+   - 实现字节限制精确控制在24字节内
+
+### 阶段二：高级功能（2-3周）
+1. 实现基础实体识别功能
+2. 开发模板匹配系统
+3. 增强内容类型识别精度
+
+### 阶段三：优化与完善（1-2周）
+1. 优化性能，确保生成速度适合实时使用
+2. 添加多版本标题生成能力（可选）
+3. 完善测试与边界情况处理
+
+## 四、验收标准
+
+1. **字节限制**：标题必须严格控制在24字节以内
+2. **内容相关**：标题必须包含内容中的关键实体和主题
+3. **可读性**：标题需是完整、语法正确的句子或短语
+4. **无简单截断**：禁止直接截取前N个字符作为标题
+5. **性能要求**：标题生成时间不超过500ms
+
+## 五、示例效果
+
+| 输入内容 | 当前生成标题 | 改进后生成标题 |
+|---------|------------|--------------|
+| "2023年诺贝尔文学奖公布，挪威作家约翰·福瑟获奖，代表作《晨与夜》。" | "2023年诺贝尔文学奖公布，挪威..." | "2023诺奖：挪威作家福瑟获奖" |
+| "苹果iPhone15系列正式发布，搭载A16芯片，起售价6999元，新增钛金属材质与USB-C接口" | "苹果iPhone15系列正式发布，搭载..." | "iPhone15发布：A16芯片仅6999元" |
+| "如何使用React Hooks实现状态管理？本教程详细介绍useState和useContext的用法与最佳实践" | "如何使用React Hooks实现状态管理？..." | "React Hooks状态管理详解" |
+
+## 六、技术实现要点
+
+1. 避免直接使用大型NLP模型，优先使用规则引擎和算法实现
+2. 所有逻辑保持在客户端，无需额外服务器支持
+3. 采用渐进式实现策略，确保基础功能稳定后再添加高级特性
+4. 对新功能进行充分单元测试，确保各种边界情况的处理

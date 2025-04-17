@@ -1,0 +1,41 @@
+Sample Prompts for Optimization Demo
+
+1. Unclear and Grammatically Messy Prompt:
+"i want to learn python but dont know where to start and what should i do first and also which parts are important for AI development because thats what i want to do in future but im not sure if i need math or other stuff too so please help me figure this out"
+
+Issues:
+• Grammar and structure problems
+• Unfocused learning goals
+• Missing skill context
+
+2. Overly Brief and Vague Prompt:
+"marketing strategy help"
+
+Issues:
+• No context provided
+• Missing business goals
+• Undefined requirements
+
+3. Technical Request with Poor Expression:
+"need to make API with authentication and users can upload files and process them but secure and scalable and good performance how to do it nodejs"
+
+Issues:
+• Unclear requirements
+• No specifications
+• Missing architecture context
+
+4. Mixed Requirements Without Structure:
+"website design modern looking must load fast mobile friendly with good SEO and users should be able to book appointments and pay online and have membership system must work on all browsers what framework to use and how to implement"
+
+Issues:
+• No structure or priorities
+• Mixed requirements
+• Undefined metrics
+
+5. Domain Knowledge Gap Prompt:
+"machine learning project for stock prediction using LSTM want accuracy >95% which parameters and layers to use what data preprocessing needed"
+
+Issues:
+• Unrealistic expectations
+• Missing data context
+• Incomplete requirements

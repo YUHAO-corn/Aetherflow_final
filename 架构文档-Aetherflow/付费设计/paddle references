@@ -1,0 +1,129 @@
+# Paddle 入门指南
+
+## 概述
+
+Paddle 是一个完整的数字产品销售和订阅管理平台，专为现代软件企业设计。该平台采用 API 优先的设计理念，负责处理支付、税务、本地化和订阅管理等事务。本文档将指导您如何开始使用 Paddle 进行支付集成。
+
+## 快速入门步骤
+
+### 1. 注册 Paddle 账户
+
+开始使用 Paddle 的第一步是注册账户：
+
+- **沙盒账户**：用于测试和评估
+- **正式账户**：用于向客户销售产品
+
+建议先注册一个沙盒账户进行测试，待集成完成后再升级到正式账户。
+
+### 2. 设置产品目录
+
+Paddle 的产品目录包括订阅计划、循环附加组件、一次性收费等项目。在 Paddle 中，一个完整的产品由两部分组成：
+
+1. **产品实体**：描述项目的名称、说明和图片等
+2. **价格实体**：描述产品的计费金额和频率
+
+设置步骤：
+- 前往 Paddle 控制面板的 **Catalog > Products** 部分
+- 点击 **New product** 创建新产品
+- 添加产品详情并保存
+- 在产品页面的 **Prices** 部分，点击 **New price** 添加价格
+- 设置计费周期（月度、年度等）并保存
+
+### 3. 构建定价页面
+
+使用 Paddle.js（Paddle 的轻量级 JavaScript 库）构建定价页面，可以根据潜在客户的国家/地区显示本地化价格。
+
+步骤：
+1. 获取客户端令牌
+   - 前往 **Developer tools > Authentication**
+   - 生成客户端令牌
+   - 复制令牌用于前端代码
+
+2. 构建页面
+   - 使用 `Paddle.configure()` 初始化 Paddle
+   - 通过 API 获取和显示产品价格
+   - 设置本地化和货币处理
+
+### 4. 集成结账功能
+
+Paddle 提供两种结账体验：
+- **覆盖式结账**：在网站上作为一个浮动层
+- **内联式结账**：嵌入到您的网页中
+
+集成步骤：
+1. 设置默认支付链接（前往 **Checkout > Checkout settings > Default payment link**）
+2. 使用 `Paddle.Checkout.open()` 方法打开结账页面
+3. 配置结账设置（项目列表、客户信息等）
+
+### 5. 配置 Webhook 接收
+
+Webhook 让您能够及时了解 Paddle 账户中发生的重要事件，如新客户注册、订阅创建等。
+
+设置步骤：
+1. 前往 **Developer Tools > Notifications**
+2. 创建新的通知目标
+3. 配置 Webhook 端点 URL
+4. 选择需要接收的事件
+5. 保存设置
+
+主要 Webhook 事件：
+- `transaction.created`：交易创建
+- `customer.created`：客户创建
+- `transaction.paid`：交易支付成功
+- `subscription.created`：订阅创建
+- `transaction.completed`：交易完成
+
+## 上线前检查清单
+
+在正式上线前，请确保完成以下步骤：
+
+1. **基本设置**
+   - 完成业务详情配置
+   - 设置支付接收方式
+   - 配置税务信息
+
+2. **产品与价格**
+   - 创建所有产品和价格
+   - 配置产品图像和描述
+   - 设置合适的税务类别
+
+3. **结账体验**
+   - 设置默认支付链接
+   - 配置品牌定制选项
+   - 测试不同国家/地区的结账流程
+
+4. **集成与测试**
+   - 实现 Webhook 处理逻辑
+   - 完成端到端测试
+   - 测试全部订阅周期（创建、更新、取消）
+
+5. **合规与安全**
+   - 审核隐私政策
+   - 确保符合支付卡行业数据安全标准
+   - 验证退款流程
+
+## 常见问题解决
+
+### 结账页面不加载
+- 检查客户端令牌是否正确（沙盒令牌以 `test_` 开头）
+- 验证价格 ID 是否正确（价格 ID 以 `pri_` 开头）
+- 确保没有在项目列表中重复使用相同的 Paddle ID
+
+### Webhook 未收到
+- 确认通知目标设置正确
+- 检查用途类型是否设置为 **platform only** 或 **both**
+- 验证是否勾选了所有需要的事件
+- 查看 Paddle 通知日志
+
+## 后续步骤
+
+完成基本集成后，可以考虑以下进阶内容：
+
+1. 使用 Next.js 入门套件快速部署应用
+2. 构建覆盖式结账和定价页面
+3. 了解 Paddle Retain 功能（用于催款和支付恢复）
+
+## 参考链接
+- [Paddle 入门概述](https://developer.paddle.com/build/onboarding/overview)
+- [设置检查清单](https://developer.paddle.com/build/onboarding/set-up-checklist)
+- [上线检查清单](https://developer.paddle.com/build/onboarding/go-live-checklist)

@@ -1,0 +1,394 @@
+# 域名配置与Paddle支付集成指南
+
+## 恭喜注册域名成功！
+
+既然您已经成功注册了aetherflow-app.com域名并通过审核，接下来需要进行一系列配置，将其设置为能支持Paddle支付的官网。我将逐步指引您完成所有必要操作。
+
+## 第一步：设置DNS管理
+
+### 使用Cloudflare（推荐）
+1. **创建Cloudflare账户**：
+   - 访问[Cloudflare官网](https://www.cloudflare.com/)注册账户
+   - 点击"添加站点"，输入您的域名`aetherflow-app.com`
+   - 按照向导添加域名
+
+2. **更新域名服务器**：
+   - Cloudflare会提供两个名称服务器地址
+   - 前往阿里云域名控制台，找到您的域名
+   - 修改DNS服务器为Cloudflare提供的名称服务器
+   - 这一步可能需要24-48小时生效
+
+3. **验证Cloudflare接管**：
+   - 等待DNS传播完成
+   - 在Cloudflare控制面板确认状态为"活跃"
+
+### 如果继续使用阿里云DNS
+如果不想使用Cloudflare，也可以直接使用阿里云的DNS服务：
+   - 登录阿里云控制台
+   - 进入域名管理页面
+   - 确认DNS服务正常工作
+
+## 第二步：配置网站托管
+
+### 选择A：使用Netlify/Vercel（推荐，简单快速）
+
+1. **创建账户**：
+   - 访问[Netlify](https://www.netlify.com/)或[Vercel](https://vercel.com/)注册账户
+   
+2. **创建新项目**：
+   - 可以从GitHub仓库导入，或创建新项目
+   - 对于简单的付费页面，可以先创建基础HTML页面
+
+3. **自定义域名设置**：
+   - 在网站设置中添加自定义域名`aetherflow-app.com`
+   - 添加`www.aetherflow-app.com`作为别名
+   - 按照平台指引完成DNS验证
+
+4. **SSL证书配置**：
+   - Netlify/Vercel会自动为您的域名提供免费SSL证书
+   - 确认证书状态为活跃
+
+### 选择B：使用AWS/GCP/Azure等云服务
+
+如果需要更复杂的服务器配置：
+1. 创建云服务账户(AWS/GCP/Azure)
+2. 创建网页服务器实例
+3. 配置DNS A记录指向服务器IP
+4. 安装SSL证书(可使用Let's Encrypt)
+
+## 第三步：配置SSL证书
+
+如果使用Netlify/Vercel，证书会自动配置。如果使用其他托管方式：
+
+1. **获取Let's Encrypt免费证书**：
+   - 在您的服务器上安装Certbot
+   - 运行：`certbot --nginx -d aetherflow-app.com -d www.aetherflow-app.com`
+   - 按照提示完成配置
+
+2. **验证HTTPS可用**：
+   - 访问`https://aetherflow-app.com`确认证书有效
+   - 可以使用[SSL Labs](https://www.ssllabs.com/ssltest/)测试证书配置
+
+## 第四步：创建官网支付页面
+
+1. **创建基础网站结构**：
+   - 如果您已有设计，上传到托管服务
+   - 如果需要简单页面，可以创建包含以下元素的HTML页面：
+     - 产品介绍
+     - 价格方案(月付$3.99/年付$39.99)
+     - 付款按钮
+
+2. **示例HTML结构**：
+```html
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AetherFlow - AI提示词管理与优化助手</title>
+    <!-- 添加样式表 -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>AetherFlow</h1>
+        <p>AI提示词管理与优化助手</p>
+    </header>
+    
+    <section class="pricing">
+        <h2>升级到PRO版本</h2>
+        
+        <div class="pricing-options">
+            <div class="pricing-plan">
+                <h3>月度计划</h3>
+                <p class="price">$3.99<span>/月</span></p>
+                <ul>
+                    <li>✓ 存储空间扩展至100条提示词</li>
+                    <li>✓ 每日优化次数提升至50次</li>
+                    <li>✓ 多设备同步与导出功能</li>
+                    <li>✓ 抢先体验新功能</li>
+                </ul>
+                <button class="upgrade-btn" id="monthly-plan">选择月度计划</button>
+            </div>
+            
+            <div class="pricing-plan recommended">
+                <div class="badge">节省17%</div>
+                <h3>年度计划</h3>
+                <p class="price">$39.99<span>/年</span></p>
+                <ul>
+                    <li>✓ 存储空间扩展至100条提示词</li>
+                    <li>✓ 每日优化次数提升至50次</li>
+                    <li>✓ 多设备同步与导出功能</li>
+                    <li>✓ 抢先体验新功能</li>
+                </ul>
+                <button class="upgrade-btn" id="annual-plan">选择年度计划</button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- 这里稍后将添加Paddle脚本 -->
+</body>
+</html>
+```
+
+## 第五步：注册Paddle账户
+
+1. **创建Paddle账户**：
+   - 访问[Paddle注册页面](https://vendors.paddle.com/signup)
+   - 填写必要信息，包括公司/个人信息
+   - 完成身份验证步骤(可能需要提供身份证明文件)
+
+2. **配置产品**：
+   - 登录Paddle控制台
+   - 创建两个订阅产品：
+     - 月度计划($3.99/月)
+     - 年度计划($39.99/年)
+   - 记录产品ID，稍后在代码中使用
+
+3. **配置webhook**：
+   - 在Paddle控制台找到"Developer Tools" > "Webhook"
+   - 添加webhook URL：`https://api.aetherflow-app.com/webhook/paddle`或使用云函数URL
+   - 选择需要接收的事件类型(subscription_created, subscription_updated等)
+
+## 第六步：配置Firebase(或其他后端)接收webhook
+
+1. **创建Firebase账户**：
+   - 访问[Firebase控制台](https://console.firebase.google.com/)
+   - 创建新项目"aetherflow"
+
+2. **设置Firebase Functions**：
+   - 安装Firebase CLI：`npm install -g firebase-tools`
+   - 初始化项目：`firebase init functions`
+   - 创建webhook处理函数
+
+3. **示例Firebase Function代码**：
+```javascript
+const functions = require('firebase-functions');
+const admin = require('firebase-admin');
+admin.initializeApp();
+
+exports.paddleWebhook = functions.https.onRequest(async (req, res) => {
+  // 验证请求来源
+  // 处理各种订阅事件
+  // 更新数据库中的会员状态
+  
+  console.log('接收到Paddle Webhook:', req.body);
+  
+  // 根据事件类型处理
+  const { alert_name } = req.body;
+  
+  switch(alert_name) {
+    case 'subscription_created':
+      await handleSubscriptionCreated(req.body);
+      break;
+    case 'subscription_updated':
+      await handleSubscriptionUpdated(req.body);
+      break;
+    // 其他事件处理...
+  }
+  
+  // 返回成功
+  res.status(200).send('Webhook processed');
+});
+
+async function handleSubscriptionCreated(data) {
+  // 实现订阅创建逻辑
+  const { subscription_id, user_id, status } = data;
+  
+  // 更新用户会员状态
+  await admin.firestore().collection('memberships').doc(user_id).set({
+    subscriptionId: subscription_id,
+    status: 'pro',
+    plan: data.plan_type === 'month' ? 'monthly' : 'annual',
+    startedAt: admin.firestore.FieldValue.serverTimestamp(),
+    expiresAt: new Date(data.next_bill_date),
+  });
+}
+```
+
+4. **部署Firebase Functions**：
+   - `firebase deploy --only functions`
+   - 记录函数URL，配置到Paddle webhook设置
+
+## 第七步：集成Paddle到官网支付页面
+
+1. **添加Paddle脚本**：
+在您网站的HTML中添加以下代码：
+
+```html
+<script src="https://cdn.paddle.com/paddle/paddle.js"></script>
+<script type="text/javascript">
+    // 初始化Paddle
+    Paddle.Setup({ 
+        vendor: 12345,  // 替换为您的Paddle Vendor ID
+        eventCallback: function(data) {
+            console.log(data);
+        }
+    });
+    
+    // 月度计划按钮
+    document.getElementById('monthly-plan').addEventListener('click', function() {
+        Paddle.Checkout.open({
+            product: 12345,  // 替换为月度计划产品ID
+            email: getParameterByName('email'),  // 从URL参数获取邮箱
+            successCallback: handleSuccess
+        });
+    });
+    
+    // 年度计划按钮
+    document.getElementById('annual-plan').addEventListener('click', function() {
+        Paddle.Checkout.open({
+            product: 67890,  // 替换为年度计划产品ID
+            email: getParameterByName('email'),
+            successCallback: handleSuccess
+        });
+    });
+    
+    // 处理成功回调
+    function handleSuccess(data) {
+        // 重定向到成功页面
+        window.location.href = '/payment/success?order_id=' + data.checkout.order_id;
+    }
+    
+    // 从URL获取参数函数
+    function getParameterByName(name) {
+        const url = window.location.href;
+        name = name.replace(/[\[\]]/g, '\\$&');
+        const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+        const results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+</script>
+```
+
+2. **创建支付成功页面**：
+在您的网站根目录创建`/payment/success.html`页面：
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>支付成功 - AetherFlow</title>
+</head>
+<body>
+    <div class="success-container">
+        <h1>支付成功！</h1>
+        <p>感谢您升级到AetherFlow Pro版本！</p>
+        <p>您的会员权益将立即生效。</p>
+        <p>正在将您重定向回AetherFlow扩展...</p>
+    </div>
+    
+    <script>
+        // 获取订单ID
+        const orderId = getParameterByName('order_id');
+        
+        // 通知扩展支付成功
+        setTimeout(function() {
+            // 使用特定URL方案打开扩展
+            window.location.href = 'chrome-extension://[扩展ID]/payment-success.html?order_id=' + orderId;
+            
+            // 备选方案：如果用户没有安装扩展，提供下载链接
+            setTimeout(function() {
+                document.querySelector('.success-container').innerHTML += `
+                    <p>如果您没有自动返回扩展，请确保已安装AetherFlow。</p>
+                    <a href="https://chrome.google.com/webstore/detail/[扩展ID]" class="button">获取AetherFlow扩展</a>
+                `;
+            }, 3000);
+        }, 2000);
+        
+        function getParameterByName(name) {
+            const url = window.location.href;
+            name = name.replace(/[\[\]]/g, '\\$&');
+            const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+            const results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+    </script>
+</body>
+</html>
+```
+
+## 第八步：在扩展中实现支付成功处理
+
+1. **创建支付成功页面**：
+在扩展中创建`payment-success.html`页面，处理支付成功后的状态更新
+
+2. **实现会员状态更新代码**：
+```javascript
+// 从URL获取订单ID
+const orderId = new URLSearchParams(window.location.search).get('order_id');
+
+// 验证订单并更新会员状态
+async function verifyAndUpdateMembership() {
+  try {
+    // 调用您的API或Firebase Function验证订单
+    const response = await fetch('https://api.aetherflow-app.com/verify-order?order_id=' + orderId);
+    const data = await response.json();
+    
+    if (data.valid) {
+      // 更新本地会员状态
+      chrome.storage.local.set({
+        membershipState: {
+          status: 'pro',
+          plan: data.plan,
+          startedAt: Date.now(),
+          expiresAt: data.expiresAt,
+          subscriptionId: data.subscriptionId
+        }
+      }, function() {
+        // 显示成功消息
+        document.getElementById('status').textContent = '会员状态已更新！';
+        
+        // 关闭此页面，返回扩展主界面
+        setTimeout(() => {
+          window.close();
+          chrome.runtime.sendMessage({ type: 'OPEN_EXTENSION' });
+        }, 2000);
+      });
+    } else {
+      // 显示错误
+      document.getElementById('status').textContent = '订单验证失败，请联系支持。';
+    }
+  } catch (error) {
+    console.error('验证订单失败:', error);
+    document.getElementById('status').textContent = '处理订单时出错，请重试。';
+  }
+}
+
+// 启动验证
+verifyAndUpdateMembership();
+```
+
+## 测试检查清单
+
+完成上述配置后，使用以下检查清单验证所有功能：
+
+1. **域名和SSL**：
+   - 访问`https://aetherflow-app.com`确认网站可访问
+   - 确认HTTPS正常工作，没有证书警告
+
+2. **支付流程**：
+   - 点击月度/年度计划，确认Paddle结账窗口正常打开
+   - 使用Paddle测试卡完成支付（测试模式）
+   - 确认支付成功页面正常显示
+
+3. **Webhook**：
+   - 检查Firebase日志，确认webhook事件被正确接收
+   - 验证会员数据被正确存储在数据库中
+
+4. **扩展集成**：
+   - 确认扩展能正确识别支付成功事件
+   - 验证用户界面反映了会员状态变化
+
+## 进一步资源和帮助
+
+- [Paddle开发文档](https://developer.paddle.com/getting-started/intro)
+- [Firebase Functions文档](https://firebase.google.com/docs/functions)
+- [Let's Encrypt SSL指南](https://letsencrypt.org/getting-started/)
+- [Netlify自定义域名设置](https://docs.netlify.com/domains-https/custom-domains/)
+
+完成这些步骤后，您将拥有一个功能完善的官网，支持Paddle支付集成，并能与Chrome扩展无缝协作处理会员状态更新。

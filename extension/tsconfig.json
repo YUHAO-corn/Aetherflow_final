@@ -19,10 +19,10 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["chrome"],
+    "types": ["chrome", "jest", "@testing-library/jest-dom"],
     "outDir": "./dist",
     "esModuleInterop": true
   },
-  "include": ["src"],
+  "include": ["src/**/*", "jest.setup.js"],
   "exclude": ["node_modules"]
 }

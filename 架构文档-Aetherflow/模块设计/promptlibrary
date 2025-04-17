@@ -1,0 +1,477 @@
+---
+name: 提示词库（提示词收藏夹）
+description: 提供用户收藏、管理和使用提示词的核心功能模块
+priority: P0
+owner: AetherFlow团队
+---
+
+# 提示词库功能需求和实现细节
+
+core_features:
+  - name: 提示词收藏与展示
+    description: 允许用户收藏提示词并以卡片形式在侧边栏展示
+    priority: P0
+    status: implemented
+    details:
+      - 提示词以卡片形式在侧边栏展示，包含标题和内容预览
+      - 支持收藏标记与取消收藏操作
+      - 卡片支持悬停效果，显示操作按钮
+      - 点击卡片可查看完整提示词内容
+      
+  - name: 提示词搜索与排序
+    description: 允许用户通过关键词搜索提示词并按不同条件排序
+    priority: P0
+    status: implemented
+    details:
+      - 支持关键词搜索标题和内容
+      - 支持多种排序方式：编辑时间（新→旧/旧→新）、创建时间（新→旧/旧→新）、使用频率
+      - 搜索结果实时更新
+      - 无匹配结果时显示提示信息
+      
+  - name: 提示词详情查看
+    description: 允许用户查看提示词的完整内容和相关信息
+    priority: P0
+    status: implemented
+    details:
+      - 右侧滑出抽屉式详情面板
+      - 显示完整提示词内容
+      - 显示元数据：创建时间、更新时间、使用次数、最后使用时间
+      - 提供操作按钮：复制、编辑、收藏/取消收藏、删除
+      
+  - name: 提示词管理
+    description: 允许用户添加、编辑和删除提示词
+    priority: P0
+    status: implemented
+    details:
+      - 支持添加新提示词到收藏夹
+      - 支持编辑已收藏的提示词
+      - 支持删除不需要的提示词
+      - 表单验证确保输入有效性
+
+  - name: 选中捕获提示词
+    description: 允许用户通过右键菜单直接从网页捕获选中文本作为提示词
+    priority: P1
+    status: proposed
+    details:
+      - 用户在网页中选中文本后，右键菜单中出现"Aetherflow-收藏提示词"选项
+      - 点击菜单选项后，自动将选中文本作为提示词内容保存到收藏夹
+      - 自动为捕获的提示词生成标题
+      - 捕获成功后在界面显示简短的成功提示
+      - 捕获的提示词可通过与其他提示词相同的方式进行查看和编辑
+
+  - name: 自动标题生成
+    description: 为没有手动编写标题的提示词自动生成合适的标题
+    priority: P1
+    status: proposed
+    details:
+      - 在用户未提供标题的情况下自动从提示词内容生成概括性标题
+      - 适用于选中捕获的提示词和从优化结果收藏的提示词
+      - 标题生成算法分析提示词内容，提取关键主题
+      - 生成的标题长度适中，通常不超过50字符
+      - 用户可在之后编辑自动生成的标题
+
+ui_components:
+  - name: LibraryTab
+    description: 提示词库主标签页组件
+    file_path: components/library/LibraryTab.tsx
+    features:
+      - 顶部工具栏：搜索框、添加按钮、排序下拉菜单
+      - 提示词卡片列表展示
+      - 空状态提示："收藏夹为空"或"没有找到匹配的提示词"
+      - 卡片交互：点击查看详情，悬停显示操作按钮
+    states:
+      - searchTerm: 搜索关键词
+      - filteredPrompts: 过滤后的提示词列表
+      - sortOption: 当前排序选项
+      - isDetailOpen: 详情抽屉是否打开
+      - isFormOpen: 表单模态框是否打开
+      
+  - name: PromptDetailDrawer
+    description: 提示词详情抽屉组件
+    file_path: components/library/PromptDetailDrawer.tsx
+    features:
+      - 右侧滑入滑出动画效果
+      - 提示词完整内容显示，支持长内容滚动
+      - 提示词元数据信息展示
+      - 操作按钮：复制、编辑、收藏/取消收藏、删除
+    props:
+      - prompt: 要显示的提示词对象
+      - isOpen: 抽屉是否打开
+      - onClose: 关闭抽屉的回调函数
+      - onEdit: 编辑提示词的回调函数
+      
+  - name: PromptFormModal
+    description: 提示词添加/编辑表单模态框
+    file_path: components/library/PromptFormModal.tsx
+    features:
+      - 模态框居中显示
+      - 表单字段：标题、内容、收藏选项
+      - 验证逻辑确保必填字段不为空
+      - 键盘快捷键支持：Ctrl/Cmd + S 保存
+      - 加载状态显示
+    props:
+      - isOpen: 模态框是否打开
+      - onClose: 关闭模态框的回调函数
+      - prompt: 要编辑的提示词对象（可选，为空表示新建）
+
+data_structure:
+  - name: Prompt
+    description: 提示词数据结构
+    file_path: services/prompt/types.ts
+    fields:
+      - id: string（唯一ID）
+      - title: string（提示词标题）
+      - content: string（提示词内容）
+      - isFavorite: boolean（收藏状态，新版）
+      - favorite: boolean（收藏状态，兼容旧版）
+      - createdAt: number（创建时间戳）
+      - updatedAt: number（更新时间戳）
+      - useCount: number（使用次数）
+      - lastUsed: number（最后使用时间） 
+      - tags: string[]（标签列表，可选）
+      - source: 'user' | 'optimize' | 'predefined'（提示词来源，可选）
+      - category: string（分类，可选）
+      - isActive: boolean（活跃状态，新版，false表示已删除）
+      - active: boolean（活跃状态，兼容旧版）
+      - optimizationHistory: Array<{version, content, timestamp}>（优化历史，可选）
+      
+  - name: PromptFilter
+    description: 提示词筛选选项
+    file_path: services/prompt/types.ts
+    fields:
+      - searchTerm: string（搜索关键词，可选）
+      - sortBy: 'usage' | 'favorite' | 'time' | 'alphabetical' | 'relevance'（排序方式，可选）
+      - limit: number（结果数量限制，可选）
+      - offset: number（结果偏移量，用于增量加载，可选）
+      - category: string（分类筛选，可选）
+      - tags: string[]（标签筛选，可选）
+      - onlyFavorites: boolean（是否只显示收藏，可选）
+      - favorite: boolean（兼容旧版，可选）
+      - includeInactive: boolean（是否包含已删除项目，可选）
+
+services:
+  - name: prompt服务
+    description: 提供提示词相关的核心操作服务
+    file_path: services/prompt/actions.ts
+    functions:
+      - name: getPrompts
+        description: 获取所有提示词
+        params: 
+          - filter?: PromptFilter（可选的过滤条件）
+        returns: Promise<Prompt[]>（提示词数组）
+        
+      - name: getPromptById
+        description: 通过ID获取特定提示词
+        params:
+          - id: string（提示词ID）
+        returns: Promise<Prompt | null>（提示词对象或null）
+        
+      - name: searchPrompts
+        description: 搜索提示词
+        params:
+          - filter: PromptFilter（搜索和过滤条件）
+        returns: Promise<Prompt[]>（匹配的提示词数组）
+        details:
+          - 支持关键词搜索（标题和内容）
+          - 支持收藏过滤
+          - 支持多种排序方式
+          - 使用综合评分算法进行相关性排序
+        
+      - name: createPrompt
+        description: 创建新提示词
+        params:
+          - input: CreatePromptInput（创建提示词的输入参数）
+        returns: Promise<Prompt>（创建的提示词对象）
+        
+      - name: updatePrompt
+        description: 更新提示词
+        params:
+          - id: string（提示词ID）
+          - input: UpdatePromptInput（更新提示词的输入参数）
+        returns: Promise<Prompt>（更新后的提示词对象）
+        
+      - name: deletePrompt
+        description: 删除提示词
+        params:
+          - id: string（提示词ID）
+        returns: Promise<boolean>（是否删除成功）
+        
+      - name: toggleFavorite
+        description: 切换提示词收藏状态
+        params:
+          - id: string（提示词ID）
+        returns: Promise<boolean>（是否操作成功）
+        details:
+          - 如果已收藏，则取消收藏并从列表移除
+          - 如果未收藏，则标记为收藏
+          
+      - name: incrementPromptUse
+        description: 增加提示词使用次数
+        params:
+          - id: string（提示词ID）
+        returns: Promise<boolean>（是否操作成功）
+        details:
+          - 增加useCount计数
+          - 更新lastUsed时间戳为当前时间
+          
+      - name: createPromptFromSelection
+        description: 从选中文本创建提示词
+        params:
+          - selectedText: string（选中的文本内容）
+          - options?: { autoGenerateTitle: boolean }（可选参数，默认为true）
+        returns: Promise<Prompt>（创建的提示词对象）
+        details:
+          - 自动生成提示词对象
+          - 调用自动标题生成服务或使用默认标题
+          - 将提示词保存到收藏夹
+
+      - name: generateTitleForPrompt
+        description: 为提示词内容自动生成标题
+        params:
+          - content: string（提示词内容）
+        returns: Promise<string>（生成的标题）
+        details:
+          - 分析提示词内容的主题和意图
+          - 提取关键词组合生成标题
+          - 如果内容过长，仅分析开头部分
+          - 生成的标题长度通常在10-50字符之间
+
+  - name: storage服务
+    description: 提供底层存储服务
+    file_path: services/storage/index.ts
+    details:
+      - 使用Chrome Storage API进行存储
+      - 提供get/set/remove/clear等基本操作
+      - 支持重试机制，提高存储可靠性
+      - 储存键名：STORAGE_KEYS.PROMPTS = 'aetherflow_prompts'
+      - 支持开发环境使用模拟存储服务
+
+hooks:
+  - name: usePrompts
+    description: 提示词管理Hook，便于组件使用提示词服务
+    file_path: hooks/usePrompts.ts
+    functions:
+      - loading: boolean（加载状态）
+      - prompts: Prompt[]（提示词列表）
+      - error: string | null（错误信息）
+      - searchPrompts: (keyword, filter?) => Promise<Prompt[]>（搜索提示词）
+      - incrementPromptUse: (id) => Promise<void>（增加使用次数）
+      - addPrompt: (input) => Promise<Prompt | null>（添加提示词）
+      - updatePrompt: (id, input) => Promise<Prompt | null>（更新提示词）
+      - deletePrompt: (id) => Promise<boolean>（删除提示词）
+      - toggleFavorite: (id) => Promise<boolean>（切换收藏状态）
+      - refreshPrompts: () => Promise<void>（刷新提示词列表）
+    details:
+      - 实现了Chrome Storage变化监听，自动更新提示词列表
+      - 封装各种提示词操作，提供友好的错误处理
+      - 管理加载状态和错误状态
+      
+  - name: useAppContext
+    description: 应用上下文Hook，提供全局状态和服务
+    usage: |
+      const { 
+        state,             // 全局状态
+        searchPrompts,     // 搜索提示词
+        incrementPromptUse, // 增加使用次数
+        deletePrompt       // 删除提示词
+      } = useAppContext();
+
+user_flows:
+  - name: 浏览提示词库
+    steps:
+      - 用户点击扩展图标或使用快捷键打开侧边栏
+      - 选择"提示词库"选项卡
+      - 系统加载并展示所有收藏的提示词
+      - 用户可滚动浏览提示词卡片列表
+      
+  - name: 搜索提示词
+    steps:
+      - 用户在搜索框中输入关键词
+      - 系统实时过滤匹配的提示词
+      - 结果按照选定的排序方式排列
+      - 若无匹配结果，显示"没有找到匹配的提示词"
+      
+  - name: 查看提示词详情
+    steps:
+      - 用户点击提示词卡片
+      - 右侧滑出详情抽屉，显示完整内容和元数据
+      - 用户可在详情页进行操作：复制、编辑、收藏/取消收藏、删除
+      - 点击关闭按钮或抽屉外区域关闭详情
+      
+  - name: 添加提示词
+    steps:
+      - 用户点击"添加至收藏夹"按钮
+      - 系统弹出表单模态框
+      - 用户填写标题和内容，选择是否立即收藏
+      - 点击"保存"按钮提交
+      - 系统验证输入，保存提示词并刷新列表
+      
+  - name: 编辑提示词
+    steps:
+      - 用户在详情抽屉中点击"编辑提示词"按钮
+      - 系统弹出预填充了当前提示词内容的表单模态框
+      - 用户修改标题、内容或收藏状态
+      - 点击"保存"按钮提交更改
+      - 系统更新提示词并刷新详情和列表
+      
+  - name: 复制提示词
+    steps:
+      - 用户点击卡片上的复制按钮或详情中的"复制内容"按钮
+      - 系统将提示词内容复制到剪贴板
+      - 增加提示词使用次数和最后使用时间
+      - 用户可将内容粘贴到需要的地方
+      
+  - name: 删除提示词
+    steps:
+      - 用户点击卡片上的删除按钮或详情中的"删除提示词"按钮
+      - 系统显示确认对话框"确定要删除这个提示词吗？"
+      - 用户确认后，系统删除提示词并刷新列表
+      - 若正在查看详情，同时关闭详情抽屉
+
+  - name: 选中文本捕获提示词
+    steps:
+      - 用户在网页中选中有价值的文本
+      - 右键点击，在上下文菜单中选择"Aetherflow-收藏提示词"选项
+      - 系统自动从内容生成标题并创建提示词
+      - 系统显示成功提示消息
+      - 捕获的提示词显示在提示词库中
+
+  - name: 自动标题应用场景
+    steps:
+      - 场景一：用户从网页捕获提示词时，系统自动生成标题
+      - 场景二：用户从优化结果收藏提示词时，系统自动生成标题
+      - 用户可随时在详情页面中编辑自动生成的标题
+
+performance_optimizations:
+  - name: 排序算法优化
+    description: 提供高效的提示词排序算法
+    details:
+      - 使用综合评分公式计算提示词相关性
+      - 结合使用频率、最近使用时间和收藏状态
+      - 归一化处理确保各因素权重合理
+      - 提供冷启动常数避免新提示词被完全忽略
+      
+  - name: 搜索性能优化
+    description: 确保搜索体验流畅高效
+    details:
+      - 实现防抖处理，避免频繁触发搜索
+      - 先执行本地过滤，减少不必要的API调用
+      - 针对小型数据集使用客户端搜索，提高响应速度
+      
+  - name: 存储操作可靠性
+    description: 提高Chrome Storage操作的可靠性
+    details:
+      - 实现最多3次的重试机制
+      - 每次重试前等待500ms
+      - 存储后进行验证，确保数据正确保存
+      - 详细的错误日志和用户友好的错误提示
+
+limitations:
+  - name: 存储限制
+    description: Chrome扩展存储限制
+    details:
+      - Chrome Sync Storage最大限制为100KB
+      - 轻量级模式下最多存储50条提示词
+      - 提示词内容最大长度为10000字符
+      - 标题最大长度为100字符
+      
+  - name: 性能考量
+    description: 大量提示词时的性能问题
+    details:
+      - 当提示词数量超过一定阈值时，可能出现性能下降
+      - 排序和过滤操作在提示词数量大时可能变慢
+      - 建议实现虚拟滚动以处理大量提示词
+      
+  - name: 兼容性处理
+    description: 处理不同版本的兼容性
+    details:
+      - 同时支持新旧字段名（isFavorite/favorite, isActive/active）
+      - 处理各种可能的遗留数据格式
+      - 在更新字段时保持向后兼容性
+
+error_handling:
+  - name: 错误类型定义
+    description: 为提示词操作定义专门的错误类型
+    file_path: services/prompt/errors.ts
+    details:
+      - PromptError类继承自Error，提供标准化的错误处理
+      - PromptErrorCode枚举定义了各种错误类型
+      - 支持错误码、错误信息和相关字段的传递
+      
+  - name: 验证机制
+    description: 输入验证确保数据完整性
+    file_path: services/prompt/validator.ts
+    details:
+      - PromptValidator类提供静态验证方法
+      - 验证创建和更新操作的输入
+      - 检查必填字段、字段长度、数据类型等
+      - 返回标准化的ValidationResult对象
+      
+  - name: UI错误提示
+    description: 用户友好的错误展示
+    details:
+      - 表单验证错误直接显示在对应字段下方
+      - 操作失败时显示提示消息
+      - 开发模式下提供更详细的错误日志
+
+extensibility:
+  - name: 标签系统
+    description: 提示词标签功能的扩展点
+    details:
+      - 当前数据结构已包含tags字段
+      - 可实现标签编辑、按标签筛选等功能
+      - 潜在UI元素：标签输入组件、标签筛选栏
+      
+  - name: 分类系统
+    description: 提示词分类功能的扩展点
+    details:
+      - 当前数据结构已包含category字段
+      - 可实现分类管理、按分类浏览等功能
+      - 潜在UI元素：分类选择器、分类树状视图
+      
+  - name: 云同步
+    description: 跨设备同步功能的扩展点
+    details:
+      - 现有存储机制可扩展为云存储接口
+      - 需添加用户认证和服务端存储逻辑
+      - 可实现冲突检测和解决机制
+      
+  - name: 提示词分享
+    description: 分享功能的扩展点
+    details:
+      - 可实现导出为JSON或链接分享功能
+      - 扩展UI增加分享按钮和分享选项
+      - 可开发公共提示词市场或社区功能
+
+  - name: 内容分析引擎
+    description: 提示词内容智能分析的扩展点
+    details:
+      - 当前实现包含基本的标题生成算法
+      - 可扩展为使用AI模型进行更智能的内容分析
+      - 潜在应用：自动分类、关键词提取、相似提示词推荐
+      - 可集成第三方NLP服务提高分析质量
+
+best_practices:
+  - name: 输入验证
+    details:
+      - 在服务层进行输入验证，而非UI层
+      - 使用专门的验证器类处理所有验证逻辑
+      - 提供清晰的错误信息和错误码
+      
+  - name: 错误处理
+    details:
+      - 使用try/catch包装所有异步操作
+      - 集中记录错误日志，包含详细上下文
+      - 向上层传递结构化的错误对象
+      
+  - name: 状态管理
+    details:
+      - 明确组件内部状态和全局状态的界限
+      - 在适当的组件层级处理状态更新
+      - 使用useEffect处理副作用和数据加载
+      
+  - name: 性能考量
+    details:
+      - 使用React.memo减少不必要的重渲染
+      - 实现分页或虚拟滚动处理大量数据
+      - 优化搜索和排序算法

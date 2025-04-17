@@ -1,0 +1,170 @@
+# Firebase 配置步骤详细指引
+
+## 第一步：创建 Firebase 项目
+
+1. **打开 Firebase 控制台**
+   - 在浏览器中访问: https://console.firebase.google.com/
+   - 使用您的 Google 账号登录(如果没有，需要先创建一个)
+
+2. **创建新项目**
+   - 登录后点击"创建项目"或"Add project"按钮
+   - 输入项目名称，如"AetherFlow"
+   - 点击"继续"或"Continue"
+
+3. **配置 Google Analytics（分析）**
+   - 系统会询问是否启用 Google Analytics
+   - 对于我们的项目，建议选择"启用"
+   - 点击"继续"或"Continue"
+
+4. **选择 Analytics 账号**
+   - 选择"默认 Firebase 账号"或创建一个新账号
+   - 点击"创建项目"或"Create project"
+   - 等待项目创建完成，然后点击"继续"或"Continue"
+
+## 第二步：注册网页应用
+
+1. **在项目概览页面添加应用**
+   - 点击"Web"图标（</>符号）来添加网页应用
+   - 输入应用昵称，如"AetherFlow Chrome Extension"
+   - 不需要设置 Firebase Hosting
+   - 点击"注册应用"或"Register app"
+
+2. **保存 Firebase 配置信息**
+   - 系统会显示一段包含配置信息的代码，类似于：
+   ```javascript
+   const firebaseConfig = {
+     apiKey: "xxx",
+     authDomain: "xxx.firebaseapp.com",
+     projectId: "xxx",
+     storageBucket: "xxx.appspot.com",
+     messagingSenderId: "xxx",
+     appId: "xxx",
+     measurementId: "xxx"
+   };
+   ```
+   - 请复制这段配置信息（后续开发会用到）
+   - 点击"继续控制台"或"Continue to console"
+
+## 第三步：配置认证方法
+
+1. **进入认证服务**
+   - 在左侧菜单中找到"构建"部分
+   - 点击"Authentication"选项
+
+2. **开始设置**
+   - 点击"开始使用"或"Get started"按钮
+
+3. **添加登录方式**
+   - 在"登录方法"或"Sign-in method"标签页中
+   - 点击"邮件/密码"或"Email/Password"行
+   - 点击右上角的开关启用此方法（变为蓝色）
+   - 点击"保存"或"Save"
+
+4. **添加 Google 登录（可选）**
+   - 找到"Google"行并点击
+   - 启用该方法（点击开关）
+   - 可能需要配置一个"项目支持电子邮件"
+   - 点击"保存"或"Save"
+
+5. **添加 Apple 登录（可选，步骤较复杂）**
+   - 如果需要 Apple 登录，选择"Apple"行
+   - 按照指引完成配置（需要 Apple 开发者账号）
+
+## 第四步：配置安全域（对 Chrome 扩展特别重要）
+
+1. **设置授权域**
+   - 在"Authentication"页面
+   - 找到顶部的"Settings"标签
+   - 找到"Authorized domains"部分
+   - 添加 `chrome-extension://<扩展ID>`
+   - （注意：扩展 ID 需要在开发扩展时获取）
+
+2. **临时测试设置**
+   - 在开发阶段，可以先添加 `localhost` 作为授权域
+   - 点击"Add domain"并输入 localhost
+   - 点击"Add"
+
+## 第五步：获取必要的 API 密钥限制（最佳实践）[这一步还未完成，找不到地方]
+
+1. **限制 API 密钥**
+   - 在 Firebase 控制台左侧菜单点击"项目设置"（齿轮图标）
+   - 找到"Your apps"部分，查看 Web 应用
+   - 记下 API 密钥
+   - 打开 Google Cloud Console（可能会有链接）
+   - 在 API 密钥部分为该密钥添加限制，只允许 Firebase 服务使用
+
+## 完成以上步骤后
+
+一旦您完成这些步骤，您将拥有：
+
+1. 一个 Firebase 项目
+2. 网页应用的配置信息
+3. 已启用的认证方法（邮箱/密码，可能还有 Google）
+4. 适合 Chrome 扩展的安全设置
+
+请将 Firebase 配置信息（不包括敏感密钥值）分享给我，我将开始实现认证服务。如果在操作过程中遇到任何不清楚的地方，随时告诉我，我会提供更详细的指导。
+
+# 继续 AetherFlow 认证功能开发
+
+非常好！您已经成功完成了 Firebase 设置的关键步骤：
+
+1. ✅ 创建了 Firebase 项目
+2. ✅ 注册了网页应用并获取了配置信息
+3. ✅ 配置了认证方法
+4. ✅ 设置了安全域
+
+关于第五步的 API 密钥限制，正如我之前提到的，这是一个安全最佳实践，但对于开发阶段不是必须的。我们可以在项目接近生产环境时再设置。
+
+## 接下来的步骤
+
+现在让我们开始实现认证功能的代码部分：
+
+### 1. 创建 Firebase 配置文件
+
+首先，我们需要创建一个文件来存储 Firebase 配置信息：
+
+1. 在项目的 `extension/src/services/auth` 目录下创建一个名为 `firebaseConfig.ts` 的文件
+2. 将您之前获取的配置信息添加到这个文件中
+
+### 2. 安装必要的依赖
+
+需要安装 Firebase 相关的包：
+
+```bash
+npm install firebase
+```
+
+### 3. 实现认证服务层
+
+现在，让我们开始创建认证服务层的基本结构：
+
+1. 在 `services/auth` 目录下创建以下文件：
+   - `types.ts` - 定义认证相关类型
+   - `firebase.ts` - Firebase 认证封装
+   - `actions.ts` - 实现认证操作函数
+   - `index.ts` - 导出所有认证相关功能
+
+### 4. 实现 Auth Hook
+
+接下来我们需要创建 `useAuth` 钩子来连接认证服务和 UI：
+
+1. 在 `hooks` 目录下创建 `useAuth.ts` 文件
+
+### 5. 创建认证 UI 组件
+
+最后，我们需要创建认证相关的 UI 组件：
+
+1. 在侧边栏组件中添加登录/注册按钮
+2. 创建登录表单和注册表单
+
+## 接下来操作指引
+
+从技术实现角度，我建议按以下顺序进行：
+
+ 创建 Firebase 配置文件
+ 安装必要的依赖
+1. 先实现基础的认证服务层
+2. 再实现 React Hook
+3. 最后实现 UI 组件
+
+

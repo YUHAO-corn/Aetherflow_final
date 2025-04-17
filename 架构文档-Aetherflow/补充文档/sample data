@@ -1,0 +1,399 @@
+# AetherFlow 提示词样本数据
+
+## 1. 优化服务系统提示词中的示例
+
+### 示例1: 学习效率
+- **输入**: "如何高效学习"
+- **优化后**: "请详细说明适合不同学习风格的高效学习方法，包括时间管理技巧、记忆增强策略和专注力训练方法。在回答中，分别针对视觉型、听觉型和实践型学习者提供具体建议，并附上每种方法的预期效果和科学依据。"
+
+### 示例2: 情绪管理
+- **输入**: "我的心情不好怎么办？"
+- **优化后**: "请提供一些有效应对消极情绪的策略和方法。我希望了解：1) 快速缓解不良情绪的即时技巧；2) 长期维持情绪健康的日常习惯；3) 专业心理学视角的情绪管理建议。请在回答中涵盖身体、思维和社交各方面的平衡方法。"
+
+## 2. 后台预设的提示词样本 (sampleData.ts)
+
+### 样本1: 学习效率指南
+```
+{
+  title: 'How to Study Efficiently',
+  content: `# How to Study Efficiently
+
+## Background
+I need a systematic guide for effective learning strategies to improve my study habits.
+
+## Requirements
+1. **Preparation Techniques**
+   - Setting clear objectives
+   - Environment optimization
+   - Time management
+
+2. **Learning Methods**
+   - Active learning approaches
+   - Memory techniques
+   - Focus maintenance
+
+3. **Application & Review**
+   - Knowledge application
+   - Progress evaluation
+   - Problem-solving strategies
+
+## Output Format
+- Use clear structure with practical examples
+- Include scientific basis where relevant
+- Provide adaptable methods for different subjects`,
+  isFavorite: true,
+  favorite: true,
+  createdAt: Date.now() - 100000,
+  updatedAt: Date.now() - 50000,
+  useCount: 15,
+  lastUsed: Date.now() - 10000,
+  tags: ['Learning', 'Efficiency', 'Methodology'],
+  source: 'predefined',
+  category: 'Learning Methods',
+  isActive: true
+}
+```
+
+### 样本2: 身体管理指南
+```
+{
+  title: 'Scientific Body Management',
+  content: `# Scientific Body Management Plan
+
+## Goal
+Create a balanced 4-week health plan for **[GOAL]** (weight management/muscle building/general fitness).
+
+## Key Components
+
+### 1. Nutrition
+- Balanced meal structure with appropriate macronutrients
+- Calorie guidelines based on activity level
+- Food quality recommendations
+
+### 2. Exercise
+- Weekly cardio schedule (3-5 sessions)
+- Strength training plan (2-3 sessions)
+- Flexibility and mobility work
+
+### 3. Lifestyle
+- Sleep optimization
+- Stress management techniques
+- Hydration guidelines
+
+## Expected Output
+Provide a practical 4-week plan with specific recommendations for nutrition, exercise, and lifestyle habits tailored to my goal.
+
+Note: Simply replace [GOAL] with your specific health objective.`,
+  isFavorite: true,
+  favorite: true,
+  createdAt: Date.now() - 900000,
+  updatedAt: Date.now() - 80000,
+  useCount: 8,
+  lastUsed: Date.now() - 40000,
+  tags: ['Health', 'Exercise', 'Diet'],
+  source: 'predefined',
+  category: 'Health Management',
+  isActive: true
+}
+```
+
+### 样本3: 情绪调节指南
+```
+{
+  title: 'Mood Regulation Guide',
+  content: `# Emotional Regulation Guide
+
+As a mental health professional, provide practical strategies for managing **[EMOTION]** (anxiety/sadness/anger/stress).
+
+## Structure
+
+1. **Immediate Relief Techniques**
+   - Physical methods (breathing, exercise)
+   - Cognitive approaches (thought restructuring)
+   - Environmental adjustments
+
+2. **Long-term Management**
+   - Daily emotional maintenance practices
+   - Preventive strategies
+   - Resilience-building methods
+
+3. **Professional Support**
+   - When to seek help
+   - Types of appropriate therapy
+   - Reliable self-help resources
+
+## Output Format
+- Provide scientifically-backed, actionable strategies
+- Include specific steps for implementation
+- Use accessible language without oversimplification
+
+Note: Replace [EMOTION] with the specific emotion you're experiencing.`,
+  isFavorite: true,
+  favorite: true,
+  createdAt: Date.now() - 700000,
+  updatedAt: Date.now() - 70000,
+  useCount: 12,
+  lastUsed: Date.now() - 20000,
+  tags: ['Psychology', 'Emotions', 'Health'],
+  source: 'predefined',
+  category: 'Mental Health',
+  isActive: true
+}
+```
+
+### 样本4: 教师作业评改助手
+```
+{
+  title: 'Assignment Feedback Generator',
+  content: `# Educational Assignment Feedback
+
+As an experienced educator, review the attached **[ASSIGNMENT_TYPE]** (essay/report/project/problem set) for **[SUBJECT]** and provide structured feedback.
+
+## Evaluation Framework
+
+### Content Assessment
+- Accuracy and depth of understanding
+- Application of key concepts
+- Critical thinking and creativity
+- Use of evidence and examples
+
+### Structure & Technical Elements
+- Organization and logical flow
+- Language usage and clarity
+- Format and presentation
+- Citation and referencing (if applicable)
+
+## Feedback Structure
+
+1. **Strengths Summary** (2-3 key points)
+2. **Areas for Improvement** (2-3 priorities)
+3. **Specific Examples** (referencing particular sections)
+4. **Growth Recommendations** (3-5 actionable steps)
+
+Use constructive, supportive language while maintaining academic standards.
+
+Note: Simply attach student work and specify the assignment type and subject.`,
+  isFavorite: true,
+  favorite: true,
+  createdAt: Date.now() - 300000,
+  updatedAt: Date.now() - 20000,
+  useCount: 18,
+  lastUsed: Date.now() - 5000,
+  tags: ['Education', 'Teaching', 'Feedback'],
+  source: 'predefined',
+  category: 'Educational Tools',
+  isActive: true
+}
+```
+
+### 样本5: 媒体创意与SEO内容生成器
+```
+{
+  title: 'Content Creation Engine',
+  content: `# SEO Content Creator
+
+As a content strategist, create a **[CONTENT_TYPE]** (article/blog post/social media/email) about **[TOPIC]** optimized for **[TARGET_AUDIENCE]**.
+
+## Content Framework
+
+### SEO Elements
+- Strategic keyword incorporation
+- SEO-optimized headline and structure
+- Meta description recommendation
+- Internal/external linking suggestions
+
+### Content Structure
+- Engaging introduction with hook
+- Logical section organization
+- Compelling conclusion with call-to-action
+- Supporting evidence and examples
+
+### Engagement Features
+- Data points or statistics
+- Relevant analogies or metaphors
+- Visual content suggestions
+- Interactive elements (questions, polls)
+
+## Delivery Requirements
+- Professionally written, publication-ready content
+- Proper formatting with headers and lists
+- Balanced creativity and clarity
+- 600-1000 words (adjustable based on content type)
+
+Note: Simply specify content type, topic, and target audience to generate customized content.`,
+  isFavorite: true,
+  favorite: true,
+  createdAt: Date.now() - 250000,
+  updatedAt: Date.now() - 15000,
+  useCount: 22,
+  lastUsed: Date.now() - 3000,
+  tags: ['Marketing', 'SEO', 'Content Creation'],
+  source: 'predefined',
+  category: 'Marketing Tools',
+  isActive: true
+}
+```
+
+### 样本6: 研究文献分析助手
+```
+{
+  title: 'Research Paper Analyzer',
+  content: `# Research Paper Analysis
+
+As a research methodology expert, analyze the attached paper on **[TOPIC]** and provide a comprehensive evaluation.
+
+## Analysis Framework
+
+### Methodology Assessment
+- Research design appropriateness
+- Data collection and analysis methods
+- Validity and reliability considerations
+- Limitations and their handling
+
+### Contribution Evaluation
+- Positioning within existing literature
+- Theoretical and practical significance
+- Innovation in approach or findings
+- Implications for the field
+
+### Quality Analysis
+- Argument coherence and logic
+- Evidence strength and relevance
+- Alternative interpretations
+- Ethical considerations
+
+## Output Format
+
+1. **Executive Summary** (200 words)
+2. **Strengths & Weaknesses** (3-5 points each)
+3. **Key Implications** (theoretical and practical)
+4. **Future Research Directions** (2-3 suggestions)
+
+Include specific examples from the paper to support your analysis.
+
+Note: Simply attach the research paper and specify the topic to receive a tailored analysis.`,
+  isFavorite: true,
+  favorite: true,
+  createdAt: Date.now() - 400000,
+  updatedAt: Date.now() - 25000,
+  useCount: 14,
+  lastUsed: Date.now() - 8000,
+  tags: ['Research', 'Academic', 'Analysis'],
+  source: 'predefined',
+  category: 'Academic Tools',
+  isActive: true
+}
+```
+
+### 样本7: 产品开发与市场分析框架
+```
+{
+  title: 'Product Strategy Framework',
+  content: `# Product Development Strategy
+
+As a product strategy expert, analyze **[PRODUCT_NAME]** in the **[INDUSTRY]** sector and develop a strategic roadmap.
+
+## Analysis Structure
+
+### Market Assessment
+- Market size and growth trends
+- Target segment characteristics
+- Competitive landscape analysis
+- Regulatory and technological factors
+
+### Product Evaluation
+- Value proposition and differentiation
+- Feature-benefit alignment with user needs
+- Adoption barriers and solutions
+- Pricing strategy and positioning
+
+### Strategic Recommendations
+- Development priorities and timeline
+- Go-to-market approach
+- Key performance indicators
+- Resource requirements
+
+## Deliverable Format
+
+1. **Strategic Summary** (key opportunities and challenges)
+2. **Detailed Analysis** (market, product, competition)
+3. **Action Plan** (prioritized next steps)
+
+Support recommendations with relevant market insights and competitive analysis.
+
+Note: Specify your product name and industry to receive customized strategic guidance.`,
+  isFavorite: true,
+  favorite: true,
+  createdAt: Date.now() - 350000,
+  updatedAt: Date.now() - 18000,
+  useCount: 16,
+  lastUsed: Date.now() - 6000,
+  tags: ['Product Development', 'Market Analysis', 'Business Strategy'],
+  source: 'predefined',
+  category: 'Business Tools',
+  isActive: true
+}
+```
+
+### 样本8: 法律文档分析助手
+```
+{
+  title: 'Legal Document Analyzer',
+  content: `# Legal Document Analysis
+
+As a legal specialist, review the attached **[DOCUMENT_TYPE]** (contract/agreement/policy) and provide a comprehensive assessment.
+
+## Analysis Framework
+
+### Structural Review
+- Document organization and completeness
+- Required legal elements and compliance
+- Formatting and referencing standards
+- Missing or incomplete sections
+
+### Content Evaluation
+- Terms and definitions clarity
+- Rights and obligations specification
+- Liability and risk allocation
+- Dispute resolution mechanisms
+
+### Risk Assessment
+- Potential enforceability issues
+- Legal vulnerabilities or loopholes
+- Compliance with relevant regulations
+- Protection adequacy for involved parties
+
+## Output Format
+
+1. **Executive Summary** (document quality assessment)
+2. **Critical Issues** (3-5 priority concerns)
+3. **Improvement Recommendations** (specific language suggestions)
+4. **Implementation Guidance** (next steps and priorities)
+
+Provide practical, actionable advice based on established legal principles.
+
+Note: Simply attach your legal document and specify the document type to receive tailored analysis.`,
+  isFavorite: true,
+  favorite: true,
+  createdAt: Date.now() - 450000,
+  updatedAt: Date.now() - 22000,
+  useCount: 10,
+  lastUsed: Date.now() - 7000,
+  tags: ['Legal', 'Contracts', 'Analysis'],
+  source: 'predefined',
+  category: 'Legal Tools',
+  isActive: true
+}
+```
+
+## 3. 优化改良方案中的示例样本（未集成）
+
+这些是在`优化改良方案`文档中提到的示例，但目前尚未实际集成到系统中：
+
+### 问题型提示词示例
+- **原始**: "解释量子计算"
+- **优化后**: "请作为量子物理学教授，提供关于量子计算的全面解释。包括量子比特的基本概念、量子叠加态和纠缠的工作原理，以及量子计算与经典计算的核心区别。请使用清晰的比喻和具体的例子，帮助具有基础物理知识但缺乏量子力学背景的大学生理解这些概念。回答应涵盖当前量子计算的实际应用和未来潜力，以及面临的主要技术挑战。"
+
+### 创作型提示词示例
+- **原始**: "写一个关于未来的故事"
+- **优化后**: "作为一位科幻小说作家，创作一个设定在2150年的短篇故事。故事应围绕人工智能与人类共存的社会展开，探索科技与人性的平衡。请包含以下元素：一个面临道德困境的主角、一项改变社会结构的新技术、以及对未来日常生活的生动描述。故事长度应在800-1000字左右，风格应富有哲理性但不失温度，并通过细节描写而非直接叙述来展现未来世界。故事应留有开放式结局，引发读者对技术发展方向的思考。"
