@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Rocket, Zap } from 'lucide-react';
+import { authService } from '../../services/auth';
 
 interface UpgradeButtonProps {
   // 来源标识(用于跟踪)
@@ -34,14 +35,25 @@ export const UpgradeButton: React.FC<UpgradeButtonProps> = ({
   className = ''
 }) => {
   // 处理按钮点击，附加来源信息
-  const handleClick = () => {
+  const handleClick = useCallback(async () => {
     if (onClick) {
       onClick();
     } else {
-      // 默认行为：开启新标签页访问升级页面
-      window.open(`https://aetherflow-app.github.io/pricing.html?source=${source}`, '_blank');
+      try {
+        // 默认行为：尝试获取认证URL并跳转
+        const targetPath = '/pricing.html';
+        const params = { source: source };
+        
+        // 获取带认证令牌的URL
+        const authUrl = await authService.generateWebsiteAuthUrl(targetPath, params);
+        window.open(authUrl, '_blank');
+      } catch (error) {
+        console.error('跳转到升级页面失败:', error);
+        // 降级：如果生成认证URL失败，使用普通URL
+        window.open(`https://aetherflow-app.github.io/pricing.html?source=${source}`, '_blank');
+      }
     }
-  };
+  }, [onClick, source]);
   
   // 根据会员状态和变体确定样式
   const getButtonClasses = () => {

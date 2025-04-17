@@ -233,5 +233,79 @@ export const authService: AuthService = {
   isAuthenticated(): boolean {
     const auth = getFirebaseAuth();
     return !!auth.currentUser;
+  },
+
+  /**
+   * 生成带认证令牌的官网URL
+   * 用于从扩展无缝跳转到官网并自动登录
+   * @param targetPath 目标页面路径，如 '/pricing.html'
+   * @param params 额外的URL参数
+   * @returns 包含认证令牌的完整URL
+   */
+  async generateWebsiteAuthUrl(targetPath: string, params?: Record<string, string>): Promise<string> {
+    try {
+      const auth = getFirebaseAuth();
+      const currentUser = auth.currentUser;
+      
+      console.log('[Auth Debug] 开始生成带认证的网站URL，目标路径:', targetPath);
+      
+      if (!currentUser) {
+        // 如果用户未登录，则只返回带参数的基础URL，不附加令牌
+        console.warn('[Auth Debug] 用户未登录，无法生成带认证的URL，将跳转普通URL');
+        const baseUrl = 'https://aetherflow-app.com'; // 更新为正式域名
+        let url = `${baseUrl}${targetPath}`;
+        if (params) {
+          const urlParams = new URLSearchParams(params);
+          url = `${url}?${urlParams.toString()}`;
+        }
+        console.log('[Auth Debug] 生成的普通URL:', url);
+        return url;
+      }
+      
+      console.log('[Auth Debug] 用户已登录，UID:', currentUser.uid);
+      
+      // 获取用户 Firebase ID Token
+      console.log('[Auth Debug] 正在获取用户ID Token...');
+      const idToken = await currentUser.getIdToken(/* forceRefresh */ true);
+      console.log('[Auth Debug] 成功获取ID Token，长度:', idToken.length);
+      
+      // 构建基础URL - 更新为正式域名
+      const baseUrl = 'https://aetherflow-app.com'; 
+      let url = `${baseUrl}${targetPath}`;
+      
+      // 构建查询参数
+      const urlParams = new URLSearchParams();
+      urlParams.set('idToken', idToken); // 使用 idToken 作为参数名
+      
+      // 添加额外参数
+      if (params) {
+        console.log('[Auth Debug] 添加额外参数:', Object.keys(params).join(', '));
+        Object.entries(params).forEach(([key, value]) => {
+          urlParams.set(key, value);
+        });
+      }
+      
+      // 组合最终URL
+      url = `${url}?${urlParams.toString()}`;
+      
+      // 只记录不带敏感信息的URL（截断token部分）
+      const urlForLog = url.replace(/idToken=([^&]{10}).*?(&|$)/, 'idToken=$1...$2');
+      console.log('[Auth Debug] 生成的认证URL:', urlForLog);
+      
+      return url;
+    } catch (error: any) {
+      console.error('[Auth Debug] 生成认证URL失败:', error);
+      // 失败时返回不带令牌的基础URL
+      const baseUrl = 'https://aetherflow-app.com';
+      let url = `${baseUrl}${targetPath}`;
+      if (params) {
+        const urlParams = new URLSearchParams(params);
+        url = `${url}?${urlParams.toString()}`;
+      }
+      console.log('[Auth Debug] 生成的降级URL:', url);
+      return url; 
+      // 或者可以抛出错误让调用处处理
+      // throw new Error(error.message || '生成认证URL失败');
+    }
   }
 }; 

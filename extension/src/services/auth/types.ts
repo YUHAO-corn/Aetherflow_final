@@ -77,6 +77,9 @@ export interface AuthService {
   
   // 检查认证状态
   isAuthenticated(): boolean;
+  
+  // 生成带认证令牌的官网URL
+  generateWebsiteAuthUrl(targetPath: string, params?: Record<string, string>): Promise<string>;
 }
 
 // Firebase User 到应用 User 的转换函数类型
