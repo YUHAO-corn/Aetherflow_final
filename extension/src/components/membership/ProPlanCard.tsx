@@ -1,8 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Rocket } from 'lucide-react';
 
 // 引入类型
 import { MembershipQuota } from '../../services/membership';
+// 引入认证服务
+import { authService } from '../../services/auth';
 
 interface ProPlanCardProps {
   // 显示位置参考元素
@@ -40,22 +42,41 @@ export const ProPlanCard: React.FC<ProPlanCardProps> = ({
   const [position, setPosition] = useState({ top: 0, left: 0, direction: 'down' });
   const cardRef = useRef<HTMLDivElement>(null);
   
-  // 处理升级按钮点击
-  const handleUpgradeClick = () => {
+  // 处理升级按钮点击 (修改后)
+  const handleUpgradeClick = useCallback(async () => {
     if (onUpgradeClick) {
       onUpgradeClick();
     } else {
-      // 默认行为：打开升级页面
-      window.open('https://aetherflow-app.github.io/pricing.html?source=plan_card', '_blank');
+      try {
+        // 新增：尝试获取带认证令牌的URL
+        const targetPath = '/pricing.html';
+        const params = { source: 'plan_card' }; 
+        console.log('[ProPlanCard] 用户点击升级按钮，尝试生成认证URL');
+        const authUrl = await authService.generateWebsiteAuthUrl(targetPath, params);
+        window.open(authUrl, '_blank');
+      } catch (error) {
+        console.error('[ProPlanCard] 生成认证URL失败，跳转普通URL:', error);
+        // 降级：如果生成认证URL失败，使用普通URL
+        window.open(`https://aetherflow-app.com/pricing.html?source=plan_card`, '_blank');
+      }
     }
     onClose();
-  };
+  }, [onUpgradeClick, onClose]);
   
-  // 处理查看所有计划链接点击
-  const handleViewAllPlans = () => {
-    window.open('https://aetherflow-app.github.io/pricing.html?source=view_all_plans', '_blank');
+  // 处理查看所有计划链接点击 (修改后，同样使用认证URL)
+  const handleViewAllPlans = useCallback(async () => {
+    try {
+      const targetPath = '/pricing.html';
+      const params = { source: 'view_all_plans' };
+      console.log('[ProPlanCard] 用户点击查看所有计划，尝试生成认证URL');
+      const authUrl = await authService.generateWebsiteAuthUrl(targetPath, params);
+      window.open(authUrl, '_blank');
+    } catch (error) {
+      console.error('[ProPlanCard] 生成认证URL失败，跳转普通URL:', error);
+      window.open(`https://aetherflow-app.com/pricing.html?source=view_all_plans`, '_blank');
+    }
     onClose();
-  };
+  }, [onClose]);
   
   // 计算卡片位置 - 优化位置计算逻辑，考虑Portal渲染
   useEffect(() => {
