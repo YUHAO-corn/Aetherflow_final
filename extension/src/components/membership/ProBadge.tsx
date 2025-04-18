@@ -51,8 +51,8 @@ export const ProBadge: React.FC<ProBadgeProps> = ({
     <div
       className={badgeClasses}
       onClick={onClick}
-      aria-label={isActive ? 'Pro 会员' : '升级到 Pro'}
-      title={isActive ? 'Pro 会员' : '升级到 Pro'}
+      aria-label={isActive ? 'Pro Member' : 'Upgrade to Pro'}
+      title={isActive ? 'Pro Member' : 'Upgrade to Pro'}
       role="button"
       tabIndex={0}
     >

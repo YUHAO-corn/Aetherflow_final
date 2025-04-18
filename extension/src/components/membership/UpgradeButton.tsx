@@ -42,32 +42,27 @@ export const UpgradeButton: React.FC<UpgradeButtonProps> = ({
       try {
         // 获取当前登录用户
         const currentUser = await authService.getCurrentUser();
-        
-        if (!currentUser) {
-          // 用户未登录，显示登录提示
-          if (confirm('您需要先登录才能升级到Pro版本。是否立即登录？')) {
-            // 构建登录URL
-            const loginUrl = 'https://aetherflow-app.com/index.html?auth=signin&callback=payment';
-            window.open(loginUrl, '_blank');
-          }
-          return;
+        const pricingUrl = `https://aetherflow-app.github.io/pricing.html?source=${source}`;
+
+        if (currentUser) {
+          // 用户已登录，生成带认证令牌的URL并跳转到定价页面
+          const targetPath = '/pricing.html';
+          const params = { 
+            source: source,
+            uid: currentUser.uid,
+            email: currentUser.email || ''
+          };
+          const authUrl = await authService.generateWebsiteAuthUrl(targetPath, params);
+          window.open(authUrl, '_blank');
+        } else {
+          // 用户未登录，直接跳转到定价页面，不显示弹窗
+          window.open(pricingUrl, '_blank');
         }
-        
-        // 默认行为：获取认证URL并跳转
-        const targetPath = '/pricing.html';
-        const params = { 
-          source: source,
-          uid: currentUser.uid, // 传递用户ID
-          email: currentUser.email || '' // 传递邮箱用于自动填充
-        };
-        
-        // 获取带认证令牌的URL
-        const authUrl = await authService.generateWebsiteAuthUrl(targetPath, params);
-        window.open(authUrl, '_blank');
       } catch (error) {
         console.error('跳转到升级页面失败:', error);
-        // 降级：如果生成认证URL失败，使用普通URL
-        window.open(`https://aetherflow-app.github.io/pricing.html?source=${source}`, '_blank');
+        // 降级：如果生成认证URL失败或发生其他错误，使用普通URL
+        const pricingUrl = `https://aetherflow-app.github.io/pricing.html?source=${source}`;
+        window.open(pricingUrl, '_blank');
       }
     }
   }, [onClick, source]);
