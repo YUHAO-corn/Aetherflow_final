@@ -11,6 +11,7 @@ import {
 } from 'firebase/auth';
 import { getFirebaseAuth, createGoogleProvider, mapFirebaseUser } from './firebase';
 import { AuthService, LoginInput, RegisterInput, User } from './types';
+import { handleSessionEnd } from './sessionManager';
 
 // 保存用户认证状态到 Chrome 存储
 const saveAuthStateToStorage = async (user: User | null) => {
@@ -216,7 +217,14 @@ export const authService: AuthService = {
         });
       } else {
         // 清除 Chrome 存储中的用户信息
-        saveAuthStateToStorage(null).then(() => {
+        saveAuthStateToStorage(null).then(async () => {
+          // 用户登出，调用会话结束处理函数
+          try {
+            await handleSessionEnd();
+          } catch (error) {
+            console.error('处理会话结束时发生错误:', error);
+          }
+          
           callback(null);
         });
       }

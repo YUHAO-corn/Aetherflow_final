@@ -204,12 +204,6 @@ class MembershipService {
       } else {
         // 用户登出时
         console.log('[MembershipService] 用户登出，清理监听');
-        
-        // 清理 Firestore 监听
-        if (this.firestoreUnsubscribe) {
-          this.firestoreUnsubscribe();
-          this.firestoreUnsubscribe = null;
-        }
       }
     });
   }
@@ -814,6 +808,37 @@ class MembershipService {
     } finally {
       // 隐藏加载状态
       if (setLoading) setLoading(false);
+    }
+  }
+
+  /**
+   * 重置会员服务状态
+   * 在用户登出或会话结束时调用
+   * 清理所有内存中的会员状态和监听器
+   */
+  async reset(): Promise<void> {
+    console.log('[MembershipService] 重置会员服务状态');
+    
+    // 清理 Firestore 监听
+    if (this.firestoreUnsubscribe) {
+      this.firestoreUnsubscribe();
+      this.firestoreUnsubscribe = null;
+    }
+    
+    // 重置内存状态为默认免费状态
+    this.currentState = DEFAULT_FREE_MEMBERSHIP;
+    
+    // 清除本地存储的会员状态
+    try {
+      await storageService.remove(STORAGE_KEYS.MEMBERSHIP);
+      await storageService.remove(LAST_SYNC_TIME_KEY);
+      
+      // 通知观察者状态已重置
+      this.broadcastStateChange();
+      
+      console.log('[MembershipService] 会员服务状态已重置');
+    } catch (error) {
+      console.error('[MembershipService] 重置会员状态失败:', error);
     }
   }
 }

@@ -1,0 +1,53 @@
+# 健壮的状态与会话生命周期管理设计
+
+## 目标
+
+确保应用程序在用户认证状态变化（尤其是登出或会话失效）时，能够可靠、一致地管理和清理所有相关状态（内存缓存、本地存储），并正确更新 UI。
+
+## 设计原则
+
+1.  **单一认证来源**: `AuthService` (基于 Firebase Auth) 是用户认证状态的唯一权威来源。
+2.  **集中状态变更处理**: `AuthService.onAuthStateChanged` 是监听认证状态变化的核心，并负责触发后续的全局状态处理。
+3.  **统一清理入口**: 一个全局函数 (例如 `handleSessionEnd`) 在检测到用户登出 (`user === null`) 时被调用，负责协调所有清理工作。
+4.  **服务职责明确**: 每个管理用户特定数据的服务需提供 `reset()` 方法，用于清理自身状态。
+5.  **彻底清理**: 清理操作必须覆盖内存状态和服务内部缓存，以及 `chrome.storage.local` 中存储的所有用户特定数据。
+
+## 核心流程 (会话结束时)
+
+1.  **触发**: `AuthService.onAuthStateChanged` 检测到 `firebaseUser === null`。
+2.  **调用入口**: `onAuthStateChanged` 调用全局 `handleSessionEnd()`。
+3.  **执行清理**: `handleSessionEnd()` 负责：
+    *   **清除本地存储**: 调用一个函数 (如 `storageService.clearUserSessionData()`) 或直接使用 `chrome.storage.local.remove([...userSpecificKeys])` 移除所有与用户会话相关的数据（认证令牌、用户信息、会员状态、提示词缓存、用户偏好等）。
+    *   **重置服务状态**: 按顺序调用各个相关服务的 `reset()` 方法：
+        *   `membershipService.reset()`: 清除内存缓存，重置为默认状态，清除相关本地存储。
+        *   `promptService.reset()`: 清除内存缓存，清除相关本地存储。
+        *   `cloudStorageService.reset()`: 清理 Firestore 监听器，重置同步状态，清除内部用户 ID。
+        *   *(其他需要重置的服务)...*
+4.  **通知 UI**: 服务状态重置后，通知其订阅者（通常是 React Hooks）。
+5.  **UI 更新**: React Hooks (`useAuth`, `useMembership`, `usePromptsData` 等) 收到状态更新，触发 UI 重新渲染以反映未登录状态。
+
+## 服务 `reset()` 方法实现要点
+
+*   **`MembershipService.reset()`**:
+    *   `this.currentState = DEFAULT_MEMBERSHIP_STATE;`
+    *   `await storageService.remove(MEMBERSHIP_STORAGE_KEY);`
+    *   通知订阅者状态已重置。
+*   **`PromptService.reset()`**:
+    *   `this.cachedPrompts = [];`
+    *   `await storageService.remove(PROMPTS_STORAGE_KEY);` (如果适用)
+    *   通知订阅者状态已重置。
+*   **`CloudStorageService.reset()`**:
+    *   `this.cleanupFirestoreListeners();`
+    *   `this.setSyncStatus('idle', '已登出');`
+    *   `this.userId = null;`
+    *   `this.currentUser = null;`
+    *   *(可选)* `this.pendingOperationsList = [];`
+    *   通知订阅者状态已重置。
+
+## 注意事项
+
+*   **明确 `chrome.storage.local` 的键**: 需要明确列出所有需要 在`handleSessionEnd` 中被清理的用户特定存储键。
+*   **`logoutUser` 职责**: `AuthService.logoutUser` 只负责调用 `firebase.auth().signOut()`，实际清理由 `onAuthStateChanged` 触发的 `handleSessionEnd` 完成。
+*   **错误处理**: 在 `reset` 方法和清理流程中添加适当的错误处理。
+
+这个设计旨在提供一个更清晰、更可靠、更易于维护的状态和会话管理模型。

@@ -85,7 +85,6 @@ export class CloudStorageService implements StorageService {
         this.currentUser = null;
         this.userId = null;
         this.cleanupFirestoreListeners();
-        this.onLogout();
       }
     });
   }
@@ -751,6 +750,15 @@ export class CloudStorageService implements StorageService {
       const v = c === 'x' ? r : (r & 0x3) | 0x8;
       return v.toString(16);
     });
+  }
+
+  /**
+   * 重置云存储服务状态
+   * 在用户登出或会话结束时调用
+   */
+  async reset(): Promise<void> {
+    console.log('[CloudStorageService] 重置云存储服务状态');
+    await this.onLogout();
   }
 }
 
