@@ -7,7 +7,7 @@ import { SettingsDrawer } from './SettingsDrawer';
 import LoginButton from './LoginButton';
 import AuthDrawer from './AuthModal';
 import { SyncStatusIndicator } from '../../../components/common';
-import { UpgradeButton, DevMembershipTools, ProBadge, PlanCardConnector } from '../../../components/membership';
+import { UpgradeButton, DevMembershipTools, ProBadge, PlanCardConnector, MembershipCenter } from '../../../components/membership';
 import type { Prompt } from '../../../services/prompt/types';
 import { usePromptsData } from '../../../hooks/usePromptsData';
 import { useOptimize } from '../../../hooks/useOptimize';
@@ -19,6 +19,7 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'library' | 'optimize'>('library');
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [isMembershipCenterOpen, setIsMembershipCenterOpen] = useState(false);
   const [isLogoHovered, setIsLogoHovered] = useState(false);
   const logoTimeoutRef = useRef<number | null>(null);
 
@@ -54,8 +55,13 @@ const App: React.FC = () => {
 
   // 处理ProBadge点击事件
   const handleProBadgeClick = () => {
-    // 在开发环境中显示消息，提醒使用测试工具切换状态
-    console.log('点击了PRO标识，请使用右下角的会员状态测试工具切换会员状态');
+    // 仅当用户是Pro会员时才打开会员中心
+    if (isProMember) {
+      setIsMembershipCenterOpen(true);
+    } else {
+      // 非会员点击时，可以使用开发工具
+      console.log('点击了PRO标识，请使用右下角的会员状态测试工具切换会员状态');
+    }
   };
 
   // 监听提示词更新消息
@@ -89,6 +95,15 @@ const App: React.FC = () => {
       chrome.runtime.onMessage.removeListener(handlePromptUpdated);
     };
   }, [refresh]);
+
+  // 处理UpgradeButton点击事件
+  const handleUpgradeButtonClick = () => {
+    // 如果已是Pro会员，打开会员中心
+    if (isProMember) {
+      setIsMembershipCenterOpen(true);
+    }
+    // 如果不是Pro会员，PlanCardConnector会处理点击事件
+  };
 
   const handleLogoHover = () => {
     if (!isLogoHovered) {
@@ -200,7 +215,10 @@ const App: React.FC = () => {
           {/* 升级按钮，位于云存储图标右侧 */}
           <div className="ml-2">
             <PlanCardConnector triggerType="hover" source="upgrade_button">
-              <UpgradeButton isProMember={isProMember} />
+              <UpgradeButton 
+                isProMember={isProMember} 
+                onClick={isProMember ? handleUpgradeButtonClick : undefined}
+              />
             </PlanCardConnector>
           </div>
         </div>
@@ -223,6 +241,14 @@ const App: React.FC = () => {
         isOpen={isAuthOpen}
         onClose={handleCloseAuth}
       />
+
+      {/* 会员中心抽屉 - 仅Pro会员可见 */}
+      {isProMember && (
+        <MembershipCenter
+          isOpen={isMembershipCenterOpen}
+          onClose={() => setIsMembershipCenterOpen(false)}
+        />
+      )}
 
       {/* 开发环境专用的会员状态测试工具 */}
       <DevMembershipTools />

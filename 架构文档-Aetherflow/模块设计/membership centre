@@ -1,0 +1,449 @@
+---
+# AetherFlow 会员中心功能需求文档 (Membership Center PRD)
+version: 1.1 # 版本更新
+date: 2024-07-27
+status: revised
+
+# 1. 文档目标
+# 为AI编程员提供清晰、可执行的会员中心 **初始版本** 开发指令。
+# 本文档定义了会员中心首次上线所需的最小可行产品 (MVP) 范围。
+# **核心前提：本会员中心仅对已付费的 Pro 会员开放和可见。**
+
+# 2. 整体设计 (参考 payment.md)
+design_overview:
+  component_name: MembershipCenter
+  access: **仅限 Pro 会员**
+  note: "重要：此组件的整体样式、结构和背景应复用现有的抽屉组件（如 SettingsDrawer, PromptDetailDrawer），确保视觉一致性和不透明背景。"
+  type: 侧边抽屉 (Side Drawer)
+  trigger:
+    - 点击激活状态(金色)的 ProBadge 组件
+    - 点击已激活状态(闪电图标)的 UpgradeButton 组件
+  appearance:
+    width: 420px
+    position: 从右侧滑入
+    background: "var(--bg-primary)" # 使用应用主题的背景色
+    # 应与 SettingsDrawer 等组件的背景样式一致 (例如: bg-gradient-to-br from-magic-800 to-magic-900)
+    header: 包含标题 "会员中心" 和一个关闭按钮 (X 图标)
+  interaction:
+    - 点击抽屉外部区域或关闭按钮可关闭抽屉
+    - 内容超出高度时应支持垂直滚动
+  animation:
+    - 包含基础的滑入/滑出效果即可
+
+# 3. 功能需求 - 初始版本 (MVP)
+functional_requirements:
+
+  # 3.1 会员状态概览区域
+  status_overview_section:
+    title: "Membership Status"
+    layout: 卡片式区域，置于顶部
+    content:
+      - display_membership_status: # 显示会员状态
+          source: MembershipService.getCurrentMembership()
+          format: "Pro Member" # 始终显示为 Pro Member
+          style: Pro会员状态应使用醒目样式 (如金色文字或标识)
+      - display_account_email: # 显示关联邮箱 (来自原D4)
+          source: AuthService.getCurrentUser() # 假设AuthService提供获取邮箱接口
+          format: "Account: {email}"
+          style: 较小字号，置于状态下方
+      - display_current_plan: # 显示当前计划
+          source: MembershipService.getCurrentMembership()
+          format: "Current Plan: {plan}" # (例如: "月度计划", "年度计划")
+          style: 清晰可读即可
+      - display_expiration_date: # 显示到期/续费日期
+          source: MembershipService.getCurrentMembership()
+          format: "Renews on: {expiresAt}" # 日期格式: YYYY年MM月DD日
+          style: 清晰可读
+      - display_membership_start_date: # 显示会员开始日期 (来自原D4)
+          source: MembershipService.getCurrentMembership()
+          format: "Member since: {startedAt}" # 日期格式: YYYY年MM月DD日
+          style: 较小字号
+    acceptance_criteria:
+      - Correctly displays "Pro Member" status.
+      - Displays the logged-in user's email address.
+      - Displays the correct plan type (e.g., Monthly, Annual).
+      - Displays a correctly formatted renewal date (not "Unknown" or invalid for Pro members).
+      - Displays a correctly formatted membership start date.
+
+  # 3.2 会员特权展示区域
+  benefits_section:
+    title: "Pro Benefits"
+    layout: 简单列表区域
+    content:
+      - list_core_benefits: # 列出核心特权 (静态)
+          items:
+            - "✓ 100 prompt storage"
+            - "✓ 50 daily optimizations"
+            - "✓ Prompt export feature"
+            - "✓ Priority support"
+            - "✓ Early access to new features"
+          style: 使用对勾图标增强视觉效果
+    acceptance_criteria:
+      - Clearly lists the core Pro benefits statically in English.
+
+  # 3.3 配额用量展示区域 (静态 UI 优先)
+  quota_usage_section:
+    title: "My Usage"
+    layout: 卡片式区域或列表
+    # **重要说明:** 此区域在初始版本仅需完成静态 UI 布局。
+    # 动态数据的获取 (依赖 QuotaService) 和显示将在阶段 C 实现。
+    content:
+      - display_storage_usage_ui: # 存储用量 UI 元素
+          label: "Stored Prompts"
+          style_placeholder: "左侧显示小型环形图占位符，右侧显示标签 'Stored Prompts' 和数值占位符 '-- / 100'"
+      - display_optimization_usage_ui: # 优化用量 UI 元素
+          label: "Optimizations Today"
+          style_placeholder: "左侧显示小型环形图占位符，右侧显示标签 'Optimizations Today' 和数值占位符 '-- / 50'"
+    acceptance_criteria:
+      - UI layout exists for displaying storage usage (small donut chart placeholder + label + value placeholder).
+      - UI layout exists for displaying optimization usage (small donut chart placeholder + label + value placeholder).
+      - **初始版本无需连接 QuotaService 或显示真实数据。**
+
+  # 3.4 订阅管理入口
+  subscription_management_entry:
+    title: "Subscription Management"
+    layout: 按钮区域
+    content:
+      - manage_subscription_button:
+          label: "Manage Subscription"
+          action: 点击后跳转到 Paddle 客户门户 (URL需配置管理)
+          # 此入口将处理所有订阅管理需求，包括更改计划、取消、查看账单等。
+          style: 按钮样式应与应用内其他主要操作按钮一致
+    acceptance_criteria:
+      - "Manage Subscription" button exists.
+      - Clicking the button navigates to the configured Paddle portal URL.
+
+  # 3.5 服务连接与基础交互
+  service_and_interaction:
+    dependencies:
+      - MembershipService
+      - AuthService # 用于获取邮箱
+    actions:
+      - component_mount: 组件挂载时，调用服务获取**非配额**数据 (会员状态、邮箱、计划、日期) 并展示。
+      - state_subscription: 订阅 MembershipService 和 AuthService 的状态变更事件。
+      - dynamic_update: 当接收到状态变更通知时，动态更新会员中心内对应的**非配额**信息。
+      - loading_handling: 组件加载**非配额**数据时，应显示基础的加载指示器 (如简单的 Spinner 或骨架屏)。
+      - error_handling: **非配额**数据加载失败时，应显示友好的错误提示。
+    acceptance_criteria:
+      - Displays correct member info (status, email, plan, dates) upon opening.
+      - Interface updates automatically if membership status changes.
+      - Includes basic loading state indication.
+      - Includes basic error state indication.
+
+# 4. 非功能性需求 (适用于初始版本)
+non_functional_requirements:
+  - performance: 组件加载和交互应流畅，不阻塞UI线程。
+  - security: 跳转到 Paddle 门户时，确保使用 HTTPS。
+  - maintainability: 代码结构清晰，易于理解和修改。服务调用应封装良好。
+
+# 5. 后续阶段任务 (阶段 C 及以后)
+future_tasks:
+  - quota_data_integration: 对接 QuotaService，动态显示真实的存储和优化用量数据。
+  - enhanced_ux: 添加更平滑的动画、更精细的错误处理、响应式优化等。
+  - other_d4_features: 根据需要添加原 D4 中的其他功能 (如产品更新、FAQ 等)。
+
+# 6. 待讨论项 / 开放问题 (已根据决策移除部分)
+open_questions:
+  - 配额用量展示区域的具体静态 UI 样式 (进度条 vs. 纯数字)。
+  - Paddle 客户门户的确切 URL 如何配置和获取？
+
+# 新增UI/UX设计规范章节
+# 4. UI/UX设计规范
+ui_ux_specifications:
+  # 4.1 整体布局结构
+  layout_structure:
+    container:
+      width: "420px"
+      height: "100vh"
+      padding: "24px"
+      background: "复用现有抽屉背景样式 (e.g., gradient)"
+      note: "确保内边距足够，内容区域有呼吸感，避免贴边。"
+    
+    sections_order: # 各个区域的排列顺序
+      - header
+      - status_overview_section
+      - benefits_section
+      - quota_usage_section
+      - subscription_management_entry
+    
+    sections_spacing: "24px" # 各区块之间的间距
+    note: "保持区块间距一致且充足，形成清晰的视觉分隔。"
+    
+    content_alignment:
+      text: "left"
+      buttons: "center" # 按钮居中
+    
+    scrolling:
+      behavior: "内容超出高度时支持垂直滚动"
+      scrollbar: "使用应用内一致的滚动条样式"
+  
+  # 4.2 各区域详细规范
+  section_specifications:
+    # 4.2.1 抽屉头部区域
+    header:
+      height: "48px"
+      display: "flex"
+      justify_content: "space-between"
+      align_items: "center"
+      margin_bottom: "24px"
+      border_bottom: "复用现有抽屉头部边框样式 (e.g., 1px solid var(--magic-700/30))"
+      
+      title:
+        text: "Membership Center"
+        font_size: "18px"
+        font_weight: "600"
+        color: "var(--magic-200)" # 参考 SettingsDrawer
+      
+      close_button:
+        size: "32px"
+        icon: "X符号或关闭图标"
+        hover_effect: "背景色或透明度有细微变化，提供明确的可交互反馈。"
+        cursor: "pointer"
+    
+    # 4.2.2 会员状态概览区域
+    status_overview_section:
+      type: "卡片式设计"
+      background: "var(--bg-secondary)"
+      border_radius: "8px"
+      padding: "16px"
+      border: "复用现有卡片/区域边框样式"
+      box_shadow: "var(--shadow-sm)"
+      
+      membership_status:
+        font_size: "18px"
+        font_weight: "600"
+        color: "var(--color-gold)"
+        icon: "Pro徽章图标，位于文字左侧"
+        margin_bottom: "8px"
+        text: "Pro Member" # 固定为 Pro Member
+      
+      account_email:
+        font_size: "14px"
+        color: "var(--text-secondary)"
+        margin_bottom: "12px"
+        note: "次要信息使用较浅颜色，与主要信息形成对比。"
+        label: "Account:"
+      
+      plan_details:
+        font_size: "14px"
+        color: "var(--text-primary)"
+        display: "grid"
+        grid_template_columns: "auto 1fr"
+        grid_gap: "8px 16px"
+        
+        labels: # "当前计划:", "将于xxx到期/续费", "会员始于:"
+          font_weight: "500"
+          color: "var(--text-secondary)"
+        
+        values:
+          font_weight: "500"
+          color: "var(--text-primary)"
+          plan_label: "Current Plan:"
+          expires_label: "Renews on:" # 简洁英文标签
+          start_label: "Member since:"
+    
+    # 4.2.3 会员特权展示区域
+    benefits_section:
+      type: "列表区域"
+      padding: "16px"
+      margin_top: "24px"
+      note: "旨在通过清晰图标和布局，有效传达Pro会员的核心价值。"
+      
+      title:
+        text: "Pro Benefits"
+        font_size: "16px"
+        font_weight: "600"
+        margin_bottom: "12px"
+      
+      benefits_list:
+        list_style: "none"
+        padding_left: "0"
+        item_spacing: "12px"
+        
+        icon_usage: "required"
+        icon_size: "16px"
+        icon_color: "var(--primary-color, var(--icon-color))"
+        
+        item:
+          font_size: "14px"
+          line_height: "1.5"
+          color: "var(--text-primary)"
+          display: "grid"
+          grid_template_columns: "auto 1fr"
+          align_items: "center"
+          gap: "12px"
+    
+    # 4.2.4 配额用量展示区域
+    quota_usage_section:
+      type: "卡片式区域"
+      background: "var(--bg-secondary)"
+      border_radius: "8px"
+      padding: "16px"
+      margin_top: "24px"
+      border: "复用现有卡片/区域边框样式"
+      box_shadow: "var(--shadow-sm)"
+      note: "使用小型环形图清晰、直观地展示各项资源用量。"
+      
+      title:
+        text: "My Usage"
+        font_size: "16px"
+        font_weight: "600"
+        margin_bottom: "12px"
+      
+      usage_items:
+        display: "flex"
+        flex_direction: "column"
+        gap: "20px" # 适当增加图表间距
+        
+        item:
+          display: "grid"
+          grid_template_columns: "auto 1fr" # 图表列 + 信息列
+          align_items: "center"
+          gap: "16px"
+          
+          # 环形图规范
+          donut_chart:
+            size: "48px" # 图表直径
+            stroke_width: "5px" # 环的粗细
+            background_color: "var(--bg-tertiary, #e5e7eb)" # 环的背景色 (未用部分)
+            foreground_color: "var(--primary-color)" # 环的前景色 (已用部分)
+            foreground_color_warning: "var(--warning-color)" # 可选：接近上限时颜色
+            foreground_color_limit: "var(--error-color)" # 可选：达到上限时颜色
+            value_percentage: "(Calculated from usage)" # 动态计算百分比
+            animation: "true" # 可选：加载或变化时有动画效果
+          
+          # 信息列规范 (标签 + 具体数值)
+          info_column:
+            display: "flex"
+            flex_direction: "column"
+            justify_content: "center"
+            
+            label_text:
+              font_size: "14px"
+              font_weight: "500"
+              color: "var(--text-primary)"
+              margin_bottom: "2px"
+              # e.g., "Stored Prompts", "Optimizations Today"
+            
+            value_text:
+              font_size: "12px"
+              font_weight: "600"
+              color: "var(--text-secondary)"
+              # e.g., "37 / 100", "12 / 50"
+    
+    # 4.2.5 订阅管理入口
+    subscription_management_entry:
+      type: "按钮区域"
+      padding: "16px"
+      margin_top: "24px"
+      display: "flex"
+      justify_content: "center"
+      
+      manage_button:
+        width: "80%"
+        padding: "10px 16px"
+        font_size: "14px"
+        font_weight: "500"
+        color: "var(--button-text, white)"
+        text: "Manage Subscription"
+        background: "var(--primary-color)"
+        border_radius: "6px"
+        text_align: "center"
+        border: "none"
+        cursor: "pointer"
+        transition: "background-color 0.2s, box-shadow 0.2s"
+        box_shadow: "var(--shadow-xs)"
+        
+        hover:
+          background: "var(--primary-color-hover)"
+          box_shadow: "var(--shadow-sm)"
+        
+        active:
+          background: "var(--primary-color-active)"
+          box_shadow: "none"
+  
+  # 4.3 交互细节
+  interaction_details:
+    # 抽屉交互
+    drawer:
+      entry_animation:
+        type: "从右侧滑入"
+        duration: "200ms"
+        timing_function: "ease-out"
+      
+      exit_animation:
+        type: "向右侧滑出"
+        duration: "150ms"
+        timing_function: "ease-in"
+      
+      overlay:
+        background: "rgba(0, 0, 0, 0.5)"
+        fade_in: "true"
+    
+    # 加载状态
+    loading_states:
+      initial_load:
+        type: "简单的加载动画"
+        position: "居中显示"
+        size: "medium"
+        color: "var(--primary-color)"
+        note: "加载指示器样式应与应用内其他加载状态一致。"
+      
+      section_loading:
+        type: "简化的骨架屏"
+        animation: "渐变动画"
+        color: "var(--skeleton-color)"
+        note: "骨架屏形状应大致模仿实际内容的布局。"
+    
+    # 错误状态
+    error_states:
+      display:
+        type: "内联错误消息"
+        color: "var(--error-color)"
+        icon: "感叹号或警告图标"
+        font_size: "14px"
+        padding: "8px"
+        margin: "8px 0"
+        background: "var(--error-bg)" # 浅色错误背景
+        border_radius: "4px"
+      
+      retry_action:
+        type: "文本按钮"
+        text: "Retry"
+        color: "var(--primary-color)"
+        position: "错误消息下方或右侧，有足够间距。"
+        cursor: "pointer"
+        hover_effect: "文本下划线或颜色变化"
+  
+  # 4.4 响应式行为
+  responsive_behavior:
+    small_screens:
+      width: "100%"
+      max_width: "100vw"
+    
+    content_scrolling: "确保在小屏幕上各区域内容可滚动访问"
+  
+  # 4.5 设计系统一致性
+  design_system_consistency:
+    typography: "应与应用内其他区域保持一致的字体族、大小和层级"
+    color_palette: "使用应用的主题色系统"
+    note: "色彩使用应克制，主题色用于强调关键操作和状态，避免过多颜色干扰。"
+    spacing_system: "遵循应用的间距系统，通常为8px的倍数"
+    note: "所有间距保持一致性是提升视觉效果的关键。"
+    component_styles: "与应用中现有的按钮、卡片、输入框等组件保持一致的视觉样式"
+    note: "复用现有组件样式是保证整体一致性的最佳实践。"
+  
+  # 4.6 示意图描述
+  mockup_description:
+    header: "顶部为'Membership Center'标题，右侧有X关闭按钮"
+    status_overview: "卡片式设计展示Pro状态、Account邮箱、Current Plan、Renews on日期、Member since日期"
+    benefits: "列表式展示英文Pro Benefits，每项前有绿色对勾"
+    usage: "卡片式包含两个小型环形图，分别显示Stored Prompts和Optimizations Today用量(静态占位)"
+    manage_button: "底部有一个醒目的'Manage Subscription'主按钮"
+    
+    # 总体布局描述
+    overall_layout: |
+      会员中心抽屉从右侧滑入，宽度固定，高度铺满。
+      内部各区域从上到下依次排列，有合适的间距分隔。
+      各区域使用卡片式或分组式设计，清晰区分不同功能区块。
+      整体风格简洁现代，与应用的其他部分设计风格保持一致。
