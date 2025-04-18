@@ -1,0 +1,1 @@
+export { handlePaddleWebhook } from './paddle/webhook'; 

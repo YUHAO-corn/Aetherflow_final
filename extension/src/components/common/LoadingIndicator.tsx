@@ -14,7 +14,7 @@ export function LoadingIndicator({ size = 'md', className = '' }: LoadingIndicat
   };
 
   return (
-    <div className={`flex items-center justify-center ${className}`}>
+    <div className={`flex items-center justify-center ${className}`} data-testid="loading-indicator">
       <Loader2 className={`${sizeClasses[size]} animate-spin text-magic-400`} />
     </div>
   );

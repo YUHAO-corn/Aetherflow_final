@@ -1,0 +1,25 @@
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+    apiKey: "AIzaSyCulWQxvrzxDOLGOxzi2ngj9n0DwzvqJFw",
+    authDomain: "aetherflow-b6459.firebaseapp.com",
+    projectId: "aetherflow-b6459",
+    storageBucket: "aetherflow-b6459.firebasestorage.app",
+    messagingSenderId: "423266303314",
+    appId: "1:423266303314:web:9cbf8adb847f043bd34e8b",
+    measurementId: "G-ZD5E2WY22N"
+  };
+
+  ```
+
+  collection id: hC3hxlCv1VToW4uJRGmA
+
+  ```
+
+  参考链接：
+  https://github.com/firebase/functions-samples
+  https://firebase.google.com/docs/functions/get-started?hl=en&authuser=0&_gl=1*1frpidj*_ga*ODMxNjY3OTcwLjE3NDM2NTIzOTk.*_ga_CW55HF8NVT*MTc0NDI4NTkwNy4xNS4xLjE3NDQyODcyNjEuNTIuMC4w&gen=2nd
+  https://github.com/firebase/functions-samples
+  https://firebase.google.com/docs/data-connect/cli-reference?hl=en&authuser=0&_gl=1*1gsflkr*_ga*ODMxNjY3OTcwLjE3NDM2NTIzOTk.*_ga_CW55HF8NVT*MTc0NDI4NTkwNy4xNS4xLjE3NDQyODg0OTUuMS4wLjA.
+  https://firebase.google.com/docs/cli?hl=en&authuser=0&_gl=1*1gsflkr*_ga*ODMxNjY3OTcwLjE3NDM2NTIzOTk.*_ga_CW55HF8NVT*MTc0NDI4NTkwNy4xNS4xLjE3NDQyODg0OTUuMS4wLjA.
+
+

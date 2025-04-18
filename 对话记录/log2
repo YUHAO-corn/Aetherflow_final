@@ -1,0 +1,14 @@
+content.js:1 Simple Autoscroll Loaded
+content.js:1 [AetherFlow-DEBUG] 内容脚本开始加载 Object
+content.js:1 [AetherFlow-DEBUG] 发送内容脚本就绪消息: Object
+content.js:1 [AetherFlow-DEBUG] 内容脚本初始化完成 Object
+content.js:1 [AetherFlow-DEBUG] 文档状态变化: Object
+content.js:1 [AetherFlow-DEBUG] 页面加载完成事件触发: Object
+content.js:1 [AetherFlow-DEBUG] 页面加载完成事件触发: Object
+content.js:1 [AetherFlow-DEBUG] 检测到DOM变化: Object
+content.js:1 [AetherFlow-DEBUG] 检测到DOM变化: Object
+reload.js:22 WebSocket connection to 'wss://aetherflow-app.com/ws/ws' failed: 
+init @ reload.js:22
+content.js:1 [AetherFlow-DEBUG] 检测到DOM变化: Object
+content.js:1 [AetherFlow-DEBUG] 检测到DOM变化: Object
+content.js:1 [AetherFlow-DEBUG] 发送内容脚本就绪消息: Object

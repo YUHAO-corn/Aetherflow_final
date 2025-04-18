@@ -1,0 +1,489 @@
+---
+name: 提示词优化（AI辅助提示改进）
+description: 通过大语言模型分析和改进提示词质量的功能模块
+priority: P1
+owner: AetherFlow团队
+---
+
+# 提示词优化功能需求和实现细节
+
+core_features:
+  - name: 提示词优化
+    description: 允许用户通过大语言模型API分析和改进提示词质量
+    priority: P1
+    status: implemented
+    details:
+      - 用户界面提供输入框和优化按钮
+      - 支持输入原始提示词并发送至优化服务
+      - 系统处理请求并返回优化后的提示词
+      - 优化结果以卡片形式展示
+      - 用户重新发起"开始优化"请求时，清空原有优化历史
+      - 每次点击"开始优化"按钮都开启一个全新的优化任务
+      
+  - name: 多级优化链
+    description: 支持基于任意版本继续优化提示词，形成优化版本链
+    priority: P1
+    status: implemented
+    details:
+      - 每个优化版本有唯一版本号标识
+      - 每个版本卡片提供"继续优化"按钮
+      - 优化链支持无限延伸（受限于配额）
+      - 保存所有优化版本的历史记录
+      - 支持基于任意历史版本创建新的优化分支
+      - 点击任意版本卡片的"继续优化"按钮，会基于该卡片内容进行优化
+      - 新版本插入到被优化版本后面，而不总是添加到链条末尾
+
+  - name: 优化结果操作
+    description: 对优化结果提供多种操作选项
+    priority: P0
+    status: implemented
+    details:
+      - 支持一键复制优化结果
+      - 支持将优化结果添加至提示词库
+      - 优化结果可被自动分析生成标题
+      - 基于优化结果的收藏流程简洁直观
+
+  - name: 优化模式选择
+    description: 提供多种优化模式以满足不同需求
+    priority: P2
+    status: to be implemented
+    details:
+      - 标准模式：平衡优化，专注于提高提示词清晰度和效果
+      - 创意模式：增加创造性，为提示词添加更多想象力和变化
+      - 简洁模式：精简优化，减少冗余内容，提高效率
+      - 用户可在优化前选择适合的模式
+      - UI实现方式：
+        - 在"继续优化"按钮右侧添加一个小箭头图标（ChevronDown）
+        - 默认显示"继续优化"，选择模式后显示"继续优化(模式名称)"
+        - 点击箭头时弹出包含三种模式的轻量级下拉菜单
+        - 下拉菜单使用半透明背景，轻微模糊效果，边缘圆角与按钮风格匹配
+        - 每种模式占一行，左侧有代表性图标：标准(Sparkles)、创意(Wand2)、简洁(MinusCircle)
+        - 每个选项不需要详细描述
+        - 当前选择的模式有轻微高亮背景和左侧标记
+        - 菜单弹出时有淡入动画，关闭时有淡出动画，保持界面流畅过渡
+        - 用户选择后菜单自动关闭，按钮文本立即更新
+
+  - name: 优化分析报告
+    description: 提供提示词质量分析报告
+    priority: P2
+    status: proposed
+    details:
+      - 分析原始提示词的优缺点
+      - 说明优化的具体改进点
+      - 提供清晰、可读的解释
+      - 报告可随时查看或隐藏
+      - 暂不实行，但作为后续可延展功能
+      - 实现构想：提示词点开详情后，可浏览到多个维度的评分和综合评分
+      
+  - name: 优化版本详情查看与编辑
+    description: 允许用户查看和编辑优化版本的详细内容
+    priority: P1
+    status: proposed
+    details:
+      - 点击优化结果卡片可弹出详情抽屉
+      - 详情功能与提示词库(LibraryTab)中的详情组件功能接近
+      - 支持在详情页查看完整内容
+      - 提供编辑功能，可修改优化结果内容
+      - 支持保存编辑后的内容
+      - 提供复制、收藏等操作按钮
+      - 使用编辑后的内容进行后续优化
+
+ui_components:
+  - name: OptimizeTab
+    description: 提示词优化主标签页组件
+    file_path: components/optimize/OptimizeTab.tsx
+    features:
+      - 提示词输入文本框
+      - 开始优化按钮
+      - 优化版本卡片列表
+      - 每个卡片包含版本标识、内容预览和操作按钮
+    states:
+      - currentOptimizationInput: 当前输入的提示词内容
+      - optimizationVersions: 优化版本历史记录
+      - isLoading: 优化过程加载状态
+      - selectedVersionId: 当前选中查看详情的版本ID
+      
+  - name: OptimizationCard
+    description: 优化结果卡片组件
+    file_path: components/optimize/OptimizationCard.tsx
+    features:
+      - 卡片布局展示单个优化版本
+      - 版本标识显示（v1, v2等）
+      - 内容预览区域，支持长内容自动截断
+      - 动画效果：加载中、新版本出现效果
+      - 操作按钮：继续优化、收藏至库、复制内容
+      - 点击卡片打开详情抽屉
+    props:
+      - version: 要显示的优化版本对象
+      - onContinueOptimize: 继续优化的回调函数
+      - onSaveToLibrary: 保存到库的回调函数
+      - onCopy: 复制内容的回调函数
+      - onClick: 点击卡片显示详情的回调函数
+      
+  - name: OptimizationDetailDrawer
+    description: 优化版本详情抽屉组件
+    file_path: components/optimize/OptimizationDetailDrawer.tsx
+    features:
+      - 右侧滑入滑出动画效果
+      - 优化版本完整内容显示，支持长内容滚动
+      - 提供编辑功能，支持修改内容
+      - 操作按钮：保存、复制、收藏、关闭等
+      - 保存后可使用编辑内容进行后续优化
+      - 与提示词库详情组件风格一致
+    props:
+      - version: 要显示详情的优化版本
+      - isOpen: 抽屉是否打开
+      - onClose: 关闭抽屉的回调函数
+      - onSave: 保存编辑内容的回调函数
+      - onContinueOptimize: 继续优化的回调函数
+      - onSaveToLibrary: 保存到库的回调函数
+      
+  - name: OptimizationModeSelector
+    description: 优化模式选择组件
+    file_path: components/optimize/OptimizationModeSelector.tsx
+    features:
+      - 轻量级下拉菜单设计
+      - 与继续优化按钮无缝集成
+      - 三种模式选项（标准/创意/简洁）
+      - 每种模式配有直观图标和简短说明
+      - 当前选择模式的视觉指示
+      - 无干扰的交互动画
+      - 支持键盘导航和快捷操作
+      - 响应式设计，适应不同屏幕尺寸
+    props:
+      - selectedMode: 当前选择的模式
+      - onModeChange: 模式变更的回调函数
+      - buttonClass: 可选的额外样式类，用于与主按钮风格匹配
+      - compact: 是否使用紧凑布局（默认false）
+      
+  - name: OptimizationReport
+    description: 优化分析报告组件
+    file_path: components/optimize/OptimizationReport.tsx
+    features:
+      - 可折叠的分析报告面板
+      - 优缺点列表展示
+      - 改进点说明
+      - 视觉上与优化结果卡片匹配
+      - 多维度评分展示（清晰度、创造性、精确性等）
+      - 综合评分显示
+    props:
+      - originalContent: 原始提示词内容
+      - optimizedContent: 优化后的提示词内容
+      - analysis: 分析结果对象
+
+data_structure:
+  - name: OptimizationVersion
+    description: 优化版本数据结构
+    file_path: services/optimize/types.ts
+    fields:
+      - id: number（版本ID/序号）
+      - content: string（优化后的内容）
+      - isLoading: boolean（是否正在加载，可选）
+      - isNew: boolean（是否为新版本，用于动画效果，可选）
+      - createdAt: number（创建时间戳，可选）
+      - mode: string（使用的优化模式，可选）
+      - parentId: number（父版本ID，用于确定优化基于哪个版本）
+      - position: number（在版本列表中的位置索引）
+      - editedContent: string（用户编辑后的内容，可选）
+      - isEdited: boolean（是否被编辑过，可选）
+      
+  - name: OptimizeOptions
+    description: 优化选项数据结构
+    file_path: services/optimize/types.ts
+    fields:
+      - mode: 'standard' | 'creative' | 'concise'（优化模式，默认standard）
+      - temperature: number（创造性参数，根据模式自动设定）
+        - standard: 0.7（平衡）
+        - creative: 0.9（高创造性）
+        - concise: 0.4（低变异性，更确定性）
+      - maxTokens: number（最大返回标记数，默认1024）
+      - systemPromptTemplate: string（系统提示模板，根据模式自定义）
+      
+  - name: OptimizationAnalysis
+    description: 优化分析结果数据结构
+    file_path: services/optimize/types.ts
+    fields:
+      - strengths: string[]（原始提示词的优点列表）
+      - weaknesses: string[]（原始提示词的缺点列表）
+      - improvements: string[]（优化改进的具体点列表）
+      - summary: string（总体分析摘要）
+      - scores: {
+          clarity: number,
+          creativity: number,
+          efficiency: number,
+          specificity: number,
+          overall: number
+        }（多维度评分和综合评分）
+
+services:
+  - name: optimize服务
+    description: 提供提示词优化相关的服务
+    file_path: services/optimize/actions.ts
+    functions:
+      - name: optimizePrompt
+        description: 优化提示词
+        params: 
+          - content: string（需要优化的提示词内容）
+          - options?: OptimizeOptions（可选的优化选项）
+        returns: Promise<OptimizationVersion>（优化结果版本对象）
+        details:
+          - 通过消息系统发送到后台处理
+          - 调用大语言模型API进行优化
+          - 处理API响应并返回标准格式的结果
+          - 包含错误处理和回退机制
+          - 清空之前所有优化历史版本
+          - 将新版本设置为版本1，重新开始版本计数
+        
+      - name: continueOptimize
+        description: 基于特定版本继续优化
+        params:
+          - versionId: number（基础版本ID）
+          - content: string（基础版本内容）
+          - options?: OptimizeOptions（可选的优化选项）
+        returns: Promise<OptimizationVersion>（新的优化结果版本对象）
+        details:
+          - 使用指定版本作为基础，而非默认使用最新版本
+          - 新版本继承父版本ID作为parentId
+          - 新版本插入到父版本之后，重新排序后续版本
+          - 调用相同的优化服务进行处理
+          - 返回新的优化版本
+          
+      - name: updateOptimizationVersion
+        description: 更新优化版本内容
+        params:
+          - versionId: number（要更新的版本ID）
+          - updates: Partial<OptimizationVersion>（更新内容）
+        returns: Promise<OptimizationVersion>（更新后的版本对象）
+        details:
+          - 更新指定版本的内容或属性
+          - 标记版本为已编辑状态
+          - 返回更新后的版本对象
+          
+      - name: analyzePrompt
+        description: 分析提示词质量
+        params:
+          - originalContent: string（原始提示词内容）
+          - optimizedContent: string（优化后的提示词内容）
+        returns: Promise<OptimizationAnalysis>（分析结果对象）
+        details:
+          - 调用大语言模型API进行比较分析
+          - 识别原始提示词的优缺点
+          - 提供具体的改进点说明
+          - 生成多维度评分和综合评分
+          
+      - name: saveOptimizationHistory
+        description: 保存优化历史记录
+        params:
+          - versions: OptimizationVersion[]（要保存的版本数组）
+        returns: Promise<boolean>（是否保存成功）
+        details:
+          - 将优化历史保存到本地存储
+          - 支持后续查看和使用
+
+hooks:
+  - name: useOptimization
+    description: 提示词优化Hook，便于组件使用优化服务
+    file_path: hooks/useOptimization.ts
+    functions:
+      - loading: boolean（加载状态）
+      - error: string | null（错误信息）
+      - optimizationInput: string（当前输入内容）
+      - optimizationVersions: OptimizationVersion[]（优化版本历史）
+      - selectedVersion: OptimizationVersion | null（当前选中的版本）
+      - isDetailOpen: boolean（详情抽屉是否打开）
+      - setOptimizationInput: (input: string) => void（设置输入内容）
+      - startOptimization: (options?: OptimizeOptions) => Promise<void>（开始优化，清空历史）
+      - continueOptimization: (versionId: number, options?: OptimizeOptions) => Promise<void>（继续优化）
+      - clearOptimizationHistory: () => void（手动清空优化历史）
+      - updateVersionContent: (versionId: number, content: string) => Promise<void>（更新版本内容）
+      - saveToLibrary: (version: OptimizationVersion) => Promise<boolean>（保存到提示词库）
+      - copyContent: (content: string) => void（复制内容）
+      - openDetail: (versionId: number) => void（打开详情抽屉）
+      - closeDetail: () => void（关闭详情抽屉）
+    details:
+      - 管理优化状态和版本历史
+      - 处理优化请求和响应
+      - 提供友好的错误处理
+      - 集成与提示词库的交互
+      - 管理版本详情编辑状态
+      - 负责清空历史版本的逻辑
+
+user_flows:
+  - name: 开始提示词优化
+    steps:
+      - 用户点击侧边栏中的"提示词优化"选项卡
+      - 用户在输入框中输入原始提示词
+      - 用户点击"开始优化"按钮
+      - 系统清空之前的所有优化版本历史
+      - 系统显示加载状态
+      - 系统调用API并返回优化结果
+      - 系统显示全新的优化结果卡片（初始为版本1）
+      - 用户可查看优化结果
+      
+  - name: 继续优化链
+    steps:
+      - 用户查看已有的优化版本
+      - 用户选择一个历史版本（如v2）点击"继续优化"按钮
+      - 系统创建新的加载中的卡片并插入到选定版本之后
+      - 系统基于选定版本(v2)的内容进行优化，而非最新版本
+      - 系统返回并显示新的优化版本卡片(v5)，插入到v2和v3之间
+      - 最终顺序变为v1-v2-v5-v3-v4
+      - 优化版本顺序保持基于操作的时间顺序，便于理解版本演变
+      
+  - name: 保存优化结果
+    steps:
+      - 用户查看优化结果
+      - 用户点击卡片上的"收藏"按钮
+      - 系统将优化结果保存到提示词库
+      - 系统自动生成标题（基于内容）
+      - 系统显示保存成功提示
+      - 用户可在提示词库中找到保存的项目
+      
+  - name: 复制优化结果
+    steps:
+      - 用户查看优化结果
+      - 用户点击卡片上的"复制"按钮
+      - 系统将内容复制到剪贴板
+      - 用户可在其他应用中粘贴使用
+
+  - name: 查看和编辑优化版本详情
+    steps:
+      - 用户点击优化版本卡片
+      - 系统打开右侧详情抽屉
+      - 用户查看优化版本的完整内容
+      - 用户可编辑内容
+      - 用户点击保存按钮保存编辑
+      - 编辑后的内容用于后续优化操作
+      - 用户可在详情页直接进行复制、收藏等操作
+      - 用户点击关闭按钮或抽屉外区域关闭详情
+
+  - name: 选择优化模式
+    steps:
+      - 用户点击优化卡片上的"继续优化"按钮旁的箭头图标
+      - 系统弹出轻量级模式选择下拉菜单
+      - 菜单中展示三种优化模式选项，每个包含图标和简短说明：
+        - 标准模式：均衡优化提示词质量
+        - 创意模式：增加创意与想象力
+        - 简洁模式：精简表达，减少冗余
+      - 用户从菜单中选择一种模式
+      - 按钮文本立即更新为"继续优化(所选模式)"
+      - 系统记录选择并在后续优化中应用该模式
+      - 优化结果反映所选模式的特点
+
+  - name: 查看分析报告
+    steps:
+      - 用户查看优化结果后
+      - 用户点击"查看分析"按钮
+      - 系统展开分析报告面板
+      - 用户查看多维度评分和综合评分
+      - 用户阅读原始提示词的优缺点分析
+      - 用户了解具体的改进点
+      - 用户可随时折叠报告面板
+
+performance_optimizations:
+  - name: 版本管理优化
+    description: 优化版本历史记录的管理
+    details:
+      - 限制单个会话最多保存10个版本
+      - 超过限制时提示用户或自动清理最早版本
+      - 优化版本历史的存储结构，减少内存占用
+      
+  - name: 优化请求处理
+    description: 改进API请求处理
+    details:
+      - 对请求进行限流，避免短时间内多次请求
+      - 实现请求队列，按优先级处理请求
+      - 优化错误重试策略
+      - 缓存近期请求结果避免重复调用
+
+  - name: UI渲染优化
+    description: 改进用户界面渲染性能
+    details:
+      - 使用虚拟列表渲染大量版本卡片
+      - 优化动画效果，减少重排和重绘
+      - 实现卡片内容的懒加载
+      - 长内容使用截断显示，减少初始渲染开销
+
+limitations:
+  - name: API配额限制
+    description: 大语言模型API使用限制
+    details:
+      - 每用户每小时最多20次优化请求
+      - 每次请求最大输入标记数为4000
+      - 超出限制时显示友好提示
+      - 提供配额使用状态指示
+      
+  - name: 版本数量限制
+    description: 优化版本数量限制
+    details:
+      - 单个优化会话最多保存10个版本
+      - 用户同时只能有一个活跃的优化会话
+      - 超出限制提示用户保存或清理
+      
+  - name: 功能可用性差异
+    description: 不同用户模式下的功能差异
+    details:
+      - 轻量级模式下仅提供基本优化功能
+      - 高级分析功能仅在完整账户模式下可用
+      - 优化模式选择在轻量级模式下有限制
+
+error_handling:
+  - name: API错误处理
+    description: 处理API请求错误
+    details:
+      - 网络错误时提供友好提示
+      - API限流时显示剩余等待时间
+      - 提供重试机制和重试按钮
+      - 记录错误日志但不暴露技术细节给用户
+      
+  - name: 内容验证
+    description: 输入内容验证
+    details:
+      - 验证输入不为空
+      - 检查内容长度是否超出API限制
+      - 提供预处理步骤，如必要时截断过长内容
+      - 显示清晰的验证错误提示
+
+extensibility:
+  - name: 自定义优化策略
+    description: 允许用户自定义优化策略
+    details:
+      - 可扩展为允许用户创建自定义优化模式
+      - 支持调整优化参数（如temperature）
+      - 可存储用户偏好的优化设置
+      
+  - name: 优化模版
+    description: 预定义优化模版功能
+    details:
+      - 可添加特定领域的优化模版
+      - 如SEO优化、学术写作优化、故事创作优化等
+      - 每种模版有专门的提示策略和参数设置
+      
+  - name: 历史会话管理
+    description: 优化会话历史管理
+    details:
+      - 可实现保存和恢复多个优化会话
+      - 提供会话命名和搜索功能
+      - 支持会话导出和分享
+
+best_practices:
+  - name: 用户反馈
+    details:
+      - 优化过程中提供清晰的状态指示
+      - 长时间操作显示进度或估计剩余时间
+      - 优化成功时提供积极的反馈
+      - 错误时提供有用的故障排除信息
+      
+  - name: API使用效率
+    details:
+      - 优化提示模版，减少标记使用
+      - 实现智能缓存，避免重复请求
+      - 使用增量优化而非完全重新生成
+      - 在客户端预处理数据，减轻API负担
+      
+  - name: 版本比较
+    details:
+      - 提供便捷的版本间比较功能
+      - 强调版本间的关键差异
+      - 使用颜色编码标记变更
+      - 支持并排比较不同版本

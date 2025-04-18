@@ -1,3 +1,10 @@
+/**
+ * Toast通知组件 - 显示临时通知消息
+ * 
+ * @note 此组件当前未在项目中主动使用，但保留作为通用组件库的一部分
+ * 可用于任何需要显示临时通知的场景
+ */
+
 import React, { useEffect, useState } from 'react';
 import { CheckCircle, XCircle, X } from 'lucide-react';
 

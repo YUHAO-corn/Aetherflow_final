@@ -1,0 +1,53 @@
+# B6 支付流程调试与经验总结 (2025-04-18)
+
+goal: 打通 Task B6 的核心流程：用户支付成功后，会员状态能正确写入 Firestore，并且浏览器扩展能实时读取该状态更新 UI。
+
+difficulties_and_solutions:
+  - problem: Firestore 写入 `undefined` 值导致失败
+    details:
+      phenomenon: Cloud Run 服务尝试将包含 `undefined` 字段的对象写入 Firestore，导致写入失败，会员状态未更新。
+      investigation: 分析 Cloud Run 日志和相关函数代码，定位到 `membershipState` 对象中可能存在的 `undefined` 字段。
+      solution:
+        - 实现 `cleanFirestoreData` 函数，递归将 `undefined` 替换为 `null`。
+        - 在所有 Firestore 写入操作前应用 `cleanFirestoreData` 进行数据清洗。
+
+  - problem: 会员状态不一致 (`status: "free"`, `subscriptionStatus: "active"`)
+    details:
+      phenomenon: Firestore 中内部状态 `status` 为 `free`，但来自 Paddle 的 `subscriptionStatus` 为 `active`，表明 Cloud Run 更新操作未完全成功。
+      investigation: 在解决 `undefined` 问题后，此现象依然存在，指向权限或逻辑错误。
+
+  - problem: 多层权限配置错误
+    sub_problems:
+      - context: Cloud Run 写入权限
+        phenomenon: 即使数据清洗完成，Cloud Run 写入有时依然失败或未生效。
+        investigation: 推测 Cloud Run 服务账号缺乏写入 Firestore 的 IAM 权限。
+        solution: 用户确认并更新 Cloud Run 服务账号的 IAM 角色。
+      - context: 扩展端写入权限 (违反设计)
+        phenomenon: 扩展端日志持续报错 `FirebaseError: Missing or insufficient permissions`。
+        investigation: 分析 `MembershipService`，发现客户端代码尝试直接写入会员状态。
+        solution: 修改扩展端代码，移除 `syncStateToServer` 等函数的写入逻辑，仅保留日志。
+      - context: 扩展端读取权限
+        phenomenon: 禁止客户端写入后，读取和监听操作时仍出现权限错误。
+        investigation: 分析 `firestore.rules` 安全规则文件。
+        solution: 发现缺少允许用户读取自身 `membership/status` 的规则，添加相应的 `allow read` 规则。
+
+  - problem: 扩展侧边栏白屏 (React Hooks 规则违反)
+    details:
+      phenomenon: 解决所有权限问题后，扩展侧边栏出现白屏。
+      investigation: 控制台日志显示 `React Error #300`，指向 Hooks 规则违反。
+      location: 定位到 `PlanCardConnector.tsx` 组件中存在基于 `isProMember` 的条件性提前返回。
+      solution: 修改 `PlanCardConnector.tsx`，将条件渲染移到所有 Hooks 调用之后，确保 Hooks 调用顺序一致。
+
+key_lessons_learned:
+  - title: 权限验证需全面
+    point: 务必同时检查 IAM 权限 (后端服务) 和安全规则 (客户端访问)。解决一层后要继续验证下一层。
+  - title: 明确读写责任
+    point: 清晰界定客户端和服务器的读写责任。客户端意外写入会导致难以追踪的权限错误，需通过代码审查和安全规则强制执行。
+  - title: 数据一致性与清洗
+    point: 处理外部数据或写入严格类型数据库时，必须进行数据校验和清洗（如处理 `undefined`），避免格式问题导致失败。
+  - title: 日志完整性与时效性
+    point: 调试分布式系统时，获取所有相关组件的最新、完整日志是基础。过时或不完整的日志会误导判断。
+  - title: 前端框架规则
+    point: 关注前端框架自身的规则和错误。有时后端或数据流问题根源可能是前端渲染逻辑错误（如 Hooks 规则违反）。
+  - title: 设计文档的价值
+    point: 调试时反复对照设计文档中的原则和验收标准，有助于识别代码实现与设计意图的偏差。
