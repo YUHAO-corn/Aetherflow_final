@@ -1,0 +1,863 @@
+[
+  {
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "authenticationInfo": {
+        "principalEmail": "godcorn001@gmail.com"
+      },
+      "requestMetadata": {
+        "callerIp": "2407:cdc0:ab75:3d44:3204:5582:1559:520d",
+        "callerSuppliedUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36,gzip(gfe),gzip(gfe)",
+        "requestAttributes": {
+          "time": "2025-04-18T13:02:04.724985Z",
+          "reason": "8uSywAYQGg5Db2xpc2V1bSBGbG93cw",
+          "auth": {}
+        },
+        "destinationAttributes": {}
+      },
+      "serviceName": "run.googleapis.com",
+      "methodName": "google.cloud.run.v1.Services.ReplaceService",
+      "authorizationInfo": [
+        {
+          "resource": "namespaces/aetherflow-b6459/services/paddle-webhooks",
+          "permission": "run.services.update",
+          "granted": true,
+          "resourceAttributes": {},
+          "permissionType": "ADMIN_WRITE"
+        },
+        {
+          "resource": "namespaces/aetherflow-b6459/services/paddle-webhooks",
+          "permission": "run.services.update",
+          "granted": true,
+          "resourceAttributes": {
+            "service": "run.googleapis.com/",
+            "name": "namespaces/aetherflow-b6459/services/paddle-webhooks",
+            "type": "run.googleapis.com/Service"
+          },
+          "permissionType": "ADMIN_WRITE"
+        }
+      ],
+      "resourceName": "namespaces/aetherflow-b6459/services/paddle-webhooks",
+      "request": {
+        "region": "us-central1",
+        "service": {
+          "status": {
+            "conditions": [
+              {
+                "lastTransitionTime": "2025-04-18T02:34:39.104504Z",
+                "type": "Ready",
+                "status": "True"
+              },
+              {
+                "type": "BaseImageValidated",
+                "status": "True",
+                "severity": "Info"
+              },
+              {
+                "status": "True",
+                "lastTransitionTime": "2025-04-18T02:34:37.821734Z",
+                "type": "ConfigurationsReady"
+              },
+              {
+                "type": "RoutesReady",
+                "status": "True",
+                "lastTransitionTime": "2025-04-18T02:34:39.065262Z"
+              }
+            ],
+            "latestCreatedRevisionName": "paddle-webhooks-00013-wm7",
+            "traffic": [
+              {
+                "percent": 100,
+                "revisionName": "paddle-webhooks-00013-wm7",
+                "latestRevision": true
+              }
+            ],
+            "observedGeneration": 13,
+            "latestReadyRevisionName": "paddle-webhooks-00013-wm7",
+            "url": "https://paddle-webhooks-yplh3ljila-uc.a.run.app"
+          },
+          "kind": "Service",
+          "spec": {
+            "traffic": [
+              {
+                "latestRevision": true,
+                "percent": 100
+              }
+            ],
+            "template": {
+              "metadata": {
+                "labels": {
+                  "run.googleapis.com/startupProbeType": "Default"
+                },
+                "annotations": {
+                  "run.googleapis.com/base-images": "{\"paddle-webhooks-1\":\"us-central1-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22\"}",
+                  "run.googleapis.com/client-name": "cloud-console",
+                  "run.googleapis.com/startup-cpu-boost": "true",
+                  "autoscaling.knative.dev/maxScale": "10"
+                }
+              },
+              "spec": {
+                "containerConcurrency": 80,
+                "timeoutSeconds": 300,
+                "containers": [
+                  {
+                    "resources": {
+                      "limits": {
+                        "memory": "512Mi",
+                        "cpu": "1000m"
+                      }
+                    },
+                    "name": "paddle-webhooks-1",
+                    "image": "us-central1-docker.pkg.dev/aetherflow-b6459/cloud-run-source-deploy/paddle-webhooks@sha256:0a97404aa619c0607ce878954e015767ad9286fcdeafc7cb86d4a3f1115276d6"
+                  }
+                ],
+                "runtimeClassName": "run.googleapis.com/linux-base-image-update",
+                "serviceAccountName": "423266303314-compute@developer.gserviceaccount.com"
+              }
+            }
+          },
+          "apiVersion": "serving.knative.dev/v1",
+          "metadata": {
+            "namespace": "423266303314",
+            "selfLink": "/apis/serving.knative.dev/v1/namespaces/423266303314/services/paddle-webhooks",
+            "creationTimestamp": "2025-04-10T13:04:42.918182Z",
+            "resourceVersion": "AAYzBFwlZfg",
+            "uid": "372488c1-7b5a-4265-a381-3b00c0d8dd90",
+            "annotations": {
+              "run.googleapis.com/build-enable-automatic-updates": "true",
+              "run.googleapis.com/build-image-uri": "us-central1-docker.pkg.dev/aetherflow-b6459/cloud-run-source-deploy/paddle-webhooks",
+              "run.googleapis.com/client-name": "cloud-console",
+              "serving.knative.dev/lastModifier": "godcorn001@gmail.com",
+              "run.googleapis.com/launch-stage": "ALPHA",
+              "run.googleapis.com/operation-id": "ddda40e9-f3f1-407f-a0ed-00d3cbeba4fa",
+              "run.googleapis.com/build-base-image": "us-central1-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22",
+              "run.googleapis.com/urls": "[\"https://paddle-webhooks-423266303314.us-central1.run.app\",\"https://paddle-webhooks-yplh3ljila-uc.a.run.app\"]",
+              "run.googleapis.com/ingress": "all",
+              "run.googleapis.com/build-function-target": "paddle-webhooks",
+              "run.googleapis.com/build-name": "projects/423266303314/locations/us-central1/builds/78905f62-7596-477e-b16b-0f5232798579",
+              "serving.knative.dev/creator": "godcorn001@gmail.com",
+              "run.googleapis.com/ingress-status": "all",
+              "run.googleapis.com/build-source-location": "gs://run-sources-aetherflow-b6459-us-central1/services/paddle-webhooks/1744981257.140000.zip#1744981258687017"
+            },
+            "generation": 13,
+            "labels": {
+              "cloud.googleapis.com/location": "us-central1"
+            },
+            "name": "paddle-webhooks"
+          }
+        },
+        "@type": "type.googleapis.com/google.cloud.run.v1.ReplaceServiceRequest",
+        "name": "projects/aetherflow-b6459/locations/us-central1/services/paddle-webhooks"
+      },
+      "resourceLocation": {
+        "currentLocations": [
+          "us-central1"
+        ]
+      }
+    },
+    "insertId": "y56jnae1scwr",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "",
+        "location": "us-central1",
+        "project_id": "aetherflow-b6459",
+        "configuration_name": "",
+        "service_name": "paddle-webhooks"
+      }
+    },
+    "timestamp": "2025-04-18T13:02:04.554317Z",
+    "severity": "NOTICE",
+    "logName": "projects/aetherflow-b6459/logs/cloudaudit.googleapis.com%2Factivity",
+    "receiveTimestamp": "2025-04-18T13:02:05.057219307Z"
+  },
+  {
+    "textPayload": "Default STARTUP TCP probe succeeded after 1 attempt for container \"paddle-webhooks-1\" on port 8080.",
+    "insertId": "68024d79000d91b2df8c8240",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "revision_name": "paddle-webhooks-00014-n89",
+        "configuration_name": "paddle-webhooks",
+        "location": "us-central1",
+        "service_name": "paddle-webhooks",
+        "project_id": "aetherflow-b6459"
+      }
+    },
+    "timestamp": "2025-04-18T13:02:49.889266Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2025-04-18T13:02:49.895665009Z"
+  },
+  {
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "status": {
+        "message": "Ready condition status changed to True for Revision paddle-webhooks-00014-n89 with message: Deploying revision succeeded in 45.14s."
+      },
+      "serviceName": "run.googleapis.com",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/aetherflow-b6459/revisions/paddle-webhooks-00014-n89",
+      "response": {
+        "metadata": {
+          "name": "paddle-webhooks-00014-n89",
+          "namespace": "423266303314",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/423266303314/revisions/paddle-webhooks-00014-n89",
+          "uid": "12f4afce-d7d2-4d18-8441-9ad4d07976f7",
+          "resourceVersion": "AAYzDSKyHxg",
+          "generation": 1,
+          "creationTimestamp": "2025-04-18T13:02:04.808771Z",
+          "labels": {
+            "serving.knative.dev/configuration": "paddle-webhooks",
+            "serving.knative.dev/configurationGeneration": "14",
+            "serving.knative.dev/service": "paddle-webhooks",
+            "serving.knative.dev/serviceUid": "372488c1-7b5a-4265-a381-3b00c0d8dd90",
+            "serving.knative.dev/route": "paddle-webhooks",
+            "cloud.googleapis.com/location": "us-central1",
+            "run.googleapis.com/startupProbeType": "Default"
+          },
+          "annotations": {
+            "run.googleapis.com/client-name": "cloud-console",
+            "run.googleapis.com/startup-cpu-boost": "true",
+            "run.googleapis.com/build-source-location": "{\"paddle-webhooks-1\":\"gs://run-sources-aetherflow-b6459-us-central1/services/paddle-webhooks/1744981257.140000.zip#1744981258687017\"}",
+            "serving.knative.dev/creator": "godcorn001@gmail.com",
+            "run.googleapis.com/build-function-target": "{\"paddle-webhooks-1\":\"paddle-webhooks\"}",
+            "run.googleapis.com/base-images": "{\"paddle-webhooks-1\":\"us-central1-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22\"}",
+            "run.googleapis.com/build-id": "{\"paddle-webhooks-1\":\"78905f62-7596-477e-b16b-0f5232798579\"}",
+            "run.googleapis.com/operation-id": "0e989105-91c4-4a2d-8185-f9b8d18a71a1",
+            "autoscaling.knative.dev/maxScale": "10"
+          },
+          "ownerReferences": [
+            {
+              "kind": "Configuration",
+              "name": "paddle-webhooks",
+              "uid": "03226eab-944b-4f66-9e74-8efc04f54959",
+              "apiVersion": "serving.knative.dev/v1",
+              "controller": true,
+              "blockOwnerDeletion": true
+            }
+          ]
+        },
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Revision",
+        "spec": {
+          "containerConcurrency": 80,
+          "timeoutSeconds": 300,
+          "serviceAccountName": "423266303314-compute@developer.gserviceaccount.com",
+          "containers": [
+            {
+              "name": "paddle-webhooks-1",
+              "image": "us-central1-docker.pkg.dev/aetherflow-b6459/cloud-run-source-deploy/paddle-webhooks@sha256:0a97404aa619c0607ce878954e015767ad9286fcdeafc7cb86d4a3f1115276d6",
+              "ports": [
+                {
+                  "name": "http1",
+                  "containerPort": 8080
+                }
+              ],
+              "resources": {
+                "limits": {
+                  "cpu": "1000m",
+                  "memory": "512Mi"
+                }
+              },
+              "startupProbe": {
+                "timeoutSeconds": 240,
+                "periodSeconds": 240,
+                "failureThreshold": 1,
+                "tcpSocket": {
+                  "port": 8080
+                }
+              }
+            }
+          ],
+          "runtimeClassName": "run.googleapis.com/linux-base-image-update"
+        },
+        "status": {
+          "observedGeneration": 1,
+          "conditions": [
+            {
+              "type": "Ready",
+              "status": "True",
+              "message": "Deploying revision succeeded in 45.14s.",
+              "lastTransitionTime": "2025-04-18T13:02:49.954072Z"
+            },
+            {
+              "type": "ContainerHealthy",
+              "status": "True",
+              "message": "Containers became healthy in 1.04s.",
+              "lastTransitionTime": "2025-04-18T13:02:49.900560Z"
+            },
+            {
+              "type": "ContainerReady",
+              "status": "True",
+              "message": "Container image import completed in 3.54s.",
+              "lastTransitionTime": "2025-04-18T13:02:09.130543Z"
+            },
+            {
+              "type": "ResourcesAvailable",
+              "status": "True",
+              "message": "Provisioning imported containers completed in 39.48s. Checking container health.",
+              "lastTransitionTime": "2025-04-18T13:02:48.608098Z"
+            }
+          ],
+          "logUrl": "https://console.cloud.google.com/logs/viewer?project=aetherflow-b6459&resource=cloud_run_revision/service_name/paddle-webhooks/revision_name/paddle-webhooks-00014-n89&advancedFilter=resource.type%3D%22cloud_run_revision%22%0Aresource.labels.service_name%3D%22paddle-webhooks%22%0Aresource.labels.revision_name%3D%22paddle-webhooks-00014-n89%22",
+          "imageDigest": "us-central1-docker.pkg.dev/aetherflow-b6459/cloud-run-source-deploy/paddle-webhooks@sha256:0a97404aa619c0607ce878954e015767ad9286fcdeafc7cb86d4a3f1115276d6",
+          "containerStatuses": [
+            {
+              "name": "paddle-webhooks-1",
+              "imageDigest": "us-central1-docker.pkg.dev/aetherflow-b6459/cloud-run-source-deploy/paddle-webhooks@sha256:0a97404aa619c0607ce878954e015767ad9286fcdeafc7cb86d4a3f1115276d6"
+            }
+          ]
+        },
+        "@type": "type.googleapis.com/google.cloud.run.v1.Revision"
+      }
+    },
+    "insertId": "imi4pme242ri",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "aetherflow-b6459",
+        "configuration_name": "paddle-webhooks",
+        "service_name": "paddle-webhooks",
+        "location": "us-central1",
+        "revision_name": "paddle-webhooks-00014-n89"
+      }
+    },
+    "timestamp": "2025-04-18T13:02:49.965323Z",
+    "severity": "INFO",
+    "logName": "projects/aetherflow-b6459/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "receiveTimestamp": "2025-04-18T13:02:50.835836741Z"
+  },
+  {
+    "textPayload": "Default STARTUP TCP probe succeeded after 1 attempt for container \"paddle-webhooks-1\" on port 8080.",
+    "insertId": "68024d7b000bd27f3f1d484b",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "paddle-webhooks",
+        "project_id": "aetherflow-b6459",
+        "configuration_name": "paddle-webhooks",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-04-18T13:02:51.774783Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "00afae8043a749af8f5774522524fc76cac83cacd9ac094a80d0335be44544d3259a3aef310db85b9d02ae8340417b1f2dcc59297b6046510580647d6027fe03d705d1da6bb7",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fvarlog%2Fsystem",
+    "receiveTimestamp": "2025-04-18T13:02:51.785938056Z"
+  },
+  {
+    "protoPayload": {
+      "@type": "type.googleapis.com/google.cloud.audit.AuditLog",
+      "status": {
+        "message": "Ready condition status changed to True for Service paddle-webhooks."
+      },
+      "serviceName": "run.googleapis.com",
+      "methodName": "/Services.ReplaceService",
+      "resourceName": "namespaces/aetherflow-b6459/services/paddle-webhooks",
+      "response": {
+        "metadata": {
+          "name": "paddle-webhooks",
+          "namespace": "423266303314",
+          "selfLink": "/apis/serving.knative.dev/v1/namespaces/423266303314/services/paddle-webhooks",
+          "uid": "372488c1-7b5a-4265-a381-3b00c0d8dd90",
+          "resourceVersion": "AAYzDSMt5U4",
+          "generation": 14,
+          "creationTimestamp": "2025-04-10T13:04:42.918182Z",
+          "labels": {
+            "cloud.googleapis.com/location": "us-central1"
+          },
+          "annotations": {
+            "serving.knative.dev/creator": "godcorn001@gmail.com",
+            "serving.knative.dev/lastModifier": "godcorn001@gmail.com",
+            "run.googleapis.com/build-base-image": "us-central1-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22",
+            "run.googleapis.com/build-enable-automatic-updates": "true",
+            "run.googleapis.com/client-name": "cloud-console",
+            "run.googleapis.com/build-function-target": "paddle-webhooks",
+            "run.googleapis.com/build-name": "projects/423266303314/locations/us-central1/builds/78905f62-7596-477e-b16b-0f5232798579",
+            "run.googleapis.com/build-source-location": "gs://run-sources-aetherflow-b6459-us-central1/services/paddle-webhooks/1744981257.140000.zip#1744981258687017",
+            "run.googleapis.com/build-image-uri": "us-central1-docker.pkg.dev/aetherflow-b6459/cloud-run-source-deploy/paddle-webhooks",
+            "run.googleapis.com/operation-id": "0e989105-91c4-4a2d-8185-f9b8d18a71a1",
+            "run.googleapis.com/ingress": "all",
+            "run.googleapis.com/ingress-status": "all",
+            "run.googleapis.com/urls": "[\"https://paddle-webhooks-423266303314.us-central1.run.app\",\"https://paddle-webhooks-yplh3ljila-uc.a.run.app\"]"
+          }
+        },
+        "apiVersion": "serving.knative.dev/v1",
+        "kind": "Service",
+        "spec": {
+          "template": {
+            "metadata": {
+              "labels": {
+                "run.googleapis.com/startupProbeType": "Default"
+              },
+              "annotations": {
+                "autoscaling.knative.dev/maxScale": "10",
+                "run.googleapis.com/client-name": "cloud-console",
+                "run.googleapis.com/startup-cpu-boost": "true",
+                "run.googleapis.com/base-images": "{\"paddle-webhooks-1\":\"us-central1-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22\"}"
+              }
+            },
+            "spec": {
+              "containerConcurrency": 80,
+              "timeoutSeconds": 300,
+              "serviceAccountName": "423266303314-compute@developer.gserviceaccount.com",
+              "containers": [
+                {
+                  "name": "paddle-webhooks-1",
+                  "image": "us-central1-docker.pkg.dev/aetherflow-b6459/cloud-run-source-deploy/paddle-webhooks@sha256:0a97404aa619c0607ce878954e015767ad9286fcdeafc7cb86d4a3f1115276d6",
+                  "ports": [
+                    {
+                      "name": "http1",
+                      "containerPort": 8080
+                    }
+                  ],
+                  "resources": {
+                    "limits": {
+                      "cpu": "1000m",
+                      "memory": "512Mi"
+                    }
+                  },
+                  "startupProbe": {
+                    "timeoutSeconds": 240,
+                    "periodSeconds": 240,
+                    "failureThreshold": 1,
+                    "tcpSocket": {
+                      "port": 8080
+                    }
+                  }
+                }
+              ],
+              "runtimeClassName": "run.googleapis.com/linux-base-image-update"
+            }
+          },
+          "traffic": [
+            {
+              "percent": 100,
+              "latestRevision": true
+            }
+          ]
+        },
+        "status": {
+          "observedGeneration": 14,
+          "conditions": [
+            {
+              "type": "Ready",
+              "status": "True",
+              "lastTransitionTime": "2025-04-18T13:02:58.065742Z"
+            },
+            {
+              "type": "BaseImageValidated",
+              "status": "True",
+              "severity": "Info"
+            },
+            {
+              "type": "ConfigurationsReady",
+              "status": "True",
+              "lastTransitionTime": "2025-04-18T13:02:49.991021Z"
+            },
+            {
+              "type": "RoutesReady",
+              "status": "True",
+              "lastTransitionTime": "2025-04-18T13:02:58.022323Z"
+            }
+          ],
+          "latestReadyRevisionName": "paddle-webhooks-00014-n89",
+          "latestCreatedRevisionName": "paddle-webhooks-00014-n89",
+          "traffic": [
+            {
+              "revisionName": "paddle-webhooks-00014-n89",
+              "percent": 100,
+              "latestRevision": true
+            }
+          ],
+          "url": "https://paddle-webhooks-yplh3ljila-uc.a.run.app",
+          "address": {
+            "url": "https://paddle-webhooks-yplh3ljila-uc.a.run.app"
+          }
+        },
+        "@type": "type.googleapis.com/google.cloud.run.v1.Service"
+      }
+    },
+    "insertId": "-p8tssmc16e",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "revision_name": "",
+        "service_name": "paddle-webhooks",
+        "configuration_name": "",
+        "project_id": "aetherflow-b6459"
+      }
+    },
+    "timestamp": "2025-04-18T13:02:58.084711Z",
+    "severity": "INFO",
+    "logName": "projects/aetherflow-b6459/logs/cloudaudit.googleapis.com%2Fsystem_event",
+    "receiveTimestamp": "2025-04-18T13:02:58.446447902Z"
+  },
+  {
+    "insertId": "68024e1d0002b5b3595d9456",
+    "httpRequest": {
+      "requestMethod": "POST",
+      "requestUrl": "https://paddle-webhooks-423266303314.us-central1.run.app/",
+      "requestSize": "3829",
+      "status": 200,
+      "responseSize": "164",
+      "userAgent": "Paddle",
+      "remoteIp": "3.208.120.145",
+      "serverIp": "216.239.38.53",
+      "latency": "0.052051005s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "service_name": "paddle-webhooks",
+        "configuration_name": "paddle-webhooks",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "project_id": "aetherflow-b6459"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:33.115203Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/aetherflow-b6459/traces/9fd2fed51dae5a149246d328fd22bc30",
+    "receiveTimestamp": "2025-04-18T13:05:33.181974474Z",
+    "spanId": "778f8ebb6b8a5b42",
+    "traceSampled": true
+  },
+  {
+    "textPayload": "处理Paddle webhook事件: transaction.paid",
+    "insertId": "68024e1d00026e04c75feac4",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "project_id": "aetherflow-b6459",
+        "service_name": "paddle-webhooks",
+        "configuration_name": "paddle-webhooks"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:33.159236Z",
+    "labels": {
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:33.164924690Z"
+  },
+  {
+    "textPayload": "记录交易相关事件: transaction.paid，等待transaction.completed事件",
+    "insertId": "68024e1d00026f7fef37bd76",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "paddle-webhooks",
+        "project_id": "aetherflow-b6459",
+        "configuration_name": "paddle-webhooks",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:33.159615Z",
+    "labels": {
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00",
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:33.497674359Z"
+  },
+  {
+    "insertId": "68024e1e000a118c3492c2b7",
+    "httpRequest": {
+      "requestMethod": "POST",
+      "requestUrl": "https://paddle-webhooks-423266303314.us-central1.run.app/",
+      "requestSize": "2960",
+      "status": 200,
+      "responseSize": "164",
+      "userAgent": "Paddle",
+      "remoteIp": "34.194.127.46",
+      "serverIp": "216.239.36.53",
+      "latency": "0.907406327s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "service_name": "paddle-webhooks",
+        "configuration_name": "paddle-webhooks",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "project_id": "aetherflow-b6459"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:33.749989Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/aetherflow-b6459/traces/dd5df43a32690d53340817384ff1aced",
+    "receiveTimestamp": "2025-04-18T13:05:34.850124286Z",
+    "spanId": "b25e82449aa791a3",
+    "traceSampled": true
+  },
+  {
+    "textPayload": "处理Paddle webhook事件: subscription.created",
+    "insertId": "68024e1d000b89b1d235a0ad",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "paddle-webhooks",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "location": "us-central1",
+        "project_id": "aetherflow-b6459",
+        "service_name": "paddle-webhooks"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:33.756145Z",
+    "labels": {
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:33.831146227Z"
+  },
+  {
+    "insertId": "68024e1f0007134a9c0632cf",
+    "httpRequest": {
+      "requestMethod": "POST",
+      "requestUrl": "https://paddle-webhooks-423266303314.us-central1.run.app/",
+      "requestSize": "4194",
+      "status": 200,
+      "responseSize": "164",
+      "userAgent": "Paddle",
+      "remoteIp": "34.194.127.46",
+      "serverIp": "216.239.34.53",
+      "latency": "0.006406643s",
+      "protocol": "HTTP/1.1"
+    },
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "paddle-webhooks",
+        "location": "us-central1",
+        "configuration_name": "paddle-webhooks",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "project_id": "aetherflow-b6459"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:35.455214Z",
+    "severity": "INFO",
+    "labels": {
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Frequests",
+    "trace": "projects/aetherflow-b6459/traces/3927ec882b86fa622d9ca7a6ff122be0",
+    "receiveTimestamp": "2025-04-18T13:05:35.512812685Z",
+    "spanId": "d77a68ae3823ac3c",
+    "traceSampled": true
+  },
+  {
+    "textPayload": "处理Paddle webhook事件: transaction.completed",
+    "insertId": "68024e1f0007096a7e9e2711",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "paddle-webhooks",
+        "configuration_name": "paddle-webhooks",
+        "location": "us-central1",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "project_id": "aetherflow-b6459"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:35.461162Z",
+    "labels": {
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:35.497193993Z"
+  },
+  {
+    "textPayload": "处理交易完成事件，订阅ID: sub_01js4g283ekenckrbag0pqzwzc, 客户ID: ctm_01js20nk1rh5rgm038amnkqme6",
+    "insertId": "68024e1f00070ab8635d9ce8",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "aetherflow-b6459",
+        "location": "us-central1",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "service_name": "paddle-webhooks",
+        "configuration_name": "paddle-webhooks"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:35.461496Z",
+    "labels": {
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00",
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:35.497193993Z"
+  },
+  {
+    "textPayload": "检查 transaction.completed 数据中的 next_payment: undefined",
+    "insertId": "68024e1f00070b1960f13560",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "service_name": "paddle-webhooks",
+        "configuration_name": "paddle-webhooks",
+        "project_id": "aetherflow-b6459"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:35.461593Z",
+    "labels": {
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:35.497193993Z"
+  },
+  {
+    "textPayload": "已创建/更新用户ID映射: Paddle ID ctm_01js20nk1rh5rgm038amnkqme6 -> Firebase ID UhWPWDEaOUP5cTMxpqyFefHLXlE2",
+    "insertId": "68024e1f000820abc2a9d1c6",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "paddle-webhooks",
+        "project_id": "aetherflow-b6459",
+        "location": "us-central1",
+        "configuration_name": "paddle-webhooks",
+        "revision_name": "paddle-webhooks-00014-n89"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:35.532651Z",
+    "labels": {
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00",
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:35.828957040Z"
+  },
+  {
+    "textPayload": "已创建/更新用户ID映射: Paddle ID ctm_01js20nk1rh5rgm038amnkqme6 -> Firebase ID UhWPWDEaOUP5cTMxpqyFefHLXlE2",
+    "insertId": "68024e1f0008408718f534e0",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "paddle-webhooks",
+        "location": "us-central1",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "configuration_name": "paddle-webhooks",
+        "project_id": "aetherflow-b6459"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:35.540807Z",
+    "labels": {
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00",
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:35.828957040Z"
+  },
+  {
+    "textPayload": "会员状态已更新，用户ID: UhWPWDEaOUP5cTMxpqyFefHLXlE2, 状态: pro",
+    "insertId": "68024e22000e37c8e6ad71f0",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "location": "us-central1",
+        "project_id": "aetherflow-b6459",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "configuration_name": "paddle-webhooks",
+        "service_name": "paddle-webhooks"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:38.931784Z",
+    "labels": {
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:39.158799023Z"
+  },
+  {
+    "textPayload": "交易完成，已更新会员状态，用户ID: UhWPWDEaOUP5cTMxpqyFefHLXlE2, Paddle客户ID: ctm_01js20nk1rh5rgm038amnkqme6, 订阅ID: sub_01js4g283ekenckrbag0pqzwzc",
+    "insertId": "68024e22000e3826d71bb2f8",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "paddle-webhooks",
+        "project_id": "aetherflow-b6459",
+        "service_name": "paddle-webhooks",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:38.931878Z",
+    "labels": {
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00",
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:39.158799023Z"
+  },
+  {
+    "textPayload": "会员状态已更新，用户ID: UhWPWDEaOUP5cTMxpqyFefHLXlE2, 状态: pro",
+    "insertId": "68024e2400050db5218fd209",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "aetherflow-b6459",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "configuration_name": "paddle-webhooks",
+        "service_name": "paddle-webhooks",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:40.331189Z",
+    "labels": {
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:40.490573818Z"
+  },
+  {
+    "textPayload": "订阅已创建，用户ID: UhWPWDEaOUP5cTMxpqyFefHLXlE2, Paddle客户ID: ctm_01js20nk1rh5rgm038amnkqme6, 订阅ID: sub_01js4g283ekenckrbag0pqzwzc",
+    "insertId": "68024e260002077b7b072510",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "aetherflow-b6459",
+        "configuration_name": "paddle-webhooks",
+        "location": "us-central1",
+        "service_name": "paddle-webhooks",
+        "revision_name": "paddle-webhooks-00014-n89"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:42.132987Z",
+    "labels": {
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00",
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:42.155921392Z"
+  }
+]

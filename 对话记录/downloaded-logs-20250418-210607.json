@@ -1,0 +1,86 @@
+[
+  {
+    "textPayload": "会员状态已更新，用户ID: UhWPWDEaOUP5cTMxpqyFefHLXlE2, 状态: pro",
+    "insertId": "68024e22000e37c8e6ad71f0",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "project_id": "aetherflow-b6459",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "service_name": "paddle-webhooks",
+        "configuration_name": "paddle-webhooks",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:38.931784Z",
+    "labels": {
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00",
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:39.158799023Z"
+  },
+  {
+    "textPayload": "交易完成，已更新会员状态，用户ID: UhWPWDEaOUP5cTMxpqyFefHLXlE2, Paddle客户ID: ctm_01js20nk1rh5rgm038amnkqme6, 订阅ID: sub_01js4g283ekenckrbag0pqzwzc",
+    "insertId": "68024e22000e3826d71bb2f8",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "paddle-webhooks",
+        "project_id": "aetherflow-b6459",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "service_name": "paddle-webhooks",
+        "location": "us-central1"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:38.931878Z",
+    "labels": {
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00",
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:39.158799023Z"
+  },
+  {
+    "textPayload": "会员状态已更新，用户ID: UhWPWDEaOUP5cTMxpqyFefHLXlE2, 状态: pro",
+    "insertId": "68024e2400050db5218fd209",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "service_name": "paddle-webhooks",
+        "location": "us-central1",
+        "configuration_name": "paddle-webhooks",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "project_id": "aetherflow-b6459"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:40.331189Z",
+    "labels": {
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00",
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:40.490573818Z"
+  },
+  {
+    "textPayload": "订阅已创建，用户ID: UhWPWDEaOUP5cTMxpqyFefHLXlE2, Paddle客户ID: ctm_01js20nk1rh5rgm038amnkqme6, 订阅ID: sub_01js4g283ekenckrbag0pqzwzc",
+    "insertId": "68024e260002077b7b072510",
+    "resource": {
+      "type": "cloud_run_revision",
+      "labels": {
+        "configuration_name": "paddle-webhooks",
+        "revision_name": "paddle-webhooks-00014-n89",
+        "project_id": "aetherflow-b6459",
+        "location": "us-central1",
+        "service_name": "paddle-webhooks"
+      }
+    },
+    "timestamp": "2025-04-18T13:05:42.132987Z",
+    "labels": {
+      "instanceId": "00afae80434c3fcf2780562762306c364fd8248ce1b635e804e6eb26f0909bbc84ac38f582c14adfc11b0c6016a0bf6a897ca77cfbd4ed334d4c7966161fddc7ccc28c0b210d",
+      "run.googleapis.com/base_image_versions": "us-docker.pkg.dev/serverless-runtimes/google-22/runtimes/nodejs22:nodejs22_20250315_22_14_0_RC00"
+    },
+    "logName": "projects/aetherflow-b6459/logs/run.googleapis.com%2Fstdout",
+    "receiveTimestamp": "2025-04-18T13:05:42.155921392Z"
+  }
+]

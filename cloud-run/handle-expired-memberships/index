@@ -1,0 +1,104 @@
+const functions = require('@google-cloud/functions-framework');
+const admin = require('firebase-admin');
+
+// 初始化 Firebase Admin SDK
+// 确保 Cloud Function 运行环境的服务账号具有 Firestore 读写权限
+try {
+  admin.initializeApp();
+} catch (e) {
+  console.error('Firebase Admin initialization error:', e);
+}
+
+// 免费会员状态常量
+const DEFAULT_FREE_MEMBERSHIP = {
+  status: 'free',
+  plan: null,
+  startedAt: null,
+  expiresAt: null,
+  cancelAtPeriodEnd: false,
+  lastVerifiedAt: Date.now(), // 更新验证时间
+  subscriptionId: null,
+  customerId: null // 保留 customerId 可能有用，这里选择清除，按需调整
+};
+
+/**
+ * Cloud Function 处理过期的 Pro 会员
+ * 可以通过 Cloud Scheduler 设置 HTTP 调用定期触发
+ */
+functions.http('handleExpiredMemberships', async (req, res) => {
+  console.log('开始处理过期的 Pro 会员...');
+  const now = Date.now();
+  const db = admin.firestore();
+  const usersRef = db.collection('users');
+  let processedCount = 0;
+  let batch = db.batch();
+  let batchCount = 0;
+  const batchLimit = 400; // Firestore 批量写入限制约为 500 操作，留些余量
+
+  try {
+    // 查询所有 status 为 'pro' 且 expiresAt 小于当前时间的会员状态文档
+    // 注意：这需要 Firestore 复合索引：users collection, membership.status Ascending, membership.expiresAt Ascending
+    const expiredMembershipQuery = usersRef
+      .where('membership.status', '==', 'pro')
+      .where('membership.expiresAt', '<', now);
+
+    const snapshot = await expiredMembershipQuery.get();
+
+    if (snapshot.empty) {
+      console.log('没有找到过期的 Pro 会员。');
+      res.status(200).send('No expired pro members found.');
+      return;
+    }
+
+    console.log(`找到 ${snapshot.size} 个可能过期的 Pro 会员，开始处理...`);
+
+    for (const doc of snapshot.docs) {
+      const userId = doc.id;
+      const userData = doc.data();
+      const currentMembership = userData.membership || {};
+
+      console.log(`处理用户: ${userId}, 过期时间: ${currentMembership.expiresAt ? new Date(currentMembership.expiresAt).toISOString() : 'N/A'}`);
+
+      // 构建新的免费状态，保留 customerId
+      const newFreeState = {
+        ...DEFAULT_FREE_MEMBERSHIP,
+        customerId: currentMembership.customerId || null, // 保留 customerId
+        lastVerifiedAt: now // 更新验证时间
+      };
+
+      // 更新顶级用户文档中的 membership 字段
+      batch.update(usersRef.doc(userId), { membership: newFreeState });
+      batchCount++;
+
+      // 更新 users/{userId}/membership/status 子文档
+      const membershipStatusRef = usersRef.doc(userId).collection('membership').doc('status');
+      batch.set(membershipStatusRef, newFreeState); // 使用 set 覆盖
+      batchCount++;
+
+      processedCount++;
+
+      // 如果批量操作达到限制，提交并创建新批次
+      if (batchCount >= batchLimit) {
+        console.log(`提交批处理，包含 ${batchCount / 2} 个用户的更新...`);
+        await batch.commit();
+        console.log('批处理提交成功。');
+        batch = db.batch(); // 重置批处理
+        batchCount = 0;
+      }
+    }
+
+    // 提交剩余的批量操作
+    if (batchCount > 0) {
+      console.log(`提交最后的批处理，包含 ${batchCount / 2} 个用户的更新...`);
+      await batch.commit();
+      console.log('最后的批处理提交成功。');
+    }
+
+    console.log(`处理完成，共更新了 ${processedCount} 个用户的状态。`);
+    res.status(200).send(`Processed ${processedCount} expired members.`);
+
+  } catch (error) {
+    console.error('处理过期会员时出错:', error);
+    res.status(500).send('Error processing expired members.');
+  }
+}); 

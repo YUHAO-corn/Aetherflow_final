@@ -787,6 +787,10 @@ async function handleTransactionCompleted(payload) {
     
     console.log(`处理交易完成事件，订阅ID: ${subscriptionId}, 客户ID: ${customerId}`);
     
+    // ---> 添加日志：检查 next_payment 数据 <---
+    console.log('检查 transaction.completed 数据中的 next_payment:', JSON.stringify(data.next_payment));
+    // ---> 添加日志结束 <---
+
     // 提取Firebase用户ID
     let firebaseUserId = extractFirebaseUserId(payload);
     
@@ -805,17 +809,29 @@ async function handleTransactionCompleted(payload) {
       console.warn(`无法找到对应的Firebase用户ID，使用Paddle用户ID: ${customerId}`);
     }
     
-    // 查询订阅信息
-    // 注意：实际实现可能需要调用Paddle API获取订阅详情
-    // 这里简化处理，假设订阅是有效的
+    // 获取当前的会员状态，以便保留可能已存在的 expiresAt
+    const currentState = await getCurrentMembershipState(userId);
+    
+    // 计算新的 expiresAt，仅当事件提供了有效日期时才更新
+    let newExpiresAt = currentState.expiresAt; // 默认保留当前值
+    if (data.next_payment && data.next_payment.date) {
+      try {
+        newExpiresAt = new Date(data.next_payment.date).getTime();
+      } catch (dateError) {
+        console.error('解析 next_payment.date 失败:', dateError, data.next_payment.date);
+        // 解析失败，保持当前值
+      }
+    }
+    
+    // 构建要更新的会员状态对象
     const membershipState = cleanFirestoreData({
-      status: MembershipStatus.PRO,
+      status: MembershipStatus.PRO, // 交易完成，确保状态是 Pro
       plan: data.items && data.items[0] && data.items[0].price && data.items[0].price.billing_cycle 
             ? (data.items[0].price.billing_cycle.interval === 'month' ? 'monthly' : 'annual')
-            : null,
-      startedAt: Date.now(),
-      expiresAt: data.next_payment ? new Date(data.next_payment.date).getTime() : null,
-      cancelAtPeriodEnd: false,
+            : currentState.plan, // 如果事件没提供，保留当前计划
+      startedAt: currentState.startedAt || Date.now(), // 保留现有开始时间，如果没有则设置为当前时间
+      expiresAt: newExpiresAt, // 使用计算出的新值
+      cancelAtPeriodEnd: currentState.cancelAtPeriodEnd === true ? false : currentState.cancelAtPeriodEnd, // 如果之前标记取消，交易成功后取消该标记
       lastVerifiedAt: Date.now(),
       subscriptionId: subscriptionId,
       customerId: customerId,

@@ -1,0 +1,38 @@
+# 会员自动过期处理反思文档 (2025-04-18)
+
+## 问题描述
+
+在 B6 支付流程打通后，我们发现一个关键遗漏：系统虽然在 Firestore 中记录了 Pro 会员的到期时间 (`expiresAt`)，但**没有自动机制**在会员实际到期后，将 Firestore 中的会员状态从 `'pro'` 更新回 `'free'`。
+
+依赖 Paddle 的 `subscription.cancelled` 等 webhook 事件来处理所有过期情况存在风险（例如事件丢失、非标准订阅结束流程等），可能导致数据库中的会员状态与实际不符，即使前端（扩展端）可能因为本地检查 `expiresAt` 而正确限制了功能。
+
+## 解决方案：后端定期检查
+
+我们采用了**后端定期自动检查**的方案来解决这个问题，确保数据源头的准确性。
+
+1.  **创建专用 Cloud Function (`handleExpiredMemberships`)**: 开发了一个独立的、由 HTTP 触发的 Cloud Function。
+2.  **核心逻辑**: 该函数：
+    *   定期查询 Firestore 的 `users` 集合。
+    *   查找所有 `membership.status == 'pro'` 且 `membership.expiresAt < 当前时间` 的用户文档。
+    *   使用 Firestore 批量写入 (Batched Writes) 将找到的过期用户状态安全地更新为 `'free'`，同时更新 `lastVerifiedAt` 并保留 `customerId`。
+3.  **自动触发 (Cloud Scheduler)**: 配置了一个 Cloud Scheduler 作业，按照设定的频率（例如每天一次）自动通过 HTTP 请求调用 `handleExpiredMemberships` 函数的触发器 URL。
+4.  **高效查询 (Firestore 索引)**: 在 Firestore 中创建了一个复合索引（基于 `membership.status` 和 `membership.expiresAt` 字段），确保 Cloud Function 的查询操作能够高效执行，避免全集合扫描。
+5.  **安全调用 (OIDC 认证)**: Cloud Scheduler 使用 OIDC 令牌和指定的服务账号来安全地调用 Cloud Function，确保只有授权的服务可以触发该任务。
+
+## 技术科普与原因解释
+
+*   **为什么不用前端触发？**
+    *   虽然前端（扩展）可以检测到 `expiresAt` 过期并更新本地 UI，但根据我们的设计原则（后端是会员状态的权威来源），客户端**不应**直接修改 Firestore 中的核心会员状态。
+    *   依赖客户端触发后端更新也存在不可靠性（网络、浏览器关闭等）。
+    *   后端定期任务能确保**数据源头 (Firestore)** 的最终一致性和准确性。
+
+*   **为什么需要 Cloud Scheduler？**
+    *   HTTP 触发的 Cloud Function 本身是被动的，它需要一个**外部调用者**来启动执行。
+    *   Cloud Scheduler 正是扮演了这个"闹钟"的角色，按预定时间自动"唤醒"并运行我们的过期检查函数。
+
+*   **为什么需要 Firestore 复合索引？**
+    *   我们的查询需要同时根据 `membership.status` 和 `membership.expiresAt` 两个字段来筛选数据。
+    *   没有复合索引，Firestore 需要扫描大量文档来找到匹配项，效率低下且成本高昂。
+    *   复合索引允许 Firestore 直接、快速地定位到满足这两个条件的文档，是高效执行此类查询的**必要条件**。
+
+通过这套后端定期检查机制，我们确保了即使在没有收到特定 webhook 事件的情况下，过期的会员状态也能被及时、准确地在数据库层面进行更新，保证了系统数据的长期准确性。
