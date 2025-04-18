@@ -16,12 +16,136 @@ const app = express();
 // 启用CORS
 app.use(cors({ origin: true }));
 
-// 验证Paddle Webhook签名的函数
+// 会员状态类型
+const MembershipStatus = {
+  FREE: 'free',
+  PRO: 'pro',
+  TRIAL: 'trial'
+};
+
+// 订阅计划类型
+const SubscriptionPlan = {
+  MONTHLY: 'monthly',
+  ANNUAL: 'annual'
+};
+
+/**
+ * 从事件数据中提取Firebase用户ID
+ * 同时支持旧版API的passthrough和新版API的customData
+ */
+function extractFirebaseUserId(payload) {
+  try {
+    // 尝试从新版API的customData中获取
+    if (payload.data && payload.data.custom_data) {
+      // 如果customData是字符串，尝试解析为JSON
+      const customData = typeof payload.data.custom_data === 'string' 
+        ? JSON.parse(payload.data.custom_data) 
+        : payload.data.custom_data;
+      
+      if (customData && customData.userId) {
+        return customData.userId;
+      }
+    }
+    
+    // 直接从payload的customData中获取
+    if (payload.custom_data) {
+      const customData = typeof payload.custom_data === 'string' 
+        ? JSON.parse(payload.custom_data) 
+        : payload.custom_data;
+      
+      if (customData && customData.userId) {
+        return customData.userId;
+      }
+    }
+    
+    // 尝试从旧版API的passthrough中获取
+    if (payload.passthrough) {
+      const passthrough = JSON.parse(payload.passthrough);
+      if (passthrough && passthrough.userId) {
+        return passthrough.userId;
+      }
+      // 兼容性：有些旧版可能直接存储了userId
+      if (passthrough && passthrough.firebaseUserId) {
+        return passthrough.firebaseUserId;
+      }
+    }
+    
+    // 如果找不到，返回null
+    return null;
+  } catch (error) {
+    console.error('提取Firebase用户ID失败:', error);
+    return null;
+  }
+}
+
+/**
+ * 创建或更新Paddle客户ID与Firebase用户ID的映射
+ */
+async function createUserIdMapping(paddleCustomerId, firebaseUserId) {
+  try {
+    const db = admin.firestore();
+    
+    // 构建数据对象并清理
+    const mappingData = cleanFirestoreData({
+      paddleCustomerId,
+      firebaseUserId,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    });
+    
+    // 在映射集合中创建文档
+    await db.collection('customerMapping').doc(paddleCustomerId).set(mappingData, { merge: true });
+    
+    console.log(`已创建/更新用户ID映射: Paddle ID ${paddleCustomerId} -> Firebase ID ${firebaseUserId}`);
+  } catch (error) {
+    console.error(`创建/更新用户ID映射失败:`, error);
+  }
+}
+
+/**
+ * 查找与Paddle客户ID对应的Firebase用户ID
+ */
+async function findFirebaseUserIdByPaddleCustomerId(paddleCustomerId) {
+  try {
+    const db = admin.firestore();
+    
+    // 查询映射集合
+    const mappingDoc = await db.collection('customerMapping').doc(paddleCustomerId).get();
+    
+    if (mappingDoc.exists) {
+      return mappingDoc.data()?.firebaseUserId || null;
+    }
+    
+    return null;
+  } catch (error) {
+    console.error(`查找Firebase用户ID失败:`, error);
+    return null;
+  }
+}
+
+/**
+ * 从产品ID确定订阅计划类型
+ */
+function getPlanTypeFromProductId(productId) {
+  // 根据实际的产品ID进行映射
+  // 这里需要根据实际的Paddle产品ID进行配置
+  if (typeof productId === 'string') {
+    if (productId.includes('monthly')) {
+      return SubscriptionPlan.MONTHLY;
+    } else if (productId.includes('annual') || productId.includes('yearly')) {
+      return SubscriptionPlan.ANNUAL;
+    }
+  }
+  return null;
+}
+
+/**
+ * 验证Paddle Webhook签名的函数
+ */
 function verifyPaddleSignature(req) {
   // 从请求中获取签名
   const signature = req.body.p_signature;
   if (!signature) {
-    console.error('No signature found in webhook payload');
+    console.error('没有在webhook负载中找到签名');
     return false;
   }
 
@@ -40,8 +164,128 @@ function verifyPaddleSignature(req) {
     verifier.update(serialized);
     return verifier.verify(PADDLE_PUBLIC_KEY, signature, 'base64');
   } catch (error) {
-    console.error('Error verifying signature:', error.message);
+    console.error('验证签名时出错:', error.message);
     return false;
+  }
+}
+
+/**
+ * 清理对象以适用于Firestore存储，将undefined值替换为null
+ */
+function cleanFirestoreData(obj) {
+  // 如果不是对象或为null，直接返回
+  if (obj === null || typeof obj !== 'object' || Array.isArray(obj)) {
+    return obj;
+  }
+  
+  // 创建一个干净的对象
+  const cleanedObj = {};
+  
+  // 遍历原对象的所有属性
+  for (const [key, value] of Object.entries(obj)) {
+    if (value === undefined) {
+      // 将undefined值替换为null
+      cleanedObj[key] = null;
+    } else if (value !== null && typeof value === 'object') {
+      // 递归处理嵌套对象
+      cleanedObj[key] = cleanFirestoreData(value);
+    } else {
+      // 保留其他值
+      cleanedObj[key] = value;
+    }
+  }
+  
+  return cleanedObj;
+}
+
+/**
+ * 更新用户的会员状态到Firestore
+ */
+async function updateUserMembership(userId, membershipState) {
+  try {
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(userId);
+    
+    // 清理会员状态数据，确保没有undefined值
+    const cleanedMembershipState = cleanFirestoreData(membershipState);
+    
+    // 更新用户文档中的会员信息 - 使用解构方式简化代码
+    await userRef.set({
+      membership: {
+        ...cleanedMembershipState,
+        updatedAt: Date.now()
+      }
+    }, { merge: true });
+    
+    // 更新专门的会员状态文档
+    const membershipRef = userRef.collection('membership').doc('status');
+    await membershipRef.set(cleanedMembershipState);
+    
+    console.log(`会员状态已更新，用户ID: ${userId}, 状态: ${cleanedMembershipState.status}`);
+  } catch (error) {
+    console.error(`更新用户会员状态失败，用户ID: ${userId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * 获取当前用户的会员状态
+ */
+async function getCurrentMembershipState(userId) {
+  try {
+    const db = admin.firestore();
+    
+    // 先尝试从专门的会员状态文档读取
+    const membershipDoc = await db.collection('users').doc(userId)
+      .collection('membership').doc('status').get();
+    
+    if (membershipDoc.exists) {
+      return membershipDoc.data();
+    }
+    
+    // 如果没有找到，尝试从用户文档中读取
+    const userDoc = await db.collection('users').doc(userId).get();
+    if (userDoc.exists && userDoc.data().membership) {
+      const membership = userDoc.data().membership;
+      return {
+        status: membership.status || MembershipStatus.FREE,
+        plan: membership.plan || null,
+        startedAt: membership.startedAt || null,
+        expiresAt: membership.expiresAt || null,
+        cancelAtPeriodEnd: membership.cancelAtPeriodEnd || false,
+        lastVerifiedAt: Date.now(),
+        subscriptionId: membership.subscriptionId || null,
+        customerId: userId,
+        updatedAt: Date.now()
+      };
+    }
+    
+    // 如果都没有找到，返回默认免费状态
+    return {
+      status: MembershipStatus.FREE,
+      plan: null,
+      startedAt: null,
+      expiresAt: null,
+      cancelAtPeriodEnd: false,
+      lastVerifiedAt: Date.now(),
+      subscriptionId: null,
+      customerId: userId,
+      updatedAt: Date.now()
+    };
+  } catch (error) {
+    console.error(`获取用户会员状态失败，用户ID: ${userId}:`, error);
+    // 出错时返回默认免费状态
+    return {
+      status: MembershipStatus.FREE,
+      plan: null,
+      startedAt: null,
+      expiresAt: null,
+      cancelAtPeriodEnd: false,
+      lastVerifiedAt: Date.now(),
+      subscriptionId: null,
+      customerId: userId,
+      updatedAt: Date.now()
+    };
   }
 }
 
@@ -50,7 +294,7 @@ async function handleSubscriptionCreated(payload) {
   // 新版API数据在data字段中
   const data = payload.data;
   if (!data) {
-    console.error('No data found in subscription created webhook');
+    console.error('在订阅创建webhook中未找到数据');
     return;
   }
 
@@ -58,25 +302,73 @@ async function handleSubscriptionCreated(payload) {
   const subscriptionId = data.id;
   const status = data.status;
   const nextBillDate = data.next_billed_at;
+  const items = data.items || [];
+  
+  // 查找产品信息
+  let productId = null;
+  if (items.length > 0 && items[0].price && items[0].price.product_id) {
+    productId = items[0].price.product_id;
+  }
 
   if (!customerId) {
-    console.error('No customer_id found in subscription created webhook');
+    console.error('在订阅创建webhook中未找到customer_id');
     return;
   }
 
   try {
-    // 使用set而不是update，确保即使文档不存在也能正常工作
-    await admin.firestore().collection('users').doc(customerId).set({
-      subscriptionId: subscriptionId,
-      subscriptionStatus: status,
-      membershipTier: 'premium',
-      membershipExpiry: new Date(nextBillDate).getTime(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
+    // 提取Firebase用户ID（从passthrough或customData）
+    let firebaseUserId = extractFirebaseUserId(payload);
     
-    console.log(`Subscription created for customer ${customerId}, subscription ID: ${subscriptionId}`);
+    // 如果找不到Firebase用户ID，尝试从映射中查找
+    if (!firebaseUserId) {
+      firebaseUserId = await findFirebaseUserIdByPaddleCustomerId(customerId);
+    }
+    
+    // 如果还是找不到，记录错误并使用Paddle用户ID
+    const userId = firebaseUserId || customerId;
+    
+    // 如果找到了Firebase用户ID，创建/更新映射
+    if (firebaseUserId) {
+      await createUserIdMapping(customerId, firebaseUserId);
+    } else {
+      console.warn(`无法找到对应的Firebase用户ID，使用Paddle用户ID: ${customerId}`);
+    }
+    
+    // 确定订阅计划类型
+    const planType = getPlanTypeFromProductId(productId);
+    
+    // 确定会员状态
+    const membershipStatus = status === 'active' || status === 'trialing' ? 
+      MembershipStatus.PRO : MembershipStatus.FREE;
+    
+    // 计算到期日期
+    const expiresAt = nextBillDate ? new Date(nextBillDate).getTime() : null;
+    
+    // 构建会员状态
+    const membershipState = {
+      status: membershipStatus,
+      plan: planType,
+      startedAt: Date.now(),
+      expiresAt,
+      cancelAtPeriodEnd: false,
+      lastVerifiedAt: Date.now(),
+      subscriptionId: subscriptionId,
+      customerId: customerId,
+      updatedAt: Date.now()
+    };
+    
+    // 更新用户会员状态
+    await updateUserMembership(userId, membershipState);
+    
+    // 更新用户基本信息
+    await admin.firestore().collection('users').doc(userId).set(cleanFirestoreData({
+      paddleCustomerId: customerId, // 添加Paddle客户ID到用户记录
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }), { merge: true });
+    
+    console.log(`订阅已创建，用户ID: ${userId}, Paddle客户ID: ${customerId}, 订阅ID: ${subscriptionId}`);
   } catch (error) {
-    console.error(`Error creating subscription for ${customerId}: ${error.message}`);
+    console.error(`为 ${customerId} 创建订阅时出错: ${error.message}`);
   }
 }
 
@@ -84,7 +376,7 @@ async function handleSubscriptionCreated(payload) {
 async function handleSubscriptionCancelled(payload) {
   const data = payload.data;
   if (!data) {
-    console.error('No data found in subscription cancelled webhook');
+    console.error('在订阅取消webhook中未找到数据');
     return;
   }
 
@@ -92,21 +384,59 @@ async function handleSubscriptionCancelled(payload) {
   const subscriptionId = data.id;
 
   if (!customerId) {
-    console.error('No customer_id found in subscription cancelled webhook');
+    console.error('在订阅取消webhook中未找到customer_id');
     return;
   }
 
   try {
-    // 使用set而不是update
-    await admin.firestore().collection('users').doc(customerId).set({
-      subscriptionStatus: 'cancelled',
-      cancelledAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
+    // 提取Firebase用户ID
+    let firebaseUserId = extractFirebaseUserId(payload);
     
-    console.log(`Subscription cancelled for customer ${customerId}, subscription ID: ${subscriptionId}`);
+    // 如果找不到Firebase用户ID，尝试从映射中查找
+    if (!firebaseUserId) {
+      firebaseUserId = await findFirebaseUserIdByPaddleCustomerId(customerId);
+    }
+    
+    // 如果还是找不到，记录错误并使用Paddle用户ID
+    const userId = firebaseUserId || customerId;
+    
+    // 获取当前的会员状态
+    const currentState = await getCurrentMembershipState(userId);
+    
+    // 确定结束日期（立即取消或周期结束时取消）
+    const endDate = data.ends_at ? new Date(data.ends_at).getTime() : null;
+    const now = Date.now();
+    
+    // 如果结束日期是当前或过去，立即将状态设为free
+    // 否则标记为在周期结束后取消，但保持pro状态直到结束日期
+    if (endDate && endDate <= now) {
+      // 立即取消
+      const updatedState = {
+        ...currentState,
+        status: MembershipStatus.FREE,
+        cancelAtPeriodEnd: false,
+        expiresAt: endDate || now,
+        lastVerifiedAt: now,
+        updatedAt: now
+      };
+      
+      await updateUserMembership(userId, updatedState);
+    } else {
+      // 周期结束后取消
+      const updatedState = {
+        ...currentState,
+        cancelAtPeriodEnd: true,
+        expiresAt: endDate || currentState.expiresAt,
+        lastVerifiedAt: now,
+        updatedAt: now
+      };
+      
+      await updateUserMembership(userId, updatedState);
+    }
+    
+    console.log(`订阅已取消，用户ID: ${userId}, Paddle客户ID: ${customerId}, 订阅ID: ${subscriptionId}`);
   } catch (error) {
-    console.error(`Error cancelling subscription for ${customerId}: ${error.message}`);
+    console.error(`为 ${customerId} 取消订阅时出错: ${error.message}`);
   }
 }
 
@@ -114,19 +444,59 @@ async function handleSubscriptionCancelled(payload) {
 async function handlePaymentSucceeded(payload) {
   const data = payload.data;
   if (!data) {
-    console.error('No data found in payment succeeded webhook');
+    console.error('在付款成功webhook中未找到数据');
     return;
   }
 
   const customerId = data.customer_id;
   const transactionId = data.transaction_id;
+  const subscriptionId = data.subscription_id;
+  const nextBillDate = data.next_payment?.date;
 
   if (!customerId) {
-    console.error('No customer_id found in payment succeeded webhook');
+    console.error('在付款成功webhook中未找到customer_id');
     return;
   }
 
   try {
+    // 提取Firebase用户ID
+    let firebaseUserId = extractFirebaseUserId(payload);
+    
+    // 如果找不到Firebase用户ID，尝试从映射中查找
+    if (!firebaseUserId) {
+      firebaseUserId = await findFirebaseUserIdByPaddleCustomerId(customerId);
+    }
+    
+    // 如果还是找不到，记录错误并使用Paddle用户ID
+    const userId = firebaseUserId || customerId;
+    
+    // 如果找到了Firebase用户ID，创建/更新映射
+    if (firebaseUserId) {
+      await createUserIdMapping(customerId, firebaseUserId);
+    } else {
+      console.warn(`无法找到对应的Firebase用户ID，使用Paddle用户ID: ${customerId}`);
+    }
+    
+    // 获取当前的会员状态
+    const currentState = await getCurrentMembershipState(userId);
+    
+    // 计算新的到期日期
+    const expiresAt = nextBillDate ? new Date(nextBillDate).getTime() : currentState.expiresAt;
+    
+    // 更新会员状态
+    const updatedState = {
+      ...currentState,
+      status: MembershipStatus.PRO, // 支付成功，确保状态为pro
+      expiresAt,
+      lastVerifiedAt: Date.now(),
+      subscriptionId: subscriptionId || currentState.subscriptionId,
+      customerId: customerId,
+      updatedAt: Date.now()
+    };
+    
+    // 更新用户会员状态
+    await updateUserMembership(userId, updatedState);
+    
     // 提取价格信息
     let amount = null;
     let currency = data.currency_code || 'USD';
@@ -136,26 +506,20 @@ async function handlePaymentSucceeded(payload) {
     }
 
     // 记录支付历史
-    await admin.firestore().collection('users').doc(customerId)
-      .collection('paymentHistory').add({
-        subscriptionId: data.id,
+    await admin.firestore().collection('users').doc(userId)
+      .collection('paymentHistory').add(cleanFirestoreData({
+        subscriptionId: subscriptionId,
         transactionId: transactionId,
         amount: amount,
         currency: currency,
         paymentDate: new Date(payload.occurred_at).getTime(),
+        nextBillDate: expiresAt,
         createdAt: admin.firestore.FieldValue.serverTimestamp()
-      });
+      }));
     
-    // 更新用户的付款状态
-    await admin.firestore().collection('users').doc(customerId).set({
-      lastPaymentDate: new Date(payload.occurred_at).getTime(),
-      paymentStatus: 'paid',
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
-    
-    console.log(`Payment recorded for customer ${customerId}, transaction ID: ${transactionId}`);
+    console.log(`付款已记录，用户ID: ${userId}, Paddle客户ID: ${customerId}, 交易ID: ${transactionId}, 订阅ID: ${subscriptionId || 'unknown'}`);
   } catch (error) {
-    console.error(`Error recording payment for ${customerId}: ${error.message}`);
+    console.error(`为 ${customerId} 记录付款时出错: ${error.message}`);
   }
 }
 
@@ -163,7 +527,7 @@ async function handlePaymentSucceeded(payload) {
 async function handleSubscriptionUpdated(payload) {
   const data = payload.data;
   if (!data) {
-    console.error('No data found in subscription updated webhook');
+    console.error('在订阅更新webhook中未找到数据');
     return;
   }
 
@@ -171,23 +535,75 @@ async function handleSubscriptionUpdated(payload) {
   const subscriptionId = data.id;
   const status = data.status;
   const nextBillDate = data.next_billed_at;
+  const items = data.items || [];
+  
+  // 查找产品信息
+  let productId = null;
+  if (items.length > 0 && items[0].price && items[0].price.product_id) {
+    productId = items[0].price.product_id;
+  }
 
   if (!customerId) {
-    console.error('No customer_id found in subscription updated webhook');
+    console.error('在订阅更新webhook中未找到customer_id');
     return;
   }
 
   try {
-    await admin.firestore().collection('users').doc(customerId).set({
-      subscriptionId: subscriptionId,
-      subscriptionStatus: status,
-      membershipExpiry: nextBillDate ? new Date(nextBillDate).getTime() : null,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
+    // 提取Firebase用户ID
+    let firebaseUserId = extractFirebaseUserId(payload);
     
-    console.log(`Subscription updated for customer ${customerId}, subscription ID: ${subscriptionId}`);
+    // 如果找不到Firebase用户ID，尝试从映射中查找
+    if (!firebaseUserId) {
+      firebaseUserId = await findFirebaseUserIdByPaddleCustomerId(customerId);
+    }
+    
+    // 如果还是找不到，记录错误并使用Paddle用户ID
+    const userId = firebaseUserId || customerId;
+    
+    // 如果找到了Firebase用户ID，创建/更新映射
+    if (firebaseUserId) {
+      await createUserIdMapping(customerId, firebaseUserId);
+    } else {
+      console.warn(`无法找到对应的Firebase用户ID，使用Paddle用户ID: ${customerId}`);
+    }
+    
+    // 获取当前的会员状态
+    const currentState = await getCurrentMembershipState(userId);
+    
+    // 确定订阅计划类型
+    const planType = productId ? getPlanTypeFromProductId(productId) : currentState.plan;
+    
+    // 确定会员状态
+    const membershipStatus = status === 'active' || status === 'trialing' ? 
+      MembershipStatus.PRO : 
+      (status === 'paused' ? MembershipStatus.PRO : MembershipStatus.FREE);
+    
+    // 计算到期日期
+    const expiresAt = nextBillDate ? new Date(nextBillDate).getTime() : currentState.expiresAt;
+    
+    // 确定是否将在周期结束后取消
+    const cancelAtPeriodEnd = data.paused_at ? false : 
+                             Boolean(status === 'active' && data.cancel_at_end_of_billing_period);
+    
+    // 构建更新后的会员状态
+    const updatedState = {
+      ...currentState,
+      status: membershipStatus,
+      plan: planType,
+      expiresAt,
+      cancelAtPeriodEnd,
+      lastVerifiedAt: Date.now(),
+      subscriptionId: subscriptionId,
+      customerId: customerId,
+      updatedAt: Date.now()
+    };
+    
+    // 更新用户会员状态
+    await updateUserMembership(userId, updatedState);
+    
+    console.log(`订阅已更新，用户ID: ${userId}, Paddle客户ID: ${customerId}, 订阅ID: ${subscriptionId}`);
   } catch (error) {
-    console.error(`Error updating subscription for ${customerId}: ${error.message}`);
+    console.error(`为 ${customerId} 更新订阅时出错: ${error.message}`);
   }
 }
 
@@ -195,7 +611,7 @@ async function handleSubscriptionUpdated(payload) {
 async function handleSubscriptionPaused(payload) {
   const data = payload.data;
   if (!data) {
-    console.error('No data found in subscription paused webhook');
+    console.error('在订阅暂停webhook中未找到数据');
     return;
   }
 
@@ -203,20 +619,41 @@ async function handleSubscriptionPaused(payload) {
   const subscriptionId = data.id;
 
   if (!customerId) {
-    console.error('No customer_id found in subscription paused webhook');
+    console.error('在订阅暂停webhook中未找到customer_id');
     return;
   }
 
   try {
-    await admin.firestore().collection('users').doc(customerId).set({
-      subscriptionStatus: 'paused',
-      pausedAt: new Date(data.paused_at || payload.occurred_at).getTime(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
+    // 提取Firebase用户ID
+    let firebaseUserId = extractFirebaseUserId(payload);
     
-    console.log(`Subscription paused for customer ${customerId}, subscription ID: ${subscriptionId}`);
+    // 如果找不到Firebase用户ID，尝试从映射中查找
+    if (!firebaseUserId) {
+      firebaseUserId = await findFirebaseUserIdByPaddleCustomerId(customerId);
+    }
+    
+    // 如果还是找不到，记录错误并使用Paddle用户ID
+    const userId = firebaseUserId || customerId;
+    
+    // 获取当前的会员状态
+    const currentState = await getCurrentMembershipState(userId);
+    
+    // 更新会员状态
+    const updatedState = {
+      ...currentState,
+      // 暂停不立即将用户降级为免费用户，而是保持pro状态直到过期
+      status: MembershipStatus.PRO,
+      cancelAtPeriodEnd: true, // 标记为暂停，将在到期后不再续费
+      lastVerifiedAt: Date.now(),
+      updatedAt: Date.now()
+    };
+    
+    // 更新用户会员状态
+    await updateUserMembership(userId, updatedState);
+    
+    console.log(`订阅已暂停，用户ID: ${userId}, Paddle客户ID: ${customerId}, 订阅ID: ${subscriptionId}`);
   } catch (error) {
-    console.error(`Error pausing subscription for ${customerId}: ${error.message}`);
+    console.error(`为 ${customerId} 暂停订阅时出错: ${error.message}`);
   }
 }
 
@@ -224,7 +661,7 @@ async function handleSubscriptionPaused(payload) {
 async function handleSubscriptionResumed(payload) {
   const data = payload.data;
   if (!data) {
-    console.error('No data found in subscription resumed webhook');
+    console.error('在订阅恢复webhook中未找到数据');
     return;
   }
 
@@ -234,21 +671,163 @@ async function handleSubscriptionResumed(payload) {
   const nextBillDate = data.next_billed_at;
 
   if (!customerId) {
-    console.error('No customer_id found in subscription resumed webhook');
+    console.error('在订阅恢复webhook中未找到customer_id');
     return;
   }
 
   try {
-    await admin.firestore().collection('users').doc(customerId).set({
-      subscriptionStatus: status,
-      membershipExpiry: nextBillDate ? new Date(nextBillDate).getTime() : null,
-      resumedAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedAt: admin.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
+    // 提取Firebase用户ID
+    let firebaseUserId = extractFirebaseUserId(payload);
     
-    console.log(`Subscription resumed for customer ${customerId}, subscription ID: ${subscriptionId}`);
+    // 如果找不到Firebase用户ID，尝试从映射中查找
+    if (!firebaseUserId) {
+      firebaseUserId = await findFirebaseUserIdByPaddleCustomerId(customerId);
+    }
+    
+    // 如果还是找不到，记录错误并使用Paddle用户ID
+    const userId = firebaseUserId || customerId;
+    
+    // 获取当前的会员状态
+    const currentState = await getCurrentMembershipState(userId);
+    
+    // 计算到期日期
+    const expiresAt = nextBillDate ? new Date(nextBillDate).getTime() : currentState.expiresAt;
+    
+    // 更新会员状态
+    const updatedState = {
+      ...currentState,
+      status: MembershipStatus.PRO, // 恢复订阅，设为pro状态
+      cancelAtPeriodEnd: false, // 取消暂停标记
+      expiresAt,
+      lastVerifiedAt: Date.now(),
+      updatedAt: Date.now()
+    };
+    
+    // 更新用户会员状态
+    await updateUserMembership(userId, updatedState);
+    
+    console.log(`订阅已恢复，用户ID: ${userId}, Paddle客户ID: ${customerId}, 订阅ID: ${subscriptionId}`);
   } catch (error) {
-    console.error(`Error resuming subscription for ${customerId}: ${error.message}`);
+    console.error(`为 ${customerId} 恢复订阅时出错: ${error.message}`);
+  }
+}
+
+// 处理付款失败事件
+async function handlePaymentFailed(payload) {
+  const data = payload.data;
+  if (!data) {
+    console.error('在付款失败webhook中未找到数据');
+    return;
+  }
+
+  const customerId = data.customer_id;
+  const subscriptionId = data.subscription_id;
+
+  if (!customerId) {
+    console.error('在付款失败webhook中未找到customer_id');
+    return;
+  }
+
+  try {
+    // 提取Firebase用户ID
+    let firebaseUserId = extractFirebaseUserId(payload);
+    
+    // 如果找不到Firebase用户ID，尝试从映射中查找
+    if (!firebaseUserId) {
+      firebaseUserId = await findFirebaseUserIdByPaddleCustomerId(customerId);
+    }
+    
+    // 如果还是找不到，记录错误并使用Paddle用户ID
+    const userId = firebaseUserId || customerId;
+    
+    // 注意：不要立即将用户降级为免费用户
+    // 支付失败通常会有多次重试，此时应该记录失败状态但不改变会员状态
+    // 如果多次失败后订阅被取消，会触发subscription_cancelled事件
+    
+    // 记录支付失败历史
+    await admin.firestore().collection('users').doc(userId)
+      .collection('paymentHistory').add(cleanFirestoreData({
+        subscriptionId: subscriptionId,
+        status: 'failed',
+        failureReason: data.error_message || '未知错误',
+        failureDate: new Date(payload.occurred_at).getTime(),
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+      }));
+    
+    // 将失败信息添加到用户文档，但不改变会员状态
+    await admin.firestore().collection('users').doc(userId).set(cleanFirestoreData({
+      paymentFailures: admin.firestore.FieldValue.increment(1),
+      lastPaymentFailure: Date.now(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    }), { merge: true });
+    
+    console.log(`付款失败已记录，用户ID: ${userId}, Paddle客户ID: ${customerId}, 订阅ID: ${subscriptionId || 'unknown'}`);
+  } catch (error) {
+    console.error(`为 ${customerId} 记录付款失败时出错: ${error.message}`);
+  }
+}
+
+// 处理交易完成事件
+async function handleTransactionCompleted(payload) {
+  try {
+    const data = payload.data;
+    if (!data || !data.subscription_id) {
+      console.log('交易完成事件中没有订阅ID，跳过处理');
+      return;
+    }
+    
+    // 获取相关订阅的信息
+    const subscriptionId = data.subscription_id;
+    const customerId = data.customer_id;
+    
+    if (!customerId) {
+      console.error('交易完成事件中缺少客户ID:', payload);
+      return;
+    }
+    
+    console.log(`处理交易完成事件，订阅ID: ${subscriptionId}, 客户ID: ${customerId}`);
+    
+    // 提取Firebase用户ID
+    let firebaseUserId = extractFirebaseUserId(payload);
+    
+    // 如果找不到Firebase用户ID，尝试从映射中查找
+    if (!firebaseUserId) {
+      firebaseUserId = await findFirebaseUserIdByPaddleCustomerId(customerId);
+    }
+    
+    // 如果还是找不到，记录错误并使用Paddle用户ID
+    const userId = firebaseUserId || customerId;
+    
+    // 如果找到了Firebase用户ID，创建/更新映射
+    if (firebaseUserId) {
+      await createUserIdMapping(customerId, firebaseUserId);
+    } else {
+      console.warn(`无法找到对应的Firebase用户ID，使用Paddle用户ID: ${customerId}`);
+    }
+    
+    // 查询订阅信息
+    // 注意：实际实现可能需要调用Paddle API获取订阅详情
+    // 这里简化处理，假设订阅是有效的
+    const membershipState = cleanFirestoreData({
+      status: MembershipStatus.PRO,
+      plan: data.items && data.items[0] && data.items[0].price && data.items[0].price.billing_cycle 
+            ? (data.items[0].price.billing_cycle.interval === 'month' ? 'monthly' : 'annual')
+            : null,
+      startedAt: Date.now(),
+      expiresAt: data.next_payment ? new Date(data.next_payment.date).getTime() : null,
+      cancelAtPeriodEnd: false,
+      lastVerifiedAt: Date.now(),
+      subscriptionId: subscriptionId,
+      customerId: customerId,
+      updatedAt: Date.now()
+    });
+    
+    // 更新用户会员状态
+    await updateUserMembership(userId, membershipState);
+    
+    console.log(`交易完成，已更新会员状态，用户ID: ${userId}, Paddle客户ID: ${customerId}, 订阅ID: ${subscriptionId}`);
+  } catch (error) {
+    console.error('处理交易完成事件失败:', error);
   }
 }
 
@@ -268,13 +847,14 @@ functions.http('paddle-webhooks', (req, res) => {
   }
   
   // 验证是否为Paddle Webhook数据
-  if (!req.body.event_type) {
-    console.log('请求体不包含event_type，可能不是有效的Paddle webhook:', JSON.stringify(req.body).substring(0, 200) + '...');
+  if (!req.body.event_type && !req.body.alert_name) {
+    console.log('请求体不包含event_type或alert_name，可能不是有效的Paddle webhook:', JSON.stringify(req.body).substring(0, 200) + '...');
     res.status(200).send('Received but not a valid Paddle webhook');
     return;
   }
   
-  const eventType = req.body.event_type;
+  // 获取事件类型（支持新旧API）
+  const eventType = req.body.event_type || req.body.alert_name;
   console.log('处理Paddle webhook事件:', eventType);
   
   // 验证请求签名（生产环境中启用）
@@ -286,6 +866,7 @@ functions.http('paddle-webhooks', (req, res) => {
   try {
     // 根据事件类型处理不同的webhook
     switch (eventType) {
+      // 新版API事件
       case 'subscription.created':
         handleSubscriptionCreated(req.body);
         break;
@@ -304,6 +885,40 @@ functions.http('paddle-webhooks', (req, res) => {
       case 'subscription.payment.succeeded':
         handlePaymentSucceeded(req.body);
         break;
+      case 'subscription.payment.failed':
+        handlePaymentFailed(req.body);
+        break;
+      case 'subscription.activated':
+        handleSubscriptionUpdated(req.body);
+        break;
+      case 'transaction.completed':
+        handleTransactionCompleted(req.body);
+        break;
+      case 'transaction.created':
+      case 'transaction.updated':
+      case 'transaction.ready':
+      case 'transaction.paid':
+        // 记录但不特别处理这些事件
+        console.log(`记录交易相关事件: ${eventType}，等待transaction.completed事件`);
+        break;
+      
+      // 旧版API事件
+      case 'subscription_created':
+        handleSubscriptionCreated(req.body);
+        break;
+      case 'subscription_updated':
+        handleSubscriptionUpdated(req.body);
+        break;
+      case 'subscription_cancelled':
+        handleSubscriptionCancelled(req.body);
+        break;
+      case 'subscription_payment_succeeded':
+        handlePaymentSucceeded(req.body);
+        break;
+      case 'subscription_payment_failed':
+        handlePaymentFailed(req.body);
+        break;
+      
       // 可以添加更多事件处理
       default:
         console.log(`未处理的webhook事件类型: ${eventType}`);

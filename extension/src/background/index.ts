@@ -12,6 +12,7 @@ import { cloudStorageService } from '../services/storage/cloudStorage';
 import { setStorageMode } from '../services/storage';
 import { getFirebaseAuth } from '../services/auth/firebase';
 import { membershipService } from '../services/membership';
+import { authService } from '../services/auth';
 
 // 为Window接口添加新属性声明
 declare global {
@@ -969,31 +970,83 @@ async function processPendingCaptures() {
   }
 }
 
-// 添加支付成功消息处理
-chrome.runtime.onMessageExternal.addListener((message, sender, sendResponse) => {
-  console.log('[AetherFlow] 收到外部消息:', message);
-  
-  // 处理支付成功消息
-  if (message && message.type === 'PAYMENT_SUCCESS') {
-    console.log('[AetherFlow] 收到支付成功消息:', message);
+// 处理来自官网的支付成功消息
+chrome.runtime.onMessageExternal.addListener(
+  async (message, sender, sendResponse) => {
+    console.log('[AetherFlow] 收到外部消息:', message, '来源:', sender.url);
     
-    // 处理支付成功
-    handlePaymentSuccess(message)
-      .then(result => {
-        console.log('[AetherFlow] 支付成功处理完成:', result);
-        sendResponse({ success: true, message: '支付成功处理完成' });
-      })
-      .catch(error => {
-        console.error('[AetherFlow] 处理支付失败:', error);
-        sendResponse({ success: false, error: String(error) });
-      });
+    // 验证消息来源（只接受来自官网的消息）
+    if (!sender.url || 
+        !(sender.url.startsWith('https://aetherflow-app.com') || 
+          sender.url.startsWith('https://aetherflow-app.github.io'))) {
+      console.error('[AetherFlow] 拒绝来自非官网的消息:', sender.url);
+      sendResponse({ success: false, error: '未授权的消息来源' });
+      return;
+    }
     
-    return true; // 异步响应
+    // 处理支付成功消息
+    if (message && message.type === 'PAYMENT_SUCCESS') {
+      try {
+        // 验证当前用户认证状态
+        const currentUser = await authService.getCurrentUser();
+        
+        if (!currentUser) {
+          console.error('[AetherFlow] 支付成功处理失败: 用户未登录');
+          sendResponse({ 
+            success: false, 
+            error: 'USER_NOT_AUTHENTICATED',
+            message: '用户未登录，无法更新会员状态' 
+          });
+          return;
+        }
+        
+        console.log('[AetherFlow] 已认证用户:', currentUser.displayName || currentUser.email);
+        
+        // 处理支付信息
+        const { checkoutId, planType, environment } = message;
+        
+        // 验证是否为沙盒环境
+        const isSandbox = environment === 'sandbox' || environment === 'test';
+        console.log('[AetherFlow] 支付环境:', isSandbox ? '沙盒' : '生产');
+        
+        // 处理支付成功
+        const result = await handlePaymentSuccess({
+          checkoutId,
+          planType,
+          isSandbox,
+          userId: currentUser.uid
+        });
+        
+        if (result) {
+          sendResponse({ 
+            success: true, 
+            message: '会员状态已更新',
+            user: { uid: currentUser.uid } 
+          });
+        } else {
+          sendResponse({ 
+            success: false, 
+            error: 'PAYMENT_PROCESSING_FAILED',
+            message: '处理支付信息失败' 
+          });
+        }
+      } catch (error: any) {
+        console.error('[AetherFlow] 处理支付成功消息时出错:', error);
+        sendResponse({ 
+          success: false, 
+          error: 'UNKNOWN_ERROR',
+          message: error.message || '未知错误' 
+        });
+      }
+      
+      return true; // 异步响应
+    }
+    
+    // 不处理其他类型的消息
+    sendResponse({ success: false, error: 'UNSUPPORTED_MESSAGE_TYPE' });
+    return false;
   }
-  
-  // 不处理其他消息
-  return false;
-});
+);
 
 // 支付成功处理函数
 async function handlePaymentSuccess(data: any): Promise<boolean> {
@@ -1003,6 +1056,8 @@ async function handlePaymentSuccess(data: any): Promise<boolean> {
     // 获取计划类型和检查ID
     const planType = data.planType || 'monthly';
     const checkoutId = data.checkoutId || '';
+    const isSandbox = !!data.isSandbox;
+    const userId = data.userId; // 如果来自外部消息处理，会有这个字段
     
     if (!checkoutId) {
       console.error('[AetherFlow] 支付数据不完整，缺少checkoutId');
@@ -1018,13 +1073,27 @@ async function handlePaymentSuccess(data: any): Promise<boolean> {
       ? now + yearInMs
       : now + monthInMs;
     
-    // 更新会员状态
+    // 如果是沙盒环境,使用测试用户ID和较短的过期时间
+    if (isSandbox) {
+      console.log('[AetherFlow] 沙盒环境支付，使用测试配置');
+      // 在开发/测试环境使用_devSetProMembership方法
+      await membershipService._devSetProMembership();
+      
+      // 广播会员状态更新消息
+      chrome.runtime.sendMessage({ type: 'MEMBERSHIP_STATUS_UPDATED' });
+      return true;
+    }
+    
+    // 生产环境,更新真实会员状态
     await membershipService.handleSuccessfulPayment({
       subscriptionId: checkoutId,
-      customerId: `cus_${Date.now()}`, // 生成临时客户ID
+      customerId: userId || `cus_${Date.now()}`, // 使用用户ID或生成临时ID
       plan: planType === 'annual' ? 'annual' : 'monthly',
       expiresAt
     });
+    
+    // 广播会员状态更新消息
+    chrome.runtime.sendMessage({ type: 'MEMBERSHIP_STATUS_UPDATED' });
     
     console.log('[AetherFlow] 支付成功处理完成，会员状态已更新');
     return true;

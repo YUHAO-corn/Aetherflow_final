@@ -40,9 +40,26 @@ export const UpgradeButton: React.FC<UpgradeButtonProps> = ({
       onClick();
     } else {
       try {
-        // 默认行为：尝试获取认证URL并跳转
+        // 获取当前登录用户
+        const currentUser = await authService.getCurrentUser();
+        
+        if (!currentUser) {
+          // 用户未登录，显示登录提示
+          if (confirm('您需要先登录才能升级到Pro版本。是否立即登录？')) {
+            // 构建登录URL
+            const loginUrl = 'https://aetherflow-app.com/index.html?auth=signin&callback=payment';
+            window.open(loginUrl, '_blank');
+          }
+          return;
+        }
+        
+        // 默认行为：获取认证URL并跳转
         const targetPath = '/pricing.html';
-        const params = { source: source };
+        const params = { 
+          source: source,
+          uid: currentUser.uid, // 传递用户ID
+          email: currentUser.email || '' // 传递邮箱用于自动填充
+        };
         
         // 获取带认证令牌的URL
         const authUrl = await authService.generateWebsiteAuthUrl(targetPath, params);

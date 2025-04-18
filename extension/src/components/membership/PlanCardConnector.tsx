@@ -25,11 +25,6 @@ export const PlanCardConnector: React.FC<PlanCardConnectorProps> = ({
   const hoverTimeoutRef = useRef<number | null>(null);
   const { quota, isProMember } = useMembership();
   
-  // 如果已经是Pro会员，不显示升级卡片
-  if (isProMember) {
-    return children;
-  }
-  
   // 处理鼠标悬停事件
   const handleMouseEnter = useCallback(() => {
     if (triggerType === 'hover' || triggerType === 'both') {
@@ -180,6 +175,12 @@ export const PlanCardConnector: React.FC<PlanCardConnectorProps> = ({
       document.body // 渲染到body元素中，而不是组件的直接父元素
     );
   };
+  
+  // 在这里改为条件渲染，确保所有钩子函数都被正确调用
+  if (isProMember) {
+    // 如果是Pro会员，只渲染子元素，不添加事件处理
+    return <>{children}</>;
+  }
   
   return (
     <>

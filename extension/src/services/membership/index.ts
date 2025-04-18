@@ -8,7 +8,9 @@ import {
   getDoc, 
   setDoc, 
   updateDoc,
-  collection
+  collection,
+  onSnapshot,
+  Unsubscribe as FirestoreUnsubscribe
 } from 'firebase/firestore';
 import { getApp } from 'firebase/app';
 import { debounce } from '../../utils/debounce';
@@ -36,6 +38,10 @@ class MembershipService {
   private syncStatus: SyncStatus = 'idle';
   private autoSyncInterval: number | null = null;
   private syncIntervalTime: number = DEFAULT_SYNC_INTERVAL;
+  
+  // 用于管理订阅的清理函数
+  private authUnsubscribe: (() => void) | null = null;
+  private firestoreUnsubscribe: FirestoreUnsubscribe | null = null;
 
   constructor() {
     // 初始化启动自动同步
@@ -43,6 +49,9 @@ class MembershipService {
 
     // 监听网络状态变化
     this.setupNetworkListener();
+    
+    // 监听用户认证状态
+    this.setupAuthListener();
   }
 
   /**
@@ -167,14 +176,196 @@ class MembershipService {
   }
 
   /**
+   * 设置用户认证状态监听
+   * 当用户登录或登出时，自动处理会员状态
+   */
+  private setupAuthListener(): void {
+    // 清理已有的订阅
+    if (this.authUnsubscribe) {
+      this.authUnsubscribe();
+      this.authUnsubscribe = null;
+    }
+    
+    // 订阅认证状态变化
+    this.authUnsubscribe = authService.onAuthStateChanged(async (user) => {
+      if (user) {
+        // 用户登录时
+        console.log(`[MembershipService] 用户 ${user.uid} 登录，同步会员状态`);
+        
+        // 设置 Firestore 实时监听
+        this.setupFirestoreListener(user.uid);
+        
+        // 刷新会员状态
+        try {
+          await this.refreshMembershipState();
+        } catch (error) {
+          console.error('[MembershipService] 用户登录后刷新会员状态失败:', error);
+        }
+      } else {
+        // 用户登出时
+        console.log('[MembershipService] 用户登出，清理监听');
+        
+        // 清理 Firestore 监听
+        if (this.firestoreUnsubscribe) {
+          this.firestoreUnsubscribe();
+          this.firestoreUnsubscribe = null;
+        }
+      }
+    });
+  }
+  
+  /**
+   * 设置 Firestore 实时监听
+   * 监听用户会员状态变化，实时更新本地状态
+   */
+  private setupFirestoreListener(userId: string): void {
+    // 清理已有的监听
+    if (this.firestoreUnsubscribe) {
+      this.firestoreUnsubscribe();
+      this.firestoreUnsubscribe = null;
+    }
+    
+    try {
+      console.log(`[MembershipService] 为用户 ${userId} 设置 Firestore 会员状态监听`);
+      
+      // 创建到会员状态文档的引用 
+      const db = getFirestore(getApp());
+      const membershipDoc = doc(db, 'users', userId, 'membership', 'status');
+      
+      // 设置实时监听
+      this.firestoreUnsubscribe = onSnapshot(
+        membershipDoc,
+        // 监听成功回调
+        (snapshot) => {
+          if (snapshot.exists()) {
+            const serverData = snapshot.data();
+            console.log('[MembershipService] Firestore 会员状态更新:', serverData);
+            
+            // 处理服务器状态更新
+            this.handleServerStateUpdate(serverData as MembershipState).catch(error => {
+              console.error('[MembershipService] 处理服务器状态更新失败:', error);
+            });
+          }
+        },
+        // 错误处理回调
+        (error) => {
+          console.error('[MembershipService] Firestore 监听错误:', error);
+          this.firestoreUnsubscribe = null;
+        }
+      );
+    } catch (error) {
+      console.error('[MembershipService] 设置 Firestore 监听失败:', error);
+      this.firestoreUnsubscribe = null;
+    }
+  }
+  
+  /**
+   * 处理来自服务器的状态更新
+   */
+  private async handleServerStateUpdate(serverState: MembershipState): Promise<void> {
+    try {
+      // 获取当前本地状态
+      const localState = await this.getCurrentMembership();
+      
+      // 检查服务器状态是否比本地状态更新
+      if (serverState.lastVerifiedAt && localState.lastVerifiedAt && 
+          serverState.lastVerifiedAt <= localState.lastVerifiedAt) {
+        console.log('[MembershipService] 本地状态已是最新，忽略服务器更新');
+        return;
+      }
+      
+      // 更新本地状态
+      console.log('[MembershipService] 使用服务器状态更新本地状态');
+      const updatedState = {
+        ...serverState,
+        lastVerifiedAt: Date.now()
+      };
+      
+      await this.saveMembershipState(updatedState);
+      
+      // 广播会员状态变更消息
+      this.broadcastStateChange();
+    } catch (error) {
+      console.error('[MembershipService] 处理服务器状态更新失败:', error);
+    }
+  }
+  
+  /**
+   * 广播会员状态变更消息
+   */
+  private broadcastStateChange(): void {
+    try {
+      chrome.runtime.sendMessage({ 
+        type: 'MEMBERSHIP_STATUS_UPDATED',
+        timestamp: Date.now()
+      });
+      console.log('[MembershipService] 已广播会员状态更新消息');
+    } catch (error) {
+      console.error('[MembershipService] 广播状态更新消息失败:', error);
+    }
+  }
+  
+  /**
+   * 验证本地状态是否有效，防止篡改
+   */
+  private async validateLocalState(): Promise<boolean> {
+    try {
+      const localState = await this.getCurrentMembership();
+      
+      // 1. Pro会员但没有订阅ID，可能是篡改
+      if (localState.status === 'pro' && !localState.subscriptionId) {
+        console.warn('[MembershipService] 异常会员状态: Pro会员但无订阅ID');
+        return false;
+      }
+      
+      // 2. 时间逻辑错误
+      if (localState.expiresAt && localState.startedAt) {
+        if (localState.expiresAt < localState.startedAt) {
+          console.warn('[MembershipService] 异常会员状态: 到期时间早于开始时间');
+          return false;
+        }
+      }
+      
+      // 3. 过期时间不合理
+      if (localState.status === 'pro' && localState.expiresAt) {
+        const now = Date.now();
+        // 过期时间超过两年，不合理
+        const twoYearsMs = 2 * 365 * 24 * 60 * 60 * 1000;
+        if (localState.expiresAt > (now + twoYearsMs)) {
+          console.warn('[MembershipService] 异常会员状态: 到期时间超过两年');
+          return false;
+        }
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('[MembershipService] 验证本地状态失败:', error);
+      return false;
+    }
+  }
+
+  /**
    * 检查用户是否为Pro会员
    */
   async isProMember(): Promise<boolean> {
     try {
       const membershipState = await this.getCurrentMembership();
+      
       // 检查是否为Pro状态，并且未过期
       const isPro = membershipState.status === 'pro';
       const isExpired = membershipState.expiresAt ? membershipState.expiresAt < Date.now() : false;
+      
+      // 验证本地状态是否有效
+      const isValid = await this.validateLocalState();
+      if (!isValid) {
+        console.warn('[MembershipService] 检测到可能被篡改的会员状态，强制验证');
+        // 强制从服务器刷新状态
+        await this.refreshMembershipState();
+        // 重新获取刷新后的状态
+        const refreshedState = await this.getCurrentMembership();
+        return refreshedState.status === 'pro' && 
+               !(refreshedState.expiresAt && refreshedState.expiresAt < Date.now());
+      }
       
       // 已过期，但尚未更新状态，主动更新为免费状态
       if (isPro && isExpired) {
@@ -244,6 +435,7 @@ class MembershipService {
   /**
    * 将本地会员状态同步到Firestore
    * 仅在用户登录时进行
+   * 注意：此功能已禁用，会员状态只能由服务端更新
    */
   private async syncStateToServer(state: MembershipState): Promise<void> {
     try {
@@ -253,24 +445,11 @@ class MembershipService {
         return;
       }
       
-      const db = getFirestore(getApp());
-      const userDoc = doc(db, 'users', currentUser.uid);
+      console.log(`[MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: ${currentUser.uid}`);
       
-      // 更新用户文档中的会员信息
-      await setDoc(userDoc, {
-        membership: {
-          status: state.status,
-          plan: state.plan,
-          startedAt: state.startedAt,
-          expiresAt: state.expiresAt,
-          cancelAtPeriodEnd: state.cancelAtPeriodEnd,
-          subscriptionId: state.subscriptionId,
-          customerId: state.customerId,
-          updatedAt: Date.now()
-        }
-      }, { merge: true });
+      // 不再执行实际的写入操作
+      // 原因：根据应用设计，客户端只负责验证用户的数据库会员状态，而不负责直接编辑会员状态
       
-      console.log('[MembershipService] 会员状态已同步到服务器');
     } catch (error) {
       console.error('[MembershipService] 同步状态到服务器失败:', error);
       throw error;
@@ -297,13 +476,51 @@ class MembershipService {
         return null;
       }
       
-      console.log('[MembershipService] 从服务器验证会员状态');
+      console.log(`[MembershipService] 验证用户 ${currentUser.uid} 的会员状态`);
       
+      // 先尝试从专门的会员状态文档读取（新架构）
       const db = getFirestore(getApp());
+      const membershipDoc = doc(db, 'users', currentUser.uid, 'membership', 'status');
+      const membershipSnap = await getDoc(membershipDoc);
+      
+      if (membershipSnap.exists()) {
+        console.log('[MembershipService] 从会员状态文档获取数据');
+        const serverState = membershipSnap.data() as MembershipState;
+        
+        // 检查订阅是否过期
+        const isExpired = serverState.expiresAt ? serverState.expiresAt < Date.now() : false;
+        if (isExpired && serverState.status === 'pro') {
+          console.log('[MembershipService] 服务器会员状态已过期，重置为免费状态');
+          const freeState = { ...DEFAULT_FREE_MEMBERSHIP, lastVerifiedAt: Date.now() };
+          await this.saveMembershipState(freeState);
+          
+          // 同步回服务器
+          await this.syncStateToServer(freeState);
+          
+          this.syncStatus = 'synced';
+          await this.updateLastSyncTime();
+          return freeState;
+        }
+        
+        // 更新本地状态
+        const updatedState = {
+          ...serverState,
+          lastVerifiedAt: Date.now()
+        };
+        
+        await this.saveMembershipState(updatedState);
+        this.syncStatus = 'synced';
+        await this.updateLastSyncTime();
+        
+        return updatedState;
+      }
+      
+      // 如果没有找到专门的会员状态文档，尝试从用户文档读取（旧架构）
+      console.log('[MembershipService] 会员状态文档不存在，尝试从用户文档读取');
       const userDoc = doc(db, 'users', currentUser.uid);
       const docSnap = await getDoc(userDoc);
       
-      if (!docSnap.exists()) {
+      if (!docSnap.exists() || !docSnap.data().membership) {
         console.log('[MembershipService] 服务器上无会员记录');
         this.syncStatus = 'synced';
         await this.updateLastSyncTime();
@@ -311,13 +528,6 @@ class MembershipService {
       }
       
       const userData = docSnap.data();
-      if (!userData.membership) {
-        console.log('[MembershipService] 服务器上无会员信息');
-        this.syncStatus = 'synced';
-        await this.updateLastSyncTime();
-        return null;
-      }
-      
       const serverMembership = userData.membership;
       
       // 构建新的会员状态
@@ -332,8 +542,26 @@ class MembershipService {
         customerId: serverMembership.customerId || null
       };
       
+      // 检查是否过期
+      const isExpired = newState.expiresAt ? newState.expiresAt < Date.now() : false;
+      if (isExpired && newState.status === 'pro') {
+        console.log('[MembershipService] 服务器会员状态已过期，重置为免费状态');
+        const freeState = { ...DEFAULT_FREE_MEMBERSHIP, lastVerifiedAt: Date.now() };
+        await this.saveMembershipState(freeState);
+        
+        // 同步回服务器
+        await this.syncStateToServer(freeState);
+        
+        this.syncStatus = 'synced';
+        await this.updateLastSyncTime();
+        return freeState;
+      }
+      
       // 更新本地状态
       await this.saveMembershipState(newState);
+      
+      // 同时更新到会员状态文档
+      await this.syncStateToServer(newState);
       
       console.log('[MembershipService] 会员状态已从服务器更新');
       this.syncStatus = 'synced';
@@ -392,18 +620,36 @@ class MembershipService {
         customerId: paymentData.customerId
       });
       
-      // 强制同步到服务器
-      try {
-        await this.syncStateToServer(newState);
-      } catch (syncError) {
-        // 同步失败但不中断流程，已经成功更新了本地状态
-        console.error('[MembershipService] 支付成功后同步到服务器失败:', syncError);
-      }
+      // 强制同步到服务器，使用重试机制
+      await this.syncStateToServerWithRetry(newState);
+      
+      // 广播状态变更消息
+      this.broadcastStateChange();
       
       return newState;
     } catch (error) {
       console.error('[MembershipService] 处理付款成功失败:', error);
       throw error;
+    }
+  }
+  
+  /**
+   * 带重试的服务器同步
+   * 注意：此功能已禁用，会员状态只能由服务端更新
+   */
+  private async syncStateToServerWithRetry(state: MembershipState, retries = 3): Promise<void> {
+    try {
+      // 直接调用主同步函数，该函数已被修改为不执行实际写入
+      await this.syncStateToServer(state);
+    } catch (error) {
+      if (retries > 0) {
+        console.log(`[MembershipService] 同步失败，${this.retryDelay}ms后重试, 剩余重试次数: ${retries}`);
+        await new Promise(resolve => setTimeout(resolve, this.retryDelay));
+        await this.syncStateToServerWithRetry(state, retries - 1);
+      } else {
+        console.error('[MembershipService] 同步到服务器失败，达到最大重试次数');
+        throw error;
+      }
     }
   }
 
@@ -547,6 +793,28 @@ class MembershipService {
       (window.location.hostname === 'localhost' || 
       window.location.hostname === '127.0.0.1' ||
       window.localStorage.getItem('DEV_MODE') === 'true');
+  }
+
+  /**
+   * 提供给UI的会员状态刷新方法，包含加载状态管理
+   */
+  async refreshMembershipStatusWithUI(setLoading?: (loading: boolean) => void): Promise<boolean> {
+    try {
+      // 显示加载状态
+      if (setLoading) setLoading(true);
+      
+      // 执行刷新
+      const result = await this.refreshMembershipState();
+      
+      // 返回结果
+      return !!result;
+    } catch (error) {
+      console.error('[MembershipService] 刷新会员状态失败:', error);
+      return false;
+    } finally {
+      // 隐藏加载状态
+      if (setLoading) setLoading(false);
+    }
   }
 }
 
