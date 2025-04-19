@@ -3,7 +3,7 @@ index.tsx:1
             
            Failed to load resource: net::ERR_FILE_NOT_FOUND
 sidepanel.js:2 Firebase 初始化成功
-sidepanel.js:2 [Storage] 使用Chrome存储服务
+sidepanel.js:2 [Storage] Exporting storageService, defaulting to CloudStorageService.
 sidepanel.js:2 Firebase 已初始化，返回现有实例
 sidepanel.js:2 Firebase 初始化成功
 sidepanel.js:2 Firebase 已初始化，返回现有实例
@@ -11,209 +11,152 @@ sidepanel.js:2 Firebase 初始化成功
 sidepanel.js:2 Firebase 已初始化，返回现有实例
 sidepanel.js:2 Firebase 初始化成功
 sidepanel.js:2 [SidePanel] 设置提示词更新消息监听器
-sidepanel.js:2 Error: Minified React error #300; visit https://reactjs.org/docs/error-decoder.html?invariant=300 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
-    at mo (sidepanel.js:2:437723)
-    at Cs (sidepanel.js:2:451557)
-    at xc (sidepanel.js:2:497327)
-    at vl (sidepanel.js:2:485712)
-    at gl (sidepanel.js:2:485640)
-    at ml (sidepanel.js:2:485503)
-    at al (sidepanel.js:2:482338)
-    at il (sidepanel.js:2:480894)
-    at M (sidepanel.js:2:1238885)
-    at MessagePort.A (sidepanel.js:2:1239417)
-hs @ sidepanel.js:2
-sidepanel.js:2 Error: Minified React error #300; visit https://reactjs.org/docs/error-decoder.html?invariant=300 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
-    at mo (sidepanel.js:2:437723)
-    at Cs (sidepanel.js:2:451557)
-    at xc (sidepanel.js:2:497327)
-    at vl (sidepanel.js:2:485712)
-    at gl (sidepanel.js:2:485640)
-    at ml (sidepanel.js:2:485503)
-    at al (sidepanel.js:2:482338)
-    at il (sidepanel.js:2:480894)
-    at M (sidepanel.js:2:1238885)
-    at MessagePort.A (sidepanel.js:2:1239417)
-hs @ sidepanel.js:2
-sidepanel.js:2 Uncaught Error: Minified React error #300; visit https://reactjs.org/docs/error-decoder.html?invariant=300 for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
-    at mo (sidepanel.js:2:437723)
-    at Cs (sidepanel.js:2:451557)
-    at xc (sidepanel.js:2:497327)
-    at vl (sidepanel.js:2:485712)
-    at gl (sidepanel.js:2:485640)
-    at ml (sidepanel.js:2:485503)
-    at al (sidepanel.js:2:482338)
-    at il (sidepanel.js:2:480894)
-    at M (sidepanel.js:2:1238885)
-    at MessagePort.A (sidepanel.js:2:1239417)
-sidepanel.js:2 [SidePanel] 移除提示词更新消息监听器
-sidepanel.js:2 [CloudStorage:Firebase] 开始执行全量数据同步
-sidepanel.js:2 [CloudStorage:Firebase] 获取本地提示词
-sidepanel.js:2 [CloudStorage:Firebase] 本地提示词数量: 15
-sidepanel.js:2 [CloudStorage:Firebase] 获取云端提示词
-sidepanel.js:2 [CloudStorage:Firebase] 开始从Firebase获取云端提示词, 用户ID=UhWPWDEaOUP5cTMxpqyFefHLXlE2
-sidepanel.js:2 [CloudStorage:Firebase] 发起Firestore查询
+sidepanel.js:2 [CloudStorage] 开始执行 syncAllPrompts
+sidepanel.js:2 [CloudStorage] 获取到 1 个本地提示词
 sidepanel.js:2 用户认证状态已保存到存储
-sidepanel.js:2 [MembershipService] 用户 UhWPWDEaOUP5cTMxpqyFefHLXlE2 登录，同步会员状态
-sidepanel.js:2 [MembershipService] 为用户 UhWPWDEaOUP5cTMxpqyFefHLXlE2 设置 Firestore 会员状态监听
-sidepanel.js:2 [MembershipService] 验证用户 UhWPWDEaOUP5cTMxpqyFefHLXlE2 的会员状态
+sidepanel.js:2 [MembershipService] 用户 ExWBRpX49iT41nUvr6q63BlBytH3 登录，同步会员状态
+sidepanel.js:2 [MembershipService] 为用户 ExWBRpX49iT41nUvr6q63BlBytH3 设置 Firestore 会员状态监听
+sidepanel.js:2 [MembershipService] 验证用户 ExWBRpX49iT41nUvr6q63BlBytH3 的会员状态
+sidepanel.js:2 用户认证状态已保存到存储
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 用户认证状态已保存到存储
+sidepanel.js:2 用户认证状态已保存到存储
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 用户认证状态已保存到存储
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 用户认证状态已保存到存储
+sidepanel.js:2 用户认证状态已保存到存储
+sidepanel.js:2 用户认证状态已保存到存储
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 用户认证状态已保存到存储
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: ExWBRpX49iT41nUvr6q63BlBytH3
+sidepanel.js:2 [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: ExWBRpX49iT41nUvr6q63BlBytH3
+sidepanel.js:2 [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: ExWBRpX49iT41nUvr6q63BlBytH3
+sidepanel.js:2 [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: ExWBRpX49iT41nUvr6q63BlBytH3
+sidepanel.js:2 [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: ExWBRpX49iT41nUvr6q63BlBytH3
 sidepanel.js:2 [SidePanel] 初始化时额外刷新提示词数据
-sidepanel.js:2 [CloudStorage:Firebase] 查询完成，获取到15个提示词
-sidepanel.js:2 [CloudStorage:Firebase] 云端提示词概要: Array(15)
-sidepanel.js:2 [CloudStorage:Firebase] 云端提示词数量: 15
-sidepanel.js:2 [CloudStorage:Firebase] 开始处理需要上传的提示词
-sidepanel.js:2 [CloudStorage:Firebase] 上传更新的提示词: ID=011989e2-2b15-4695-b0c3-7a92cc622607, 本地时间=2025-04-18T03:23:08.274Z, 云端时间=2025-04-18T03:18:23.792Z
-sidepanel.js:2 [CloudStorage:Firebase] 开始上传提示词到Firebase: ID=011989e2-2b15-4695-b0c3-7a92cc622607, 标题=How to Study Efficiently
-sidepanel.js:2 [CloudStorage:Firebase] 获取Firestore实例成功，路径: users/UhWPWDEaOUP5cTMxpqyFefHLXlE2/prompts/011989e2-2b15-4695-b0c3-7a92cc622607
-sidepanel.js:2 [MembershipService] Firestore 会员状态更新: ObjectcancelAtPeriodEnd: falsecustomerId: "ctm_01js20nk1rh5rgm038amnkqme6"expiresAt: nulllastVerifiedAt: 1744945754504plan: "monthly"startedAt: 1744945754504status: "pro"subscriptionId: "sub_01js3dy9kdkn2wp2jgbfzy2mwq"updatedAt: 1744945754504[[Prototype]]: Object
-sidepanel.js:2 [MembershipService] 本地状态已是最新，忽略服务器更新
-sidepanel.js:2 [MembershipService] 从会员状态文档获取数据
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=011989e2-2b15-4695-b0c3-7a92cc622607, 标题=How to Study Efficiently, 内容长度=607
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_011989e2-2b15-4695-b0c3-7a92cc622607
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04, 标题=Research Paper Analyzer, 内容长度=999
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_0d70f4cd-a93e-4f64-99f1-49f3397d9b04
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=179a724b-4bab-4127-a862-c5ce761b8c8c, 标题=Mood Regulation Guide, 内容长度=795
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_179a724b-4bab-4127-a862-c5ce761b8c8c
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d, 标题=Assignment Feedback Generator, 内容长度=885
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_1a622540-0539-44f4-8c5b-ff3ff28d1a3d
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9, 标题=Mood Regulation Guide, 内容长度=795
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=35022091-0817-4074-af83-e9662d6717a9, 标题=Scientific Body Management, 内容长度=728
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_35022091-0817-4074-af83-e9662d6717a9
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=44e5da5d-72db-4179-95a7-87190e1624a7, 标题=Legal Document Analyzer, 内容长度=1084
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_44e5da5d-72db-4179-95a7-87190e1624a7
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=48100976-9344-4429-9d3c-7e85c5c4f835, 标题=How to Study Efficiently, 内容长度=607
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_48100976-9344-4429-9d3c-7e85c5c4f835
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69, 标题=Content Creation Engine, 内容长度=960
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2, 标题=Legal Document Analyzer, 内容长度=1084
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_6c5040b7-0ad8-4ca7-b747-3eacef113ff2
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=91988521-8262-46c8-b456-9e66c90bfa85, 标题=happy, 内容长度=5
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_91988521-8262-46c8-b456-9e66c90bfa85
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b, 标题=Research Paper Analyzer, 内容长度=999
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_b0643e3e-3be9-45bf-9a60-f7fa5eca601b
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea, 标题=Content Creation Engine, 内容长度=960
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc, 标题=Assignment Feedback Generator, 内容长度=885
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_dce22bfb-fe40-48d8-be44-846c9fccc0dc
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=e2619f6d-0abb-4303-80ab-750c3003c35b, 标题=Scientific Body Management, 内容长度=728
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_e2619f6d-0abb-4303-80ab-750c3003c35b
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=011989e2-2b15-4695-b0c3-7a92cc622607, 标题=How to Study Efficiently, 内容长度=607
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_011989e2-2b15-4695-b0c3-7a92cc622607
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=011989e2-2b15-4695-b0c3-7a92cc622607
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=179a724b-4bab-4127-a862-c5ce761b8c8c
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=35022091-0817-4074-af83-e9662d6717a9
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=44e5da5d-72db-4179-95a7-87190e1624a7
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=48100976-9344-4429-9d3c-7e85c5c4f835
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=91988521-8262-46c8-b456-9e66c90bfa85
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=e2619f6d-0abb-4303-80ab-750c3003c35b
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=011989e2-2b15-4695-b0c3-7a92cc622607
-sidepanel.js:2 [CloudStorage:Firebase] 提示词上传成功: ID=011989e2-2b15-4695-b0c3-7a92cc622607, 标题=How to Study Efficiently
-sidepanel.js:2 [CloudStorage:Firebase] 上传更新的提示词: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04, 本地时间=2025-04-18T03:23:10.090Z, 云端时间=2025-04-18T03:18:23.798Z
-sidepanel.js:2 [CloudStorage:Firebase] 开始上传提示词到Firebase: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04, 标题=Research Paper Analyzer
-sidepanel.js:2 [CloudStorage:Firebase] 获取Firestore实例成功，路径: users/UhWPWDEaOUP5cTMxpqyFefHLXlE2/prompts/0d70f4cd-a93e-4f64-99f1-49f3397d9b04
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04, 标题=Research Paper Analyzer, 内容长度=999
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_0d70f4cd-a93e-4f64-99f1-49f3397d9b04
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04
-sidepanel.js:2 [CloudStorage:Firebase] 提示词上传成功: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04, 标题=Research Paper Analyzer
-sidepanel.js:2 [CloudStorage:Firebase] 上传更新的提示词: ID=179a724b-4bab-4127-a862-c5ce761b8c8c, 本地时间=2025-04-18T03:23:10.416Z, 云端时间=2025-04-18T03:18:23.841Z
-sidepanel.js:2 [CloudStorage:Firebase] 开始上传提示词到Firebase: ID=179a724b-4bab-4127-a862-c5ce761b8c8c, 标题=Mood Regulation Guide
-sidepanel.js:2 [CloudStorage:Firebase] 获取Firestore实例成功，路径: users/UhWPWDEaOUP5cTMxpqyFefHLXlE2/prompts/179a724b-4bab-4127-a862-c5ce761b8c8c
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=179a724b-4bab-4127-a862-c5ce761b8c8c, 标题=Mood Regulation Guide, 内容长度=795
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_179a724b-4bab-4127-a862-c5ce761b8c8c
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=179a724b-4bab-4127-a862-c5ce761b8c8c
-sidepanel.js:2 [CloudStorage:Firebase] 提示词上传成功: ID=179a724b-4bab-4127-a862-c5ce761b8c8c, 标题=Mood Regulation Guide
-sidepanel.js:2 [CloudStorage:Firebase] 上传更新的提示词: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d, 本地时间=2025-04-18T03:23:10.718Z, 云端时间=2025-04-18T03:18:23.846Z
-sidepanel.js:2 [CloudStorage:Firebase] 开始上传提示词到Firebase: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d, 标题=Assignment Feedback Generator
-sidepanel.js:2 [CloudStorage:Firebase] 获取Firestore实例成功，路径: users/UhWPWDEaOUP5cTMxpqyFefHLXlE2/prompts/1a622540-0539-44f4-8c5b-ff3ff28d1a3d
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d, 标题=Assignment Feedback Generator, 内容长度=885
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_1a622540-0539-44f4-8c5b-ff3ff28d1a3d
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d
-sidepanel.js:2 [CloudStorage:Firebase] 提示词上传成功: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d, 标题=Assignment Feedback Generator
-sidepanel.js:2 [CloudStorage:Firebase] 上传更新的提示词: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9, 本地时间=2025-04-18T03:23:11.027Z, 云端时间=2025-04-18T03:18:23.849Z
-sidepanel.js:2 [CloudStorage:Firebase] 开始上传提示词到Firebase: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9, 标题=Mood Regulation Guide
-sidepanel.js:2 [CloudStorage:Firebase] 获取Firestore实例成功，路径: users/UhWPWDEaOUP5cTMxpqyFefHLXlE2/prompts/1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9, 标题=Mood Regulation Guide, 内容长度=795
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
-sidepanel.js:2 [CloudStorage:Firebase] 提示词上传成功: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9, 标题=Mood Regulation Guide
-sidepanel.js:2 [CloudStorage:Firebase] 上传更新的提示词: ID=35022091-0817-4074-af83-e9662d6717a9, 本地时间=2025-04-18T03:23:11.333Z, 云端时间=2025-04-18T03:18:23.853Z
-sidepanel.js:2 [CloudStorage:Firebase] 开始上传提示词到Firebase: ID=35022091-0817-4074-af83-e9662d6717a9, 标题=Scientific Body Management
-sidepanel.js:2 [CloudStorage:Firebase] 获取Firestore实例成功，路径: users/UhWPWDEaOUP5cTMxpqyFefHLXlE2/prompts/35022091-0817-4074-af83-e9662d6717a9
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=35022091-0817-4074-af83-e9662d6717a9, 标题=Scientific Body Management, 内容长度=728
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_35022091-0817-4074-af83-e9662d6717a9
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=35022091-0817-4074-af83-e9662d6717a9
-sidepanel.js:2 [CloudStorage:Firebase] 提示词上传成功: ID=35022091-0817-4074-af83-e9662d6717a9, 标题=Scientific Body Management
-sidepanel.js:2 [CloudStorage:Firebase] 上传更新的提示词: ID=44e5da5d-72db-4179-95a7-87190e1624a7, 本地时间=2025-04-18T03:23:11.640Z, 云端时间=2025-04-18T03:18:23.861Z
-sidepanel.js:2 [CloudStorage:Firebase] 开始上传提示词到Firebase: ID=44e5da5d-72db-4179-95a7-87190e1624a7, 标题=Legal Document Analyzer
-sidepanel.js:2 [CloudStorage:Firebase] 获取Firestore实例成功，路径: users/UhWPWDEaOUP5cTMxpqyFefHLXlE2/prompts/44e5da5d-72db-4179-95a7-87190e1624a7
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=44e5da5d-72db-4179-95a7-87190e1624a7, 标题=Legal Document Analyzer, 内容长度=1084
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_44e5da5d-72db-4179-95a7-87190e1624a7
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=44e5da5d-72db-4179-95a7-87190e1624a7
-sidepanel.js:2 [CloudStorage:Firebase] 提示词上传成功: ID=44e5da5d-72db-4179-95a7-87190e1624a7, 标题=Legal Document Analyzer
-sidepanel.js:2 [CloudStorage:Firebase] 上传更新的提示词: ID=48100976-9344-4429-9d3c-7e85c5c4f835, 本地时间=2025-04-18T03:23:11.942Z, 云端时间=2025-04-18T03:18:23.864Z
-sidepanel.js:2 [CloudStorage:Firebase] 开始上传提示词到Firebase: ID=48100976-9344-4429-9d3c-7e85c5c4f835, 标题=How to Study Efficiently
-sidepanel.js:2 [CloudStorage:Firebase] 获取Firestore实例成功，路径: users/UhWPWDEaOUP5cTMxpqyFefHLXlE2/prompts/48100976-9344-4429-9d3c-7e85c5c4f835
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=48100976-9344-4429-9d3c-7e85c5c4f835, 标题=How to Study Efficiently, 内容长度=607
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_48100976-9344-4429-9d3c-7e85c5c4f835
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=48100976-9344-4429-9d3c-7e85c5c4f835
-sidepanel.js:2 [CloudStorage:Firebase] 提示词上传成功: ID=48100976-9344-4429-9d3c-7e85c5c4f835, 标题=How to Study Efficiently
-sidepanel.js:2 [CloudStorage:Firebase] 上传更新的提示词: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69, 本地时间=2025-04-18T03:23:12.241Z, 云端时间=2025-04-18T03:18:23.866Z
-sidepanel.js:2 [CloudStorage:Firebase] 开始上传提示词到Firebase: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69, 标题=Content Creation Engine
-sidepanel.js:2 [CloudStorage:Firebase] 获取Firestore实例成功，路径: users/UhWPWDEaOUP5cTMxpqyFefHLXlE2/prompts/4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69, 标题=Content Creation Engine, 内容长度=960
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
-sidepanel.js:2 [CloudStorage:Firebase] 提示词上传成功: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69, 标题=Content Creation Engine
-sidepanel.js:2 [CloudStorage:Firebase] 上传更新的提示词: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2, 本地时间=2025-04-18T03:23:12.543Z, 云端时间=2025-04-18T03:18:23.868Z
-sidepanel.js:2 [CloudStorage:Firebase] 开始上传提示词到Firebase: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2, 标题=Legal Document Analyzer
-sidepanel.js:2 [CloudStorage:Firebase] 获取Firestore实例成功，路径: users/UhWPWDEaOUP5cTMxpqyFefHLXlE2/prompts/6c5040b7-0ad8-4ca7-b747-3eacef113ff2
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2, 标题=Legal Document Analyzer, 内容长度=1084
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_6c5040b7-0ad8-4ca7-b747-3eacef113ff2
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2
-sidepanel.js:2 [CloudStorage:Firebase] 提示词上传成功: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2, 标题=Legal Document Analyzer
-sidepanel.js:2 [CloudStorage:Firebase] 上传更新的提示词: ID=91988521-8262-46c8-b456-9e66c90bfa85, 本地时间=2025-04-18T03:23:12.818Z, 云端时间=2025-04-18T03:18:23.871Z
-sidepanel.js:2 [CloudStorage:Firebase] 开始上传提示词到Firebase: ID=91988521-8262-46c8-b456-9e66c90bfa85, 标题=happy
-sidepanel.js:2 [CloudStorage:Firebase] 获取Firestore实例成功，路径: users/UhWPWDEaOUP5cTMxpqyFefHLXlE2/prompts/91988521-8262-46c8-b456-9e66c90bfa85
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=91988521-8262-46c8-b456-9e66c90bfa85, 标题=happy, 内容长度=5
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_91988521-8262-46c8-b456-9e66c90bfa85
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=91988521-8262-46c8-b456-9e66c90bfa85
-sidepanel.js:2 [CloudStorage:Firebase] 提示词上传成功: ID=91988521-8262-46c8-b456-9e66c90bfa85, 标题=happy
-sidepanel.js:2 [CloudStorage:Firebase] 上传更新的提示词: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b, 本地时间=2025-04-18T03:23:13.126Z, 云端时间=2025-04-18T03:18:23.873Z
-sidepanel.js:2 [CloudStorage:Firebase] 开始上传提示词到Firebase: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b, 标题=Research Paper Analyzer
-sidepanel.js:2 [CloudStorage:Firebase] 获取Firestore实例成功，路径: users/UhWPWDEaOUP5cTMxpqyFefHLXlE2/prompts/b0643e3e-3be9-45bf-9a60-f7fa5eca601b
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b, 标题=Research Paper Analyzer, 内容长度=999
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_b0643e3e-3be9-45bf-9a60-f7fa5eca601b
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b
-sidepanel.js:2 [CloudStorage:Firebase] 提示词上传成功: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b, 标题=Research Paper Analyzer
-sidepanel.js:2 [CloudStorage:Firebase] 上传更新的提示词: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea, 本地时间=2025-04-18T03:23:13.423Z, 云端时间=2025-04-18T03:18:23.877Z
-sidepanel.js:2 [CloudStorage:Firebase] 开始上传提示词到Firebase: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea, 标题=Content Creation Engine
-sidepanel.js:2 [CloudStorage:Firebase] 获取Firestore实例成功，路径: users/UhWPWDEaOUP5cTMxpqyFefHLXlE2/prompts/d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea, 标题=Content Creation Engine, 内容长度=960
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
-sidepanel.js:2 [CloudStorage:Firebase] 提示词上传成功: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea, 标题=Content Creation Engine
-sidepanel.js:2 [CloudStorage:Firebase] 上传更新的提示词: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc, 本地时间=2025-04-18T03:23:13.719Z, 云端时间=2025-04-18T03:18:23.879Z
-sidepanel.js:2 [CloudStorage:Firebase] 开始上传提示词到Firebase: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc, 标题=Assignment Feedback Generator
-sidepanel.js:2 [CloudStorage:Firebase] 获取Firestore实例成功，路径: users/UhWPWDEaOUP5cTMxpqyFefHLXlE2/prompts/dce22bfb-fe40-48d8-be44-846c9fccc0dc
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc, 标题=Assignment Feedback Generator, 内容长度=885
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_dce22bfb-fe40-48d8-be44-846c9fccc0dc
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc
-sidepanel.js:2 [CloudStorage:Firebase] 提示词上传成功: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc, 标题=Assignment Feedback Generator
-sidepanel.js:2 [CloudStorage:Firebase] 上传更新的提示词: ID=e2619f6d-0abb-4303-80ab-750c3003c35b, 本地时间=2025-04-18T03:23:13.990Z, 云端时间=2025-04-18T03:18:23.881Z
-sidepanel.js:2 [CloudStorage:Firebase] 开始上传提示词到Firebase: ID=e2619f6d-0abb-4303-80ab-750c3003c35b, 标题=Scientific Body Management
-sidepanel.js:2 [CloudStorage:Firebase] 获取Firestore实例成功，路径: users/UhWPWDEaOUP5cTMxpqyFefHLXlE2/prompts/e2619f6d-0abb-4303-80ab-750c3003c35b
-sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=e2619f6d-0abb-4303-80ab-750c3003c35b, 标题=Scientific Body Management, 内容长度=728
-sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_e2619f6d-0abb-4303-80ab-750c3003c35b
-sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=e2619f6d-0abb-4303-80ab-750c3003c35b
-sidepanel.js:2 [CloudStorage:Firebase] 提示词上传成功: ID=e2619f6d-0abb-4303-80ab-750c3003c35b, 标题=Scientific Body Management
-sidepanel.js:2 [CloudStorage:Firebase] 开始处理需要下载的提示词
-sidepanel.js:2 [CloudStorage:Firebase] 同步完成: 上传=15, 下载=0, 冲突=0, 已解决=0
+sidepanel.js:2 [CloudStorage] 获取到 3 个云端活动提示词
+sidepanel.js:2 [CloudStorage] 准备上传本地较新版本: 83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [CloudStorage] 准备下载云端独有提示词: 3905f264-0a99-46f9-b0bd-6853a9fbf0a3
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=3905f264-0a99-46f9-b0bd-6853a9fbf0a3, 标题=123, 内容长度=3
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_3905f264-0a99-46f9-b0bd-6853a9fbf0a3
+sidepanel.js:2 [MembershipService] 会员状态文档不存在，尝试从用户文档读取
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=83cc7a90-1fee-490e-809d-d12fc0e9b496, 标题=123, 内容长度=3
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=3905f264-0a99-46f9-b0bd-6853a9fbf0a3
+sidepanel.js:2 [CloudStorage] 准备下载云端独有提示词: ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=ddbb6b26-2e08-4286-ace4-3162ea91b9ed, 标题=123, 内容长度=3
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=3905f264-0a99-46f9-b0bd-6853a9fbf0a3, 标题=123, 内容长度=3
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_3905f264-0a99-46f9-b0bd-6853a9fbf0a3
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=ddbb6b26-2e08-4286-ace4-3162ea91b9ed, 标题=123, 内容长度=3
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [CloudStorage] 提交 1 个批量写操作...
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=3905f264-0a99-46f9-b0bd-6853a9fbf0a3
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=83cc7a90-1fee-490e-809d-d12fc0e9b496, 标题=123, 内容长度=3
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [MembershipService] 服务器上无会员记录
+sidepanel.js:2 [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: ExWBRpX49iT41nUvr6q63BlBytH3
+sidepanel.js:2 [CloudStorage] syncAllPrompts 完成 Object
+sidepanel.js:2 [CloudStorage] 开始执行 syncAllPrompts
+sidepanel.js:2 [CloudStorage] 获取到 1 个本地提示词
+sidepanel.js:2 [CloudStorage] 获取到 3 个云端活动提示词
+sidepanel.js:2 [CloudStorage] 准备上传本地较新版本: 83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [CloudStorage] 准备下载云端独有提示词: 3905f264-0a99-46f9-b0bd-6853a9fbf0a3
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=3905f264-0a99-46f9-b0bd-6853a9fbf0a3, 标题=123, 内容长度=3
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_3905f264-0a99-46f9-b0bd-6853a9fbf0a3
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=3905f264-0a99-46f9-b0bd-6853a9fbf0a3
+sidepanel.js:2 [CloudStorage] 准备下载云端独有提示词: ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=ddbb6b26-2e08-4286-ace4-3162ea91b9ed, 标题=123, 内容长度=3
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [CloudStorage] 提交 1 个批量写操作...
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=83cc7a90-1fee-490e-809d-d12fc0e9b496, 标题=123, 内容长度=3
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [CloudStorage] syncAllPrompts 完成 Object
+sidepanel.js:2 [DEBUG usePromptsData] deletePrompt called for ID: 83cc7a90-1fee-490e-809d-d12fc0e9b496. isInExtension: true
+sidepanel.js:2 [DEBUG usePromptsData] Attempting to use storageService: c
+sidepanel.js:2 [DEBUG CloudStorage] deletePrompt called for ID: 83cc7a90-1fee-490e-809d-d12fc0e9b496. Current User ID: ExWBRpX49iT41nUvr6q63BlBytH3, Online Status: true
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=83cc7a90-1fee-490e-809d-d12fc0e9b496, 标题=123, 内容长度=3
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [CloudStorage] 已在本地软删除: 83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [DEBUG CloudStorage] Passed !this.userId check.
+sidepanel.js:2 [DEBUG CloudStorage] Condition this.isOnlineStatus is TRUE. Attempting online soft delete.
+sidepanel.js:2 [CloudStorage] 在线状态，尝试立即在 Firestore 中软删除: 83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=83cc7a90-1fee-490e-809d-d12fc0e9b496, 标题=123, 内容长度=3
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [CloudStorage] 已根据云端状态在本地软删除: 83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [CloudStorage] 成功在Firestore中软删除提示词: 83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [DEBUG usePromptsData] storageService.deletePrompt call completed for ID: 83cc7a90-1fee-490e-809d-d12fc0e9b496
+sidepanel.js:2 [DEBUG usePromptsData] deletePrompt called for ID: ddbb6b26-2e08-4286-ace4-3162ea91b9ed. isInExtension: true
+sidepanel.js:2 [DEBUG usePromptsData] Attempting to use storageService: c
+sidepanel.js:2 [DEBUG CloudStorage] deletePrompt called for ID: ddbb6b26-2e08-4286-ace4-3162ea91b9ed. Current User ID: ExWBRpX49iT41nUvr6q63BlBytH3, Online Status: true
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=ddbb6b26-2e08-4286-ace4-3162ea91b9ed, 标题=123, 内容长度=3
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [CloudStorage] 已在本地软删除: ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [DEBUG CloudStorage] Passed !this.userId check.
+sidepanel.js:2 [DEBUG CloudStorage] Condition this.isOnlineStatus is TRUE. Attempting online soft delete.
+sidepanel.js:2 [CloudStorage] 在线状态，尝试立即在 Firestore 中软删除: ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=ddbb6b26-2e08-4286-ace4-3162ea91b9ed, 标题=123, 内容长度=3
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [CloudStorage] 已根据云端状态在本地软删除: ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [CloudStorage] 成功在Firestore中软删除提示词: ddbb6b26-2e08-4286-ace4-3162ea91b9ed
+sidepanel.js:2 [DEBUG usePromptsData] storageService.deletePrompt call completed for ID: ddbb6b26-2e08-4286-ace4-3162ea91b9ed

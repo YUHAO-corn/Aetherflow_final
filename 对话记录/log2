@@ -1,14 +1,121 @@
-content.js:1 Simple Autoscroll Loaded
-content.js:1 [AetherFlow-DEBUG] 内容脚本开始加载 Object
-content.js:1 [AetherFlow-DEBUG] 发送内容脚本就绪消息: Object
-content.js:1 [AetherFlow-DEBUG] 内容脚本初始化完成 Object
-content.js:1 [AetherFlow-DEBUG] 文档状态变化: Object
-content.js:1 [AetherFlow-DEBUG] 页面加载完成事件触发: Object
-content.js:1 [AetherFlow-DEBUG] 页面加载完成事件触发: Object
-content.js:1 [AetherFlow-DEBUG] 检测到DOM变化: Object
-content.js:1 [AetherFlow-DEBUG] 检测到DOM变化: Object
-reload.js:22 WebSocket connection to 'wss://aetherflow-app.com/ws/ws' failed: 
-init @ reload.js:22
-content.js:1 [AetherFlow-DEBUG] 检测到DOM变化: Object
-content.js:1 [AetherFlow-DEBUG] 检测到DOM变化: Object
-content.js:1 [AetherFlow-DEBUG] 发送内容脚本就绪消息: Object
+Service worker registration failed. Status code: 15
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+{
+  "manifest_version": 3,
+  "name": "AetherFlow",
+  "version": "1.0.0",
+  "description": "AI-powered prompt optimization and management",
+  "permissions": ["sidePanel", "storage", "clipboardWrite", "tabs", "contextMenus", "scripting", "alarms"],
+  "host_permissions": [
+    "https://chat.openai.com/*",
+    "https://claude.ai/*",
+    "https://app.anthropic.com/*",
+    "https://chat.deepseek.com/*",
+    "https://www.phind.com/*",
+    "https://kimi.moonshot.cn/*",
+    "<all_urls>"
+  ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "AetherFlow - AI Prompt Management"
+  },
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "32": "assets/icons/icon32.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  }
+}
+
+Uncaught ReferenceError: window is not defined
+Context
+background.js
+Stack Trace
+background.js:2 (anonymous function)
+
+Refused to load the script 'https://apis.google.com/js/api.js?onload=__iframefcb441972' because it violates the following Content Security Policy directive: "script-src 'self'". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback.
+Context
+sidepanel.html
+Stack Trace
+sidepanel.js:2 (anonymous function)
+
+Refused to load the script 'https://apis.google.com/js/api.js?onload=__iframefcb441972' because it violates the following Content Security Policy directive: "script-src 'self' 'wasm-unsafe-eval' 'inline-speculation-rules' http://localhost:* http://127.0.0.1:*". Note that 'script-src-elem' was not explicitly set, so 'script-src' is used as a fallback.
+Context
+sidepanel.html
+Stack Trace
+sidepanel.js:2 (anonymous function)
+
+Google 登录失败: FirebaseError: Firebase: Error (auth/internal-error).
+Context
+sidepanel.html
+Stack Trace
+sidepanel.js:2 (loginWithGoogle)
+
+Google 登录失败: Error: Firebase: Error (auth/internal-error).
+Context
+sidepanel.html
+Stack Trace
+sidepanel.js:2 (anonymous function)
+
+Message send failed (attempt 1/1): Error: Extension context invalidated.
+Context
+https://yuanbao.tencent.com/chat/naQivTmsDa/8b254631-ba1e-41a8-95b4-d59055ad44e4
+Stack Trace
+content.js:1 (l)
+
+Storage health check failed: Error: Extension context invalidated.
+Context
+https://yuanbao.tencent.com/chat/naQivTmsDa/8b254631-ba1e-41a8-95b4-d59055ad44e4
+Stack Trace
+content.js:1 (r)

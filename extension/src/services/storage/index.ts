@@ -95,47 +95,25 @@ export const syncStorage = new Storage('sync');
 export const localStorage = new Storage('local');
 
 // 判断是否在开发环境
-const isDevelopment = typeof window !== 'undefined' && 
-  (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1');
+const isDevelopment = typeof self !== 'undefined' && self.location && 
+  (self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1');
 
-// 默认使用Chrome存储服务
-let useMockData = false;
-let useCloudStorage = false;
-
-// 尝试从localStorage读取标志
-try {
-  // 从localStorage读取是否使用模拟数据的标志
-  // 注意这里使用的是原生localStorage，而不是之前定义的Storage实例
-  useMockData = isDevelopment && window.localStorage.getItem('USE_MOCK_DATA') === 'true';
-  
-  // 读取是否使用云存储的标志
-  useCloudStorage = window.localStorage.getItem('USE_CLOUD_STORAGE') === 'true';
-} catch (error) {
-  console.error('[Storage] 读取存储配置标志失败', error);
-}
+// --- 移除 USE_CLOUD_STORAGE_KEY 和异步初始化逻辑 ---
+// const USE_CLOUD_STORAGE_KEY = 'use_cloud_storage_preference';
+// let currentUseCloudStorage: boolean | null = null;
+// let storageModeInitialized = false;
+// async function initializeStorageModePreference(): Promise<boolean> { ... }
 
 /**
- * 获取适合当前环境的存储服务
- * 在开发环境中，如果设置了USE_MOCK_DATA=true，则使用模拟存储
- * 否则根据USE_CLOUD_STORAGE标志决定使用云存储服务还是Chrome存储API
+ * 获取适合当前环境的存储服务 (异步版本)
+ * 根据USE_CLOUD_STORAGE标志决定使用云存储服务还是Chrome存储API
  */
-export function getStorageService(): StorageService {
-  if (isDevelopment && useMockData) {
-    console.log('[Storage] 使用模拟存储服务');
-    return mockStorageService;
-  }
-  
-  if (useCloudStorage) {
-    console.log('[Storage] 使用云存储服务');
-    return cloudStorageService;
-  }
-  
-  console.log('[Storage] 使用Chrome存储服务');
-  return chromeStorageService;
-}
+// async function getStorageServiceAsyncInternal(): Promise<StorageService> { ... }
+// export const getStorageServiceAsync = getStorageServiceAsyncInternal;
 
-// 导出统一的存储服务实例
-export const storageService: StorageService = getStorageService();
+// +++ 恢复同步导出，默认使用 CloudStorageService +++
+console.log('[Storage] Exporting storageService, defaulting to CloudStorageService.');
+export const storageService: StorageService = cloudStorageService;
 
 // 导出其他相关内容
 export { STORAGE_KEYS, STORAGE_LIMITS };
@@ -145,30 +123,34 @@ export * from './constants';
 // 导出具体存储服务，用于特殊场景
 export { chromeStorageService, mockStorageService, cloudStorageService };
 
+// --- 移除异步 setStorageModeAsync --- 
+// async function setStorageModeAsyncInternal(useCloud: boolean): Promise<void> { ... }
+// export const setStorageModeAsync = setStorageModeAsyncInternal;
+
+// +++ 恢复同步的 setStorageMode 导出（但内容注释掉，因为它使用了 window.localStorage）+++
 /**
- * 设置存储模式
+ * 设置存储模式 (同步版本 - 当前实现有问题，已注释)
  * @param useCloud 是否使用云存储
  */
 export function setStorageMode(useCloud: boolean): void {
-  try {
-    window.localStorage.setItem('USE_CLOUD_STORAGE', useCloud ? 'true' : 'false');
-    useCloudStorage = useCloud;
-    console.log(`[Storage] 存储模式已切换为: ${useCloud ? '云存储' : 'Chrome存储'}`);
-    
-    // 刷新页面以应用新设置
-    if (window.location) {
-      window.location.reload();
-    }
-  } catch (error) {
-    console.error('[Storage] 切换存储模式失败:', error);
-  }
+  console.warn('[Storage] setStorageMode is currently disabled due to implementation issues.');
+  // try {
+  //   // ❗️❗️❗️ 下面的代码在 Service Worker 中会失败
+  //   window.localStorage.setItem('USE_CLOUD_STORAGE', useCloud ? 'true' : 'false');
+  //   // 需要一个可靠的方式来更新 storageService 实例或通知其他部分
+  //   console.log(`[Storage] 存储模式尝试切换为: ${useCloud ? '云存储' : 'Chrome存储'}`);
+  //   if (window.location) {
+  //     window.location.reload();
+  //   }
+  // } catch (error) {
+  //   console.error('[Storage] 切换存储模式失败:', error);
+  // }
 }
 
-/**
- * 数据迁移函数 - 将旧格式的提示词数组转换为新格式的单独存储
- * 这个函数会检查是否存在旧格式数据，如果存在则迁移到新格式
- */
+// ... (数据迁移函数 migratePromptsData)
+// 修正: 恢复使用同步 storageService
 export async function migratePromptsData(): Promise<{migrated: boolean, count: number}> {
+  // const service = await getStorageServiceAsync();
   try {
     // 检查是否存在旧格式数据
     const oldPrompts = await storageService.get<Prompt[]>(STORAGE_KEYS.PROMPTS);

@@ -1,0 +1,59 @@
+# AetherFlow 删除操作同步问题反思与解决方案
+
+## 问题现象
+
+用户在本地客户端执行"删除提示词"操作后，该提示词在本地界面消失，但在 Firebase 云端数据库中对应的记录仍然存在，且状态未发生变化（例如 `isActive` 字段仍为 `true` 或未定义）。这导致多设备间状态不一致，已删除的提示词可能在其他设备上重新出现。
+
+## 分析过程与关键问题识别
+
+1.  **初步假设与日志审查**：
+    *   最初怀疑是本地未执行删除、同步逻辑 Bug 或云端采用了软删除机制。
+    *   通过检查客户端日志 (`对话记录/log`)，发现每次调用前端 `deletePrompt` 后，实际执行的是 `ChromeStorageService` 的**保存**操作，而非预期的删除或云同步。
+
+2.  **关键问题 1: 环境兼容性与后台脚本崩溃**
+    *   深入调试发现，后台脚本 (Service Worker) 在初始化或运行过程中会崩溃。
+    *   **原因**: 代码中（尤其是在 `storage/index.ts` 的早期版本和 `background/index.ts` 的初始化逻辑中）存在对 `window` 和 `localStorage` 的直接访问。这些 API 在 Service Worker 环境中不可用，导致脚本执行失败，云同步逻辑（包括删除操作的同步）根本无法正常运行。
+    *   **解决方法**: 移除了对 `window` 和 `localStorage` 的依赖，改用 `chrome.storage.local` API 来存储和读取需要在后台脚本和UI之间共享的状态（例如云存储偏好设置）。
+
+3.  **关键问题 2: 静态服务实例与错误的存储服务选择**
+    *   即使解决了后台脚本崩溃问题，删除操作依然无法同步。
+    *   **原因**: `storage/index.ts` 中导出的 `storageService` 是一个**静态实例**，它在模块首次被加载时就根据（当时可能有问题的）环境判断确定了具体实现（`ChromeStorageService` 或 `CloudStorageService`）。当 UI Hook (`usePromptsData`) 或其他模块在后台脚本环境（或未能正确读取配置的环境）下首次加载 `storageService` 时，它被固定为了 `ChromeStorageService`。即使后续用户登录触发了云存储逻辑，已经导入的 `storageService` 实例**不会改变**。因此，前端调用 `storageService.deletePrompt` 时，始终执行的是本地存储的逻辑，从未触达 `CloudStorageService`。
+    *   **解决方法**: 
+        *   最初尝试将 `storageService` 的获取改为异步函数 `getStorageServiceAsync`，并在所有使用处进行异步调用。但这引入了大量的连锁修改和构建错误。
+        *   **最终方案（简化）**: 回退了异步修改，恢复 `storageService` 的同步导出，并**默认指向 `CloudStorageService`** (`export const storageService = cloudStorageService;`)。这基于一个假设：一旦用户登录，云同步是主要模式。同时，保留了一个（功能不完善的）同步 `setStorageMode` 导出，以避免某些导入错误，但明确其当前限制。*（未来可优化为更可靠的动态服务切换机制）*
+
+4.  **关键问题 3: 本地与云端删除策略不一致**
+    *   在确认 `CloudStorageService` 被正确调用后，发现 Firestore 数据仍未按预期更新。
+    *   **原因**: 本地 `ChromeStorageService.deletePrompt` 执行的是**软删除**（更新 `isActive` 状态并保存），而 `CloudStorageService.deletePrompt`（在线时）尝试执行的是**硬删除**（`deleteDoc`）。这种不一致导致本地设置的 `isActive: false` 状态从未被有效同步到云端，且硬删除可能因网络等问题失败。
+    *   **解决方法**: 统一删除策略。
+
+5.  **Firebase 规则检查**：确认 Firestore 安全规则允许登录用户对自己提示词执行 `write` 操作，排除规则问题。
+
+6.  **调试方法应用**: 在整个过程中，大量使用 `console.log` 在关键路径（如服务选择、函数调用入口/出口、错误捕获）添加调试信息，逐步追踪代码执行流程，是定位上述问题的关键手段。
+
+## 根本原因总结
+
+问题的核心是**多重因素叠加**：
+
+1.  **环境不兼容**: 后台脚本无法使用浏览器特有 API 导致初始化失败。
+2.  **静态依赖注入**: 存储服务的选择机制过于静态，无法适应环境或状态的变化。
+3.  **策略不一致**: 本地软删除与云端硬删除的策略冲突，导致状态无法正确同步。
+
+## 最终解决方案：统一策略 + 修正环境依赖
+
+1.  **环境兼容性修复**: 移除代码中对 `window` 和 `localStorage` 的依赖，使用 `chrome.storage` API。
+2.  **存储服务选择修正**: 简化服务选择逻辑，默认导出 `CloudStorageService` 实例供全局使用（暂时牺牲了本地/云端动态切换的灵活性，但保证了核心同步功能）。
+3.  **统一采用软删除策略**: 
+    *   修改 `CloudStorageService` 的 `deletePrompt` 方法，移除在线硬删除逻辑。
+    *   统一调用 `softDeletePromptInFirestore` 方法（或通过待处理队列触发），该方法使用 `updateDoc` 将 Firestore 中对应文档的 `isActive` 字段设置为 `false`。
+    *   确保 `processPendingOperations` 处理删除操作时也调用软删除。
+    *   调整同步逻辑 (`syncAllPrompts`) 以正确处理 `isActive` 字段。
+
+**优势：**
+
+*   **策略统一**：简化逻辑，行为可预测。
+*   **数据安全**：软删除保留数据记录，避免硬删除失败导致的不一致。
+*   **环境兼容**：代码能在后台脚本和 UI 环境中稳定运行。
+*   **核心功能恢复**：保证了删除操作状态能可靠同步到云端。
+
+通过以上步骤，解决了删除操作无法同步的问题，并加深了对 Chrome 扩展环境、异步编程和状态管理复杂性的理解。

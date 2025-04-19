@@ -594,4 +594,41 @@ const stopWords = [
   '的', '了', '和', '与', '或', '是', '在', '有', '中', '上', '下', '前', '后', '里', '一个', '一种', '这个', '那个',
   '会', '不会', '可以', '不可以', '应该', '不应该', '能', '不能', '要', '不要', '将', '把', '被', '使', '使用',
   '如何', '什么', '哪些', '为什么', '怎么', '怎样', '几个', '多少', '如果', '因为', '所以', '但是', '而且', '以及'
-]; 
+];
+
+export async function clearPromptHistory(daysToKeep: number = 30): Promise<void> {
+  const oldPrompts = await getPrompts({
+    sortBy: 'time',
+    limit: 1000,
+    onlyFavorites: false,
+    favorite: false,
+  });
+  const now = Date.now();
+  const cutoff = now - daysToKeep * 24 * 60 * 60 * 1000;
+  const activeOldPrompts = oldPrompts.filter((p: Prompt) => p.isActive !== false);
+  const remainingPrompts = activeOldPrompts.filter((p: Prompt) => (p.lastUsed || p.createdAt || 0) >= cutoff);
+  await deletePrompts();
+  await importPrompts(remainingPrompts);
+}
+
+export async function getFavoritePrompts(): Promise<Prompt[]> {
+  const allPrompts = await getPrompts();
+  return allPrompts.filter((p: Prompt) => p.isFavorite || p.favorite);
+}
+
+export async function getRecentPrompts(limit: number = 10): Promise<Prompt[]> {
+  const allPrompts = await getPrompts();
+  const sorted = allPrompts.sort((a: Prompt, b: Prompt) => (b.lastUsed || b.updatedAt || 0) - (a.lastUsed || a.updatedAt || 0));
+  return sorted.slice(0, limit);
+}
+
+export async function getMostUsedPrompts(limit: number = 10): Promise<Prompt[]> {
+  const allPrompts = await getPrompts();
+  const sorted = allPrompts.sort((a: Prompt, b: Prompt) => (b.useCount || 0) - (a.useCount || 0));
+  return sorted.slice(0, limit);
+}
+
+export async function findPromptByTitle(title: string): Promise<Prompt | null> {
+  const allPrompts = await getPrompts();
+  return allPrompts.find((prompt: Prompt) => prompt.title.toLowerCase() === title.toLowerCase()) || null;
+} 

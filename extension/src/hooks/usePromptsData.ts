@@ -151,10 +151,12 @@ export function usePromptsData() {
   
   // 删除提示词
   const deletePrompt = useCallback(async (id: string): Promise<boolean> => {
+    console.log(`[DEBUG usePromptsData] deletePrompt called for ID: ${id}. isInExtension: ${isInExtension}`);
     try {
       if (isInExtension) {
-        // 在扩展环境中，直接使用存储服务
+        console.log(`[DEBUG usePromptsData] Attempting to use storageService:`, storageService);
         await storageService.deletePrompt(id);
+        console.log(`[DEBUG usePromptsData] storageService.deletePrompt call completed for ID: ${id}`);
       } else {
         // 在内容脚本环境中，使用消息通信
         await sendMessage({ 

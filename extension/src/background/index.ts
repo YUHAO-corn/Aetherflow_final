@@ -1,40 +1,18 @@
 import { addMessageListener, createSuccessResponse, createErrorResponse } from '../services/messaging';
 import { Message } from '../services/messaging/types';
-import { STORAGE_KEYS, storageService } from '../services/storage';
+import { STORAGE_KEYS, storageService, setStorageMode } from '../services/storage';
 import { setupPromptMessaging } from '../services/prompt/messaging';
 import { Prompt, PromptFilter } from '../services/prompt/types';
 import { createPrompt } from '../services/prompt';
 import { initializeSampleData } from './sampleData';
-import { initPromptMessaging } from '../services/prompt/messaging';
 import { migratePromptsData } from '../services/storage';
 import { initializeFirebase } from '../services/auth/firebase';
 import { cloudStorageService } from '../services/storage/cloudStorage';
-import { setStorageMode } from '../services/storage';
 import { getFirebaseAuth } from '../services/auth/firebase';
 import { membershipService } from '../services/membership';
 import { authService } from '../services/auth';
 
-// 为Window接口添加新属性声明
-declare global {
-  interface Window {
-    USE_CLOUD_STORAGE?: boolean;
-  }
-}
-
 console.log('[AetherFlow] 后台脚本加载成功');
-
-// 调试辅助：设置云存储为启用状态
-(function forceEnableCloudStorage() {
-  try {
-    const previousSetting = localStorage.getItem('USE_CLOUD_STORAGE');
-    localStorage.setItem('USE_CLOUD_STORAGE', 'true');
-    console.log('[AetherFlow] 强制启用云存储模式，之前的设置为:', previousSetting);
-    // 设置全局标志，确保所有组件可以访问
-    window.USE_CLOUD_STORAGE = true;
-  } catch (error) {
-    console.error('[AetherFlow] 无法设置云存储模式:', error);
-  }
-})();
 
 // 设置Service Worker保活机制
 setupServiceWorkerKeepAlive();
@@ -438,7 +416,6 @@ addMessageListener((message: Message, sender, sendResponse) => {
       // 使用统一存储服务搜索
       storageService.getAllPrompts()
         .then(allPrompts => {
-          // 在内存中过滤
           let results = [...allPrompts];
           
           // 关键词过滤
@@ -447,7 +424,8 @@ addMessageListener((message: Message, sender, sendResponse) => {
             results = results.filter(prompt => 
               prompt.title.toLowerCase().includes(term) || 
               prompt.content.toLowerCase().includes(term) ||
-              prompt.tags?.some(tag => tag.toLowerCase().includes(term))
+              // 修正: 添加 tag 类型注解
+              prompt.tags?.some((tag: string) => tag.toLowerCase().includes(term))
             );
           }
           

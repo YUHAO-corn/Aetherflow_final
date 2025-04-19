@@ -232,32 +232,43 @@ export class CloudStorageService implements StorageService {
   // 处理云端提示词更新
   private async handleCloudPromptUpdate(cloudPrompt: Prompt) {
     try {
+      // 检查是否为软删除的提示词
+      if (cloudPrompt.isActive === false || cloudPrompt.active === false) {
+        // 如果云端标记为删除，则尝试在本地删除
+        await this.handleCloudPromptRemoval(cloudPrompt.id);
+        return;
+      }
+
       // 检查是否为同步过程中自己上传的
       const pendingOp = this.pendingOperationsList.find(
         op => op.id === cloudPrompt.id && op.type === 'upload'
       );
-      
+
       if (pendingOp) {
         // 是我们自己上传的，不需要重复保存
         this.removePendingOperation(cloudPrompt.id);
         return;
       }
-      
+
       // 获取本地版本
       const localPrompt = await chromeStorageService.getPrompt(cloudPrompt.id);
-      
+
       if (!localPrompt) {
-        // 本地不存在，直接保存
-        await chromeStorageService.savePrompt(cloudPrompt);
-        return;
-      }
-      
-      // 检查是否有冲突
-      if (localPrompt.updatedAt !== cloudPrompt.updatedAt) {
-        // 有冲突，解决冲突
-        const resolvedPrompt = await this.resolveConflict(localPrompt, cloudPrompt);
-        if (resolvedPrompt) {
+        // 本地不存在，直接保存 (确保只保存 active 的)
+        // 修正: 明确检查 true 或 undefined 以消除 linter 警告
+        if (cloudPrompt.isActive === true || cloudPrompt.isActive === undefined) {
+          await chromeStorageService.savePrompt(cloudPrompt);
+        }
+      } else {
+        // 本地存在，解决冲突
+        const resolvedPrompt = this.resolveSimpleConflict(localPrompt, cloudPrompt);
+        // 仅当解决后的提示词是 active 时才保存
+        // 修正: isActive !== false 包含了 true 和 undefined 的情况
+        if (resolvedPrompt.isActive !== false) {
           await chromeStorageService.savePrompt(resolvedPrompt);
+        } else {
+          // 如果解决结果是 inactive，则确保本地也删除 (软删除)
+          await chromeStorageService.deletePrompt(resolvedPrompt.id);
         }
       }
     } catch (error) {
@@ -265,55 +276,38 @@ export class CloudStorageService implements StorageService {
     }
   }
 
-  // 处理云端提示词删除
+  // 处理云端提示词删除 (或标记为 inactive)
   private async handleCloudPromptRemoval(promptId: string) {
     try {
       // 检查是否为同步过程中自己删除的
       const pendingOp = this.pendingOperationsList.find(
         op => op.id === promptId && op.type === 'delete'
       );
-      
+
       if (pendingOp) {
-        // 是我们自己删除的，不需要重复处理
+        // 是我们自己删除的，移除待处理操作
         this.removePendingOperation(promptId);
         return;
       }
-      
-      // 获取本地版本
-      const localPrompt = await chromeStorageService.getPrompt(promptId);
-      
-      if (localPrompt) {
-        // 检查本地版本是否有未同步的修改
-        const result = await this.resolveDeletionConflict(localPrompt, { timestamp: Date.now() });
-        
-        if (result.action === 'delete') {
-          // 删除本地版本
-          await chromeStorageService.deletePrompt(promptId);
-        } else if (result.action === 'keep' && result.prompt) {
-          // 保留本地版本并重新上传
-          await this.uploadPrompt(result.prompt);
-        }
-      }
+
+      // 不是自己删除的，执行本地软删除
+      await chromeStorageService.deletePrompt(promptId);
+      console.log(`[CloudStorage] 已根据云端状态在本地软删除: ${promptId}`);
     } catch (error) {
       console.error('处理云端提示词删除失败:', error);
     }
   }
 
-  // 处理删除冲突
-  private async resolveDeletionConflict(localPrompt: Prompt | null, isDeleted: { timestamp: number } | null): Promise<{ action: 'keep' | 'delete', prompt?: Prompt }> {
-    // 如果本地有修改且时间较新，保留本地版本
-    if (localPrompt && isDeleted && localPrompt.updatedAt > isDeleted.timestamp) {
-      return { action: 'keep', prompt: localPrompt };
-    } else {
-      // 否则进行删除
-      return { action: 'delete' };
-    }
-  }
-
-  // 简单冲突解决
+  // 简单冲突解决 (保留最新)
   private resolveSimpleConflict(localPrompt: Prompt, cloudPrompt: Prompt): Prompt {
-    // 保留更新时间较新的版本
-    return localPrompt.updatedAt > cloudPrompt.updatedAt ? localPrompt : cloudPrompt;
+    // 优先保留最新的有效提示词
+    if ((localPrompt.updatedAt || 0) >= (cloudPrompt.updatedAt || 0)) {
+      // 如果本地较新或相等，则使用本地版本
+      return localPrompt;
+    } else {
+      // 否则使用云端版本
+      return cloudPrompt;
+    }
   }
 
   // 计算两个提示词内容的差异程度 (0-1)
@@ -356,102 +350,102 @@ export class CloudStorageService implements StorageService {
     return [...this.pendingOperationsList];
   }
 
-  // 处理待处理操作
+  // 处理待处理操作列表
   public async processPendingOperations(): Promise<void> {
-    if (!this.isAuthenticated() || !this.isOnline() || this.pendingOperationsList.length === 0) {
+    if (!this.isOnlineStatus || !this.userId || this.pendingOperationsList.length === 0) {
       return;
     }
-    
-    try {
-      this.setSyncStatus('syncing', '正在处理待同步数据...');
-      
-      // 按照时间戳排序，保证操作顺序
-      const sortedOps = [...this.pendingOperationsList].sort((a, b) => a.timestamp - b.timestamp);
-      
-      for (const op of sortedOps) {
-        if (op.type === 'upload' && op.data) {
-          // 上传操作
-          await this.uploadPromptToFirestore(op.data);
-          this.removePendingOperation(op.id);
+
+    console.log(`[CloudStorage] 开始处理 ${this.pendingOperationsList.length} 个待处理操作...`);
+    const operationsToProcess = [...this.pendingOperationsList]; // 复制一份以防修改影响迭代
+
+    for (const op of operationsToProcess) {
+      try {
+        if (op.type === 'upload') {
+          if (op.data) {
+             // 确保上传的数据 isActive 不为 false
+             if(op.data.isActive !== false){
+                await this.uploadPromptToFirestore(op.data);
+             } else {
+                // 如果数据标记为删除，则尝试在云端软删除
+                await this.softDeletePromptInFirestore(op.id);
+             }
+          } else {
+            // 如果没有数据，尝试从本地获取最新数据上传
+            const localPrompt = await chromeStorageService.getPrompt(op.id);
+            if (localPrompt && localPrompt.isActive !== false) { // 只上传 active 的
+              await this.uploadPromptToFirestore(localPrompt);
+            } else {
+              // 如果本地没有或已软删除，确保云端也软删除
+              await this.softDeletePromptInFirestore(op.id);
+            }
+          }
         } else if (op.type === 'delete') {
-          // 删除操作
-          await this.deletePromptFromFirestore(op.id);
-          this.removePendingOperation(op.id);
+          // *** 调用软删除而不是硬删除 ***
+          await this.softDeletePromptInFirestore(op.id);
         }
+        // 操作成功，从队列中移除
+        this.removePendingOperation(op.id);
+        console.log(`[CloudStorage] 成功处理待处理操作: ${op.type} ${op.id}`);
+      } catch (error) {
+        console.error(`[CloudStorage] 处理待处理操作失败 (${op.type} ${op.id}):`, error);
+        // 保留操作在队列中，下次重试
       }
-      
-      this.setSyncStatus('synced', '待处理操作已完成');
-    } catch (error) {
-      console.error('处理待处理操作失败:', error);
-      this.setSyncStatus('error', '同步失败，将在网络恢复后重试');
     }
+    console.log('[CloudStorage] 待处理操作处理完成。');
   }
 
-  // 上传提示词到Firestore
+  // 上传提示词到Firestore (确保 isActive 状态正确)
   private async uploadPromptToFirestore(prompt: Prompt): Promise<void> {
-    if (!this.userId) {
-      throw new Error('未登录，无法上传数据');
+    if (!this.userId) return;
+     // 确保只上传 isActive 不为 false 的数据
+    if (prompt.isActive === false) {
+        console.warn(`[CloudStorage] 尝试上传已标记为删除的提示词 ${prompt.id}，已阻止。将尝试软删除云端版本。`);
+        await this.softDeletePromptInFirestore(prompt.id); // 确保云端也标记为删除
+        return;
     }
-    
-    try {
-      console.log(`[CloudStorage:Firebase] 开始上传提示词到Firebase: ID=${prompt.id}, 标题=${prompt.title}`);
-      const db = getFirestore();
-      console.log(`[CloudStorage:Firebase] 获取Firestore实例成功，路径: users/${this.userId}/prompts/${prompt.id}`);
-      const promptRef = doc(db, 'users', this.userId, 'prompts', prompt.id);
-      await setDoc(promptRef, prompt);
-      console.log(`[CloudStorage:Firebase] 提示词上传成功: ID=${prompt.id}, 标题=${prompt.title}`);
-    } catch (error) {
-      console.error('[CloudStorage:Firebase] 上传提示词到Firestore失败:', error);
-      throw error;
-    }
+    const db = getFirestore();
+    const dataToUpload = {
+      ...prompt,
+      isActive: true, // 明确设置为 true
+      active: true,   // 保持兼容
+      userId: this.userId // 确保 userId 存在
+    };
+    // 修正: 删除 undefined 值，需要显式类型断言
+    Object.keys(dataToUpload).forEach(key => {
+        if (dataToUpload[key as keyof typeof dataToUpload] === undefined) {
+          delete dataToUpload[key as keyof typeof dataToUpload];
+        }
+    });
+
+    const promptRef = doc(db, 'users', this.userId, 'prompts', prompt.id);
+    await setDoc(promptRef, dataToUpload, { merge: true }); // 使用 merge: true
+     console.log(`[CloudStorage] 成功上传/更新提示词到Firestore: ${prompt.id}`);
   }
 
-  // 从Firestore删除提示词
-  private async deletePromptFromFirestore(promptId: string): Promise<void> {
+  // 新增: 实现 Firestore 软删除
+  private async softDeletePromptInFirestore(promptId: string): Promise<void> {
     if (!this.userId) {
-      throw new Error('未登录，无法删除数据');
+      console.warn('[CloudStorage] 用户未登录，无法在 Firestore 中软删除');
+      return; // 或者可以抛出错误
     }
-    
+    const db = getFirestore();
+    const promptRef = doc(db, 'users', this.userId, 'prompts', promptId);
     try {
-      console.log(`[CloudStorage:Firebase] 开始从Firebase删除提示词: ID=${promptId}`);
-      const db = getFirestore();
-      const promptRef = doc(db, 'users', this.userId, 'prompts', promptId);
-      await deleteDoc(promptRef);
-      console.log(`[CloudStorage:Firebase] 提示词删除成功: ID=${promptId}`);
-    } catch (error) {
-      console.error('[CloudStorage:Firebase] 从Firestore删除提示词失败:', error);
-      throw error;
-    }
-  }
-
-  // 上传提示词 (内部方法)
-  private async uploadPrompt(prompt: Prompt): Promise<void> {
-    if (!this.isAuthenticated()) {
-      return; // 未登录，不上传
-    }
-    
-    try {
-      if (this.isOnline()) {
-        // 在线，直接上传
-        await this.uploadPromptToFirestore(prompt);
-      } else {
-        // 离线，添加到待处理队列
-        this.addPendingOperation({
-          type: 'upload',
-          id: prompt.id,
-          data: prompt,
-          timestamp: Date.now()
-        });
-      }
-    } catch (error) {
-      console.error('上传提示词失败:', error);
-      // 添加到待处理队列
-      this.addPendingOperation({
-        type: 'upload',
-        id: prompt.id,
-        data: prompt,
-        timestamp: Date.now()
+      await updateDoc(promptRef, {
+        isActive: false,
+        active: false, // 同时更新两个字段以保持一致性
+        updatedAt: Date.now() // 更新时间戳也很重要
       });
+      console.log(`[CloudStorage] 成功在Firestore中软删除提示词: ${promptId}`);
+    } catch (error: any) {
+      // 处理文档不存在的情况 (可能已被硬删除或从未创建)
+      if (error.code === 'not-found') {
+        console.log(`[CloudStorage] Firestore文档 ${promptId} 不存在，无需软删除。`);
+        return; // 视为成功
+      }
+      console.error(`[CloudStorage] 在Firestore中软删除提示词失败: ${promptId}`, error);
+      throw error; // 抛出错误以便上层处理或重试
     }
   }
 
@@ -467,13 +461,64 @@ export class CloudStorageService implements StorageService {
     return chromeStorageService.getAllPrompts();
   }
 
+  // 新增: 私有辅助方法，处理提示词上传同步逻辑
+  private async _syncPromptUpload(prompt: Prompt): Promise<void> {
+    if (!this.userId) {
+      console.log('[CloudStorage] 用户未登录，跳过上传同步。');
+      return;
+    }
+
+    // 确保不上传已软删除的提示词
+    if (prompt.isActive === false) {
+      console.warn(`[CloudStorage] 尝试同步上传已软删除的提示词 ${prompt.id}，已阻止。将尝试软删除云端版本。`);
+      try {
+         if (this.isOnlineStatus) {
+           await this.softDeletePromptInFirestore(prompt.id);
+           this.removePendingOperation(prompt.id); // 如果之前有待处理的删除，移除它
+         } else {
+           this.addPendingOperation({ type: 'delete', id: prompt.id, timestamp: Date.now() });
+         }
+      } catch (error) {
+         console.error(`[CloudStorage] 在阻止上传软删除提示词时，尝试软删除云端版本失败: ${prompt.id}`, error);
+         this.addPendingOperation({ type: 'delete', id: prompt.id, timestamp: Date.now() });
+      }
+      return;
+    }
+
+    try {
+      if (this.isOnlineStatus) {
+        console.log(`[CloudStorage] 在线状态，尝试立即上传/更新 Firestore: ${prompt.id}`);
+        await this.uploadPromptToFirestore(prompt);
+        // 如果成功，确保从待处理队列中移除（以防之前失败时加入过）
+        this.removePendingOperation(prompt.id);
+      } else {
+        // 离线状态，加入待处理队列
+        console.log(`[CloudStorage] 离线状态，将上传操作加入待处理队列: ${prompt.id}`);
+        this.addPendingOperation({
+          type: 'upload',
+          id: prompt.id,
+          data: prompt, // 包含完整数据
+          timestamp: Date.now()
+        });
+      }
+    } catch (error) {
+      console.error(`[CloudStorage] 同步上传到 Firestore 失败: ${prompt.id}`, error);
+      // 如果尝试立即上传失败，加入待处理队列，下次重试
+      console.log(`[CloudStorage] 将失败的上传操作加入待处理队列: ${prompt.id}`);
+      this.addPendingOperation({ type: 'upload', id: prompt.id, data: prompt, timestamp: Date.now() });
+      // 可选：抛出错误通知调用者云同步失败
+      // throw new Error(`同步上传到云端失败: ${error}`);
+    }
+  }
+
   // 实现StorageService接口 - savePrompt
   async savePrompt(prompt: Prompt): Promise<void> {
     // 先保存到本地
     await chromeStorageService.savePrompt(prompt);
     
     // 然后上传到云端
-    await this.uploadPrompt(prompt);
+    // 修正: 调用新的同步辅助方法
+    await this._syncPromptUpload(prompt);
   }
 
   // 实现StorageService接口 - updatePrompt
@@ -485,38 +530,65 @@ export class CloudStorageService implements StorageService {
     const updatedPrompt = await chromeStorageService.getPrompt(id);
     if (updatedPrompt) {
       // 上传到云端
-      await this.uploadPrompt(updatedPrompt);
+      // 修正: 调用新的同步辅助方法
+      await this._syncPromptUpload(updatedPrompt);
     }
   }
 
-  // 实现StorageService接口 - deletePrompt
+  // 删除提示词 (统一软删除)
   async deletePrompt(id: string): Promise<void> {
-    // 先从本地删除
-    await chromeStorageService.deletePrompt(id);
-    
-    // 然后从云端删除
-    if (this.isAuthenticated()) {
-      try {
-        if (this.isOnline()) {
-          // 在线，直接删除
-          await this.deletePromptFromFirestore(id);
-        } else {
-          // 离线，添加到待处理队列
-          this.addPendingOperation({
-            type: 'delete',
-            id,
-            timestamp: Date.now()
-          });
-        }
-      } catch (error) {
-        console.error('删除提示词失败:', error);
-        // 添加到待处理队列
+    // === 调试日志: 确认函数调用和初始状态 ===
+    console.log(`[DEBUG CloudStorage] deletePrompt called for ID: ${id}. Current User ID: ${this.userId}, Online Status: ${this.isOnlineStatus}`);
+
+    // 1. 先执行本地软删除
+    try {
+      await chromeStorageService.deletePrompt(id);
+      console.log(`[CloudStorage] 已在本地软删除: ${id}`);
+    } catch (error) {
+      console.error(`[CloudStorage] 本地软删除失败: ${id}`, error);
+      // 考虑是否在此处停止或继续尝试云同步
+    }
+
+    // 2. 如果已登录，尝试同步到云端（软删除）
+    if (!this.userId) {
+      // === 调试日志: 确认是否因未登录而退出 ===
+      console.log(`[DEBUG CloudStorage] Condition !this.userId is TRUE. Exiting deletePrompt early.`);
+      console.log('[CloudStorage] 用户未登录，仅执行本地软删除。');
+      return;
+    }
+
+    // === 调试日志: 确认已通过登录检查 ===
+    console.log(`[DEBUG CloudStorage] Passed !this.userId check.`);
+
+    try {
+      if (this.isOnlineStatus) {
+        // === 调试日志: 确认进入在线处理逻辑 ===
+        console.log(`[DEBUG CloudStorage] Condition this.isOnlineStatus is TRUE. Attempting online soft delete.`);
+        // *** 调用软删除 ***
+        console.log(`[CloudStorage] 在线状态，尝试立即在 Firestore 中软删除: ${id}`);
+        await this.softDeletePromptInFirestore(id);
+        // 如果成功，确保从待处理队列中移除（以防之前失败时加入过）
+        this.removePendingOperation(id);
+      } else {
+        // === 调试日志: 确认进入离线处理逻辑 ===
+        console.log(`[DEBUG CloudStorage] Condition this.isOnlineStatus is FALSE. Adding to pending queue.`);
+        // 离线状态，加入待处理队列
+        console.log(`[CloudStorage] 离线状态，将软删除操作加入待处理队列: ${id}`);
         this.addPendingOperation({
           type: 'delete',
           id,
           timestamp: Date.now()
         });
       }
+    } catch (error) {
+      // === 调试日志: 确认是否进入错误处理逻辑 ===
+      console.log(`[DEBUG CloudStorage] Entered catch block for cloud sync.`);
+      console.error(`[CloudStorage] 同步软删除到 Firestore 失败: ${id}`, error);
+      // 如果尝试立即软删除失败，加入待处理队列，下次重试
+      console.log(`[CloudStorage] 将失败的软删除操作加入待处理队列: ${id}`);
+      this.addPendingOperation({ type: 'delete', id, timestamp: Date.now() });
+       // 可选: 抛出错误通知调用者云同步失败
+       // throw new Error(`同步软删除到云端失败: ${error}`);
     }
   }
 
@@ -529,7 +601,8 @@ export class CloudStorageService implements StorageService {
     const updatedPrompt = await chromeStorageService.getPrompt(id);
     if (updatedPrompt) {
       // 上传到云端
-      await this.uploadPrompt(updatedPrompt);
+      // 修正: 调用新的同步辅助方法
+      await this._syncPromptUpload(updatedPrompt);
     }
   }
 
@@ -571,185 +644,159 @@ export class CloudStorageService implements StorageService {
     return this.currentSyncStatus;
   }
 
-  // 云存储特有方法 - 手动触发同步
+  // 全量同步提示词
   public async syncAllPrompts(): Promise<SyncStats> {
-    if (!this.isAuthenticated()) {
-      console.log('[CloudStorage:Firebase] 未登录，无法同步');
-      throw new Error('未登录，无法同步');
+    if (!this.userId) {
+      throw new Error('用户未登录，无法同步');
     }
-    
-    if (!this.isOnline()) {
-      console.log('[CloudStorage:Firebase] 当前处于离线状态，无法同步');
-      throw new Error('离线状态，无法同步');
-    }
-    
-    // 更新同步状态
-    console.log('[CloudStorage:Firebase] 开始执行全量数据同步');
-    this.setSyncStatus('syncing', '正在同步数据...');
-    this.lastSyncTime = Date.now();
-    
+    this.setSyncStatus('syncing', '开始全量同步...');
+    console.log('[CloudStorage] 开始执行 syncAllPrompts');
+
+    const stats: SyncStats = { uploaded: 0, downloaded: 0, conflicts: 0, resolved: 0 };
+    const batch = writeBatch(getFirestore());
+    let batchOps = 0;
+
     try {
-      // 处理待处理操作
-      const pendingOpsCount = this.pendingOperationsList.length;
-      if (pendingOpsCount > 0) {
-        console.log(`[CloudStorage:Firebase] 处理${pendingOpsCount}个待处理操作`);
-        await this.processPendingOperations();
-      }
-      
-      // 获取本地提示词
-      console.log('[CloudStorage:Firebase] 获取本地提示词');
-      const localPrompts = await chromeStorageService.getAllPrompts();
-      console.log(`[CloudStorage:Firebase] 本地提示词数量: ${localPrompts.length}`);
-      
-      // 获取云端提示词
-      console.log('[CloudStorage:Firebase] 获取云端提示词');
-      const cloudPrompts = await this.getCloudPrompts();
-      console.log(`[CloudStorage:Firebase] 云端提示词数量: ${cloudPrompts.length}`);
-      
-      // 创建ID映射
-      const localMap = new Map(localPrompts.map(p => [p.id, p]));
-      const cloudMap = new Map(cloudPrompts.map(p => [p.id, p]));
-      
-      // 统计数据
-      const stats: SyncStats = {
-        uploaded: 0,
-        downloaded: 0,
-        conflicts: 0,
-        resolved: 0
-      };
-      
-      // 处理本地存在但云端不存在的提示词(上传)
-      console.log('[CloudStorage:Firebase] 开始处理需要上传的提示词');
-      for (const localPrompt of localPrompts) {
-        if (!cloudMap.has(localPrompt.id)) {
-          console.log(`[CloudStorage:Firebase] 上传新提示词: ID=${localPrompt.id}, 标题=${localPrompt.title}`);
-          await this.uploadPromptToFirestore(localPrompt);
-          stats.uploaded++;
-        } else {
-          // 存在于两端，检查更新时间
-          const cloudPrompt = cloudMap.get(localPrompt.id)!;
-          if (localPrompt.updatedAt > cloudPrompt.updatedAt) {
-            console.log(`[CloudStorage:Firebase] 上传更新的提示词: ID=${localPrompt.id}, 本地时间=${new Date(localPrompt.updatedAt).toISOString()}, 云端时间=${new Date(cloudPrompt.updatedAt).toISOString()}`);
-            await this.uploadPromptToFirestore(localPrompt);
+      // 1. 获取所有本地提示词 (包括软删除的)
+      const localPromptsRaw = await chromeStorageService.getAllPrompts();
+      const localPromptsMap = new Map(localPromptsRaw.map(p => [p.id, p]));
+      console.log(`[CloudStorage] 获取到 ${localPromptsRaw.length} 个本地提示词`);
+
+
+      // 2. 获取所有云端提示词 (仅获取 active 的)
+      const cloudPromptsActive = await this.getCloudPrompts(true); // true 表示只获取 active
+      const cloudPromptsActiveMap = new Map(cloudPromptsActive.map(p => [p.id, p]));
+      console.log(`[CloudStorage] 获取到 ${cloudPromptsActive.length} 个云端活动提示词`);
+
+
+      // 3. 比较本地和云端差异 (以本地为主循环)
+      for (const [localId, localPrompt] of localPromptsMap.entries()) {
+        const cloudPrompt = cloudPromptsActiveMap.get(localId);
+
+        if (localPrompt.isActive !== false) {
+          // ---- 处理本地 Active 的提示词 ----
+          if (!cloudPrompt) {
+            // 本地 Active, 云端没有 -> 上传
+            console.log(`[CloudStorage] 准备上传本地独有提示词: ${localId}`);
+            const promptRef = doc(getFirestore(), 'users', this.userId, 'prompts', localId);
+            const dataToUpload = { ...localPrompt, userId: this.userId, isActive: true, active: true };
+            // 修正: 删除 undefined 值，需要显式类型断言
+            Object.keys(dataToUpload).forEach(key => {
+                if (dataToUpload[key as keyof typeof dataToUpload] === undefined) {
+                  delete dataToUpload[key as keyof typeof dataToUpload];
+                }
+            });
+            batch.set(promptRef, dataToUpload, { merge: true });
             stats.uploaded++;
-          } else if (localPrompt.updatedAt < cloudPrompt.updatedAt) {
-            console.log(`[CloudStorage:Firebase] 下载更新的提示词: ID=${cloudPrompt.id}, 云端时间=${new Date(cloudPrompt.updatedAt).toISOString()}, 本地时间=${new Date(localPrompt.updatedAt).toISOString()}`);
-            await chromeStorageService.savePrompt(cloudPrompt);
-            stats.downloaded++;
-          } else if (JSON.stringify(localPrompt) !== JSON.stringify(cloudPrompt)) {
-            // 时间戳相同但内容不同，处理冲突
-            console.log(`[CloudStorage:Firebase] 检测到内容冲突: ID=${localPrompt.id}, 标题=${localPrompt.title}`);
-            stats.conflicts++;
-            const resolvedPrompt = await this.resolveConflict(localPrompt, cloudPrompt);
-            if (resolvedPrompt) {
-              console.log(`[CloudStorage:Firebase] 冲突已解决: ID=${resolvedPrompt.id}, 标题=${resolvedPrompt.title}`);
-              await chromeStorageService.savePrompt(resolvedPrompt);
-              stats.resolved++;
+            batchOps++;
+          } else {
+            // 本地 Active, 云端 Active -> 比较时间戳
+            if ((localPrompt.updatedAt || 0) > (cloudPrompt.updatedAt || 0)) {
+              // 本地较新 -> 上传
+              console.log(`[CloudStorage] 准备上传本地较新版本: ${localId}`);
+              const promptRef = doc(getFirestore(), 'users', this.userId, 'prompts', localId);
+              const dataToUpload = { ...localPrompt, userId: this.userId, isActive: true, active: true };
+              // 修正: 删除 undefined 值，需要显式类型断言
+              Object.keys(dataToUpload).forEach(key => {
+                  if (dataToUpload[key as keyof typeof dataToUpload] === undefined) {
+                    delete dataToUpload[key as keyof typeof dataToUpload];
+                  }
+              });
+              batch.set(promptRef, dataToUpload, { merge: true });
+              stats.uploaded++;
+              batchOps++;
+            } else if ((localPrompt.updatedAt || 0) < (cloudPrompt.updatedAt || 0)) {
+              // 云端较新 -> 下载覆盖本地
+              console.log(`[CloudStorage] 准备下载云端较新版本: ${cloudPrompt.id}`);
+              await chromeStorageService.savePrompt(cloudPrompt);
+              stats.downloaded++;
             }
+            // 时间戳相同不处理
+            cloudPromptsActiveMap.delete(localId); // 从云端 map 中移除已处理的
           }
+        } else {
+          // ---- 处理本地 Inactive (软删除) 的提示词 ----
+          if (cloudPrompt) {
+            // 本地 Inactive, 云端 Active -> 在云端软删除
+            console.log(`[CloudStorage] 准备在云端软删除本地已删除的提示词: ${localId}`);
+            const promptRef = doc(getFirestore(), 'users', this.userId, 'prompts', localId);
+            batch.update(promptRef, { isActive: false, active: false, updatedAt: Date.now() });
+            batchOps++;
+            stats.uploaded++; // 算作更新操作
+            cloudPromptsActiveMap.delete(localId); // 从云端 map 中移除已处理的
+          }
+          // 如果云端也没有（或云端也 Inactive），则无需操作
         }
       }
-      
-      // 处理云端存在但本地不存在的提示词(下载)
-      console.log('[CloudStorage:Firebase] 开始处理需要下载的提示词');
-      for (const cloudPrompt of cloudPrompts) {
-        if (!localMap.has(cloudPrompt.id)) {
-          console.log(`[CloudStorage:Firebase] 下载新提示词: ID=${cloudPrompt.id}, 标题=${cloudPrompt.title}`);
+
+      // 4. 处理剩余的云端 Active 提示词 (这些是本地没有的)
+      for (const cloudPrompt of cloudPromptsActiveMap.values()) {
+          console.log(`[CloudStorage] 准备下载云端独有提示词: ${cloudPrompt.id}`);
           await chromeStorageService.savePrompt(cloudPrompt);
           stats.downloaded++;
-        }
       }
-      
-      // 更新同步状态
-      console.log(`[CloudStorage:Firebase] 同步完成: 上传=${stats.uploaded}, 下载=${stats.downloaded}, 冲突=${stats.conflicts}, 已解决=${stats.resolved}`);
-      this.setSyncStatus('synced', `同步完成: 上传${stats.uploaded}，下载${stats.downloaded}`);
-      
+
+
+      // 5. 提交批量操作
+      if (batchOps > 0) {
+        console.log(`[CloudStorage] 提交 ${batchOps} 个批量写操作...`);
+        await batch.commit();
+      }
+
+      this.lastSyncTime = Date.now();
+      await chromeStorageService.set(STORAGE_KEYS.LAST_SYNC_TIME, this.lastSyncTime);
+      this.setSyncStatus('synced', `同步完成: 上传${stats.uploaded}, 下载${stats.downloaded}`);
+      console.log('[CloudStorage] syncAllPrompts 完成', stats);
       return stats;
+
     } catch (error) {
-      console.error('[CloudStorage:Firebase] 同步失败:', error);
-      this.setSyncStatus('error', '同步失败，请检查网络连接');
+      console.error('[CloudStorage] syncAllPrompts 失败:', error);
+      this.setSyncStatus('error', '同步失败，请稍后重试');
       throw error;
     }
   }
 
-  // 获取云端提示词
-  private async getCloudPrompts(): Promise<Prompt[]> {
-    if (!this.userId) {
-      console.log('[CloudStorage:Firebase] 未登录，无法获取云端提示词');
-      return [];
-    }
-    
-    try {
-      console.log(`[CloudStorage:Firebase] 开始从Firebase获取云端提示词, 用户ID=${this.userId}`);
-      const db = getFirestore();
-      const promptsRef = collection(db, 'users', this.userId, 'prompts');
-      console.log('[CloudStorage:Firebase] 发起Firestore查询');
-      const querySnapshot = await getDocs(promptsRef);
-      console.log(`[CloudStorage:Firebase] 查询完成，获取到${querySnapshot.docs.length}个提示词`);
-      
-      const prompts = querySnapshot.docs.map(doc => doc.data() as Prompt);
-      console.log('[CloudStorage:Firebase] 云端提示词概要:', 
-        prompts.map(p => ({ id: p.id, title: p.title, updatedAt: new Date(p.updatedAt).toISOString() })));
-      return prompts;
-    } catch (error) {
-      console.error('[CloudStorage:Firebase] 获取云端提示词失败:', error);
-      throw error;
-    }
-  }
 
-  // 冲突解决 (完整版)
-  public async resolveConflict(localPrompt: Prompt, cloudPrompt: Prompt): Promise<Prompt | null> {
-    // 检查是否为删除冲突
-    if (localPrompt.isActive === false || cloudPrompt.isActive === false) {
-      const result = await this.resolveDeletionConflict(
-        localPrompt.isActive ? localPrompt : null,
-        cloudPrompt.isActive ? null : { timestamp: cloudPrompt.updatedAt }
-      );
-      
-      return result.action === 'keep' && result.prompt ? result.prompt : null;
-    }
-    
-    // 计算内容差异
-    const difference = this.calculateDifference(localPrompt.content, cloudPrompt.content);
-    
-    // 根据差异程度选择策略
-    if (difference < 0.2) {
-      // 差异小，使用时间戳策略
-      return this.resolveSimpleConflict(localPrompt, cloudPrompt);
-    } else {
-      // 较大差异，保留两者
-      // 如果本地较新，保留本地并创建云端副本
-      if (localPrompt.updatedAt >= cloudPrompt.updatedAt) {
-        // 创建云端副本
-        const cloudCopy = {...cloudPrompt};
-        cloudCopy.id = this.generateUniqueId();
-        cloudCopy.title = `${cloudCopy.title} (云端版本)`;
-        
-        // 保存副本
-        await chromeStorageService.savePrompt(cloudCopy);
-        
-        return localPrompt;
-      } else {
-        // 如果云端较新，保留云端并创建本地副本
-        const localCopy = {...localPrompt};
-        localCopy.id = this.generateUniqueId();
-        localCopy.title = `${localCopy.title} (本地版本)`;
-        
-        // 保存副本
-        await chromeStorageService.savePrompt(localCopy);
-        
-        return cloudPrompt;
-      }
-    }
-  }
+  // 获取云端提示词 (增加只获取 active 的选项)
+  private async getCloudPrompts(onlyActive: boolean = false): Promise<Prompt[]> {
+    if (!this.userId) return [];
+    const db = getFirestore();
+    const promptsRef = collection(db, 'users', this.userId, 'prompts');
 
-  // 生成唯一ID
-  private generateUniqueId(): string {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      const r = (Math.random() * 16) | 0;
-      const v = c === 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
+    // 根据 onlyActive 添加查询条件
+    // 使用 != false 会包含 true 和 undefined (对于旧数据可能没有 isActive 字段)
+    // 如果只想获取明确为 true 的，用 where('isActive', '==', true)
+    const q = onlyActive
+      ? query(promptsRef, where('isActive', '!=', false))
+      : promptsRef; // 获取所有
+
+    const snapshot = await getDocs(q);
+    const prompts: Prompt[] = [];
+    snapshot.forEach(doc => {
+       const data = doc.data();
+       // 确保 isActive 存在，如果 Firestore 中没有，默认为 true
+       const isActive = data.isActive === undefined ? true : data.isActive;
+       // 如果 onlyActive 为 true，则再次确认 isActive 不为 false
+       if (!onlyActive || isActive !== false) {
+           prompts.push({ id: doc.id, ...data, isActive } as Prompt);
+       }
     });
+    return prompts;
+  }
+
+  // 新增：根据 ID 获取单个云端提示词（无论状态）
+  private async getCloudPromptById(promptId: string): Promise<Prompt | null> {
+    if (!this.userId) return null;
+    const db = getFirestore();
+    const promptRef = doc(db, 'users', this.userId, 'prompts', promptId);
+    const docSnap = await getDoc(promptRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+       const isActive = data.isActive === undefined ? true : data.isActive;
+      return { id: docSnap.id, ...data, isActive } as Prompt;
+    } else {
+      return null;
+    }
   }
 
   /**

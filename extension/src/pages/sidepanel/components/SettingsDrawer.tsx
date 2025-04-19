@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Download, Check, Cloud } from 'lucide-react';
+import { X, Download, Check, Cloud, LogOut, HardDrive, Loader2 } from 'lucide-react';
 import { useExport } from '../../../hooks/useExport';
 import { setStorageMode } from '../../../services/storage';
 import { useAuth } from '../../../hooks/useAuth';
+import { authService } from '../../../services/auth';
 
 interface SettingsDrawerProps {
   isOpen: boolean;
@@ -13,34 +14,46 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
   const { exportToCSV, loading, success, error } = useExport();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const [isLoadingStorage, setIsLoadingStorage] = useState(false);
+  const [useCloudStorage, setUseCloudStorage] = useState<boolean | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
-  // 检查是否启用云存储
-  const [useCloudStorage, setUseCloudStorage] = useState(() => {
-    return localStorage.getItem('USE_CLOUD_STORAGE') === 'true';
-  });
+  useEffect(() => {
+    setUseCloudStorage(true);
+  }, [user]);
 
-  // 切换云存储状态
-  const toggleCloudStorage = () => {
+  const toggleCloudStorage = async () => {
     const newState = !useCloudStorage;
     setUseCloudStorage(newState);
-    setStorageMode(newState);
+    await handleStorageChange(newState);
   };
 
-  // 设置挂载状态以触发动画
+  const handleStorageChange = async (useCloud: boolean) => {
+    setIsLoadingStorage(true);
+    try {
+      setStorageMode(useCloud);
+      alert('存储模式已更改。请重新加载扩展以使更改完全生效。(注意: 当前切换功能可能不完整)');
+      onClose();
+    } catch (error) {
+      console.error('切换存储模式失败:', error);
+      alert('切换存储模式失败，请稍后重试。');
+    } finally {
+      setIsLoadingStorage(false);
+    }
+  };
+
   useEffect(() => {
     if (isOpen) {
       setMounted(true);
     } else {
-      // 延迟卸载以允许过渡动画完成
       const timer = setTimeout(() => {
         setMounted(false);
-      }, 300); // 与过渡动画持续时间相同
+      }, 300);
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
 
-  // 处理点击外部关闭
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (drawerRef.current && !drawerRef.current.contains(event.target as Node) && isOpen) {
@@ -48,14 +61,12 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
       }
     }
 
-    // 添加全局点击事件监听
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isOpen, onClose]);
 
-  // 添加ESC键关闭功能
   useEffect(() => {
     function handleEscKey(event: KeyboardEvent) {
       if (event.key === 'Escape' && isOpen) {
@@ -63,30 +74,25 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
       }
     }
 
-    // 添加键盘事件监听
     document.addEventListener('keydown', handleEscKey);
     return () => {
       document.removeEventListener('keydown', handleEscKey);
     };
   }, [isOpen, onClose]);
 
-  // 如果没有挂载，则不显示
   if (!mounted) return null;
 
   return (
     <>
-      {/* 背景遮罩 - 点击关闭抽屉 */}
       <div 
         className={`fixed inset-0 bg-black/50 z-drawer-backdrop transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0'}`}
         onClick={onClose}
       />
       
-      {/* 设置抽屉 */}
       <div 
         ref={drawerRef}
         className={`fixed inset-y-0 right-0 w-80 bg-gradient-to-br from-magic-800 to-magic-900 border-l border-magic-700/30 shadow-xl z-drawer-container transform transition-transform duration-300 ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
       >
-        {/* 抽屉头部 */}
         <div className="flex items-center justify-between p-4 border-b border-magic-700/30">
           <h3 className="text-lg font-semibold text-magic-200 truncate">Settings</h3>
           <button
@@ -98,7 +104,6 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
           </button>
         </div>
         
-        {/* 抽屉内容 */}
         <div className="p-4">
           <h4 className="text-md font-bold text-magic-200 mb-4">Cloud Sync</h4>
           
