@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
-import { Sparkles, Wand2, Copy, Star, AlertTriangle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Sparkles, Wand2, Copy, Bookmark, AlertTriangle, Link as LinkIcon } from 'lucide-react';
 import type { Prompt } from '../../../services/prompt/types';
 import { OptimizationDetailDrawer } from './OptimizationDetailDrawer';
 import { OptimizationModeSelector } from './OptimizationModeSelector';
+import { Toast } from '../../../components/common/Toast';
 import type { OptimizationMode, OptimizationVersion } from '../../../services/optimization';
 import { 
   isErrorVersion, 
@@ -49,17 +50,40 @@ export function OptimizeSection({
   // 添加收藏状态跟踪
   const [favoriteVersions, setFavoriteVersions] = useState<number[]>([]);
   
-  // 处理收藏 - 使用服务层函数
+  // --- Toast State ---
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastType, setToastType] = useState<'success' | 'error'>('success');
+  // --- End of Toast State ---
+
+  // --- Highlight State ---
+  const [highlightedVersionId, setHighlightedVersionId] = useState<number | null>(null);
+  // --- End of Highlight State ---
+
+  // --- Trigger Toast Function ---
+  const triggerToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToastMessage(message);
+    setToastType(type);
+    setShowToast(true);
+    // Optional: Auto-hide is handled by the Toast component's duration prop
+  };
+  // --- End of Trigger Toast Function ---
+  
+  // Handle favorite toggle - Update to trigger toast on save
   const handleToggleFavorite = async (versionId: number, version: OptimizationVersion) => {
-    // 调用服务层函数处理收藏逻辑
+    const wasFavorite = getFavoriteStatus(versionId, favoriteVersions);
     const updatedFavorites = await toggleFavoriteVersion(
       version,
       favoriteVersions,
       onSaveToLibrary
     );
-    
-    // 更新本地收藏状态
     setFavoriteVersions(updatedFavorites);
+    const isNowFavorite = getFavoriteStatus(versionId, updatedFavorites);
+
+    // Trigger toast only when saving (transitioning from not favorite to favorite)
+    if (!wasFavorite && isNowFavorite) {
+      triggerToast('Saved to Library', 'success');
+    }
   };
 
   // 打开版本详情
@@ -72,6 +96,34 @@ export function OptimizeSection({
   const handleCloseDetail = () => {
     setIsDetailOpen(false);
   };
+
+  // --- Handle Highlighting Parent Version ---
+  const handleHighlightParent = (parentId: number) => {
+    setHighlightedVersionId(parentId);
+  };
+  // --- End of Handle Highlighting ---
+
+  // --- Effect for Scrolling and Highlighting ---
+  useEffect(() => {
+    if (highlightedVersionId !== null) {
+      const element = document.querySelector(`[data-version-id="${highlightedVersionId}"]`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        element.classList.add('highlight-version');
+        
+        const timer = setTimeout(() => {
+          element.classList.remove('highlight-version');
+          setHighlightedVersionId(null); // Reset after animation
+        }, 1500); // Highlight duration
+
+        return () => clearTimeout(timer);
+      } else {
+        // If element not found (e.g., not rendered yet), just reset
+        setHighlightedVersionId(null);
+      }
+    }
+  }, [highlightedVersionId]);
+  // --- End of Effect ---
 
   return (
     <div className="p-4">
@@ -120,17 +172,19 @@ export function OptimizeSection({
           const displayContent = getVersionDisplayContent(version);
           // 使用服务层函数检查收藏状态
           const isFavorite = getFavoriteStatus(version.id, favoriteVersions);
+          const isHighlighted = highlightedVersionId === version.id;
           
           return (
             <div
               key={version.id}
+              data-version-id={version.id}
               className={`relative p-4 bg-gradient-to-r ${
                 hasError 
                   ? 'from-red-900/30 via-red-800/20 to-red-900/30 border-red-700/30' 
                   : 'from-magic-800/50 via-magic-700/30 to-magic-800/50 border-magic-700/30'
-              } border rounded-lg group transform hover:-rotate-1 hover:scale-[1.02] transition-all duration-300 ${
+              } border rounded-lg group transform hover:scale-[1.02] hover:shadow-lg transition-all duration-300 ${
                 version.isNew ? 'animate-magic-reveal' : ''
-              } ${version.isLoading ? 'animate-pulse' : ''}`}
+              } ${version.isLoading ? 'animate-pulse' : ''} ${isHighlighted ? 'highlight-version' : ''}`}
               onClick={() => !version.isLoading && handleOpenDetail(version)}
             >
               <div className={`absolute inset-0 bg-gradient-to-r ${
@@ -141,9 +195,24 @@ export function OptimizeSection({
               
               {/* 标题和操作按钮部分 */}
               <div className="flex items-center justify-between mb-3 relative z-10">
-                <span className="text-xs font-medium text-magic-400">
-                  {formatVersionTitle(version.id, version.isEdited)}
-                </span>
+                <div className="flex flex-col">
+                  <span className="text-xs font-medium text-magic-400">
+                    {formatVersionTitle(version.id, version.isEdited)}
+                  </span>
+                  {version.parentId !== undefined && version.parentId !== null && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleHighlightParent(version.parentId!);
+                      }}
+                      className="flex items-center text-[10px] text-magic-500 hover:text-magic-300 mt-0.5 group/link"
+                      title={`Go to parent version (v${version.parentId})`}
+                    >
+                      <LinkIcon size={10} className="mr-1 group-hover/link:text-magic-300" />
+                      Based on v{version.parentId}
+                    </button>
+                  )}
+                </div>
                 
                 {/* 操作按钮，默认隐藏，hover时显示 */}
                 {!version.isLoading && !hasError && (
@@ -155,13 +224,11 @@ export function OptimizeSection({
                           handleToggleFavorite(version.id, version);
                         }}
                         className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
-                        title={isFavorite ? "Saved" : "Add to Library"}
+                        title={isFavorite ? "Saved to Library" : "Save to Library"}
                       >
-                        <Star 
+                        <Bookmark 
                           size={14} 
-                          className={isFavorite 
-                            ? "text-yellow-400 fill-yellow-400" 
-                            : "text-magic-400"} 
+                          className={`text-magic-400 ${isFavorite ? 'fill-current' : 'fill-none'}`}
                         />
                       </button>
                     )}
@@ -255,6 +322,14 @@ export function OptimizeSection({
           onSaveToLibrary={onSaveToLibrary}
         />
       )}
+
+      {/* Render Toast */}
+      <Toast 
+        message={toastMessage}
+        type={toastType}
+        show={showToast}
+        onClose={() => setShowToast(false)} 
+      />
     </div>
   );
 } 

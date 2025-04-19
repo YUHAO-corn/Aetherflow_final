@@ -33,7 +33,7 @@ export const ProBadge: React.FC<ProBadgeProps> = ({
   
   // 根据激活状态确定样式
   const activeClasses = isActive
-    ? 'bg-gradient-to-r from-yellow-400 to-amber-500 text-black font-bold shadow-sm'
+    ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold shadow-sm'
     : 'bg-magic-700/50 text-magic-400/70 font-medium';
   
   // 基础样式
@@ -41,7 +41,7 @@ export const ProBadge: React.FC<ProBadgeProps> = ({
   
   // 悬停和聚焦状态
   const hoverClasses = isActive
-    ? 'hover:from-yellow-300 hover:to-amber-400 hover:shadow-md'
+    ? 'hover:from-purple-400 hover:to-pink-400 hover:shadow-md'
     : 'hover:bg-magic-700 hover:text-magic-300';
   
   // 完整样式类名

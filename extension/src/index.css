@@ -268,3 +268,10 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #64748b; /* magic-500 */
 }
+
+/* Add this to index.css or a relevant global stylesheet */
+.highlight-version {
+  transition: box-shadow 0.3s ease-in-out; /* Smooth transition for the shadow */
+  box-shadow: 0 0 0 2px theme('colors.purple.500'); /* Adjust color and size as needed */
+  /* Or use border: border: 2px solid theme('colors.purple.500'); */
+}

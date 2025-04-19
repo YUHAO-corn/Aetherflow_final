@@ -7,7 +7,7 @@ interface CardProps {
   children: React.ReactNode;
   actions?: React.ReactNode;
   className?: string;
-  onClick?: () => void;
+  onClick?: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 export function Card({ title, children, actions, className = '', onClick }: CardProps) {
@@ -16,8 +16,14 @@ export function Card({ title, children, actions, className = '', onClick }: Card
     rounded-lg p-3 relative overflow-hidden ${onClick ? 'cursor-pointer' : ''} ${className}
   `;
   
+  const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (onClick) {
+      onClick(event);
+    }
+  };
+  
   const content = (
-    <div className={cardClassNames} onClick={onClick}>
+    <div className={cardClassNames} onClick={handleClick}>
       <div className="relative">
         {title && (
           <h3 className="text-sm font-medium text-magic-200 mb-2 relative z-raised overflow-hidden text-ellipsis whitespace-nowrap w-full">{title}</h3>

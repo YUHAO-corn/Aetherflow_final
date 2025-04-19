@@ -74,13 +74,13 @@ export const UpgradeButton: React.FC<UpgradeButtonProps> = ({
     
     // Pro会员样式(闪电按钮)
     if (isProMember) {
-      return `${baseClasses} text-yellow-400 hover:text-yellow-300 p-1.5 ${className}`;
+      return `${baseClasses} text-purple-400 hover:text-purple-300 p-1.5 ${className}`;
     }
     
     // 非Pro会员样式
     switch (variant) {
       case 'primary':
-        return `${baseClasses} bg-brand-blue hover:bg-brand-blue-dark text-white py-1.5 px-3 ${className}`;
+        return `${baseClasses} text-brand-blue hover:text-brand-blue-dark py-1.5 px-3 ${className}`;
       case 'text':
         return `${baseClasses} text-magic-400 hover:text-magic-300 ${className}`;
       case 'icon':
@@ -98,7 +98,7 @@ export const UpgradeButton: React.FC<UpgradeButtonProps> = ({
       title={isProMember ? 'Pro Membership Activated' : 'Upgrade to Pro Version'}
     >
       {isProMember ? (
-        <Zap size={18} className="animate-pulse" />
+        <Zap size={18} />
       ) : (
         <>
           {variant !== 'text' && <Rocket size={16} className="mr-1.5" />}

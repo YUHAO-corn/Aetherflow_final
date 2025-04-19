@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Copy, Trash2, Plus, ArrowDownUp, Star } from 'lucide-react';
+import { Search, Copy, Trash2, Plus, ArrowDownUp, Star, FileText, Highlighter, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { Input } from '../../../components/common/Input';
 import { Card } from '../../../components/common/Card';
 import { LoadingIndicator } from '../../../components/common/LoadingIndicator';
@@ -44,6 +44,10 @@ export function LibraryTab() {
   // 使用API数据
   const prompts = apiPrompts;
   
+  // --- State for Expanded Cards ---
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
+  // --- End of State ---
+
   // 获取并过滤提示词
   useEffect(() => {
     const getPrompts = async () => {
@@ -198,8 +202,95 @@ export function LibraryTab() {
     }
   };
 
+  // --- Toggle Card Expansion Function ---
+  const toggleCardExpansion = (promptId: string) => {
+    setExpandedCards(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(promptId)) {
+        newSet.delete(promptId);
+      } else {
+        newSet.add(promptId);
+      }
+      return newSet;
+    });
+  };
+  // --- End of Toggle Function ---
+
+  // --- Empty State Component ---
+  const renderEmptyState = () => {
+    if (searchTerm) {
+      // Search returned no results
+      return (
+        <div className="text-center text-magic-400 py-16 flex flex-col items-center">
+          <Search size={48} className="mb-4 text-magic-500" />
+          <h3 className="text-lg font-semibold text-magic-300 mb-2">No Prompts Found</h3>
+          <p className="text-sm mb-4">Your search for \"{searchTerm}\" did not match any prompts.</p>
+          <button 
+            onClick={() => setSearchTerm('')} 
+            className="px-4 py-2 bg-magic-600 text-white rounded-md hover:bg-magic-500 text-sm transition-colors"
+          >
+            Clear Search
+          </button>
+        </div>
+      );
+    } else {
+      // Library is empty (New user guidance)
+      return (
+        <div className="text-center text-magic-400 py-12 flex flex-col items-center">
+          {/* You can replace FileText with a more relevant custom illustration/icon */}
+          <FileText size={56} className="mb-6 text-magic-500 opacity-70" /> 
+          <h3 className="text-xl font-semibold text-magic-200 mb-3">Your Prompt Library is Empty</h3>
+          <p className="text-sm mb-8 max-w-md mx-auto">Start building your collection! Here's how you can add prompts:</p>
+          
+          <div className="space-y-5 text-left max-w-sm w-full">
+            {/* Method 1: Add New */}
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 mt-1 p-1.5 bg-magic-700/50 rounded-full">
+                 <Plus size={16} className="text-magic-300" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-magic-300 mb-1">Create a new prompt directly.</p>
+                <button 
+                  onClick={handleAddNew} 
+                  className="px-3 py-1 bg-magic-600 text-white rounded-md hover:bg-magic-500 text-xs transition-colors"
+                >
+                  Add New Prompt
+                </button>
+              </div>
+            </div>
+
+            {/* Method 2: Capture */}
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 mt-1 p-1.5 bg-magic-700/50 rounded-full">
+                {/* Placeholder icon for Capture - replace later */}
+                <Highlighter size={16} className="text-magic-300" /> 
+              </div>
+              <div>
+                <p className="text-sm font-medium text-magic-300 mb-1">Highlight text on any webpage.</p>
+                <p className="text-xs text-magic-400">Right-click the selection and choose 'Aetherflow-Add to Library'.</p>
+              </div>
+            </div>
+
+            {/* Method 3: Save from Optimizer */}
+            <div className="flex items-start space-x-3">
+              <div className="flex-shrink-0 mt-1 p-1.5 bg-magic-700/50 rounded-full">
+                 <Sparkles size={16} className="text-magic-300" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-magic-300 mb-1">Save results from the Optimizer.</p>
+                <p className="text-xs text-magic-400">Click the bookmark icon on optimization result cards.</p>
+                {/* We might add a button later to switch tab if needed */}
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+  };
+  // --- End of Empty State Component ---
+
   return (
-    <div className="p-4">
+    <div className="px-4 pt-2 pb-4">
       {/* 搜索栏和操作按钮 */}
       <div className="mb-4 flex items-center space-x-2">
         <div className="relative flex-1">
@@ -273,70 +364,98 @@ export function LibraryTab() {
         </div>
       )}
 
-      {/* 提示词列表 */}
+      {/* Prompt list or Empty State */}
       {!loading && !apiLoading && (
         <div className="space-y-3">
           {filteredPrompts.length === 0 ? (
-            <div className="text-center text-magic-400 py-8">
-              {searchTerm ? "No matching prompts found" : "Library is empty"}
-            </div>
+            renderEmptyState()
           ) : (
-            filteredPrompts.map(prompt => (
-              <Card
-                key={prompt.id}
-                onClick={() => handleViewDetail(prompt)}
-              >
-                {/* 卡片内容 */}
-                <div className="relative">
-                  {/* 标题和操作按钮部分 */}
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-xs font-medium text-magic-300 w-full break-words">
-                      {formatTitle(prompt.title)}
-                    </h3>
+            filteredPrompts.map(prompt => {
+              // Check if the current card is expanded
+              const isExpanded = expandedCards.has(prompt.id);
+              return (
+                <Card
+                  key={prompt.id}
+                  // Keep group class for hover effects on action buttons
+                  className="group"
+                  // Prevent card click when clicking expand/collapse button
+                  onClick={(e) => {
+                      // Check if the click target is the expand/collapse button or its icon
+                      const target = e.target as HTMLElement;
+                      if (target.closest('.expand-toggle-button')) {
+                        return; // Do nothing if the toggle button was clicked
+                      }
+                      handleViewDetail(prompt);
+                    }
+                  }
+                >
+                  {/* Card content */}
+                  <div className="relative">
+                    {/* Title */}
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-xs font-medium text-magic-300 w-full break-words">
+                        {formatTitle(prompt.title)}
+                      </h3>
+                    </div>
                     
-                    {/* 操作按钮，默认隐藏，hover时显示 */}
-                    <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          const isFavorited = prompt.isFavorite || prompt.favorite || false;
-                          handleToggleFavorite(prompt.id, isFavorited);
-                        }}
-                        className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
-                        title={prompt.isFavorite || prompt.favorite ? "Remove from Library" : "Add to Library"}
-                      >
-                        <Star size={14} className={prompt.isFavorite || prompt.favorite ? "text-yellow-400 fill-yellow-400" : "text-magic-400"} />
-                      </button>
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCopy(prompt.id, prompt.content);
-                        }}
-                        className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
-                        title="Copy prompt content"
-                      >
-                        <Copy size={14} className="text-magic-400" />
-                      </button>
+                    {/* Content Preview - Conditional line-clamp */}
+                    <p className={`text-[10px] text-magic-200 mb-1 relative z-10 whitespace-pre-line break-words ${
+                      isExpanded ? '' : 'line-clamp-6' 
+                    }`}>
+                      {formatContentPreview(prompt.content)}
+                    </p>
+
+                    {/* Bottom Metadata & Action Buttons */}
+                    <div className="text-xs text-magic-600 flex justify-between items-center mt-1.5">
+                      {/* Left Group: Expand Button + Metadata */}
+                      <div className="flex items-center space-x-2">
+                        {/* Expand/Collapse Button - Always visible, on the left */}
+                        <button 
+                          onClick={() => toggleCardExpansion(prompt.id)}
+                          className="expand-toggle-button p-1 rounded-full text-magic-500 hover:text-magic-300 hover:bg-magic-700/50 transition-colors flex-shrink-0"
+                          title={isExpanded ? 'Show Less' : 'Show More'}
+                        >
+                          {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />} 
+                        </button>
+                        {/* Metadata Container */}
+                        <div className="flex items-center space-x-2 transition-opacity duration-150 flex-shrink-0">
+                          <span>
+                            Used: {prompt.useCount || 0} times
+                          </span>
+                          <span>
+                            {new Date(prompt.updatedAt).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Right Group: Action Buttons Container - Hidden by default, shows on hover */}
+                      <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+                        <button 
+                          onClick={(e) => { 
+                            e.stopPropagation();
+                            handleCopy(prompt.id, prompt.content);
+                          }}
+                          className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
+                          title="Copy prompt content"
+                        >
+                          <Copy size={14} className="text-magic-400" />
+                        </button>
+                        <button 
+                           onClick={(e) => { 
+                            e.stopPropagation();
+                            handleDelete(prompt.id);
+                          }}
+                          className="p-1.5 hover:bg-magic-700/50 rounded-full transition-all duration-300 transform hover:scale-110"
+                          title="Remove from Library"
+                        >
+                          <Trash2 size={14} className="text-magic-400 hover:text-red-500" />
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  
-                  {/* 提示词内容 */}
-                  <p className="text-[10px] text-magic-200 mb-3 relative z-10 whitespace-pre-line break-words line-clamp-6">
-                    {formatContentPreview(prompt.content)}
-                  </p>
-                  
-                  {/* 底部元信息 */}
-                  <div className="text-xs text-magic-500 flex justify-between mt-2">
-                    <span>
-                      Used: {prompt.useCount || 0} times
-                    </span>
-                    <span>
-                      {new Date(prompt.updatedAt).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              </Card>
-            ))
+                </Card>
+              );
+            })
           )}
         </div>
       )}

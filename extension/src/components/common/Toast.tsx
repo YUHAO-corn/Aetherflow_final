@@ -5,52 +5,58 @@
  * 可用于任何需要显示临时通知的场景
  */
 
-import React, { useEffect, useState } from 'react';
-import { CheckCircle, XCircle, X } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { CheckCircle, AlertTriangle, X } from 'lucide-react';
 
 interface ToastProps {
   message: string;
   type: 'success' | 'error';
-  duration?: number;
+  show: boolean;
   onClose: () => void;
+  duration?: number; // Optional duration in ms
 }
 
-export function Toast({ message, type, duration = 3000, onClose }: ToastProps) {
-  const [isVisible, setIsVisible] = useState(true);
-
+export function Toast({ 
+  message, 
+  type = 'success', 
+  show, 
+  onClose,
+  duration = 3000 
+}: ToastProps) {
+  
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-      setTimeout(onClose, 300);
-    }, duration);
+    if (show && duration) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, duration);
+      return () => clearTimeout(timer);
+    }
+  }, [show, duration, onClose]);
 
-    return () => clearTimeout(timer);
-  }, [duration, onClose]);
-
-  const icon =
-    type === 'success' ? (
-      <CheckCircle className="w-5 h-5 text-green-500" />
-    ) : (
-      <XCircle className="w-5 h-5 text-red-500" />
-    );
+  const bgColor = type === 'success' 
+    ? 'bg-green-700/80 border-green-600/50' 
+    : 'bg-red-800/80 border-red-700/50';
+  const textColor = type === 'success' ? 'text-green-100' : 'text-red-100';
+  const Icon = type === 'success' ? CheckCircle : AlertTriangle;
 
   return (
-    <div
-      className={`fixed bottom-4 right-4 flex items-center space-x-2 px-4 py-2 bg-magic-800/90 border border-magic-700/30 rounded-lg shadow-lg transition-all duration-300 ${
-        isVisible ? 'opacity-100 transform translate-y-0' : 'opacity-0 transform translate-y-2'
-      }`}
+    <div 
+      className={`fixed bottom-5 left-1/2 transform -translate-x-1/2 z-toast-container
+                  transition-all duration-300 ease-in-out
+                  ${show ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}
+                  ${show ? 'pointer-events-auto' : 'pointer-events-none'}`}
     >
-      {icon}
-      <span className="text-sm text-magic-200">{message}</span>
-      <button
-        onClick={() => {
-          setIsVisible(false);
-          setTimeout(onClose, 300);
-        }}
-        className="p-1 hover:bg-magic-700/50 rounded-full transition-colors"
+      <div 
+        className={`flex items-center justify-between max-w-md w-full p-3 rounded-lg shadow-lg border backdrop-blur-sm ${bgColor}`}
       >
-        <X className="w-4 h-4 text-magic-400" />
-      </button>
+        <div className="flex items-center">
+          <Icon size={18} className={`mr-2 ${textColor}`} />
+          <span className={`text-sm font-medium ${textColor}`}>{message}</span>
+        </div>
+        <button onClick={onClose} className={`ml-4 p-0.5 rounded-full hover:bg-black/20 ${textColor}`}>
+          <X size={16} />
+        </button>
+      </div>
     </div>
   );
 }

@@ -84,9 +84,9 @@ const SyncStatusIndicator: React.FC = () => {
     switch (syncStatus.status) {
       case 'idle':
         return {
-          bgColor: '#10b981', // 绿色
-          fillColor: 'rgba(16, 185, 129, 0.1)',
-          borderColor: '#10b981',
+          bgColor: '#64748b', // slate-500
+          fillColor: 'rgba(100, 116, 139, 0.1)', // Adjusted alpha for slate-500
+          borderColor: '#64748b', // slate-500
           icon: (
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />

@@ -1,46 +1,79 @@
-INFO 2025-04-17T17:35:54.347386Z [httpRequest.requestMethod: POST] [httpRequest.status: 200] [httpRequest.responseSize: 164 B] [httpRequest.latency: 54 ms] [httpRequest.userAgent: Paddle] https://paddle-webhooks-423266303314.us-central1.run.app/
-DEFAULT 2025-04-17T17:35:54.389411Z 处理Paddle webhook事件: transaction.created
-DEFAULT 2025-04-17T17:35:54.389762Z 记录交易相关事件: transaction.created，等待transaction.completed事件
-INFO 2025-04-17T17:35:57.623755Z [httpRequest.requestMethod: POST] [httpRequest.status: 200] [httpRequest.responseSize: 164 B] [httpRequest.latency: 5 ms] [httpRequest.userAgent: Paddle] https://paddle-webhooks-423266303314.us-central1.run.app/
-DEFAULT 2025-04-17T17:35:57.630209Z 处理Paddle webhook事件: address.created
-DEFAULT 2025-04-17T17:35:57.630312Z 未处理的webhook事件类型: address.created
-INFO 2025-04-17T17:35:57.910231Z [httpRequest.requestMethod: POST] [httpRequest.status: 200] [httpRequest.responseSize: 164 B] [httpRequest.latency: 4 ms] [httpRequest.userAgent: Paddle] https://paddle-webhooks-423266303314.us-central1.run.app/
-DEFAULT 2025-04-17T17:35:57.917999Z 处理Paddle webhook事件: transaction.updated
-DEFAULT 2025-04-17T17:35:57.918132Z 记录交易相关事件: transaction.updated，等待transaction.completed事件
-INFO 2025-04-17T17:35:57.926453Z [httpRequest.requestMethod: POST] [httpRequest.status: 200] [httpRequest.responseSize: 164 B] [httpRequest.latency: 4 ms] [httpRequest.userAgent: Paddle] https://paddle-webhooks-423266303314.us-central1.run.app/
-DEFAULT 2025-04-17T17:35:57.931672Z 处理Paddle webhook事件: transaction.ready
-DEFAULT 2025-04-17T17:35:57.931779Z 记录交易相关事件: transaction.ready，等待transaction.completed事件
-INFO 2025-04-17T17:36:06.044430Z [httpRequest.requestMethod: POST] [httpRequest.status: 200] [httpRequest.responseSize: 164 B] [httpRequest.latency: 4 ms] [httpRequest.userAgent: Paddle] https://paddle-webhooks-423266303314.us-central1.run.app/
-DEFAULT 2025-04-17T17:36:06.049802Z 处理Paddle webhook事件: transaction.updated
-DEFAULT 2025-04-17T17:36:06.049997Z 记录交易相关事件: transaction.updated，等待transaction.completed事件
-INFO 2025-04-17T17:36:06.134849Z [httpRequest.requestMethod: POST] [httpRequest.status: 200] [httpRequest.responseSize: 164 B] [httpRequest.latency: 3 ms] [httpRequest.userAgent: Paddle] https://paddle-webhooks-423266303314.us-central1.run.app/
-DEFAULT 2025-04-17T17:36:06.139542Z 处理Paddle webhook事件: transaction.paid
-DEFAULT 2025-04-17T17:36:06.139557Z 记录交易相关事件: transaction.paid，等待transaction.completed事件
-INFO 2025-04-17T17:36:06.674461Z [httpRequest.requestMethod: POST] [httpRequest.status: 200] [httpRequest.responseSize: 164 B] [httpRequest.latency: 1.01 s] [httpRequest.userAgent: Paddle] https://paddle-webhooks-423266303314.us-central1.run.app/
-DEFAULT 2025-04-17T17:36:06.679243Z 处理Paddle webhook事件: subscription.created
-INFO 2025-04-17T17:36:07.139232Z [httpRequest.requestMethod: POST] [httpRequest.status: 200] [httpRequest.responseSize: 164 B] [httpRequest.latency: 567 ms] [httpRequest.userAgent: Paddle] https://paddle-webhooks-423266303314.us-central1.run.app/
-INFO 2025-04-17T17:36:07.321419Z [httpRequest.requestMethod: POST] [httpRequest.status: 200] [httpRequest.responseSize: 164 B] [httpRequest.latency: 400 ms] [httpRequest.userAgent: Paddle] https://paddle-webhooks-423266303314.us-central1.run.app/
-DEFAULT 2025-04-17T17:36:07.705432Z 处理Paddle webhook事件: subscription.activated
-DEFAULT 2025-04-17T17:36:07.722775Z 处理Paddle webhook事件: transaction.updated
-DEFAULT 2025-04-17T17:36:07.722784Z 记录交易相关事件: transaction.updated，等待transaction.completed事件
-INFO 2025-04-17T17:36:08.264903Z [httpRequest.requestMethod: POST] [httpRequest.status: 200] [httpRequest.responseSize: 164 B] [httpRequest.latency: 29 ms] [httpRequest.userAgent: Paddle] https://paddle-webhooks-423266303314.us-central1.run.app/
-DEFAULT 2025-04-17T17:36:08.279539Z 已创建/更新用户ID映射: Paddle ID ctm_01js20nk1rh5rgm038amnkqme6 -> Firebase ID UhWPWDEaOUP5cTMxpqyFefHLXlE2
-INFO 2025-04-17T17:36:08.281148Z [httpRequest.requestMethod: POST] [httpRequest.status: 200] [httpRequest.responseSize: 164 B] [httpRequest.latency: 30 ms] [httpRequest.userAgent: Paddle] https://paddle-webhooks-423266303314.us-central1.run.app/
-DEFAULT 2025-04-17T17:36:08.290660Z 已创建/更新用户ID映射: Paddle ID ctm_01js20nk1rh5rgm038amnkqme6 -> Firebase ID UhWPWDEaOUP5cTMxpqyFefHLXlE2
-DEFAULT 2025-04-17T17:36:08.295199Z 处理Paddle webhook事件: transaction.updated
-DEFAULT 2025-04-17T17:36:08.295233Z 记录交易相关事件: transaction.updated，等待transaction.completed事件
-DEFAULT 2025-04-17T17:36:08.312106Z 处理Paddle webhook事件: transaction.completed
-DEFAULT 2025-04-17T17:36:08.312335Z 处理交易完成事件，订阅ID: sub_01js2d4xjddrfvzvjas1jan4sq, 客户ID: ctm_01js20nk1rh5rgm038amnkqme6
-DEFAULT 2025-04-17T17:36:08.388019Z 已创建/更新用户ID映射: Paddle ID ctm_01js20nk1rh5rgm038amnkqme6 -> Firebase ID UhWPWDEaOUP5cTMxpqyFefHLXlE2
-DEFAULT 2025-04-17T17:36:08.416107Z 会员状态已更新，用户ID: UhWPWDEaOUP5cTMxpqyFefHLXlE2, 状态: pro
-INFO 2025-04-17T17:36:08.557483Z [httpRequest.requestMethod: POST] [httpRequest.status: 200] [httpRequest.responseSize: 164 B] [httpRequest.latency: 4 ms] [httpRequest.userAgent: Paddle] https://paddle-webhooks-423266303314.us-central1.run.app/
-DEFAULT 2025-04-17T17:36:08.563124Z 处理Paddle webhook事件: payment_method.saved
-DEFAULT 2025-04-17T17:36:08.563136Z 未处理的webhook事件类型: payment_method.saved
-DEFAULT 2025-04-17T17:36:08.571766Z 订阅已创建，用户ID: UhWPWDEaOUP5cTMxpqyFefHLXlE2, Paddle客户ID: ctm_01js20nk1rh5rgm038amnkqme6, 订阅ID: sub_01js2d4xjddrfvzvjas1jan4sq
-DEFAULT 2025-04-17T17:36:08.572113Z 会员状态已更新，用户ID: UhWPWDEaOUP5cTMxpqyFefHLXlE2, 状态: pro
-DEFAULT 2025-04-17T17:36:08.572123Z 订阅已更新，用户ID: UhWPWDEaOUP5cTMxpqyFefHLXlE2, Paddle客户ID: ctm_01js20nk1rh5rgm038amnkqme6, 订阅ID: sub_01js2d4xjddrfvzvjas1jan4sq
-DEFAULT 2025-04-17T17:36:08.634729Z 会员状态已更新，用户ID: UhWPWDEaOUP5cTMxpqyFefHLXlE2, 状态: pro
-DEFAULT 2025-04-17T17:36:08.634743Z 交易完成，已更新会员状态，用户ID: UhWPWDEaOUP5cTMxpqyFefHLXlE2, Paddle客户ID: ctm_01js20nk1rh5rgm038amnkqme6, 订阅ID: sub_01js2d4xjddrfvzvjas1jan4sq
-INFO 2025-04-17T17:36:08.735920Z [httpRequest.requestMethod: POST] [httpRequest.status: 200] [httpRequest.responseSize: 164 B] [httpRequest.latency: 3 ms] [httpRequest.userAgent: Paddle] https://paddle-webhooks-423266303314.us-central1.run.app/
-DEFAULT 2025-04-17T17:36:08.740151Z 处理Paddle webhook事件: payment_method.deleted
-DEFAULT 2025-04-17T17:36:08.740164Z 未处理的webhook事件类型: payment_method.deleted
+Service worker registration failed. Status code: 15
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+{
+  "manifest_version": 3,
+  "name": "AetherFlow",
+  "version": "1.0.0",
+  "description": "AI-powered prompt optimization and management",
+  "permissions": ["sidePanel", "storage", "clipboardWrite", "tabs", "contextMenus", "scripting", "alarms"],
+  "host_permissions": [
+    "https://chat.openai.com/*",
+    "https://claude.ai/*",
+    "https://app.anthropic.com/*",
+    "https://chat.deepseek.com/*",
+    "https://www.phind.com/*",
+    "https://kimi.moonshot.cn/*",
+    "<all_urls>"
+  ],
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "AetherFlow - AI Prompt Management"
+  },
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "32": "assets/icons/icon32.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  }
+}

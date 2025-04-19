@@ -14,6 +14,24 @@ import { authService } from '../services/auth';
 
 console.log('[AetherFlow] 后台脚本加载成功');
 
+// 监听扩展图标点击事件，打开侧边栏
+chrome.action.onClicked.addListener(async (tab) => {
+  console.log('[AetherFlow] 扩展图标被点击');
+  // 获取当前窗口信息，确保侧边栏在正确的窗口打开
+  const currentWindow = await chrome.windows.getCurrent();
+  if (currentWindow.id) {
+    try {
+      // 尝试打开侧边栏，关联到当前窗口
+      await chrome.sidePanel.open({ windowId: currentWindow.id });
+      console.log(`[AetherFlow] 侧边栏已在窗口 ${currentWindow.id} 中打开`);
+    } catch (error) {
+      console.error('[AetherFlow] 打开侧边栏时出错:', error);
+    }
+  } else {
+     console.error('[AetherFlow] 无法获取当前窗口ID，无法打开侧边栏');
+  }
+});
+
 // 设置Service Worker保活机制
 setupServiceWorkerKeepAlive();
 

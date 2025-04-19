@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Star, Clock, Edit, Save, Check, AlertCircle } from 'lucide-react';
+import { X, Copy, Bookmark, Clock, Edit, Save, Check, AlertCircle } from 'lucide-react';
 import { formatDate } from '../../../utils/formatDate';
 import { usePromptsData } from '../../../hooks/usePromptsData';
 import type { OptimizationVersion } from '../../../services/optimization';
@@ -263,19 +263,20 @@ export function OptimizationDetailDrawer({
                     </>
                   )}
                 </button>
+                {onSaveToLibrary && (
+                  <button
+                    onClick={handleToggleFavorite}
+                    className="flex-1 flex items-center justify-center px-4 py-2 bg-magic-700/50 text-magic-200 rounded-md hover:bg-magic-600/50 transition-colors"
+                    title={isFavorite ? "Saved to Library" : "Save to Library"}
+                  >
+                    <Bookmark 
+                      size={16} 
+                      className={`mr-2 ${isFavorite ? 'fill-current' : 'fill-none'}`}
+                    />
+                    {isFavorite ? "Saved" : "Save"}
+                  </button>
+                )}
               </div>
-              
-              <button
-                onClick={handleToggleFavorite}
-                className={`flex items-center justify-center px-4 py-2 ${
-                  isFavorite
-                    ? 'bg-yellow-600/30 text-yellow-300'
-                    : 'bg-magic-700/50 text-magic-200'
-                } rounded-md hover:bg-magic-600/50 transition-colors`}
-              >
-                <Star className={`w-4 h-4 mr-2 ${isFavorite ? 'fill-yellow-300' : ''}`} />
-                {isFavorite ? 'Favorited' : 'Add to favorites'}
-              </button>
             </>
           )}
         </div>
