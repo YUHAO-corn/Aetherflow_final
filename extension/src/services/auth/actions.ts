@@ -1,45 +1,15 @@
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword,
-  signInWithPopup,
   signOut,
   sendPasswordResetEmail,
   updateProfile,
   deleteUser,
-  onAuthStateChanged as fbOnAuthStateChanged,
-  User as FirebaseUser
-} from 'firebase/auth';
-import { getFirebaseAuth, createGoogleProvider, mapFirebaseUser } from './firebase';
+  onAuthStateChanged as fbOnAuthStateChanged
+} from 'firebase/auth/web-extension';
+import { getFirebaseAuth, mapFirebaseUser } from './firebase';
 import { AuthService, LoginInput, RegisterInput, User } from './types';
 import { handleSessionEnd } from './sessionManager';
-
-// 保存用户认证状态到 Chrome 存储
-const saveAuthStateToStorage = async (user: User | null) => {
-  try {
-    if (user) {
-      // 保存用户信息到 Chrome 存储，但不包含敏感信息
-      await chrome.storage.local.set({ 'auth_user': user });
-      console.log('用户认证状态已保存到存储');
-    } else {
-      // 清除存储中的用户信息
-      await chrome.storage.local.remove('auth_user');
-      console.log('用户认证状态已从存储中清除');
-    }
-  } catch (error) {
-    console.error('保存认证状态失败:', error);
-  }
-};
-
-// 从 Chrome 存储加载用户认证状态
-export const loadAuthStateFromStorage = async (): Promise<User | null> => {
-  try {
-    const result = await chrome.storage.local.get('auth_user');
-    return result.auth_user || null;
-  } catch (error) {
-    console.error('加载认证状态失败:', error);
-    return null;
-  }
-};
 
 // 认证服务实现
 export const authService: AuthService = {
@@ -60,9 +30,6 @@ export const authService: AuthService = {
       // 转换为应用 User 类型
       const appUser = mapFirebaseUser(user);
       
-      // 保存到 Chrome 存储
-      await saveAuthStateToStorage(appUser);
-      
       return appUser;
     } catch (error: any) {
       console.error('注册失败:', error);
@@ -82,9 +49,6 @@ export const authService: AuthService = {
       // 转换为应用 User 类型
       const appUser = mapFirebaseUser(user);
       
-      // 保存到 Chrome 存储
-      await saveAuthStateToStorage(appUser);
-      
       return appUser;
     } catch (error: any) {
       console.error('登录失败:', error);
@@ -92,26 +56,31 @@ export const authService: AuthService = {
     }
   },
   
-  // Google 登录
+  // Google 登录 (重构后)
   async loginWithGoogle(): Promise<User> {
-    try {
-      const auth = getFirebaseAuth();
-      const provider = createGoogleProvider();
-      
-      // 弹出窗口进行 Google 登录
-      const { user } = await signInWithPopup(auth, provider);
-      
-      // 转换为应用 User 类型
-      const appUser = mapFirebaseUser(user);
-      
-      // 保存到 Chrome 存储
-      await saveAuthStateToStorage(appUser);
-      
-      return appUser;
-    } catch (error: any) {
-      console.error('Google 登录失败:', error);
-      throw new Error(error.message || 'Google 登录失败，请重试');
-    }
+    console.log('[AuthService] 发起 Google 登录请求...');
+    return new Promise((resolve, reject) => {
+      // 向后台脚本发送登录请求消息
+      chrome.runtime.sendMessage({ type: 'LOGIN_WITH_GOOGLE' }, (response) => {
+        if (chrome.runtime.lastError) {
+          // 消息发送失败或后台脚本出错
+          console.error('[AuthService] Google 登录消息发送失败:', chrome.runtime.lastError);
+          return reject(new Error('无法连接到后台服务进行登录: ' + chrome.runtime.lastError.message));
+        }
+
+        if (response && response.success) {
+          console.log('[AuthService] Google 登录成功，收到用户信息:', response.user);
+          // 后台脚本成功后应返回 { success: true, user: User }
+          // 无需在此处保存状态，后台 signInWithCredential 会触发 onAuthStateChanged
+          resolve(response.user as User);
+        } else {
+          // 后台脚本返回失败或无效响应
+          const errorMessage = response?.error?.message || '未知错误';
+          console.error('[AuthService] Google 登录失败:', errorMessage, response?.error);
+          reject(new Error(`Google 登录失败: ${errorMessage}`));
+        }
+      });
+    });
   },
   
   // 登出
@@ -119,9 +88,6 @@ export const authService: AuthService = {
     try {
       const auth = getFirebaseAuth();
       await signOut(auth);
-      
-      // 清除 Chrome 存储中的用户信息
-      await saveAuthStateToStorage(null);
     } catch (error: any) {
       console.error('登出失败:', error);
       throw new Error(error.message || '登出失败，请重试');
@@ -132,21 +98,27 @@ export const authService: AuthService = {
   async getCurrentUser(): Promise<User | null> {
     return new Promise((resolve) => {
       const auth = getFirebaseAuth();
+      // 尝试获取当前用户，如果存在则直接返回
+      if (auth.currentUser) {
+        console.log('[AuthService] getCurrentUser: Found currentUser directly.');
+        resolve(mapFirebaseUser(auth.currentUser));
+        return;
+      }
+      // 如果不存在，则监听一次状态变化
+      console.log('[AuthService] getCurrentUser: No currentUser, subscribing once to onAuthStateChanged.');
       const unsubscribe = auth.onAuthStateChanged((user) => {
-        unsubscribe(); // 立即取消订阅，我们只需要当前状态
-        
+        unsubscribe(); // 立即取消订阅
         if (user) {
-          const appUser = mapFirebaseUser(user);
-          resolve(appUser);
+          console.log('[AuthService] getCurrentUser: Received user from onAuthStateChanged.');
+          resolve(mapFirebaseUser(user));
         } else {
-          // 如果 Firebase 没有记录用户，尝试从 Chrome 存储中获取
-          loadAuthStateFromStorage().then(storedUser => {
-            resolve(storedUser);
-          });
+          console.log('[AuthService] getCurrentUser: Still no user after onAuthStateChanged check.');
+          // 移除从 storage 加载的逻辑
+          resolve(null);
         }
       }, (error) => {
-        console.error('获取当前用户失败:', error);
-        resolve(null);
+        console.error('获取当前用户时 onAuthStateChanged 出错:', error);
+        resolve(null); // 出错也返回 null
       });
     });
   },
@@ -173,9 +145,6 @@ export const authService: AuthService = {
       }
       
       await deleteUser(currentUser);
-      
-      // 清除 Chrome 存储中的用户信息
-      await saveAuthStateToStorage(null);
     } catch (error: any) {
       console.error('删除账户失败:', error);
       throw new Error(error.message || '删除账户失败，请重试');
@@ -193,10 +162,6 @@ export const authService: AuthService = {
       }
       
       await updateProfile(currentUser, profile);
-      
-      // 更新 Chrome 存储中的用户信息
-      const updatedUser = mapFirebaseUser(currentUser);
-      await saveAuthStateToStorage(updatedUser);
     } catch (error: any) {
       console.error('更新用户资料失败:', error);
       throw new Error(error.message || '更新用户资料失败，请重试');
@@ -207,33 +172,22 @@ export const authService: AuthService = {
   onAuthStateChanged(callback: (user: User | null) => void): () => void {
     const auth = getFirebaseAuth();
     
-    // 添加观察者
-    const unsubscribe = fbOnAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
+    const unsubscribe = fbOnAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
         const appUser = mapFirebaseUser(firebaseUser);
-        // 同时更新 Chrome 存储
-        saveAuthStateToStorage(appUser).then(() => {
-          callback(appUser);
-        });
+        callback(appUser);
       } else {
-        // 清除 Chrome 存储中的用户信息
-        saveAuthStateToStorage(null).then(async () => {
-          // 用户登出，调用会话结束处理函数
-          try {
-            await handleSessionEnd();
-          } catch (error) {
-            console.error('处理会话结束时发生错误:', error);
-          }
-          
-          callback(null);
+        // 用户登出，调用会话结束处理函数
+        handleSessionEnd().catch(error => {
+           console.error('处理会话结束时发生错误:', error);
         });
+        callback(null);
       }
     }, (error: Error) => {
       console.error('认证状态观察错误:', error);
       callback(null);
     });
     
-    // 返回取消订阅函数
     return unsubscribe;
   },
   

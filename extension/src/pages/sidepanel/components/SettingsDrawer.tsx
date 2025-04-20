@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Download, Check, Cloud, LogOut, HardDrive, Loader2 } from 'lucide-react';
 import { useExport } from '../../../hooks/useExport';
-import { setStorageMode } from '../../../services/storage';
 import { useAuth } from '../../../hooks/useAuth';
 import { authService } from '../../../services/auth';
 
@@ -32,8 +31,7 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
   const handleStorageChange = async (useCloud: boolean) => {
     setIsLoadingStorage(true);
     try {
-      setStorageMode(useCloud);
-      alert('存储模式已更改。请重新加载扩展以使更改完全生效。(注意: 当前切换功能可能不完整)');
+      alert('功能暂时禁用：存储模式切换功能当前不可用。请继续使用当前存储模式。');
       onClose();
     } catch (error) {
       console.error('切换存储模式失败:', error);

@@ -21,6 +21,7 @@ import { StorageService } from './types';
 import { STORAGE_KEYS, STORAGE_LIMITS } from './constants';
 import { chromeStorageService } from './chromeStorage';
 import { User } from '../auth/types';
+import { isServiceWorkerEnvironment, safeLogger } from '../../utils/safeEnvironment';
 
 // 同步状态类型
 export type SyncStatus = 'idle' | 'syncing' | 'synced' | 'error' | 'offline';
@@ -54,7 +55,7 @@ export interface PendingOperation {
  */
 export class CloudStorageService implements StorageService {
   // 存储状态
-  private isOnlineStatus: boolean = navigator.onLine;
+  private isOnlineStatus: boolean = !isServiceWorkerEnvironment ? navigator.onLine : true; // 在SW中默认假设在线
   private currentUser: User | null = null;
   private userId: string | null = null;
   private syncStatusListeners: ((status: SyncStatusMessage) => void)[] = [];
@@ -65,7 +66,12 @@ export class CloudStorageService implements StorageService {
   private lastSyncTime: number = 0;
 
   constructor() {
-    this.setupNetworkMonitoring();
+    // 在Service Worker环境中不监听网络状态
+    if (!isServiceWorkerEnvironment) {
+      this.setupNetworkMonitoring();
+    } else {
+      safeLogger.log('CloudStorageService 在 Service Worker 环境中运行，网络监听已禁用');
+    }
     this.initializeAuthListener();
     this.loadPendingOperations();
   }
@@ -91,18 +97,25 @@ export class CloudStorageService implements StorageService {
 
   // 设置网络状态监控
   private setupNetworkMonitoring() {
-    window.addEventListener('online', () => {
-      this.isOnlineStatus = true;
-      if (this.isAuthenticated()) {
-        this.setSyncStatus('syncing', '网络恢复，正在同步...');
-        this.processPendingOperations();
-      }
-    });
-    
-    window.addEventListener('offline', () => {
-      this.isOnlineStatus = false;
-      this.setSyncStatus('offline', '当前处于离线状态');
-    });
+    // 只在非Service Worker环境中设置
+    if (isServiceWorkerEnvironment) return;
+
+    try {
+      window.addEventListener('online', () => {
+        this.isOnlineStatus = true;
+        if (this.isAuthenticated()) {
+          this.setSyncStatus('syncing', '网络恢复，正在同步...');
+          this.processPendingOperations();
+        }
+      });
+      
+      window.addEventListener('offline', () => {
+        this.isOnlineStatus = false;
+        this.setSyncStatus('offline', '当前处于离线状态');
+      });
+    } catch (error) {
+      safeLogger.error('设置网络监控失败:', error);
+    }
   }
 
   // 登录成功后触发

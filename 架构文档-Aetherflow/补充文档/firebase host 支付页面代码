@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Firebase Auth Handler</title>
+  <!-- 从 Firebase CDN 引入 SDK -->
+  <!-- 注意：这里使用的是标准的 Web SDK，不是 web-extension 版本 -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <p>正在处理认证请求...</p>
+  <p>如果长时间没有反应，请关闭此窗口并在扩展中重试。</p>
+
+  <script>
+    // 使用你提供的 Firebase 配置信息
+    const firebaseConfig = {
+        apiKey: "AIzaSyCulWQxvrzxDOLGOxzi2ngj9n0DwzvqJFw",
+        authDomain: "aetherflow-b6459.firebaseapp.com",
+        projectId: "aetherflow-b6459",
+        storageBucket: "aetherflow-b6459.appspot.com", // 注意: 这里可能需要修正为 .firebaseapp.com 或 .appspot.com，根据你的项目设置
+        messagingSenderId: "423266303314",
+        appId: "1:423266303314:web:9cbf8adb847f043bd34e8b",
+        measurementId: "G-ZD5E2WY22N"
+    };
+
+    // 初始化 Firebase App (Compat 版本，因为我们用了 compat 脚本)
+    firebase.initializeApp(firebaseConfig);
+
+    // 获取 Auth 服务实例 (Compat 版本)
+    const auth = firebase.auth();
+
+    // 监听来自 Offscreen Document (父窗口) 的消息
+    window.addEventListener('message', (event) => {
+      // 安全检查：可以根据需要添加对 event.origin 的检查，确保消息来自你的扩展
+      // if (event.origin !== 'chrome-extension://<你的扩展ID>') {
+      //   console.warn('Ignoring message from unexpected origin:', event.origin);
+      //   return;
+      // }
+
+      console.log('Auth Handler: Received message:', event.data);
+
+      // 检查是否是启动认证的消息
+      if (event.data && event.data.initAuth && event.data.provider === 'google') {
+        console.log('Auth Handler: Starting Google Sign In with Popup...');
+        
+        const provider = new firebase.auth.GoogleAuthProvider();
+        // 你可以在这里添加需要的 OAuth Scope
+        // provider.addScope('profile');
+        // provider.addScope('email');
+
+        auth.signInWithPopup(provider)
+          .then((result) => {
+            console.log('Auth Handler: Sign in successful. Sending result back.');
+            // 登录成功，将结果（UserCredential 对象）发送回 Offscreen Document
+            // 为了确保能跨域传递，最好将其序列化为 JSON 字符串
+            // 注意：直接发送 result 对象可能丢失方法，但包含关键信息如 user, credential
+             try {
+                 // 尝试提取关键可序列化信息
+                 const serializableResult = {
+                    user: result.user ? result.user.toJSON() : null,
+                    credential: result.credential ? { // 只提取部分凭据信息
+                        providerId: result.credential.providerId,
+                        signInMethod: result.credential.signInMethod,
+                        // OAuthCredential 特有的信息
+                        accessToken: result.credential.accessToken || null,
+                        idToken: result.credential.idToken || null, // idToken 通常也在 User 对象里有
+                    } : null,
+                    // operationType: result.operationType // 如果需要
+                 };
+                 event.source.postMessage(JSON.stringify({ success: true, data: serializableResult }), event.origin);
+             } catch (stringifyError) {
+                 console.error('Auth Handler: Error stringifying success result:', stringifyError);
+                 event.source.postMessage(JSON.stringify({ success: false, error: { code: 'auth/internal-error', message: 'Could not serialize success result.' } }), event.origin);
+             }
+          })
+          .catch((error) => {
+            console.error('Auth Handler: Sign in failed. Sending error back.', error);
+            // 登录失败，将错误信息发送回 Offscreen Document
+            // Firebase 错误对象通常包含 code 和 message 属性
+             try {
+                 event.source.postMessage(JSON.stringify({ success: false, error: { code: error.code, message: error.message } }), event.origin);
+             } catch (stringifyError) {
+                 console.error('Auth Handler: Error stringifying error result:', stringifyError);
+                  // 发送一个通用的错误回去
+                 event.source.postMessage(JSON.stringify({ success: false, error: { code: 'auth/internal-error', message: 'Could not serialize error result.' } }), event.origin);
+             }
+          });
+      }
+    });
+
+    console.log('Auth Handler: Script loaded, waiting for message...');
+  </script>
+</body>
+</html>

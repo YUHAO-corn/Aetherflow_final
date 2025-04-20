@@ -4,6 +4,7 @@ import { chromeStorageService } from './chromeStorage';
 import { mockStorageService } from './mockStorage';
 import { cloudStorageService } from './cloudStorage';
 import { Prompt } from '../prompt/types';
+import { isServiceWorkerEnvironment, safeLogger } from '../../utils/safeEnvironment';
 
 // 存储操作的最大重试次数
 const MAX_RETRY_COUNT = 3;
@@ -94,26 +95,26 @@ export class Storage {
 export const syncStorage = new Storage('sync');
 export const localStorage = new Storage('local');
 
-// 判断是否在开发环境
-const isDevelopment = typeof self !== 'undefined' && self.location && 
-  (self.location.hostname === 'localhost' || self.location.hostname === '127.0.0.1');
+// --- 统一的存储服务实例 ---
+// 根据运行环境选择存储服务:
+// 1. 在Service Worker环境中，使用 chrome.storage API，它不依赖 window 对象
+// 2. 在其他环境中使用 cloudStorageService，它提供云同步功能
 
-// --- 移除 USE_CLOUD_STORAGE_KEY 和异步初始化逻辑 ---
-// const USE_CLOUD_STORAGE_KEY = 'use_cloud_storage_preference';
-// let currentUseCloudStorage: boolean | null = null;
-// let storageModeInitialized = false;
-// async function initializeStorageModePreference(): Promise<boolean> { ... }
+// 确定要导出的存储服务
+let selectedStorageService: StorageService;
 
-/**
- * 获取适合当前环境的存储服务 (异步版本)
- * 根据USE_CLOUD_STORAGE标志决定使用云存储服务还是Chrome存储API
- */
-// async function getStorageServiceAsyncInternal(): Promise<StorageService> { ... }
-// export const getStorageServiceAsync = getStorageServiceAsyncInternal;
+if (isServiceWorkerEnvironment) {
+  // Service Worker环境中使用 chrome.storage API，它不依赖 window 对象
+  safeLogger.log('[Storage] 在Service Worker环境中使用ChromeStorageService');
+  selectedStorageService = chromeStorageService;
+} else {
+  // 其他环境（如Popup, Content Script）中可以使用云存储服务
+  safeLogger.log('[Storage] 在普通环境中使用CloudStorageService');
+  selectedStorageService = cloudStorageService;
+}
 
-// +++ 恢复同步导出，默认使用 CloudStorageService +++
-console.log('[Storage] Exporting storageService, defaulting to CloudStorageService.');
-export const storageService: StorageService = cloudStorageService;
+// 导出统一的存储服务实例
+export const storageService: StorageService = selectedStorageService;
 
 // 导出其他相关内容
 export { STORAGE_KEYS, STORAGE_LIMITS };
@@ -123,34 +124,11 @@ export * from './constants';
 // 导出具体存储服务，用于特殊场景
 export { chromeStorageService, mockStorageService, cloudStorageService };
 
-// --- 移除异步 setStorageModeAsync --- 
-// async function setStorageModeAsyncInternal(useCloud: boolean): Promise<void> { ... }
-// export const setStorageModeAsync = setStorageModeAsyncInternal;
+// 已移除：异步 setStorageModeAsync 
+// 已移除：setStorageMode - 依赖 window.localStorage
 
-// +++ 恢复同步的 setStorageMode 导出（但内容注释掉，因为它使用了 window.localStorage）+++
-/**
- * 设置存储模式 (同步版本 - 当前实现有问题，已注释)
- * @param useCloud 是否使用云存储
- */
-export function setStorageMode(useCloud: boolean): void {
-  console.warn('[Storage] setStorageMode is currently disabled due to implementation issues.');
-  // try {
-  //   // ❗️❗️❗️ 下面的代码在 Service Worker 中会失败
-  //   window.localStorage.setItem('USE_CLOUD_STORAGE', useCloud ? 'true' : 'false');
-  //   // 需要一个可靠的方式来更新 storageService 实例或通知其他部分
-  //   console.log(`[Storage] 存储模式尝试切换为: ${useCloud ? '云存储' : 'Chrome存储'}`);
-  //   if (window.location) {
-  //     window.location.reload();
-  //   }
-  // } catch (error) {
-  //   console.error('[Storage] 切换存储模式失败:', error);
-  // }
-}
-
-// ... (数据迁移函数 migratePromptsData)
-// 修正: 恢复使用同步 storageService
+// 数据迁移函数 migratePromptsData
 export async function migratePromptsData(): Promise<{migrated: boolean, count: number}> {
-  // const service = await getStorageServiceAsync();
   try {
     // 检查是否存在旧格式数据
     const oldPrompts = await storageService.get<Prompt[]>(STORAGE_KEYS.PROMPTS);

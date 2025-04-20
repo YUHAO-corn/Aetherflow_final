@@ -26,7 +26,9 @@ export type MessageType =
   | 'CONTENT_SCRIPT_READY'
   // 旧版兼容消息类型
   | 'LEGACY_SEARCH_PROMPTS'
-  | 'GET_SELECTED_TEXT';
+  | 'GET_SELECTED_TEXT'
+  // 添加认证相关消息类型
+  | 'LOGIN_WITH_GOOGLE';
 
 /**
  * 统一消息接口

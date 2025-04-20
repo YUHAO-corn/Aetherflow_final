@@ -1,0 +1,28 @@
+
+好的，截图非常清晰！我看到你的 VPN 客户端提供了两个端口：
+
+*   **http(s) 端口**: `4780`
+*   **socks 端口**: `4781`
+
+通常情况下，Firebase CLI 通过设置 `http_proxy` 和 `https_proxy` 环境变量来使用 HTTP 代理效果更好。所以，我们将使用 `4780` 这个端口。
+
+我现在为你准备运行组合命令，先设置代理环境变量指向 `http://localhost:4780`，然后紧接着运行 `firebase login --reauth --no-localhost`。
+
+请确保你的 VPN 仍然是连接状态。
+
+
+
+```bash
+export http_proxy=http://localhost:4780 && export https_proxy=http://localhost:4780 && firebase login --reauth --no-localhost
+```
+太棒了！成功了！🎉🎉🎉
+
+终端显示 `✔ Success! Logged in as godcorn001@gmail.com`。
+
+看起来问题确实是 Firebase CLI 的网络连接受到了 VPN 的干扰，通过显式设置 `http_proxy` 和 `https_proxy` 环境变量强制它走 VPN 的本地代理端口，最终解决了这个问题！
+
+**重要提醒：**
+
+*   你刚刚设置的 `http_proxy` 和 `https_proxy` 环境变量**只在当前的终端会话中生效**。如果你关闭这个终端窗口，或者打开一个新的终端窗口，你需要重新设置这两个环境变量才能让 Firebase CLI 正常工作（只要你还需要开着 VPN）。
+*   或者，你可以考虑将这两个 `export` 命令添加到你的 shell 配置文件（比如 `~/.zshrc` 或 `~/.bash_profile`）的末尾，这样每次打开新的终端窗口时它们就会自动生效。但请注意，这会使你所有的终端网络请求都尝试通过那个代理端口，只有在你总是需要开着 VPN 时才这样做。
+

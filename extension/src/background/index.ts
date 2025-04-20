@@ -1,6 +1,6 @@
 import { addMessageListener, createSuccessResponse, createErrorResponse } from '../services/messaging';
 import { Message } from '../services/messaging/types';
-import { STORAGE_KEYS, storageService, setStorageMode } from '../services/storage';
+import { STORAGE_KEYS, storageService } from '../services/storage';
 import { setupPromptMessaging } from '../services/prompt/messaging';
 import { Prompt, PromptFilter } from '../services/prompt/types';
 import { createPrompt } from '../services/prompt';
@@ -8,9 +8,11 @@ import { initializeSampleData } from './sampleData';
 import { migratePromptsData } from '../services/storage';
 import { initializeFirebase } from '../services/auth/firebase';
 import { cloudStorageService } from '../services/storage/cloudStorage';
-import { getFirebaseAuth } from '../services/auth/firebase';
+import { getFirebaseAuth, mapFirebaseUser } from '../services/auth/firebase';
 import { membershipService } from '../services/membership';
 import { authService } from '../services/auth';
+import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth/web-extension';
+import { safeLocalStorage, isServiceWorkerEnvironment } from '../utils/safeEnvironment';
 
 console.log('[AetherFlow] 后台脚本加载成功');
 
@@ -404,7 +406,7 @@ async function safelySendNotification(tabId: number, message: string, type: 'suc
 }
 
 // 处理扩展消息
-addMessageListener((message: Message, sender, sendResponse) => {
+addMessageListener(async (message: Message, sender, sendResponse) => {
   console.log('[AetherFlow] 后台: 收到消息', message.type, message.payload || message.data);
   
   // 处理内容脚本就绪消息
@@ -418,94 +420,208 @@ addMessageListener((message: Message, sender, sendResponse) => {
     return true;
   }
   
-  // 大部分消息已由setupPromptMessaging处理，这里只处理特殊消息
-  try {
-    if (message.type === 'LEGACY_SEARCH_PROMPTS') {
-      // 兼容旧版消息格式
-      const payload = message.payload as { keyword: string; limit?: number };
+  // --- 新增：处理 Google 登录请求 ---
+  else if (message.type === 'LOGIN_WITH_GOOGLE') {
+    console.log('[Background] 收到 LOGIN_WITH_GOOGLE 请求');
+    try {
+      // 使用 chrome.identity API 进行 Google 登录
+      console.log('[Background] 使用 chrome.identity API 开始 Google 认证流程...');
       
-      // 转换为新的过滤器格式
-      const filter: PromptFilter = {
-        searchTerm: payload.keyword || '',
-        limit: payload.limit || 10,
-        sortBy: 'favorite'
-      };
+      // 替换成你的 Firebase 项目配置中的 OAuth 客户端 ID
+      const clientId = '423266303314-7f3n7s17c70o1vptv3ahnl78g7b5dchd.apps.googleusercontent.com';
       
-      // 使用统一存储服务搜索
-      storageService.getAllPrompts()
-        .then(allPrompts => {
-          let results = [...allPrompts];
-          
-          // 关键词过滤
-          if (filter.searchTerm) {
-            const term = filter.searchTerm.toLowerCase();
-            results = results.filter(prompt => 
-              prompt.title.toLowerCase().includes(term) || 
-              prompt.content.toLowerCase().includes(term) ||
-              // 修正: 添加 tag 类型注解
-              prompt.tags?.some((tag: string) => tag.toLowerCase().includes(term))
-            );
-          }
-          
-          // 排序：收藏优先，然后是使用次数
-          results.sort((a, b) => {
-            // 首先按收藏状态排序
-            const aFavorite = a.isFavorite || a.favorite || false;
-            const bFavorite = b.isFavorite || b.favorite || false;
-            if (aFavorite !== bFavorite) {
-              return aFavorite ? -1 : 1;
+      // 指定所需的权限范围 (scope)
+      const scopes = [
+        'profile',
+        'email',
+        'https://www.googleapis.com/auth/userinfo.profile',
+        'https://www.googleapis.com/auth/userinfo.email'
+      ];
+      
+      // 构建认证 URL 和参数
+      const authUrl = new URL('https://accounts.google.com/o/oauth2/auth');
+      authUrl.searchParams.append('client_id', clientId);
+      authUrl.searchParams.append('response_type', 'token');
+      const redirectUri = chrome.identity.getRedirectURL();
+      console.log('[Background] Generated Redirect URI:', redirectUri);
+      authUrl.searchParams.append('redirect_uri', redirectUri);
+      authUrl.searchParams.append('scope', scopes.join(' '));
+      
+      // 发起 OAuth 认证请求
+      chrome.identity.launchWebAuthFlow({
+        url: authUrl.toString(),
+        interactive: true
+      }, async (responseUrl) => {
+        if (chrome.runtime.lastError) {
+          console.error('[Background] 认证出错:', chrome.runtime.lastError);
+          sendResponse({
+            success: false,
+            error: {
+              code: 'auth/identity-error',
+              message: chrome.runtime.lastError.message || '认证流程出错'
             }
-            // 然后按使用频率排序
-            return (b.useCount || 0) - (a.useCount || 0);
           });
+          return;
+        }
+        
+        if (!responseUrl) {
+          console.error('[Background] 认证过程被取消或返回了空URL');
+          sendResponse({
+            success: false,
+            error: {
+              code: 'auth/cancelled',
+              message: '认证过程被取消或未能完成'
+            }
+          });
+          return;
+        }
+        
+        try {
+          console.log('[Background] 成功获取认证响应');
           
-          // 应用限制
-          if (filter.limit) {
-            results = results.slice(0, filter.limit);
+          // 从重定向 URL 中提取访问令牌
+          const url = new URL(responseUrl);
+          const params = new URLSearchParams(url.hash.substring(1)); // 去掉 "#" 符号
+          const accessToken = params.get('access_token');
+          
+          if (!accessToken) {
+            throw new Error('未能从响应 URL 中获取访问令牌');
           }
           
-          console.log('[AetherFlow] 后台: 搜索结果', results.length, '条记录');
+          console.log('[Background] 成功获取访问令牌');
           
-          // 返回结果
-          sendResponse(results);
-        })
-        .catch(error => {
-          console.error('[AetherFlow] 后台: 搜索提示词错误', error);
-          sendResponse([]);
-        });
+          // 使用访问令牌创建 Firebase 凭据
+          const credential = GoogleAuthProvider.credential(null, accessToken);
+          
+          // 使用凭据在 Firebase 中登录
+          console.log('[Background] 使用获取的令牌登录 Firebase...');
+          const auth = getFirebaseAuth();
+          const userCredential = await signInWithCredential(auth, credential);
+          
+          console.log('[Background] Firebase 登录成功');
+          
+          // 映射用户对象并返回
+          const appUser = mapFirebaseUser(userCredential.user);
+          sendResponse({ success: true, user: appUser });
+          console.log('[Background] 已将用户信息发送到 Sidepanel');
+          
+        } catch (error: any) {
+          console.error('[Background] 处理认证响应时出错:', error);
+          sendResponse({
+            success: false,
+            error: {
+              code: error.code || 'auth/unknown',
+              message: error.message || '处理认证响应时出现未知错误'
+            }
+          });
+        }
+      });
       
-      return true; // 异步响应
-    } else if (message.type === 'ADD_CONTEXT_MENU_ITEM') {
-      // 不需要额外处理，使用固定的菜单项
-      sendResponse({ success: true });
-      return true;
-    } else if (message.type === 'CAPTURE_SELECTION_AS_PROMPT') {
-      // 处理捕获选中文本
-      const content = message.data?.content || '';
-      
-      if (!content) {
-        sendResponse({ success: false, error: '选中内容为空' });
-        return true;
-      }
-      
-      captureSelectionAsPrompt(content)
-        .then(success => {
-          sendResponse({ success });
-        })
-        .catch(error => {
-          console.error('[AetherFlow] 后台: 捕获提示词错误', error);
-          sendResponse({ success: false, error: String(error) });
-        });
-      
-      return true; // 异步响应
-    } else {
-      // 其他消息由统一消息服务处理
-      return false;
+    } catch (error: any) {
+      console.error('[Background] 启动认证流程时出错:', error);
+      sendResponse({
+        success: false,
+        error: {
+          code: error.code || 'auth/unknown',
+          message: error.message || '启动认证流程时出现未知错误'
+        }
+      });
     }
-  } catch (error) {
-    console.error('[AetherFlow] 后台: 处理消息错误', error);
-    sendResponse(createErrorResponse(error as Error));
-    return true;
+    
+    return true; // 表明将异步响应
+  }
+  // --- End Google 登录请求处理 ---
+
+  // 其他消息处理
+  else {
+    try {
+      if (message.type === 'LEGACY_SEARCH_PROMPTS') {
+        // 兼容旧版消息格式
+        const payload = message.payload as { keyword: string; limit?: number };
+        
+        // 转换为新的过滤器格式
+        const filter: PromptFilter = {
+          searchTerm: payload.keyword || '',
+          limit: payload.limit || 10,
+          sortBy: 'favorite'
+        };
+        
+        // 使用统一存储服务搜索
+        storageService.getAllPrompts()
+          .then(allPrompts => {
+            let results = [...allPrompts];
+            
+            // 关键词过滤
+            if (filter.searchTerm) {
+              const term = filter.searchTerm.toLowerCase();
+              results = results.filter(prompt => 
+                prompt.title.toLowerCase().includes(term) || 
+                prompt.content.toLowerCase().includes(term) ||
+                // 修正: 添加 tag 类型注解
+                prompt.tags?.some((tag: string) => tag.toLowerCase().includes(term))
+              );
+            }
+            
+            // 排序：收藏优先，然后是使用次数
+            results.sort((a, b) => {
+              // 首先按收藏状态排序
+              const aFavorite = a.isFavorite || a.favorite || false;
+              const bFavorite = b.isFavorite || b.favorite || false;
+              if (aFavorite !== bFavorite) {
+                return aFavorite ? -1 : 1;
+              }
+              // 然后按使用频率排序
+              return (b.useCount || 0) - (a.useCount || 0);
+            });
+            
+            // 应用限制
+            if (filter.limit) {
+              results = results.slice(0, filter.limit);
+            }
+            
+            console.log('[AetherFlow] 后台: 搜索结果', results.length, '条记录');
+            
+            // 返回结果
+            sendResponse(results);
+          })
+          .catch(error => {
+            console.error('[AetherFlow] 后台: 搜索提示词错误', error);
+            sendResponse([]);
+          });
+        
+        return true; // 异步响应
+      } else if (message.type === 'ADD_CONTEXT_MENU_ITEM') {
+        // 不需要额外处理，使用固定的菜单项
+        sendResponse({ success: true });
+        return true;
+      } else if (message.type === 'CAPTURE_SELECTION_AS_PROMPT') {
+        // 处理捕获选中文本
+        const content = message.data?.content || '';
+        
+        if (!content) {
+          sendResponse({ success: false, error: '选中内容为空' });
+          return true;
+        }
+        
+        captureSelectionAsPrompt(content)
+          .then(success => {
+            sendResponse({ success });
+          })
+          .catch(error => {
+            console.error('[AetherFlow] 后台: 捕获提示词错误', error);
+            sendResponse({ success: false, error: String(error) });
+          });
+        
+        return true; // 异步响应
+      } else {
+        // 其他消息由统一消息服务处理
+        return false;
+      }
+    } catch (error) {
+      console.error('[AetherFlow] 后台: 处理消息错误', error);
+      sendResponse(createErrorResponse(error as Error));
+      return true;
+    }
   }
 });
 
@@ -521,12 +637,14 @@ async function initializeServices() {
     initializeFirebase();
     console.log('[Background] Firebase初始化成功');
     
-    // 检查是否应使用云存储
-    const useCloudStorage = localStorage.getItem('USE_CLOUD_STORAGE') === 'true';
+    // 检查是否应使用云存储 - 使用 safeLocalStorage
+    const useCloudStorageSetting = safeLocalStorage.getItem('USE_CLOUD_STORAGE');
+    const useCloudStorage = useCloudStorageSetting === 'true';
     console.log('[Background] 云存储设置状态:', useCloudStorage ? '已启用' : '未启用');
     
-    if (useCloudStorage) {
-      console.log('[Background] 启用云存储服务');
+    if (!isServiceWorkerEnvironment && useCloudStorage) {
+      // 只有在非SW环境且启用云存储时才执行相关逻辑
+      console.log('[Background] 启用云存储服务 (非SW环境)');
       // 确保云存储服务已初始化
       if (cloudStorageService.isAuthenticated()) {
         console.log('[Background] 用户已登录，准备同步数据');
@@ -540,8 +658,10 @@ async function initializeServices() {
       } else {
         console.log('[Background] 用户未登录，云存储处于待命状态');
       }
+    } else if (isServiceWorkerEnvironment) {
+      console.log('[Background] 在Service Worker中，跳过云存储初始化检查。');
     } else {
-      console.log('[Background] 使用本地存储服务');
+       console.log('[Background] 使用本地存储服务 (或云存储未启用)');
     }
     
     // 添加详细的认证状态日志
@@ -1098,32 +1218,3 @@ async function handlePaymentSuccess(data: any): Promise<boolean> {
     throw error;
   }
 }
-
-// 检查localStorage中是否有支付成功标记
-chrome.runtime.onStartup.addListener(() => {
-  try {
-    const paymentSuccess = localStorage.getItem('aetherflow_payment_success');
-    if (paymentSuccess === 'true') {
-      const checkoutId = localStorage.getItem('aetherflow_checkout_id') || '';
-      const planType = localStorage.getItem('aetherflow_plan_type') || 'monthly';
-      
-      console.log('[AetherFlow] 检测到本地存储的支付成功标记，处理支付:', { checkoutId, planType });
-      
-      // 处理支付成功
-      handlePaymentSuccess({ checkoutId, planType })
-        .then(() => {
-          // 清除本地标记
-          localStorage.removeItem('aetherflow_payment_success');
-          localStorage.removeItem('aetherflow_checkout_id');
-          localStorage.removeItem('aetherflow_plan_type');
-          
-          console.log('[AetherFlow] 本地存储的支付成功已处理');
-        })
-        .catch(error => {
-          console.error('[AetherFlow] 处理本地存储的支付失败:', error);
-        });
-    }
-  } catch (error) {
-    console.error('[AetherFlow] 检查本地支付标记失败:', error);
-  }
-});

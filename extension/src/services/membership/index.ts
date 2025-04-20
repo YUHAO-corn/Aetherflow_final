@@ -1,5 +1,5 @@
 import { STORAGE_KEYS, STORAGE_LIMITS } from '../storage/constants';
-import { storageService } from '../storage';
+import { storageService } from '../storage'; // 恢复引用，现在storageService是根据环境自适应的
 import { MembershipState, DEFAULT_FREE_MEMBERSHIP, MembershipQuota } from './types';
 import { authService } from '../auth';
 import { 
@@ -14,6 +14,7 @@ import {
 } from 'firebase/firestore';
 import { getApp } from 'firebase/app';
 import { debounce } from '../../utils/debounce';
+import { isServiceWorkerEnvironment, safeLogger } from '../../utils/safeEnvironment';
 
 // 会员状态变更的观察者列表
 type MembershipObserver = (state: MembershipState) => void;
@@ -46,9 +47,13 @@ class MembershipService {
   constructor() {
     // 初始化启动自动同步
     this.setupAutoSync();
-
-    // 监听网络状态变化
-    this.setupNetworkListener();
+    
+    // 监听网络状态变化 - 使用安全环境检测
+    if (!isServiceWorkerEnvironment) {
+      this.setupNetworkListener();
+    } else {
+      safeLogger.log('[MembershipService] 在Service Worker环境中运行，网络监听已禁用');
+    }
     
     // 监听用户认证状态
     this.setupAuthListener();
@@ -56,15 +61,19 @@ class MembershipService {
 
   /**
    * 设置网络监听器
-   * 网络恢复时尝试同步
    */
   private setupNetworkListener(): void {
-    if (typeof window !== 'undefined') {
+    // 只在非Service Worker环境中设置网络监听
+    if (isServiceWorkerEnvironment) return;
+    
+    try {
       window.addEventListener('online', this.handleNetworkOnline.bind(this));
       window.addEventListener('offline', () => {
         this.syncStatus = 'offline';
-        console.log('[MembershipService] 网络离线，暂停同步');
+        safeLogger.log('[MembershipService] 网络离线，暂停同步');
       });
+    } catch (error) {
+      safeLogger.error('[MembershipService] 设置网络监听器失败:', error);
     }
   }
 
@@ -72,19 +81,15 @@ class MembershipService {
    * 处理网络恢复在线
    */
   private async handleNetworkOnline(): Promise<void> {
-    console.log('[MembershipService] 网络恢复在线，尝试同步会员状态');
-    this.syncStatus = 'idle';
-    
+    // 恢复网络后，执行同步操作
     try {
-      // 检查上次同步时间，如果超过12小时，则进行同步
-      const lastSyncTime = await this.getLastSyncTime();
-      const now = Date.now();
-      
-      if (now - lastSyncTime > 12 * 60 * 60 * 1000) { // 12小时
-        await this.refreshMembershipState();
-      }
+      this.syncStatus = 'syncing';
+      safeLogger.log('[MembershipService] 网络已恢复，开始同步会员状态');
+      await this.refreshMembershipState();
+      this.syncStatus = 'synced';
     } catch (error) {
-      console.error('[MembershipService] 网络恢复后同步失败:', error);
+      safeLogger.error('[MembershipService] 网络恢复同步失败:', error);
+      this.syncStatus = 'error';
     }
   }
 
@@ -94,34 +99,55 @@ class MembershipService {
   private setupAutoSync(): void {
     // 清除已有的定时器
     if (this.autoSyncInterval) {
-      clearInterval(this.autoSyncInterval);
+      if (isServiceWorkerEnvironment) {
+        clearInterval(this.autoSyncInterval);
+      } else {
+        window.clearInterval(this.autoSyncInterval);
+      }
+      this.autoSyncInterval = null;
     }
-
-    // 设置新的定时器，每24小时同步一次
-    this.autoSyncInterval = window.setInterval(async () => {
-      try {
-        if (navigator.onLine && this.syncStatus !== 'syncing') {
-          await this.refreshMembershipState();
+    
+    // 在Service Worker环境中使用不同的方式设置定时器
+    if (isServiceWorkerEnvironment) {
+      safeLogger.log('[MembershipService] 在Service Worker中设置自动同步');
+      // 使用原生setInterval (不依赖window)
+      this.autoSyncInterval = setInterval(async () => {
+        try {
+          if (this.syncStatus !== 'syncing') {
+            await this.refreshMembershipState();
+          }
+        } catch (error) {
+          safeLogger.error('[MembershipService] 自动同步失败:', error);
         }
-      } catch (error) {
-        console.error('[MembershipService] 自动同步失败:', error);
-      }
-    }, this.syncIntervalTime);
-
-    // 页面加载后也进行一次检查
-    setTimeout(async () => {
-      try {
-        const lastSyncTime = await this.getLastSyncTime();
-        const now = Date.now();
-        
-        // 如果超过24小时没同步，立即同步
-        if (now - lastSyncTime > this.syncIntervalTime) {
-          await this.refreshMembershipState();
+      }, this.syncIntervalTime);
+    } else {
+      safeLogger.log('[MembershipService] 在普通环境中设置自动同步');
+      // 在window环境中使用window.setInterval
+      this.autoSyncInterval = window.setInterval(async () => {
+        try {
+          // 确保网络在线并且没有正在进行的同步
+          if (navigator.onLine && this.syncStatus !== 'syncing') {
+            await this.refreshMembershipState();
+          }
+        } catch (error) {
+          safeLogger.error('[MembershipService] 自动同步失败:', error);
         }
-      } catch (error) {
-        console.error('[MembershipService] 初始同步检查失败:', error);
-      }
-    }, 5000); // 延迟5秒，确保其他服务已初始化
+      }, this.syncIntervalTime);
+      
+      // 页面加载后也进行一次检查
+      setTimeout(async () => {
+        try {
+          const lastSyncTime = await this.getLastSyncTime();
+          const now = Date.now();
+          
+          if (now - lastSyncTime > this.syncIntervalTime) {
+            await this.refreshMembershipState();
+          }
+        } catch (error) {
+          safeLogger.error('[MembershipService] 初始同步检查失败:', error);
+        }
+      }, 5000);
+    }
   }
 
   /**
@@ -132,7 +158,7 @@ class MembershipService {
       const lastSyncTime = await storageService.get<number>(LAST_SYNC_TIME_KEY);
       return lastSyncTime || 0;
     } catch (error) {
-      console.error('[MembershipService] 获取上次同步时间失败:', error);
+      safeLogger.error('[MembershipService] 获取上次同步时间失败:', error);
       return 0;
     }
   }
@@ -144,7 +170,7 @@ class MembershipService {
     try {
       await storageService.set(LAST_SYNC_TIME_KEY, Date.now());
     } catch (error) {
-      console.error('[MembershipService] 更新上次同步时间失败:', error);
+      safeLogger.error('[MembershipService] 更新上次同步时间失败:', error);
     }
   }
 
@@ -164,12 +190,13 @@ class MembershipService {
         // 本地无会员状态记录，初始化为默认免费会员状态
         membershipState = DEFAULT_FREE_MEMBERSHIP;
         await this.saveMembershipState(membershipState);
+        safeLogger.log('[MembershipService] getCurrentMembership: 使用默认状态');
       }
 
       this.currentState = membershipState;
       return membershipState;
     } catch (error) {
-      console.error('[MembershipService] 获取会员状态失败:', error);
+      safeLogger.error('[MembershipService] 获取会员状态失败:', error);
       // 错误处理，返回默认状态
       return DEFAULT_FREE_MEMBERSHIP;
     }
@@ -190,7 +217,7 @@ class MembershipService {
     this.authUnsubscribe = authService.onAuthStateChanged(async (user) => {
       if (user) {
         // 用户登录时
-        console.log(`[MembershipService] 用户 ${user.uid} 登录，同步会员状态`);
+        safeLogger.log(`[MembershipService] 用户 ${user.uid} 登录，同步会员状态`);
         
         // 设置 Firestore 实时监听
         this.setupFirestoreListener(user.uid);
@@ -199,11 +226,11 @@ class MembershipService {
         try {
           await this.refreshMembershipState();
         } catch (error) {
-          console.error('[MembershipService] 用户登录后刷新会员状态失败:', error);
+          safeLogger.error('[MembershipService] 用户登录后刷新会员状态失败:', error);
         }
       } else {
         // 用户登出时
-        console.log('[MembershipService] 用户登出，清理监听');
+        safeLogger.log('[MembershipService] 用户登出，清理监听');
       }
     });
   }
@@ -220,7 +247,7 @@ class MembershipService {
     }
     
     try {
-      console.log(`[MembershipService] 为用户 ${userId} 设置 Firestore 会员状态监听`);
+      safeLogger.log(`[MembershipService] 为用户 ${userId} 设置 Firestore 会员状态监听`);
       
       // 创建到会员状态文档的引用 
       const db = getFirestore(getApp());
@@ -233,22 +260,22 @@ class MembershipService {
         (snapshot) => {
           if (snapshot.exists()) {
             const serverData = snapshot.data();
-            console.log('[MembershipService] Firestore 会员状态更新:', serverData);
+            safeLogger.log('[MembershipService] Firestore 会员状态更新:', serverData);
             
             // 处理服务器状态更新
             this.handleServerStateUpdate(serverData as MembershipState).catch(error => {
-              console.error('[MembershipService] 处理服务器状态更新失败:', error);
+              safeLogger.error('[MembershipService] 处理服务器状态更新失败:', error);
             });
           }
         },
         // 错误处理回调
         (error) => {
-          console.error('[MembershipService] Firestore 监听错误:', error);
+          safeLogger.error('[MembershipService] Firestore 监听错误:', error);
           this.firestoreUnsubscribe = null;
         }
       );
     } catch (error) {
-      console.error('[MembershipService] 设置 Firestore 监听失败:', error);
+      safeLogger.error('[MembershipService] 设置 Firestore 监听失败:', error);
       this.firestoreUnsubscribe = null;
     }
   }
@@ -264,12 +291,12 @@ class MembershipService {
       // 检查服务器状态是否比本地状态更新
       if (serverState.lastVerifiedAt && localState.lastVerifiedAt && 
           serverState.lastVerifiedAt <= localState.lastVerifiedAt) {
-        console.log('[MembershipService] 本地状态已是最新，忽略服务器更新');
+        safeLogger.log('[MembershipService] 本地状态已是最新，忽略服务器更新');
         return;
       }
       
       // 更新本地状态
-      console.log('[MembershipService] 使用服务器状态更新本地状态');
+      safeLogger.log('[MembershipService] 使用服务器状态更新本地状态');
       const updatedState = {
         ...serverState,
         lastVerifiedAt: Date.now()
@@ -280,7 +307,7 @@ class MembershipService {
       // 广播会员状态变更消息
       this.broadcastStateChange();
     } catch (error) {
-      console.error('[MembershipService] 处理服务器状态更新失败:', error);
+      safeLogger.error('[MembershipService] 处理服务器状态更新失败:', error);
     }
   }
   
@@ -293,9 +320,9 @@ class MembershipService {
         type: 'MEMBERSHIP_STATUS_UPDATED',
         timestamp: Date.now()
       });
-      console.log('[MembershipService] 已广播会员状态更新消息');
+      safeLogger.log('[MembershipService] 已广播会员状态更新消息');
     } catch (error) {
-      console.error('[MembershipService] 广播状态更新消息失败:', error);
+      safeLogger.error('[MembershipService] 广播状态更新消息失败:', error);
     }
   }
   
@@ -308,14 +335,14 @@ class MembershipService {
       
       // 1. Pro会员但没有订阅ID，可能是篡改
       if (localState.status === 'pro' && !localState.subscriptionId) {
-        console.warn('[MembershipService] 异常会员状态: Pro会员但无订阅ID');
+        safeLogger.warn('[MembershipService] 异常会员状态: Pro会员但无订阅ID');
         return false;
       }
       
       // 2. 时间逻辑错误
       if (localState.expiresAt && localState.startedAt) {
         if (localState.expiresAt < localState.startedAt) {
-          console.warn('[MembershipService] 异常会员状态: 到期时间早于开始时间');
+          safeLogger.warn('[MembershipService] 异常会员状态: 到期时间早于开始时间');
           return false;
         }
       }
@@ -326,14 +353,14 @@ class MembershipService {
         // 过期时间超过两年，不合理
         const twoYearsMs = 2 * 365 * 24 * 60 * 60 * 1000;
         if (localState.expiresAt > (now + twoYearsMs)) {
-          console.warn('[MembershipService] 异常会员状态: 到期时间超过两年');
+          safeLogger.warn('[MembershipService] 异常会员状态: 到期时间超过两年');
           return false;
         }
       }
       
       return true;
     } catch (error) {
-      console.error('[MembershipService] 验证本地状态失败:', error);
+      safeLogger.error('[MembershipService] 验证本地状态失败:', error);
       return false;
     }
   }
@@ -352,7 +379,7 @@ class MembershipService {
       // 验证本地状态是否有效
       const isValid = await this.validateLocalState();
       if (!isValid) {
-        console.warn('[MembershipService] 检测到可能被篡改的会员状态，强制验证');
+        safeLogger.warn('[MembershipService] 检测到可能被篡改的会员状态，强制验证');
         // 强制从服务器刷新状态
         await this.refreshMembershipState();
         // 重新获取刷新后的状态
@@ -369,7 +396,7 @@ class MembershipService {
       
       return isPro && !isExpired;
     } catch (error) {
-      console.error('[MembershipService] 检查会员状态失败:', error);
+      safeLogger.error('[MembershipService] 检查会员状态失败:', error);
       return false;
     }
   }
@@ -389,7 +416,7 @@ class MembershipService {
         return;
       } catch (error) {
         lastError = error;
-        console.error(`[MembershipService] 保存会员状态失败 (尝试 ${retries + 1}/${this.maxRetryCount}):`, error);
+        safeLogger.error(`[MembershipService] 保存会员状态失败 (尝试 ${retries + 1}/${this.maxRetryCount}):`, error);
         retries++;
         
         if (retries < this.maxRetryCount) {
@@ -420,7 +447,7 @@ class MembershipService {
     // 如果用户已登录，尝试将状态同步到服务器
     // 注意：这里不等待同步完成，避免阻塞主流程
     this.syncStateToServer(newState).catch(error => {
-      console.error('[MembershipService] 同步状态到服务器失败:', error);
+      safeLogger.error('[MembershipService] 同步状态到服务器失败:', error);
     });
     
     return newState;
@@ -439,13 +466,13 @@ class MembershipService {
         return;
       }
       
-      console.log(`[MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: ${currentUser.uid}`);
+      safeLogger.log(`[MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: ${currentUser.uid}`);
       
       // 不再执行实际的写入操作
       // 原因：根据应用设计，客户端只负责验证用户的数据库会员状态，而不负责直接编辑会员状态
       
     } catch (error) {
-      console.error('[MembershipService] 同步状态到服务器失败:', error);
+      safeLogger.error('[MembershipService] 同步状态到服务器失败:', error);
       throw error;
     }
   }
@@ -456,7 +483,7 @@ class MembershipService {
    */
   async verifyMembershipWithServer(): Promise<MembershipState | null> {
     if (this.syncStatus === 'syncing') {
-      console.log('[MembershipService] 正在进行同步，跳过此次验证');
+      safeLogger.log('[MembershipService] 正在进行同步，跳过此次验证');
       return null;
     }
     
@@ -470,7 +497,7 @@ class MembershipService {
         return null;
       }
       
-      console.log(`[MembershipService] 验证用户 ${currentUser.uid} 的会员状态`);
+      safeLogger.log(`[MembershipService] 验证用户 ${currentUser.uid} 的会员状态`);
       
       // 先尝试从专门的会员状态文档读取（新架构）
       const db = getFirestore(getApp());
@@ -478,13 +505,13 @@ class MembershipService {
       const membershipSnap = await getDoc(membershipDoc);
       
       if (membershipSnap.exists()) {
-        console.log('[MembershipService] 从会员状态文档获取数据');
+        safeLogger.log('[MembershipService] 从会员状态文档获取数据');
         const serverState = membershipSnap.data() as MembershipState;
         
         // 检查订阅是否过期
         const isExpired = serverState.expiresAt ? serverState.expiresAt < Date.now() : false;
         if (isExpired && serverState.status === 'pro') {
-          console.log('[MembershipService] 服务器会员状态已过期，重置为免费状态');
+          safeLogger.log('[MembershipService] 服务器会员状态已过期，重置为免费状态');
           const freeState = { ...DEFAULT_FREE_MEMBERSHIP, lastVerifiedAt: Date.now() };
           await this.saveMembershipState(freeState);
           
@@ -510,12 +537,12 @@ class MembershipService {
       }
       
       // 如果没有找到专门的会员状态文档，尝试从用户文档读取（旧架构）
-      console.log('[MembershipService] 会员状态文档不存在，尝试从用户文档读取');
+      safeLogger.log('[MembershipService] 会员状态文档不存在，尝试从用户文档读取');
       const userDoc = doc(db, 'users', currentUser.uid);
       const docSnap = await getDoc(userDoc);
       
       if (!docSnap.exists() || !docSnap.data().membership) {
-        console.log('[MembershipService] 服务器上无会员记录');
+        safeLogger.log('[MembershipService] 服务器上无会员记录');
         this.syncStatus = 'synced';
         await this.updateLastSyncTime();
         return null;
@@ -539,7 +566,7 @@ class MembershipService {
       // 检查是否过期
       const isExpired = newState.expiresAt ? newState.expiresAt < Date.now() : false;
       if (isExpired && newState.status === 'pro') {
-        console.log('[MembershipService] 服务器会员状态已过期，重置为免费状态');
+        safeLogger.log('[MembershipService] 服务器会员状态已过期，重置为免费状态');
         const freeState = { ...DEFAULT_FREE_MEMBERSHIP, lastVerifiedAt: Date.now() };
         await this.saveMembershipState(freeState);
         
@@ -557,13 +584,13 @@ class MembershipService {
       // 同时更新到会员状态文档
       await this.syncStateToServer(newState);
       
-      console.log('[MembershipService] 会员状态已从服务器更新');
+      safeLogger.log('[MembershipService] 会员状态已从服务器更新');
       this.syncStatus = 'synced';
       await this.updateLastSyncTime();
       
       return newState;
     } catch (error) {
-      console.error('[MembershipService] 从服务器验证会员状态失败:', error);
+      safeLogger.error('[MembershipService] 从服务器验证会员状态失败:', error);
       this.syncStatus = 'error';
       return null;
     }
@@ -588,7 +615,7 @@ class MembershipService {
         lastVerifiedAt: Date.now()
       });
     } catch (error) {
-      console.error('[MembershipService] 刷新会员状态失败:', error);
+      safeLogger.error('[MembershipService] 刷新会员状态失败:', error);
       throw error;
     }
   }
@@ -622,7 +649,7 @@ class MembershipService {
       
       return newState;
     } catch (error) {
-      console.error('[MembershipService] 处理付款成功失败:', error);
+      safeLogger.error('[MembershipService] 处理付款成功失败:', error);
       throw error;
     }
   }
@@ -637,11 +664,11 @@ class MembershipService {
       await this.syncStateToServer(state);
     } catch (error) {
       if (retries > 0) {
-        console.log(`[MembershipService] 同步失败，${this.retryDelay}ms后重试, 剩余重试次数: ${retries}`);
+        safeLogger.log(`[MembershipService] 同步失败，${this.retryDelay}ms后重试, 剩余重试次数: ${retries}`);
         await new Promise(resolve => setTimeout(resolve, this.retryDelay));
         await this.syncStateToServerWithRetry(state, retries - 1);
       } else {
-        console.error('[MembershipService] 同步到服务器失败，达到最大重试次数');
+        safeLogger.error('[MembershipService] 同步到服务器失败，达到最大重试次数');
         throw error;
       }
     }
@@ -664,12 +691,12 @@ class MembershipService {
         await this.syncStateToServer(newState);
       } catch (syncError) {
         // 同步失败但不中断流程
-        console.error('[MembershipService] 会员到期处理同步失败:', syncError);
+        safeLogger.error('[MembershipService] 会员到期处理同步失败:', syncError);
       }
       
       return newState;
     } catch (error) {
-      console.error('[MembershipService] 处理会员到期失败:', error);
+      safeLogger.error('[MembershipService] 处理会员到期失败:', error);
       throw error;
     }
   }
@@ -714,7 +741,7 @@ class MembershipService {
       try {
         callback(state);
       } catch (error) {
-        console.error('[MembershipService] 通知观察者失败:', error);
+        safeLogger.error('[MembershipService] 通知观察者失败:', error);
       }
     });
   }, 100);  // 100ms防抖时间
@@ -727,7 +754,7 @@ class MembershipService {
    */
   async _devSetProMembership(): Promise<MembershipState> {
     if (!this.isDevelopmentMode()) {
-      console.warn('[MembershipService] 开发环境专用方法在生产环境被调用');
+      safeLogger.warn('[MembershipService] 开发环境专用方法在生产环境被调用');
       return this.getCurrentMembership();
     }
     
@@ -748,7 +775,7 @@ class MembershipService {
    */
   async _devSetFreeMembership(): Promise<MembershipState> {
     if (!this.isDevelopmentMode()) {
-      console.warn('[MembershipService] 开发环境专用方法在生产环境被调用');
+      safeLogger.warn('[MembershipService] 开发环境专用方法在生产环境被调用');
       return this.getCurrentMembership();
     }
     
@@ -763,7 +790,7 @@ class MembershipService {
    */
   async _devSetExpiringSoon(): Promise<MembershipState> {
     if (!this.isDevelopmentMode()) {
-      console.warn('[MembershipService] 开发环境专用方法在生产环境被调用');
+      safeLogger.warn('[MembershipService] 开发环境专用方法在生产环境被调用');
       return this.getCurrentMembership();
     }
     
@@ -783,6 +810,10 @@ class MembershipService {
    * 判断是否为开发环境
    */
   private isDevelopmentMode(): boolean {
+    if (isServiceWorkerEnvironment) {
+      return false; // Service Worker环境中禁用开发模式
+    }
+    
     return typeof window !== 'undefined' && 
       (window.location.hostname === 'localhost' || 
       window.location.hostname === '127.0.0.1' ||
@@ -803,7 +834,7 @@ class MembershipService {
       // 返回结果
       return !!result;
     } catch (error) {
-      console.error('[MembershipService] 刷新会员状态失败:', error);
+      safeLogger.error('[MembershipService] 刷新会员状态失败:', error);
       return false;
     } finally {
       // 隐藏加载状态
@@ -817,7 +848,7 @@ class MembershipService {
    * 清理所有内存中的会员状态和监听器
    */
   async reset(): Promise<void> {
-    console.log('[MembershipService] 重置会员服务状态');
+    safeLogger.log('[MembershipService] 重置会员服务状态');
     
     // 清理 Firestore 监听
     if (this.firestoreUnsubscribe) {
@@ -836,9 +867,9 @@ class MembershipService {
       // 通知观察者状态已重置
       this.broadcastStateChange();
       
-      console.log('[MembershipService] 会员服务状态已重置');
+      safeLogger.log('[MembershipService] 会员服务状态已重置');
     } catch (error) {
-      console.error('[MembershipService] 重置会员状态失败:', error);
+      safeLogger.error('[MembershipService] 重置会员状态失败:', error);
     }
   }
 }

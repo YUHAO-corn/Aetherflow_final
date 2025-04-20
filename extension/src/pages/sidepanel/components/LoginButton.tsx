@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, LogIn, UserCircle, Crown } from 'lucide-react';
+import { User, LogIn, UserCircle } from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth';
 import { createPortal } from 'react-dom';
 
@@ -118,7 +118,6 @@ const LoginButton: React.FC<LoginButtonProps> = ({ className = '', onAuthClick }
   if (user) {
     // Logged in: show user avatar or initial
     const userInitial = user.displayName?.[0] || user.email?.[0] || '?';
-    const isPremium = user.providerData?.[0]?.providerId === 'google.com'; // Assume Google users are premium
     
     return (
       <div className={`relative ${className}`}>
@@ -135,11 +134,6 @@ const LoginButton: React.FC<LoginButtonProps> = ({ className = '', onAuthClick }
             />
           ) : (
             <span className="text-sm">{userInitial.toUpperCase()}</span>
-          )}
-          {isPremium && (
-            <div className="absolute -top-1 -right-1 bg-yellow-500 rounded-full p-[2px]">
-              <Crown size={12} className="text-magic-900" />
-            </div>
           )}
         </button>
         <UserMenu />

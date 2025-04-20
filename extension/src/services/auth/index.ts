@@ -11,5 +11,4 @@ export {
 // 导出认证服务和辅助函数
 export { 
   authService,
-  loadAuthStateFromStorage
 } from './actions'; 

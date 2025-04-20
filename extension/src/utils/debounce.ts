@@ -1,3 +1,5 @@
+import { isServiceWorkerEnvironment } from './safeEnvironment';
+
 /**
  * 防抖函数工具
  * 
@@ -17,26 +19,40 @@ export function debounce<T extends (...args: any[]) => any>(
   wait: number = 300,
   immediate: boolean = false
 ): (...args: Parameters<T>) => void {
-  let timeout: number | null = null;
+  let timeout: number | ReturnType<typeof setTimeout> | null = null;
 
   return function(this: any, ...args: Parameters<T>): void {
     const context = this;
     
     // 清除之前的延迟执行
     if (timeout !== null) {
-      window.clearTimeout(timeout);
+      // 根据环境使用不同的 clearTimeout
+      if (isServiceWorkerEnvironment) {
+        clearTimeout(timeout as ReturnType<typeof setTimeout>);
+      } else {
+        window.clearTimeout(timeout as number);
+      }
       timeout = null;
     }
+
+    // 创建定时器函数 - 适配不同环境
+    const createTimeout = (callback: () => void, delay: number): number | ReturnType<typeof setTimeout> => {
+      if (isServiceWorkerEnvironment) {
+        return setTimeout(callback, delay);
+      } else {
+        return window.setTimeout(callback, delay);
+      }
+    };
 
     if (immediate && timeout === null) {
       // 立即执行模式 & 首次调用
       func.apply(context, args);
-      timeout = window.setTimeout(() => {
+      timeout = createTimeout(() => {
         timeout = null;
       }, wait);
     } else {
       // 延迟执行模式
-      timeout = window.setTimeout(() => {
+      timeout = createTimeout(() => {
         func.apply(context, args);
         timeout = null;
       }, wait);

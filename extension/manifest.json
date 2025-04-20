@@ -3,7 +3,7 @@
   "name": "AetherFlow",
   "version": "1.0.0",
   "description": "AI-powered prompt optimization and management",
-  "permissions": ["sidePanel", "storage", "clipboardWrite", "tabs", "contextMenus", "scripting", "alarms"],
+  "permissions": ["sidePanel", "storage", "clipboardWrite", "tabs", "contextMenus", "scripting", "alarms", "identity"],
   "host_permissions": [
     "https://chat.openai.com/*",
     "https://claude.ai/*",
@@ -35,5 +35,9 @@
     "32": "assets/icons/icon32.png",
     "48": "assets/icons/icon48.png",
     "128": "assets/icons/icon128.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self';",
+    "sandbox": "sandbox allow-scripts allow-forms allow-popups allow-modals; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://apis.google.com https://www.gstatic.com https://www.googleapis.com https://securetoken.googleapis.com; child-src 'self';"
   }
 }

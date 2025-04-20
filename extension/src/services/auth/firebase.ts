@@ -4,18 +4,11 @@ import {
   getApp 
 } from 'firebase/app';
 import { 
-  getAuth, 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut,
-  GoogleAuthProvider,
-  signInWithPopup,
-  onAuthStateChanged as fbOnAuthStateChanged,
-  sendPasswordResetEmail,
-  updateProfile,
-  deleteUser,
-  User as FirebaseUser
-} from 'firebase/auth';
+  initializeAuth, 
+  indexedDBLocalPersistence, 
+  getAuth,
+  onAuthStateChanged as fbOnAuthStateChanged
+} from 'firebase/auth/web-extension';
 import { firebaseConfig } from './firebaseConfig';
 import { User } from './types';
 
@@ -25,15 +18,15 @@ export const initializeFirebase = () => {
     // 检查是否已经初始化
     if (getApps().length === 0) {
       const app = initializeApp(firebaseConfig);
-      console.log('Firebase 初始化成功');
+      console.log('Firebase App 初始化成功 (web-extension context)');
       return app;
     } else {
       const app = getApp();
-      console.log('Firebase 已初始化，返回现有实例');
+      console.log('Firebase App 已初始化，返回现有实例 (web-extension context)');
       return app;
     }
   } catch (error) {
-    console.error('Firebase 初始化错误:', error);
+    console.error('Firebase App 初始化错误:', error);
     throw error;
   }
 };
@@ -41,11 +34,14 @@ export const initializeFirebase = () => {
 // 获取 Firebase Auth 实例
 export const getFirebaseAuth = () => {
   const app = getApps().length === 0 ? initializeFirebase() : getApp();
-  return getAuth(app);
+  // 使用 initializeAuth 并传入持久化选项
+  return initializeAuth(app, {
+    persistence: indexedDBLocalPersistence,
+  });
 };
 
 // 将 Firebase User 转换为应用 User 对象
-export const mapFirebaseUser = (firebaseUser: FirebaseUser): User => {
+export const mapFirebaseUser = (firebaseUser: any): User => {
   return {
     uid: firebaseUser.uid,
     email: firebaseUser.email,
@@ -53,7 +49,7 @@ export const mapFirebaseUser = (firebaseUser: FirebaseUser): User => {
     photoURL: firebaseUser.photoURL,
     isAnonymous: firebaseUser.isAnonymous,
     emailVerified: firebaseUser.emailVerified,
-    providerData: firebaseUser.providerData.map(provider => ({
+    providerData: firebaseUser.providerData.map((provider: any) => ({
       providerId: provider.providerId,
       uid: provider.uid,
       displayName: provider.displayName,
@@ -64,13 +60,4 @@ export const mapFirebaseUser = (firebaseUser: FirebaseUser): User => {
     lastLoginAt: firebaseUser.metadata.lastSignInTime || undefined,
     createdAt: firebaseUser.metadata.creationTime || undefined
   };
-};
-
-// 创建 Google 认证提供者
-export const createGoogleProvider = () => {
-  const provider = new GoogleAuthProvider();
-  provider.setCustomParameters({
-    prompt: 'select_account'
-  });
-  return provider;
 }; 
