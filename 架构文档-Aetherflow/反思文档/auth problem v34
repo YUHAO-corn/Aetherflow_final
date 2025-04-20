@@ -2,6 +2,13 @@
 
 **初始问题：Service Worker 启动失败**
 
+「最后怎么解决的问题」：切换到claude 3.7，3.7提出使用更原生的chrome.identity api，然后就解决了
+「大量时间浪费在哪里」：使用gemini的时候，一直尝试注释代码控制变量/查看日志来定位问题
+核心经验：
+1. 使用更原生的api，而不是使用第三方库
+2. 避免使用复杂逻辑，复杂逻辑如果出错，不如直接重构
+
+
 开发过程中遇到的首要问题是，扩展的后台脚本 (Service Worker) 无法正常启动，导致右键菜单等依赖后台的功能失效。根本原因是在 Service Worker 中直接加载了为普通网页设计的 Firebase 认证代码，这些代码依赖浏览器特有的 `window` 对象，而在 Service Worker 环境中该对象不存在，引发了 `window is not defined` 错误。
 
 **第一次尝试：Offscreen Document + 托管页面方案**
