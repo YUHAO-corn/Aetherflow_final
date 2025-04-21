@@ -5,7 +5,8 @@ import {
   sendPasswordResetEmail,
   updateProfile,
   deleteUser,
-  onAuthStateChanged as fbOnAuthStateChanged
+  onAuthStateChanged as fbOnAuthStateChanged,
+  signInAnonymously
 } from 'firebase/auth/web-extension';
 import { getFirebaseAuth, mapFirebaseUser } from './firebase';
 import { AuthService, LoginInput, RegisterInput, User } from './types';
@@ -171,23 +172,69 @@ export const authService: AuthService = {
   // 观察认证状态变化
   onAuthStateChanged(callback: (user: User | null) => void): () => void {
     const auth = getFirebaseAuth();
-    
+    let isSigningInAnonymously = false; // 添加一个标志防止重复匿名登录
+
     const unsubscribe = fbOnAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
+        console.log('[AuthService] onAuthStateChanged: User found', 
+                    firebaseUser.uid, 
+                    `isAnonymous: ${firebaseUser.isAnonymous}`);
+        isSigningInAnonymously = false; // 重置标志
         const appUser = mapFirebaseUser(firebaseUser);
         callback(appUser);
       } else {
-        // 用户登出，调用会话结束处理函数
+        console.log('[AuthService] onAuthStateChanged: No user found.');
+        // 用户登出或初始未登录
+        callback(null);
+
+        // 修正: 如果当前没有用户且没有正在尝试匿名登录，则尝试匿名登录
+        if (!isSigningInAnonymously) {
+          console.log('[AuthService] Attempting anonymous sign-in...');
+          isSigningInAnonymously = true;
+          signInAnonymously(auth)
+            .then((userCredential) => {
+              // 匿名登录成功会再次触发 onAuthStateChanged
+              console.log('[AuthService] Anonymous sign-in successful.', userCredential.user.uid);
+              // 不需要在这里 callback，等待下一次 onAuthStateChanged 触发
+            })
+            .catch((error) => {
+              console.error('[AuthService] Anonymous sign-in failed:', error);
+              isSigningInAnonymously = false; // 登录失败，重置标志允许重试
+            })
+            .finally(() => {
+              // 移除 finally 里的重置，因为成功后需要等 onAuthStateChanged 触发来重置
+              // isSigningInAnonymously = false; 
+            });
+        } else {
+          console.log('[AuthService] Already attempting anonymous sign-in, skipping.')
+        }
+        
+        // 调用会话结束处理函数 (如果需要的话，可以在匿名登录尝试前或后调用)
         handleSessionEnd().catch(error => {
            console.error('处理会话结束时发生错误:', error);
         });
-        callback(null);
       }
     }, (error: Error) => {
       console.error('认证状态观察错误:', error);
       callback(null);
+      isSigningInAnonymously = false; // 出错时也重置标志
     });
     
+    // 初始检查：如果启动时就没有用户，也触发一次匿名登录尝试
+    // 这可以加速初始匿名登录过程，避免等待 onAuthStateChanged 首次回调
+    if (!auth.currentUser && !isSigningInAnonymously) {
+      console.log('[AuthService] Initial check: No user, attempting anonymous sign-in...');
+      isSigningInAnonymously = true;
+      signInAnonymously(auth)
+        .then((userCredential) => {
+          console.log('[AuthService] Initial anonymous sign-in successful.', userCredential.user.uid);
+        })
+        .catch((error) => {
+          console.error('[AuthService] Initial anonymous sign-in failed:', error);
+          isSigningInAnonymously = false; 
+        });
+    }
+
     return unsubscribe;
   },
   

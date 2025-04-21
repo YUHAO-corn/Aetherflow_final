@@ -526,25 +526,75 @@ export class CloudStorageService implements StorageService {
 
   // 实现StorageService接口 - savePrompt
   async savePrompt(prompt: Prompt): Promise<void> {
-    // 先保存到本地
-    await chromeStorageService.savePrompt(prompt);
+    if (!this.userId) throw new Error('用户未登录，无法保存到云端');
+    safeLogger.log(`[CloudStorage] savePrompt called for ID: ${prompt.id}`);
     
-    // 然后上传到云端
-    // 修正: 调用新的同步辅助方法
-    await this._syncPromptUpload(prompt);
+    // 1. 先在本地保存
+    await chromeStorageService.savePrompt(prompt);
+    safeLogger.log(`[CloudStorage] Prompt ${prompt.id} saved locally.`);
+    
+    // 2. 如果在线，尝试直接上传 Firestore
+    if (this.isOnline()) {
+      // 新逻辑: 直接尝试上传，失败则加入待处理队列
+      safeLogger.log(`[CloudStorage] Attempting direct Firestore upload for ${prompt.id}...`);
+      try {
+        await this.uploadPromptToFirestore(prompt);
+        safeLogger.log(`[CloudStorage] Direct Firestore upload successful for ${prompt.id}.`);
+        // 上传成功后，尝试从待处理队列移除（如果存在）
+        this.removePendingOperation(prompt.id);
+      } catch (error) {
+        safeLogger.error(`[CloudStorage] Direct Firestore upload failed for ${prompt.id}, adding to pending queue.`, error);
+        // 上传失败，添加到待处理队列
+        this.addPendingOperation({ type: 'upload', id: prompt.id, data: prompt, timestamp: Date.now() });
+        this.setSyncStatus('error', `上传提示词 ${prompt.title} 失败，已暂存`);
+      }
+    } else {
+      // 3. 如果离线，添加到待处理队列
+      safeLogger.log(`[CloudStorage] Offline, adding prompt ${prompt.id} to pending queue.`);
+      this.addPendingOperation({ type: 'upload', id: prompt.id, data: prompt, timestamp: Date.now() });
+      this.setSyncStatus('offline', '离线操作已暂存');
+    }
   }
 
   // 实现StorageService接口 - updatePrompt
   async updatePrompt(id: string, updates: Partial<Prompt>): Promise<void> {
-    // 先更新本地
-    await chromeStorageService.updatePrompt(id, updates);
+    if (!this.userId) throw new Error('用户未登录，无法更新云端数据');
+    safeLogger.log(`[CloudStorage] updatePrompt called for ID: ${id}`);
     
-    // 获取完整的更新后提示词
-    const updatedPrompt = await chromeStorageService.getPrompt(id);
-    if (updatedPrompt) {
-      // 上传到云端
-      // 修正: 调用新的同步辅助方法
-      await this._syncPromptUpload(updatedPrompt);
+    // 1. 先在本地更新
+    await chromeStorageService.updatePrompt(id, updates);
+    safeLogger.log(`[CloudStorage] Prompt ${id} updated locally.`);
+
+    // 2. 获取更新后的完整提示词 (因为 Firestore 需要完整数据)
+    const fullPrompt = await chromeStorageService.getPrompt(id);
+    if (!fullPrompt) {
+        safeLogger.error(`[CloudStorage] Cannot find prompt ${id} locally after update.`);
+        // 即使本地找不到，也尝试将更新操作加入队列（以防万一）
+        // 但这种情况不应该发生
+        this.addPendingOperation({ type: 'upload', id: id, data: { id, ...updates, updatedAt: Date.now() }, timestamp: Date.now() });
+        throw new Error('更新后无法在本地找到提示词');
+    }
+    
+    // 3. 如果在线，尝试直接上传 Firestore
+    if (this.isOnline()) {
+      // 新逻辑: 直接尝试上传，失败则加入待处理队列
+      safeLogger.log(`[CloudStorage] Attempting direct Firestore update for ${id}...`);
+      try {
+        await this.uploadPromptToFirestore(fullPrompt);
+        safeLogger.log(`[CloudStorage] Direct Firestore update successful for ${id}.`);
+        // 上传成功后，尝试从待处理队列移除（如果存在）
+        this.removePendingOperation(id);
+      } catch (error) {
+        safeLogger.error(`[CloudStorage] Direct Firestore update failed for ${id}, adding to pending queue.`, error);
+        // 上传失败，添加到待处理队列
+        this.addPendingOperation({ type: 'upload', id: id, data: fullPrompt, timestamp: Date.now() });
+        this.setSyncStatus('error', `更新提示词 ${fullPrompt.title} 失败，已暂存`);
+      }
+    } else {
+      // 4. 如果离线，添加到待处理队列
+      safeLogger.log(`[CloudStorage] Offline, adding updated prompt ${id} to pending queue.`);
+      this.addPendingOperation({ type: 'upload', id: id, data: fullPrompt, timestamp: Date.now() });
+      this.setSyncStatus('offline', '离线操作已暂存');
     }
   }
 

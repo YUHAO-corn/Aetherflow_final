@@ -1,21 +1,49 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { isExtensionContext } from '../utils/environment';
 import { Prompt, PromptFilter } from '../services/prompt/types';
 import { storageService } from '../services/storage';
 import { sendMessage } from '../services/messaging';
 import { v4 as uuidv4 } from 'uuid';
 
+// 定义排序规则类型
+export interface SortCriteria {
+  key: 'createdAt' | 'useCount'; // 可排序的字段
+  order: 'asc' | 'desc'; // 排序顺序
+}
+
 /**
  * 提供统一的提示词数据访问Hook，适用于任何环境
  * 根据当前运行环境自动选择适当的数据获取方式
  */
 export function usePromptsData() {
-  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [rawPrompts, setRawPrompts] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [sortCriteria, setSortCriteria] = useState<SortCriteria>({ key: 'createdAt', order: 'desc' });
 
   // 确定当前环境
   const isInExtension = isExtensionContext();
+  
+  // 内部排序函数
+  const sortPromptsInternal = useCallback((promptsToSort: Prompt[], criteria: SortCriteria): Prompt[] => {
+    const { key, order } = criteria;
+    return [...promptsToSort].sort((a, b) => {
+      const valA = a[key] || 0; // 处理可能为 undefined 的情况
+      const valB = b[key] || 0;
+      
+      if (valA < valB) {
+        return order === 'asc' ? -1 : 1;
+      }
+      if (valA > valB) {
+        return order === 'asc' ? 1 : -1;
+      }
+      
+      // 如果主键相同，直接按标题进行次要排序 (升序)
+      const titleA = a.title || '';
+      const titleB = b.title || '';
+      return titleA.localeCompare(titleB);
+    });
+  }, []);
   
   // 加载所有提示词
   const loadPrompts = useCallback(async () => {
@@ -26,28 +54,31 @@ export function usePromptsData() {
       let data: Prompt[];
       
       if (isInExtension) {
-        // 在扩展环境中，直接使用存储服务
         data = await storageService.getAllPrompts();
       } else {
-        // 在内容脚本环境中，使用消息通信
         data = await sendMessage<void, Prompt[]>({ type: 'GET_PROMPTS' });
       }
       
-      setPrompts(data);
+      setRawPrompts(data);
     } catch (err) {
       console.error('加载提示词失败:', err);
       setError(err instanceof Error ? err : new Error(String(err)));
+      setRawPrompts([]);
     } finally {
       setLoading(false);
     }
   }, [isInExtension]);
   
+  // 使用 useMemo 创建排序后的提示词列表
+  const sortedPrompts = useMemo(() => {
+      console.log(`[usePromptsData] Re-sorting prompts by ${sortCriteria.key} ${sortCriteria.order}`);
+      return sortPromptsInternal(rawPrompts, sortCriteria);
+  }, [rawPrompts, sortCriteria, sortPromptsInternal]);
+  
   // 初始加载和监听存储变化
   useEffect(() => {
-    // 第一次加载
     loadPrompts();
     
-    // 监听存储变化事件
     const handleStorageChange = (changes: { [key: string]: chrome.storage.StorageChange }) => {
       const promptKeys = Object.keys(changes).filter(key => key.startsWith('prompt_'));
       if (promptKeys.length > 0) {
@@ -56,7 +87,6 @@ export function usePromptsData() {
       }
     };
     
-    // 监听消息事件
     const handleMessage = (message: any) => {
       if (message.type === 'PROMPT_UPDATED') {
         console.log('[usePromptsData] 收到提示词更新消息，刷新数据');
@@ -64,7 +94,6 @@ export function usePromptsData() {
       }
     };
     
-    // 注册事件监听
     if (chrome.storage && chrome.storage.onChanged) {
       chrome.storage.onChanged.addListener(handleStorageChange);
     }
@@ -73,7 +102,6 @@ export function usePromptsData() {
       chrome.runtime.onMessage.addListener(handleMessage);
     }
     
-    // 清理函数
     return () => {
       if (chrome.storage && chrome.storage.onChanged) {
         chrome.storage.onChanged.removeListener(handleStorageChange);
@@ -88,7 +116,6 @@ export function usePromptsData() {
   // 添加提示词
   const addPrompt = useCallback(async (data: Omit<Prompt, 'id' | 'createdAt' | 'updatedAt' | 'useCount' | 'lastUsed'>): Promise<Prompt | null> => {
     try {
-      // 创建完整的提示词对象
       const now = Date.now();
       const newPrompt: Prompt = {
         id: uuidv4(),
@@ -101,18 +128,15 @@ export function usePromptsData() {
       };
       
       if (isInExtension) {
-        // 在扩展环境中，直接使用存储服务
         await storageService.savePrompt(newPrompt);
       } else {
-        // 在内容脚本环境中，使用消息通信
         await sendMessage({ 
           type: 'SAVE_PROMPT', 
           payload: newPrompt 
         });
       }
       
-      // 手动更新本地状态，避免等待下一次数据加载
-      setPrompts(prev => [...prev, newPrompt]);
+      setRawPrompts(prev => [...prev, newPrompt]);
       
       return newPrompt;
     } catch (err) {
@@ -126,18 +150,15 @@ export function usePromptsData() {
   const updatePrompt = useCallback(async (id: string, updates: Partial<Prompt>): Promise<boolean> => {
     try {
       if (isInExtension) {
-        // 在扩展环境中，直接使用存储服务
         await storageService.updatePrompt(id, updates);
       } else {
-        // 在内容脚本环境中，使用消息通信
         await sendMessage({ 
           type: 'UPDATE_PROMPT', 
           payload: { id, updates } 
         });
       }
       
-      // 手动更新本地状态，避免等待下一次数据加载
-      setPrompts(prev => prev.map(p => 
+      setRawPrompts(prev => prev.map(p => 
         p.id === id ? { ...p, ...updates, updatedAt: Date.now() } : p
       ));
       
@@ -158,15 +179,13 @@ export function usePromptsData() {
         await storageService.deletePrompt(id);
         console.log(`[DEBUG usePromptsData] storageService.deletePrompt call completed for ID: ${id}`);
       } else {
-        // 在内容脚本环境中，使用消息通信
         await sendMessage({ 
           type: 'DELETE_PROMPT', 
           payload: id 
         });
       }
       
-      // 手动更新本地状态，避免等待下一次数据加载
-      setPrompts(prev => prev.filter(p => p.id !== id));
+      setRawPrompts(prev => prev.filter(p => p.id !== id));
       
       return true;
     } catch (err) {
@@ -179,18 +198,14 @@ export function usePromptsData() {
   // 切换收藏状态
   const toggleFavorite = useCallback(async (id: string): Promise<boolean> => {
     try {
-      // 查找当前提示词
-      const prompt = prompts.find(p => p.id === id);
+      const prompt = rawPrompts.find(p => p.id === id);
       if (!prompt) return false;
       
-      // 确定当前收藏状态
       const isFavorited = prompt.isFavorite || prompt.favorite;
       
       if (isFavorited) {
-        // 如果已收藏，则删除提示词
         return await deletePrompt(id);
       } else {
-        // 如果未收藏，则标记为收藏
         return await updatePrompt(id, { 
           isFavorite: true, 
           favorite: true 
@@ -201,24 +216,21 @@ export function usePromptsData() {
       setError(err instanceof Error ? err : new Error(String(err)));
       return false;
     }
-  }, [prompts, updatePrompt, deletePrompt]);
+  }, [rawPrompts, updatePrompt, deletePrompt]);
   
   // 增加使用次数
   const incrementUseCount = useCallback(async (id: string): Promise<boolean> => {
     try {
       if (isInExtension) {
-        // 在扩展环境中，直接使用存储服务
         await storageService.incrementUseCount(id);
       } else {
-        // 在内容脚本环境中，使用消息通信
         await sendMessage({ 
           type: 'INCREMENT_PROMPT_USE', 
           payload: id 
         });
       }
       
-      // 手动更新本地状态，避免等待下一次数据加载
-      setPrompts(prev => prev.map(p => 
+      setRawPrompts(prev => prev.map(p => 
         p.id === id ? { 
           ...p, 
           useCount: (p.useCount || 0) + 1,
@@ -229,7 +241,6 @@ export function usePromptsData() {
       return true;
     } catch (err) {
       console.error('增加使用次数失败:', err);
-      // 不抛出错误，避免影响用户体验
       return false;
     }
   }, [isInExtension]);
@@ -238,10 +249,8 @@ export function usePromptsData() {
   const searchPrompts = useCallback(async (filter: PromptFilter): Promise<Prompt[]> => {
     try {
       if (isInExtension) {
-        // 在扩展环境中，使用本地提示词进行筛选
-        let results = [...prompts];
+        let results = [...sortedPrompts];
         
-        // 关键词搜索
         if (filter.searchTerm) {
           const term = filter.searchTerm.toLowerCase();
           results = results.filter(prompt => 
@@ -251,50 +260,24 @@ export function usePromptsData() {
           );
         }
         
-        // 收藏过滤
         if (filter.onlyFavorites || filter.favorite) {
           results = results.filter(prompt => 
             prompt.isFavorite || prompt.favorite
           );
         }
         
-        // 分类过滤
         if (filter.category) {
           results = results.filter(prompt => 
             prompt.category === filter.category
           );
         }
         
-        // 标签过滤
         if (filter.tags && filter.tags.length > 0) {
           results = results.filter(prompt => 
             prompt.tags?.some(tag => filter.tags!.includes(tag))
           );
         }
         
-        // 排序
-        if (filter.sortBy) {
-          switch (filter.sortBy) {
-            case 'usage':
-              results.sort((a, b) => (b.useCount || 0) - (a.useCount || 0));
-              break;
-            case 'favorite':
-              results.sort((a, b) => {
-                const aFav = a.isFavorite || a.favorite || false;
-                const bFav = b.isFavorite || b.favorite || false;
-                return aFav === bFav ? 0 : aFav ? -1 : 1;
-              });
-              break;
-            case 'time':
-              results.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
-              break;
-            case 'alphabetical':
-              results.sort((a, b) => a.title.localeCompare(b.title));
-              break;
-          }
-        }
-        
-        // 分页
         if (filter.offset && filter.offset > 0) {
           results = results.slice(filter.offset);
         }
@@ -305,7 +288,6 @@ export function usePromptsData() {
         
         return results;
       } else {
-        // 在内容脚本环境中，使用消息通信
         return await sendMessage<PromptFilter, Prompt[]>({ 
           type: 'SEARCH_PROMPTS', 
           payload: filter 
@@ -313,13 +295,12 @@ export function usePromptsData() {
       }
     } catch (err) {
       console.error('搜索提示词失败:', err);
-      // 返回空数组，避免抛出错误
       return [];
     }
-  }, [isInExtension, prompts]);
+  }, [isInExtension, sortedPrompts]);
   
   return {
-    prompts,
+    prompts: sortedPrompts,
     loading,
     error,
     refresh: loadPrompts,
@@ -329,5 +310,7 @@ export function usePromptsData() {
     toggleFavorite,
     incrementUseCount,
     searchPrompts,
+    setSortCriteria,
+    sortCriteria,
   };
 } 

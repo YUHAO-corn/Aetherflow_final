@@ -7,100 +7,74 @@ import { PromptFormModal } from './PromptFormModal';
 import { PromptDetailDrawer } from './PromptDetailDrawer';
 import { Prompt } from '../../../services/prompt/types';
 import { Menu, MenuItem } from '../../../components/common/Menu';
-import { usePromptsData } from '../../../hooks/usePromptsData';
+import { usePromptsData, SortCriteria } from '../../../hooks/usePromptsData';
 import { ConfirmDialog } from '../../../components/common/ConfirmDialog';
 import { calculateByteLength, smartTruncate } from '../../../utils/stringUtils';
 import { TITLE_LIMITS } from '../../../utils/constants';
 
-type SortOption = 'updatedDesc' | 'updatedAsc' | 'createdDesc' | 'createdAsc' | 'useCount';
+type SortOption = 'createdDesc' | 'createdAsc' | 'useCount';
 
 export function LibraryTab() {
   const { 
-    loading: apiLoading, 
-    prompts: apiPrompts, 
+    loading,
+    prompts,
     incrementUseCount, 
     deletePrompt, 
     toggleFavorite,
-    searchPrompts
+    searchPrompts,
+    sortCriteria,
+    setSortCriteria
   } = usePromptsData();
   
   // 状态管理
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredPrompts, setFilteredPrompts] = useState<Prompt[]>([]);
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | undefined>(undefined);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingPrompt, setEditingPrompt] = useState<Prompt | undefined>(undefined);
-  const [sortOption, setSortOption] = useState<SortOption>('updatedDesc');
   const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   
   // 确认对话框状态
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [promptToDelete, setPromptToDelete] = useState<string | null>(null);
   const [confirmAction, setConfirmAction] = useState<'delete' | 'unfavorite'>('delete');
   
-  // 使用API数据
-  const prompts = apiPrompts;
-  
   // --- State for Expanded Cards ---
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   // --- End of State ---
 
-  // 获取并过滤提示词
+  // 修正: 添加一个 useEffect 来处理搜索过滤 (如果需要实时过滤)
+  const [displayPrompts, setDisplayPrompts] = useState<Prompt[]>(prompts);
+
   useEffect(() => {
-    const getPrompts = async () => {
-      try {
-        setLoading(true);
-        // 获取提示词
-        const allPrompts = await searchPrompts({
-          searchTerm: searchTerm,
-          sortBy: mapSortOptionToApiSortBy(sortOption),
-          onlyFavorites: true // 确保只显示收藏的提示词
+    // 当 searchTerm 变化时，过滤 `prompts` (来自hook，已排序)
+    if (searchTerm) {
+        // 异步过滤，因为 searchPrompts 是异步的
+        searchPrompts({ searchTerm }).then(filtered => {
+            setDisplayPrompts(filtered);
         });
-        
-        setFilteredPrompts(allPrompts);
-        setLoading(false);
-      } catch (error) {
-        console.error('获取提示词失败:', error);
-        setError('获取提示词失败，请稍后重试');
-        setLoading(false);
-      }
-    };
-    
-    getPrompts();
-  }, [searchTerm, sortOption, searchPrompts]);
-  
-  // 排序提示词
-  const sortPrompts = (prompts: Prompt[], option: SortOption): Prompt[] => {
-    const sorted = [...prompts];
-    
-    switch (option) {
-      case 'updatedDesc':
-        return sorted.sort((a, b) => b.updatedAt - a.updatedAt);
-      case 'updatedAsc':
-        return sorted.sort((a, b) => a.updatedAt - b.updatedAt);
-      case 'createdDesc':
-        return sorted.sort((a, b) => b.createdAt - a.createdAt);
-      case 'createdAsc':
-        return sorted.sort((a, b) => a.createdAt - b.createdAt);
-      case 'useCount':
-        return sorted.sort((a, b) => (b.useCount || 0) - (a.useCount || 0));
-      default:
-        return sorted;
+    } else {
+        // 没有搜索词时，显示所有已排序的 prompts
+        setDisplayPrompts(prompts);
     }
-  };
+  }, [searchTerm, prompts, searchPrompts]);
   
-  // 获取排序选项显示名称
-  const getSortOptionName = (option: SortOption): string => {
+  // 修正: 修改 getSortOptionName，移除 updatedAt 相关逻辑
+  const getSortOptionName = (criteria: SortCriteria): string => {
+    const { key, order } = criteria;
+    if (key === 'createdAt' && order === 'desc') return 'Created Date (New→Old)';
+    if (key === 'createdAt' && order === 'asc') return 'Created Date (Old→New)';
+    if (key === 'useCount' && order === 'desc') return 'Usage Frequency';
+    return 'Created Date (New→Old)'; // 默认显示创建时间
+  };
+
+  // 修正: 修改 mapUiOptionToSortCriteria，移除 updatedAt，更新默认值
+  const mapUiOptionToSortCriteria = (option: SortOption): SortCriteria => {
     switch (option) {
-      case 'updatedDesc': return 'Last Edited (New→Old)';
-      case 'updatedAsc': return 'Last Edited (Old→New)';
-      case 'createdDesc': return 'Created Date (New→Old)';
-      case 'createdAsc': return 'Created Date (Old→New)';
-      case 'useCount': return 'Usage Frequency';
-      default: return 'Default Sort';
+      case 'createdDesc': return { key: 'createdAt', order: 'desc' };
+      case 'createdAsc': return { key: 'createdAt', order: 'asc' };
+      case 'useCount': return { key: 'useCount', order: 'desc' };
+      default: return { key: 'createdAt', order: 'desc' }; // 新默认值
     }
   };
   
@@ -185,21 +159,6 @@ export function LibraryTab() {
     
     // 使用统一的字节限制和截断逻辑，不添加省略号
     return smartTruncate(title, TITLE_LIMITS.DISPLAY, false);
-  };
-
-  // 映射排序选项到API排序类型
-  const mapSortOptionToApiSortBy = (option: SortOption): 'usage' | 'favorite' | 'time' | 'alphabetical' | 'relevance' | undefined => {
-    switch (option) {
-      case 'useCount':
-        return 'usage';
-      case 'updatedDesc':
-      case 'updatedAsc':
-      case 'createdDesc':
-      case 'createdAsc':
-        return 'time';
-      default:
-        return 'time';
-    }
   };
 
   // --- Toggle Card Expansion Function ---
@@ -311,40 +270,36 @@ export function LibraryTab() {
           <button
             onClick={() => setIsSortMenuOpen(!isSortMenuOpen)}
             className="p-2 bg-magic-700 hover:bg-magic-600 rounded-md text-magic-200 transition-colors"
-            title={`Sort: ${getSortOptionName(sortOption)}`}
+            title={`Sort: ${getSortOptionName(sortCriteria)}`}
           >
             <ArrowDownUp size={18} />
           </button>
           
           {/* 排序菜单 */}
           <Menu isOpen={isSortMenuOpen} onClose={() => setIsSortMenuOpen(false)}>
+            {/* 修正: 移除 Last Edited 选项 */}
+            {/* <MenuItem ... onClick={() => { setSortCriteria(mapUiOptionToSortCriteria('updatedDesc')); ... }}>Last Edited (New→Old)</MenuItem> */}
+            {/* <MenuItem ... onClick={() => { setSortCriteria(mapUiOptionToSortCriteria('updatedAsc')); ... }}>Last Edited (Old→New)</MenuItem> */}
+            
+            {/* 修正: 添加 text-xs 类缩小字体 */}
             <MenuItem 
-              selected={sortOption === 'updatedDesc'} 
-              onClick={() => { setSortOption('updatedDesc'); setIsSortMenuOpen(false); }}
-            >
-              Last Edited (New→Old)
-            </MenuItem>
-            <MenuItem 
-              selected={sortOption === 'updatedAsc'} 
-              onClick={() => { setSortOption('updatedAsc'); setIsSortMenuOpen(false); }}
-            >
-              Last Edited (Old→New)
-            </MenuItem>
-            <MenuItem 
-              selected={sortOption === 'createdDesc'} 
-              onClick={() => { setSortOption('createdDesc'); setIsSortMenuOpen(false); }}
+              className="text-xs" // 添加字体大小类
+              selected={sortCriteria.key === 'createdAt' && sortCriteria.order === 'desc'} 
+              onClick={() => { setSortCriteria(mapUiOptionToSortCriteria('createdDesc')); setIsSortMenuOpen(false); }}
             >
               Created Date (New→Old)
             </MenuItem>
             <MenuItem 
-              selected={sortOption === 'createdAsc'} 
-              onClick={() => { setSortOption('createdAsc'); setIsSortMenuOpen(false); }}
+              className="text-xs" // 添加字体大小类
+              selected={sortCriteria.key === 'createdAt' && sortCriteria.order === 'asc'} 
+              onClick={() => { setSortCriteria(mapUiOptionToSortCriteria('createdAsc')); setIsSortMenuOpen(false); }}
             >
               Created Date (Old→New)
             </MenuItem>
             <MenuItem 
-              selected={sortOption === 'useCount'} 
-              onClick={() => { setSortOption('useCount'); setIsSortMenuOpen(false); }}
+              className="text-xs" // 添加字体大小类
+              selected={sortCriteria.key === 'useCount' && sortCriteria.order === 'desc'} 
+              onClick={() => { setSortCriteria(mapUiOptionToSortCriteria('useCount')); setIsSortMenuOpen(false); }}
             >
               Usage Frequency
             </MenuItem>
@@ -353,19 +308,19 @@ export function LibraryTab() {
       </div>
 
       {/* 加载状态 */}
-      {(loading || apiLoading) && (
+      {(loading) && (
         <div className="flex justify-center my-8">
           <LoadingIndicator />
         </div>
       )}
 
       {/* Prompt list or Empty State */}
-      {!loading && !apiLoading && (
+      {!loading && (
         <div className="space-y-3">
-          {filteredPrompts.length === 0 ? (
+          {displayPrompts.length === 0 ? (
             renderEmptyState()
           ) : (
-            filteredPrompts.map(prompt => {
+            displayPrompts.map(prompt => {
               // Check if the current card is expanded
               const isExpanded = expandedCards.has(prompt.id);
               return (
@@ -406,7 +361,10 @@ export function LibraryTab() {
                       <div className="flex items-center space-x-2">
                         {/* Expand/Collapse Button - Always visible, on the left */}
                         <button 
-                          onClick={() => toggleCardExpansion(prompt.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleCardExpansion(prompt.id);
+                          }}
                           className="expand-toggle-button p-1 rounded-full text-magic-500 hover:text-magic-300 hover:bg-magic-700/50 transition-colors flex-shrink-0"
                           title={isExpanded ? 'Show Less' : 'Show More'}
                         >

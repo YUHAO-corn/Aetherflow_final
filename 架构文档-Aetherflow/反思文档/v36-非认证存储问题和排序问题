@@ -1,0 +1,61 @@
+# v36 - 开发者日志：解决非认证用户存储与前端排序问题
+
+**日期:** 2024-08-16 (根据对话推断)
+
+**版本/迭代:** v0.36 (或相应版本)
+
+## 问题描述
+
+本次开发主要解决了两个用户体验问题：
+
+1.  **非认证用户无法持久化保存提示词**: 用户在未登录状态下添加提示词后，提示词会在侧边栏重新打开时消失。
+2.  **提示词库排序功能异常**: 
+    *   UI 上的排序选项（如下拉菜单）似乎无效，选择后列表顺序不改变。
+    *   云同步或重新加载后，提示词列表的顺序会变得混乱，不符合用户选择或默认的排序规则。
+    *   "按编辑时间排序"的行为与用户直觉不符，可能受到同步时间戳的影响。
+
+## 分析与诊断
+
+1.  **非认证存储问题**: 
+    *   **根源**: 为了解决之前的删除同步问题，我们将核心的 `storageService` 强制指向了 `cloudStorageService`。由于 `cloudStorageService` 需要用户认证才能写入 Firestore，导致未登录（匿名）用户调用 `savePrompt` 时，云端写入失败。
+    *   虽然本地可能有乐观 UI 更新，但数据未被持久化存储。
+
+2.  **排序问题**: 
+    *   **根源**: UI 组件 (`LibraryTab.tsx`) 尝试在本地独立处理排序逻辑，但未能正确与数据获取 hook (`usePromptsData`) 集成。数据加载后没有根据选定规则进行排序再渲染。
+    *   "按编辑时间 (`updatedAt`) 排序"的困惑源于云同步的"时间戳最新者获胜"冲突解决策略，该策略可能用云端的时间戳覆盖本地编辑后的时间戳，导致排序结果不符合用户在本地编辑的直觉。
+
+## 解决方案实施
+
+1.  **非认证存储问题 - 采用 Firebase 匿名认证**: 
+    *   **策略**: 选择 Firebase 匿名认证方案，提供无缝体验。
+    *   **后端配置**: 在 Firebase 控制台启用了"匿名"登录提供商。
+    *   **代码修改 (`auth/actions.ts`)**: 
+        *   修改了 `authService.onAuthStateChanged` 监听器。当检测到无用户登录时，自动调用 Firebase 的 `signInAnonymously()` 方法。
+        *   添加了逻辑防止重复或并发的匿名登录尝试。
+        *   添加了启动时的初始检查，以加速首次匿名登录。
+    *   **Firestore 规则**: 确认现有 Firestore 规则 (`request.auth != null && request.auth.uid == userId`) 已能正确处理匿名用户对自己数据的读写权限。
+    *   **效果**: 未登录用户现在会被自动赋予一个临时的匿名 Firebase UID，他们的提示词数据可以使用 `cloudStorageService` 持久化保存到 Firestore 中对应的匿名 UID 路径下，解决了数据丢失问题。
+
+2.  **排序问题 - 重构前端排序逻辑**: 
+    *   **策略**: 将排序逻辑统一移入 `usePromptsData` hook，简化 UI 组件。
+    *   **代码修改 (`hooks/usePromptsData.ts`)**: 
+        *   添加了 `sortCriteria` 状态 (key, order) 来管理当前排序规则。
+        *   提供了 `setSortCriteria` 函数供 UI 调用。
+        *   实现了内部排序函数 `sortPromptsInternal`。
+        *   使用 `useMemo` 根据 `rawPrompts` 和 `sortCriteria` 计算并返回 `sortedPrompts`。
+        *   更新了 CRUD 操作 (add, update, delete) 以修改 `rawPrompts` 状态。
+        *   修改了 `searchPrompts` 以在已排序列表上进行过滤。
+    *   **代码修改 (`pages/sidepanel/components/LibraryTab.tsx`)**: 
+        *   移除了本地的 `sortOption` 状态和 `sortPrompts` 函数。
+        *   从 `usePromptsData` 获取 `prompts` (已排序), `sortCriteria`, `setSortCriteria`。
+        *   更新了排序菜单 UI，使其根据 `sortCriteria` 显示当前状态，并通过调用 `setSortCriteria` 更新排序规则。
+        *   调整了列表渲染和过滤逻辑，确保使用来自 hook 的已排序数据。
+    *   **简化排序选项**: 
+        *   鉴于 `updatedAt` 的歧义性，将默认排序改为按 `createdAt` 降序 ("创建时间 (新→旧)")。
+        *   从 `SortCriteria` 类型、相关函数和 UI 菜单中移除了按 "Last Edited" 排序的选项。
+    *   **UI 优化**: 缩小了排序菜单项的字体 (`text-xs`)。
+    *   **效果**: 前端列表现在能正确根据用户选择（或默认）的规则进行排序，并且在数据加载或同步后保持一致的顺序。
+
+## 结论
+
+通过引入 Firebase 匿名认证和重构前端排序逻辑，成功解决了非认证用户数据丢失和列表排序混乱的问题，提升了应用的健壮性和用户体验。
