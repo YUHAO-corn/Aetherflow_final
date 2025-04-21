@@ -115,8 +115,9 @@ const LoginButton: React.FC<LoginButtonProps> = ({ className = '', onAuthClick }
     );
   }
   
-  if (user) {
-    // Logged in: show user avatar or initial
+  // 修正: 只有当用户存在 *并且* 不是匿名用户时，才显示用户头像和退出菜单
+  if (user && !user.isAnonymous) {
+    // Logged in as a non-anonymous user: show user avatar or initial
     const userInitial = user.displayName?.[0] || user.email?.[0] || '?';
     
     return (
@@ -141,12 +142,13 @@ const LoginButton: React.FC<LoginButtonProps> = ({ className = '', onAuthClick }
     );
   }
   
-  // Not logged in: show login button
+  // Not logged in OR is anonymous: show login button
   return (
     <div className={className}>
       <button
-        onClick={onAuthClick}
+        onClick={onAuthClick} // Trigger the auth modal
         className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-b from-gray-500 to-gray-600 text-white hover:shadow-[0_2px_8px_rgba(79,70,229,0.3)] transition-all transform hover:rotate-[5deg]"
+        title="Login or Register" // Add a title for clarity
       >
         <UserCircle className="w-5 h-5" />
       </button>

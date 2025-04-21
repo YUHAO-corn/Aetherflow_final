@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { X, Mail, Lock, User, Search } from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth';
+import { getFirebaseAuth } from '../../../services/auth/firebase';
+import { EmailAuthProvider, linkWithCredential } from 'firebase/auth/web-extension';
 
 interface AuthDrawerProps {
   isOpen: boolean;
@@ -18,7 +20,8 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
-  const { login, register, loginWithGoogle, resetPassword, loading, error } = useAuth();
+  const { loginWithGoogle, resetPassword, loading, error, user: currentUser } = useAuth();
+  const [internalLoading, setInternalLoading] = useState(false);
   
   // Reset form when drawer opens
   useEffect(() => {
@@ -50,22 +53,89 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
     setSuccessMessage(null);
   };
   
+  // Function to map Firebase error codes to friendly messages
+  const getFriendlyErrorMessage = (err: any): string => {
+    const defaultMessage = "An unexpected error occurred. Please try again later.";
+    if (!err || !err.code) {
+      return err.message || defaultMessage;
+    }
+
+    console.log(`[AuthModal] Mapping error code: ${err.code}`); // Keep log for debugging
+
+    switch (err.code) {
+      // Login Errors
+      case 'auth/invalid-credential': // Covers user-not-found and wrong-password in v9+
+        return "Invalid email or password. Please check your details and try again.";
+      case 'auth/user-disabled':
+        return "This account has been disabled. Please contact support.";
+      case 'auth/too-many-requests':
+        return "Access temporarily disabled due to too many failed login attempts. You can reset your password or try again later.";
+
+      // Registration/Linking Errors
+      case 'auth/email-already-in-use':
+        return "An account with this email address already exists. Please log in or use the 'Forgot Password?' option.";
+      case 'auth/weak-password':
+        return "Password is too weak. It must be at least 6 characters long.";
+      case 'auth/invalid-email':
+          return "The email address is not valid. Please enter a correct email.";
+
+      // Linking Specific Errors
+      case 'auth/credential-already-in-use':
+        return "This email or Google account is already linked to another AetherFlow account. Please sign in with that account instead.";
+      case 'auth/provider-already-linked': // Should not happen with current flow, but good to have
+        return "This account is already linked with this provider.";
+      case 'auth/requires-recent-login': // For sensitive operations like changing email/password after linking
+        return "This operation requires you to have logged in recently. Please log out and log back in.";
+
+      // Google Sign-in Errors (from background script)
+      case 'auth/identity-error':
+      case 'auth/cancelled': // User closed popup or error in flow
+          return err.message || "Google Sign-in could not be completed. Please try again."; // Use message from background if available
+      // 'auth/credential-already-in-use' is handled above
+
+      // Network Error
+      case 'auth/network-request-failed':
+        return "Network error. Please check your internet connection and try again.";
+
+      default:
+        // For other errors, log the code and show a generic message
+        console.error(`[AuthModal] Unhandled error code: ${err.code}`, err);
+        return defaultMessage;
+    }
+  };
+  
   // Handle login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
+    setSuccessMessage(null);
     
-    // Validate form
     if (!email || !password) {
       setFormError('Please fill in all required fields');
       return;
     }
     
+    setInternalLoading(true);
     try {
-      await login({ email, password });
+      const auth = getFirebaseAuth();
+      const credential = EmailAuthProvider.credential(email, password);
+
+      if (auth.currentUser && auth.currentUser.isAnonymous) {
+        console.log('[AuthModal] Linking anonymous user with email/password...');
+        await linkWithCredential(auth.currentUser, credential);
+        console.log('[AuthModal] Anonymous account linked successfully.');
+      } else {
+        const { signInWithEmailAndPassword } = await import('firebase/auth/web-extension');
+        await signInWithEmailAndPassword(auth, email, password);
+        console.log('[AuthModal] Regular login successful.');
+      }
+      
       onClose();
     } catch (err: any) {
-      setFormError(err.message || 'Login failed, please check your credentials');
+      console.error('[AuthModal] Login/Link failed:', err);
+      setFormError(getFriendlyErrorMessage(err));
+    } finally {
+      setInternalLoading(false);
     }
   };
   
@@ -73,8 +143,8 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
+    setSuccessMessage(null);
     
-    // Validate form
     if (!email || !password || !confirmPassword) {
       setFormError('Please fill in all required fields');
       return;
@@ -90,11 +160,34 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
       return;
     }
     
+    setInternalLoading(true);
     try {
-      await register({ email, password, displayName });
+      const auth = getFirebaseAuth();
+      const credential = EmailAuthProvider.credential(email, password);
+
+      if (auth.currentUser && auth.currentUser.isAnonymous) {
+        console.log('[AuthModal] Linking anonymous user with new email/password...');
+        await linkWithCredential(auth.currentUser, credential);
+        if (displayName && auth.currentUser) {
+          const { updateProfile } = await import('firebase/auth/web-extension');
+          await updateProfile(auth.currentUser, { displayName });
+        }
+        console.log('[AuthModal] Anonymous account linked and profile updated (if provided).');
+      } else {
+        const { createUserWithEmailAndPassword, updateProfile } = await import('firebase/auth/web-extension');
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        if (displayName) {
+          await updateProfile(userCredential.user, { displayName });
+        }
+        console.log('[AuthModal] Regular registration successful.');
+      }
+      
       onClose();
     } catch (err: any) {
-      setFormError(err.message || 'Registration failed, please try again');
+      console.error('[AuthModal] Register/Link failed:', err);
+      setFormError(getFriendlyErrorMessage(err));
+    } finally {
+       setInternalLoading(false);
     }
   };
   
@@ -109,21 +202,32 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
       return;
     }
     
+    setInternalLoading(true);
     try {
       await resetPassword(email);
       setSuccessMessage('Password reset link has been sent to your email');
     } catch (err: any) {
-      setFormError(err.message || 'Password reset failed, please try again');
+      console.error('[AuthModal] Reset Password failed:', err);
+      setFormError(getFriendlyErrorMessage(err));
+    } finally {
+      setInternalLoading(false);
     }
   };
   
   // Handle Google login
   const handleGoogleLogin = async () => {
+    setFormError(null);
+    setSuccessMessage(null);
+    setInternalLoading(true);
+    console.log('[AuthModal] Initiating Google Login flow...');
     try {
       await loginWithGoogle();
       onClose();
     } catch (err: any) {
-      setFormError(err.message || 'Google login failed, please try again');
+      console.error('[AuthModal] Google login/link failed:', err);
+      setFormError(getFriendlyErrorMessage(err));
+    } finally {
+        setInternalLoading(false);
     }
   };
   
@@ -183,9 +287,9 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
           </div>
           
           {/* Error alerts */}
-          {(formError || error) && (
+          {(formError) && (
             <div className="bg-red-500/20 text-red-200 px-4 py-2 text-sm">
-              {formError || error}
+              {formError}
             </div>
           )}
           
@@ -211,7 +315,7 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Email"
                       className="w-full pl-10 pr-4 py-2 bg-magic-700 border border-magic-600 rounded-md text-magic-200 placeholder-magic-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      disabled={loading}
+                      disabled={internalLoading}
                     />
                   </div>
                   
@@ -225,16 +329,16 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Password"
                       className="w-full pl-10 pr-4 py-2 bg-magic-700 border border-magic-600 rounded-md text-magic-200 placeholder-magic-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      disabled={loading}
+                      disabled={internalLoading}
                     />
                   </div>
                   
                   <button
                     type="submit"
                     className="w-full py-2 px-4 bg-gradient-to-r from-magic-600 to-magic-500 hover:from-magic-700 hover:to-magic-600 text-white font-medium rounded-md shadow transition-all disabled:opacity-50"
-                    disabled={loading}
+                    disabled={internalLoading}
                   >
-                    {loading ? 'Logging in...' : 'Log In'}
+                    {internalLoading ? 'Logging in...' : 'Log In'}
                   </button>
                   
                   <div className="text-center">
@@ -263,7 +367,7 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Email"
                       className="w-full pl-10 pr-4 py-2 bg-magic-700 border border-magic-600 rounded-lg text-magic-200 placeholder-magic-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      disabled={loading}
+                      disabled={internalLoading}
                     />
                   </div>
                   
@@ -277,7 +381,7 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="Display Name (optional)"
                       className="w-full pl-10 pr-4 py-2 bg-magic-700 border border-magic-600 rounded-lg text-magic-200 placeholder-magic-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      disabled={loading}
+                      disabled={internalLoading}
                     />
                   </div>
                   
@@ -291,7 +395,7 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="Password"
                       className="w-full pl-10 pr-4 py-2 bg-magic-700 border border-magic-600 rounded-lg text-magic-200 placeholder-magic-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      disabled={loading}
+                      disabled={internalLoading}
                     />
                   </div>
                   
@@ -305,16 +409,16 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="Confirm Password"
                       className="w-full pl-10 pr-4 py-2 bg-magic-700 border border-magic-600 rounded-lg text-magic-200 placeholder-magic-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      disabled={loading}
+                      disabled={internalLoading}
                     />
                   </div>
                   
                   <button
                     type="submit"
                     className="w-full py-2 px-4 bg-gradient-to-r from-magic-600 to-magic-500 hover:from-magic-700 hover:to-magic-600 text-white font-medium rounded-md shadow transition-all disabled:opacity-50"
-                    disabled={loading}
+                    disabled={internalLoading}
                   >
-                    {loading ? 'Registering...' : 'Register'}
+                    {internalLoading ? 'Registering...' : 'Register'}
                   </button>
                 </div>
               </form>
@@ -333,16 +437,16 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Email"
                       className="w-full pl-10 pr-4 py-2 bg-magic-700 border border-magic-600 rounded-lg text-magic-200 placeholder-magic-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                      disabled={loading}
+                      disabled={internalLoading}
                     />
                   </div>
                   
                   <button
                     type="submit"
                     className="w-full py-2 px-4 bg-gradient-to-r from-magic-600 to-magic-500 hover:from-magic-700 hover:to-magic-600 text-white font-medium rounded-md shadow transition-all disabled:opacity-50"
-                    disabled={loading}
+                    disabled={internalLoading}
                   >
-                    {loading ? 'Sending...' : 'Send Reset Link'}
+                    {internalLoading ? 'Sending...' : 'Send Reset Link'}
                   </button>
                   
                   <div className="text-center">
@@ -377,7 +481,7 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
                     type="button"
                     onClick={handleGoogleLogin}
                     className="w-full flex items-center justify-center py-2 px-4 border border-magic-600 rounded-md shadow-sm text-magic-200 bg-magic-700 hover:bg-magic-600 transition-all"
-                    disabled={loading}
+                    disabled={internalLoading}
                   >
                     <Search className="w-4 h-4 mr-2 text-red-500" />
                     <span>Sign in with Google</span>

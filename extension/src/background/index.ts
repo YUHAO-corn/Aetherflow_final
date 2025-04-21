@@ -514,7 +514,7 @@ addMessageListener(async (message: Message, sender, sendResponse) => {
     return true;
   }
   
-  // --- 新增：处理 Google 登录请求 ---
+  // --- 修改：处理 Google 登录请求，增加匿名链接逻辑 ---
   else if (message.type === 'LOGIN_WITH_GOOGLE') {
     console.log('[Background] 收到 LOGIN_WITH_GOOGLE 请求');
     try {
@@ -546,53 +546,49 @@ addMessageListener(async (message: Message, sender, sendResponse) => {
         url: authUrl.toString(),
         interactive: true
       }, async (responseUrl) => {
-        if (chrome.runtime.lastError) {
-          console.error('[Background] 认证出错:', chrome.runtime.lastError);
-          sendResponse({
-            success: false,
-            error: {
-              code: 'auth/identity-error',
-              message: chrome.runtime.lastError.message || '认证流程出错'
-            }
-          });
-          return;
-        }
-        
-        if (!responseUrl) {
-          console.error('[Background] 认证过程被取消或返回了空URL');
-          sendResponse({
-            success: false,
-            error: {
-              code: 'auth/cancelled',
-              message: '认证过程被取消或未能完成'
-            }
-          });
-          return;
+        if (chrome.runtime.lastError || !responseUrl) {
+             console.error('[Background] 认证出错或取消:', chrome.runtime.lastError?.message);
+             sendResponse({
+               success: false,
+               error: { code: 'auth/cancelled', message: chrome.runtime.lastError?.message || '认证过程被取消或未能完成' }
+             });
+             return;
         }
         
         try {
           console.log('[Background] 成功获取认证响应');
           
-          // 从重定向 URL 中提取访问令牌
+          // 从 URL 提取 accessToken
           const url = new URL(responseUrl);
-          const params = new URLSearchParams(url.hash.substring(1)); // 去掉 "#" 符号
+          const params = new URLSearchParams(url.hash.substring(1));
           const accessToken = params.get('access_token');
-          
-          if (!accessToken) {
-            throw new Error('未能从响应 URL 中获取访问令牌');
-          }
-          
+          if (!accessToken) throw new Error('未能从响应 URL 中获取访问令牌');
           console.log('[Background] 成功获取访问令牌');
           
           // 使用访问令牌创建 Firebase 凭据
           const credential = GoogleAuthProvider.credential(null, accessToken);
           
-          // 使用凭据在 Firebase 中登录
-          console.log('[Background] 使用获取的令牌登录 Firebase...');
+          // --- 核心修改：检查匿名状态并决定链接或登录 ---
           const auth = getFirebaseAuth();
-          const userCredential = await signInWithCredential(auth, credential);
-          
-          console.log('[Background] Firebase 登录成功');
+          const currentUser = auth.currentUser;
+          let userCredential; // 用于存储最终结果
+
+          if (currentUser && currentUser.isAnonymous) {
+            // 如果当前是匿名用户，则链接凭证
+            console.log('[Background] 检测到匿名用户，尝试链接 Google 凭证...', currentUser.uid);
+            // 导入 linkWithCredential (如果尚未导入)
+            const { linkWithCredential } = await import('firebase/auth/web-extension'); 
+            userCredential = await linkWithCredential(currentUser, credential);
+            console.log('[Background] 匿名账户成功链接 Google');
+          } else {
+            // 否则（未登录或已是正式用户），执行登录
+            console.log('[Background] 非匿名用户或未登录，执行 Google 登录...');
+            // 导入 signInWithCredential (如果尚未导入)
+            const { signInWithCredential } = await import('firebase/auth/web-extension');
+            userCredential = await signInWithCredential(auth, credential);
+            console.log('[Background] Firebase Google 登录成功');
+          }
+          // --- 结束核心修改 ---
           
           // 映射用户对象并返回
           const appUser = mapFirebaseUser(userCredential.user);
@@ -600,26 +596,24 @@ addMessageListener(async (message: Message, sender, sendResponse) => {
           console.log('[Background] 已将用户信息发送到 Sidepanel');
           
         } catch (error: any) {
-          console.error('[Background] 处理认证响应时出错:', error);
+          console.error('[Background] 处理认证响应或 Firebase 操作时出错:', error);
+          // 特别处理凭证已被使用的错误
+          let errorCode = error.code || 'auth/unknown';
+          let errorMessage = error.message || '处理认证响应时出现未知错误';
+          if (error.code === 'auth/credential-already-in-use') {
+              errorCode = 'auth/credential-already-in-use';
+              errorMessage = 'This Google account is already linked to another user.';
+          }
           sendResponse({
             success: false,
-            error: {
-              code: error.code || 'auth/unknown',
-              message: error.message || '处理认证响应时出现未知错误'
-            }
+            error: { code: errorCode, message: errorMessage }
           });
         }
       });
       
     } catch (error: any) {
       console.error('[Background] 启动认证流程时出错:', error);
-      sendResponse({
-        success: false,
-        error: {
-          code: error.code || 'auth/unknown',
-          message: error.message || '启动认证流程时出现未知错误'
-        }
-      });
+      sendResponse({ success: false, error: { code: error.code || 'auth/unknown', message: error.message || '启动认证流程时出错' }});
     }
     
     return true; // 表明将异步响应

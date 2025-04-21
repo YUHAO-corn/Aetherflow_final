@@ -258,9 +258,10 @@ export const authService: AuthService = {
       
       console.log('[Auth Debug] 开始生成带认证的网站URL，目标路径:', targetPath);
       
-      if (!currentUser) {
-        // 如果用户未登录，则只返回带参数的基础URL，不附加令牌
-        console.warn('[Auth Debug] 用户未登录，无法生成带认证的URL，将跳转普通URL');
+      // 修正: 增加对匿名用户的判断
+      if (!currentUser || currentUser.isAnonymous) {
+        // 如果用户未登录 或 用户是匿名用户，则只返回带参数的基础URL，不附加令牌
+        console.warn(`[Auth Debug] 用户未登录或为匿名用户 (isAnonymous: ${currentUser?.isAnonymous})，无法生成带认证的URL，将跳转普通URL`);
         const baseUrl = 'https://aetherflow-app.com'; // 更新为正式域名
         let url = `${baseUrl}${targetPath}`;
         if (params) {
@@ -271,7 +272,8 @@ export const authService: AuthService = {
         return url;
       }
       
-      console.log('[Auth Debug] 用户已登录，UID:', currentUser.uid);
+      // --- 只有正式登录用户才会继续执行下面的逻辑 ---
+      console.log('[Auth Debug] 用户已正式登录，UID:', currentUser.uid);
       
       // 获取用户 Firebase ID Token
       console.log('[Auth Debug] 正在获取用户ID Token...');
