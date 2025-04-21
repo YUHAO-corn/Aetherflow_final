@@ -249,39 +249,34 @@ export function LibraryTab() {
                  <Plus size={16} className="text-magic-300" />
               </div>
               <div>
-                <p className="text-sm font-medium text-magic-300 mb-1">Create a new prompt directly.</p>
-                <button 
-                  onClick={handleAddNew} 
-                  className="px-3 py-1 bg-magic-600 text-white rounded-md hover:bg-magic-500 text-xs transition-colors"
-                >
-                  Add New Prompt
-                </button>
+                <h4 className="font-medium text-magic-300 text-sm">Add New Manually</h4>
+                <p className="text-xs text-magic-400">Click the <span className="font-bold">+ Add New</span> button above to create a prompt from scratch.</p>
               </div>
             </div>
 
-            {/* Method 2: Capture */}
+            {/* Method 2: Capture from Web (Updated) */}
             <div className="flex items-start space-x-3">
               <div className="flex-shrink-0 mt-1 p-1.5 bg-magic-700/50 rounded-full">
-                {/* Placeholder icon for Capture - replace later */}
-                <Highlighter size={16} className="text-magic-300" /> 
+                 {/* Use Highlighter icon or similar for selection step */}
+                 <Highlighter size={16} className="text-magic-300" /> 
               </div>
               <div>
-                <p className="text-sm font-medium text-magic-300 mb-1">Highlight text on any webpage.</p>
-                <p className="text-xs text-magic-400">Right-click the selection and choose 'Aetherflow-Add to Library'.</p>
+                <h4 className="font-medium text-magic-300 text-sm">Capture from Webpage</h4>
+                <p className="text-xs text-magic-400">
+                  Highlight text on any webpage, then click the 
+                  {/* Inline Capture icon */}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="inline-block mx-1 relative bottom-[-2px]">
+                    <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>
+                    <line x1="12" x2="12" y1="7" y2="13" stroke="var(--aetherflow-toolbar-bg, white)" stroke-width="3"/> 
+                    <line x1="9" x2="15" y1="10" y2="10" stroke="var(--aetherflow-toolbar-bg, white)" stroke-width="3"/>
+                  </svg> 
+                  icon on the toolbar that appears.
+                </p>
               </div>
             </div>
 
-            {/* Method 3: Save from Optimizer */}
-            <div className="flex items-start space-x-3">
-              <div className="flex-shrink-0 mt-1 p-1.5 bg-magic-700/50 rounded-full">
-                 <Sparkles size={16} className="text-magic-300" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-magic-300 mb-1">Save results from the Optimizer.</p>
-                <p className="text-xs text-magic-400">Click the bookmark icon on optimization result cards.</p>
-                {/* We might add a button later to switch tab if needed */}
-              </div>
-            </div>
+             {/* Optional: Add more methods if applicable */}
+
           </div>
         </div>
       );

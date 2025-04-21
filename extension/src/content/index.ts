@@ -3,6 +3,7 @@ import { setupMessageListeners, sendReadyMessage as sendReady } from './messagin
 import { setupDOMObserver, setupDocumentListeners, cleanupDOMObserver } from './domObserver';
 import { setupAutoRecoverySystem as setupHealthCheck } from './healthCheck';
 import { setupFallbackFunctionality as setupFallback } from './utils';
+import { initCaptureFeature } from './capture';
 // import { injectPromptShortcut } from './PromptShortcutInjector';
 import { promptShortcutService, PromptShortcutEventType } from '../services/promptShortcut';
 // TODO: contentService需要重构，临时注释处理
@@ -66,6 +67,9 @@ function initialize() {
 
   // 设置备用功能
   setupFallback();
+
+  // Initialize Capture Feature
+  initCaptureFeature();
 
   // 移除此调用，因为它需要参数
   // injectPromptShortcut();

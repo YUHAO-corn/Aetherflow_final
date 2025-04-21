@@ -21,6 +21,7 @@ export type MessageType =
   | 'CAPTURE_SELECTION_AS_PROMPT'
   | 'CAPTURE_SELECTION'
   | 'SHOW_NOTIFICATION'
+  | 'SAVE_PROMPT_CAPTURE'
   // 消息通信检测
   | 'PING'
   | 'CONTENT_SCRIPT_READY'

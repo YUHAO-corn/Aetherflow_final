@@ -1,127 +1,16 @@
-background.js:2 [SW] CloudStorageService 在 Service Worker 环境中运行，网络监听已禁用
-background.js:2 Firebase App 初始化成功 (web-extension context)
-background.js:2 [SW] [Storage] 在Service Worker环境中使用ChromeStorageService
-background.js:2 [SW] [MembershipService] 在Service Worker中设置自动同步
-background.js:2 [SW] [MembershipService] 在Service Worker环境中运行，网络监听已禁用
-background.js:2 [AetherFlow] 后台脚本加载成功
-background.js:2 [AetherFlow] 设置Service Worker保活机制
-background.js:2 [PromptMessaging] 初始化提示词消息处理器
-background.js:2 Extension installed/updated: install
-background.js:2 Starting data migration...
-background.js:2 [Storage] 未发现旧格式数据，无需迁移
-background.js:2 无需进行数据迁移
-background.js:2 [AetherFlow] 后台: 初始化示例提示词数据
-background.js:2 [SampleData] Starting to initialize sample prompt data...
-background.js:2 [ChromeStorage] 开始保存提示词: ID=9555ce02-b9aa-4b6c-91ba-f4f0f98cba13, 标题=How to Study Efficiently, 内容长度=607
-background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_9555ce02-b9aa-4b6c-91ba-f4f0f98cba13
-background.js:2 [ChromeStorage] 提示词保存成功: ID=9555ce02-b9aa-4b6c-91ba-f4f0f98cba13
-background.js:2 [ChromeStorage] 开始保存提示词: ID=625c37b3-6c99-432d-b55b-011ebf411275, 标题=Scientific Body Management, 内容长度=728
-background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_625c37b3-6c99-432d-b55b-011ebf411275
-background.js:2 [ChromeStorage] 提示词保存成功: ID=625c37b3-6c99-432d-b55b-011ebf411275
-background.js:2 [ChromeStorage] 开始保存提示词: ID=a8da047c-5e27-49d0-98d6-ec7fe29351ba, 标题=Mood Regulation Guide, 内容长度=795
-background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_a8da047c-5e27-49d0-98d6-ec7fe29351ba
-background.js:2 [ChromeStorage] 提示词保存成功: ID=a8da047c-5e27-49d0-98d6-ec7fe29351ba
-background.js:2 [ChromeStorage] 开始保存提示词: ID=5066aa48-37ee-4314-8014-2e48b65ce983, 标题=Assignment Feedback Generator, 内容长度=885
-background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_5066aa48-37ee-4314-8014-2e48b65ce983
-background.js:2 [ChromeStorage] 提示词保存成功: ID=5066aa48-37ee-4314-8014-2e48b65ce983
-background.js:2 [ChromeStorage] 开始保存提示词: ID=1237aba5-5dc6-46a2-8e04-903840d8a045, 标题=Content Creation Engine, 内容长度=960
-background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_1237aba5-5dc6-46a2-8e04-903840d8a045
-background.js:2 [ChromeStorage] 提示词保存成功: ID=1237aba5-5dc6-46a2-8e04-903840d8a045
-background.js:2 [ChromeStorage] 开始保存提示词: ID=b5131ff6-88ec-4443-bdd9-a06e3f43cbe9, 标题=Research Paper Analyzer, 内容长度=999
-background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_b5131ff6-88ec-4443-bdd9-a06e3f43cbe9
-background.js:2 [ChromeStorage] 提示词保存成功: ID=b5131ff6-88ec-4443-bdd9-a06e3f43cbe9
-background.js:2 [ChromeStorage] 开始保存提示词: ID=b302cf09-0bd2-4b7b-b3b8-2fdea9bf397b, 标题=Legal Document Analyzer, 内容长度=1084
-background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_b302cf09-0bd2-4b7b-b3b8-2fdea9bf397b
-background.js:2 [ChromeStorage] 提示词保存成功: ID=b302cf09-0bd2-4b7b-b3b8-2fdea9bf397b
-background.js:2 [SampleData] Sample prompt data initialization completed
-background.js:2 示例数据初始化结果: undefined
-background.js:2 [AetherFlow] 设置右键菜单...
-background.js:2 Firebase App 已初始化，返回现有实例 (web-extension context)
-background.js:2 [Background] Firebase初始化成功
-background.js:2 [Background] 云存储设置状态: 未启用
-background.js:2 [Background] 在Service Worker中，跳过云存储初始化检查。
-background.js:2 [Background] 当前认证状态: 未登录
-background.js:2 [AetherFlow] 右键菜单创建成功
-background.js:2 [SessionManager] 用户会话结束，开始清理状态...
-background.js:2 [SessionManager] 清理本地存储中的用户数据...
-background.js:2 [SW] [MembershipService] 用户登出，清理监听
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042166083, 状态=loading, URL=chrome-extension://ldpadjcdbfndeghcklogoppmbnmphbk
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042166083, 状态=undefined, URL=chrome-extension://ldpadjcdbfndeghcklogoppmbnmphbk
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042166083, 状态=complete, URL=chrome-extension://ldpadjcdbfndeghcklogoppmbnmphbk
-background.js:2 [AetherFlow-DEBUG] 页面加载完成: ID=2042166083, 准备检查内容脚本
-background.js:2 [SessionManager] 本地存储清理完成
-background.js:2 [SW] [MembershipService] 重置会员服务状态
-background.js:2 [SW] [MembershipService] 已广播会员状态更新消息
-background.js:2 [SW] [MembershipService] 会员服务状态已重置
-background.js:2 [CloudStorageService] 重置云存储服务状态
-background.js:2 [SessionManager] 状态清理完成
-background.js:1 Uncaught (in promise) Error: Could not establish connection. Receiving end does not exist.
-background.js:2 [AetherFlow-DEBUG] 主动检查内容脚本状态: ID=2042166083
-background.js:2 [AetherFlow-DEBUG] 开始检查内容脚本就绪状态: ID=2042166083, 已注册=false
-background.js:2 [AetherFlow-DEBUG] 发送PING消息检查内容脚本: ID=2042166083
-background.js:2 [AetherFlow-DEBUG] 内容脚本未就绪: ID=2042166083, 错误=Could not establish connection. Receiving end does not exist.
-background.js:2 [AetherFlow-DEBUG] 内容脚本状态检查结果: ID=2042166083, 就绪=false
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: LOGIN_WITH_GOOGLE
-background.js:2 [Messaging] 收到消息: LOGIN_WITH_GOOGLE
-background.js:2 [AetherFlow] 后台: 收到消息 LOGIN_WITH_GOOGLE undefined
-background.js:2 [Background] 收到 LOGIN_WITH_GOOGLE 请求
-background.js:2 [Background] 使用 chrome.identity API 开始 Google 认证流程...
-background.js:2 [Background] Generated Redirect URI: https://ldpadjcdbfndeghcklogoppmbnmphbki.chromiumapp.org/
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY {url: 'https://accounts.google.com/signin/oauth/error?aut…s.googleusercontent.com&flowName=GeneralOAuthFlow', title: '登录 - Google 账号', readyState: 'interactive', time: '2025-04-20T17:40:10.520Z'}
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY {url: 'https://accounts.google.com/signin/oauth/error/v2?…s.googleusercontent.com&flowName=GeneralOAuthFlow', title: '登录 - Google 账号', readyState: 'complete', time: '2025-04-20T17:40:11.152Z'}
-background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042166090, URL https://accounts.google.com/signin/oauth/error/v2?authError=ChVyZWRpcmVjdF91cmlfbWlzbWF0Y2gSsAEKWW91IGNhbid0IHNpZ24gaW4gdG8gdGhpcyBhcHAgYmVjYXVzZSBpdCBkb2Vzbid0IGNvbXBseSB3aXRoIEdvb2dsZSdzIE9BdXRoIDIuMCBwb2xpY3kuCgpJZiB5b3UncmUgdGhlIGFwcCBkZXZlbG9wZXIsIHJlZ2lzdGVyIHRoZSByZWRpcmVjdCBVUkkgaW4gdGhlIEdvb2dsZSBDbG91ZCBDb25zb2xlLgogIBptaHR0cHM6Ly9kZXZlbG9wZXJzLmdvb2dsZS5jb20vaWRlbnRpdHkvcHJvdG9jb2xzL29hdXRoMi93ZWItc2VydmVyI2F1dGhvcml6YXRpb24tZXJyb3JzLXJlZGlyZWN0LXVyaS1taXNtYXRjaCCQAypJCgxyZWRpcmVjdF91cmkSOWh0dHBzOi8vbGRwYWRqY2RiZm5kZWdoY2tsb2dvcHBtYm5tcGhia2kuY2hyb21pdW1hcHAub3JnLzKkAggBErABCllvdSBjYW4ndCBzaWduIGluIHRvIHRoaXMgYXBwIGJlY2F1c2UgaXQgZG9lc24ndCBjb21wbHkgd2l0aCBHb29nbGUncyBPQXV0aCAyLjAgcG9saWN5LgoKSWYgeW91J3JlIHRoZSBhcHAgZGV2ZWxvcGVyLCByZWdpc3RlciB0aGUgcmVkaXJlY3QgVVJJIGluIHRoZSBHb29nbGUgQ2xvdWQgQ29uc29sZS4KICAabWh0dHBzOi8vZGV2ZWxvcGVycy5nb29nbGUuY29tL2lkZW50aXR5L3Byb3RvY29scy9vYXV0aDIvd2ViLXNlcnZlciNhdXRob3JpemF0aW9uLWVycm9ycy1yZWRpcmVjdC11cmktbWlzbWF0Y2g%3D&client_id=423266303314-7f3n7s17c70o1vptv3ahnl78g7b5dchd.apps.googleusercontent.com&flowName=GeneralOAuthFlow
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
+<div class="aetherflow-capture-toolbar" style="top: 374px; left: 816px; display: block;"><button class="aetherflow-capture-disable-button" title="Turn off AetherFlow on this site">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+          <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+          <line x1="12" y1="2" x2="12" y2="12" stroke="currentColor" stroke-width="2"></line>
+        </svg>
+    </button><button class="aetherflow-capture-action-button" title="Capture to AetherFlow">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+        <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
+        <line x1="12" x2="12" y1="7" y2="13" stroke="white" stroke-width="2"></line> 
+        <line x1="9" x2="15" y1="10" y2="10" stroke="white" stroke-width="2"></line>
+      </svg>
+    </button><button class="aetherflow-capture-logo-button" title="Open AetherFlow">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+         <path d="M12 2l2.24 7.37L22 12l-7.37 2.24L12 22l-2.24-7.37L2 12l7.37-2.24L12 2zM8.5 4.5l-1 3 3 1 -1 3 3-1 1 3 1-3 3 1 -3-1 1-3 -3 1 -1-3zM15.5 15.5l-1 3 3 1 -1 3 3-1 1 3 1-3 3 1 -3-1 1-3 -3 1 -1-3z"></path> 
+      </svg>
+    </button></div>

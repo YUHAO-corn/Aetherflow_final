@@ -2,7 +2,7 @@ import { addMessageListener, createSuccessResponse, createErrorResponse } from '
 import { Message } from '../services/messaging/types';
 import { STORAGE_KEYS, storageService } from '../services/storage';
 import { setupPromptMessaging } from '../services/prompt/messaging';
-import { Prompt, PromptFilter } from '../services/prompt/types';
+import { Prompt, PromptFilter, CreatePromptInput } from '../services/prompt/types';
 import { createPrompt } from '../services/prompt';
 import { initializeSampleData } from './sampleData';
 import { migratePromptsData } from '../services/storage';
@@ -13,26 +13,120 @@ import { membershipService } from '../services/membership';
 import { authService } from '../services/auth';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth/web-extension';
 import { safeLocalStorage, isServiceWorkerEnvironment } from '../utils/safeEnvironment';
+import { generateTitleForPrompt } from '../services/prompt/actions';
 
 console.log('[AetherFlow] 后台脚本加载成功');
 
 // 监听扩展图标点击事件，打开侧边栏
 chrome.action.onClicked.addListener(async (tab) => {
   console.log('[AetherFlow] 扩展图标被点击');
-  // 获取当前窗口信息，确保侧边栏在正确的窗口打开
-  const currentWindow = await chrome.windows.getCurrent();
-  if (currentWindow.id) {
-    try {
-      // 尝试打开侧边栏，关联到当前窗口
-      await chrome.sidePanel.open({ windowId: currentWindow.id });
-      console.log(`[AetherFlow] 侧边栏已在窗口 ${currentWindow.id} 中打开`);
-    } catch (error) {
-      console.error('[AetherFlow] 打开侧边栏时出错:', error);
-    }
-  } else {
-     console.error('[AetherFlow] 无法获取当前窗口ID，无法打开侧边栏');
-  }
+  await openSidePanelForTab(tab);
 });
+
+// 监听来自 content script 请求打开侧边栏的消息
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Handle OPEN_SIDEBAR message
+  if (message.type === 'OPEN_SIDEBAR') {
+    console.log('[AetherFlow] 收到来自 content script 的 OPEN_SIDEBAR 请求');
+    if (sender.tab) {
+        openSidePanelForTab(sender.tab).then(() => {
+            sendResponse({ success: true, message: 'Sidebar opened or focused.' });
+        }).catch((error: Error) => {
+            console.error('[AetherFlow] 处理 OPEN_SIDEBAR 消息时出错:', error);
+            sendResponse({ success: false, error: error.message });
+        });
+        return true; // Indicates asynchronous response
+    } else {
+        console.error('[AetherFlow] OPEN_SIDEBAR 请求缺少发送者标签页信息');
+        sendResponse({ success: false, error: 'Sender tab information missing.' });
+    }
+  }
+  
+  // Handle SAVE_PROMPT_CAPTURE message
+  if (message.type === 'SAVE_PROMPT_CAPTURE') {
+      console.log('[AetherFlow] 收到 SAVE_PROMPT_CAPTURE 请求:', message.payload);
+      const payload = message.payload as { title: string; content: string };
+      if (payload && payload.title && payload.content) {
+           // Use existing createPrompt or equivalent function directly
+           const promptData: CreatePromptInput = {
+             title: payload.title,
+             content: payload.content,
+             isFavorite: true, // Default captured prompts to favorite?
+             source: 'user'
+           };
+          createPrompt(promptData)
+              .then(savedPrompt => { // Type inferred or use explicit Prompt type if available
+                  console.log('[AetherFlow] 提示词保存成功:', savedPrompt);
+                  // 发送提示词更新消息给 SidePanel (如果 SidePanel 打开)
+                  chrome.runtime.sendMessage({ type: 'PROMPT_UPDATED' }); 
+                  sendResponse({ success: true, data: savedPrompt });
+              })
+              .catch((error: Error) => { // Added type Error
+                  console.error('[AetherFlow] 保存提示词时出错:', error);
+                  sendResponse({ success: false, error: error.message });
+              });
+      } else {
+           console.error('[AetherFlow] 无效的剪藏保存请求 payload:', payload);
+           sendResponse({ success: false, error: 'Invalid payload for SAVE_PROMPT_CAPTURE' });
+      }
+      return true; // Indicates asynchronous response
+  }
+
+  // Handle GENERATE_TITLE message
+  if (message.type === 'GENERATE_TITLE') {
+      console.log('[AetherFlow] 收到 GENERATE_TITLE 请求，内容长度:', message.payload?.content?.length);
+      if (sender.tab && sender.tab.id && message.payload && message.payload.content) {
+          const tabId = sender.tab.id;
+          const content = message.payload.content;
+          
+          generateTitleForPrompt(content)
+              .then(generatedTitle => {
+                  console.log('[AetherFlow] 标题生成成功:', generatedTitle);
+                  // Send the generated title back to the content script
+                  chrome.tabs.sendMessage(tabId, {
+                      type: 'TITLE_GENERATED',
+                      payload: { title: generatedTitle }
+                  }).catch(error => {
+                      console.error(`[AetherFlow] 发送 TITLE_GENERATED 消息到 Tab ${tabId} 失败:`, error);
+                  });
+                  sendResponse({ success: true }); // Acknowledge the request was processed
+              })
+              .catch(error => {
+                  console.error('[AetherFlow] 调用 generateTitleForPrompt 时出错:', error);
+                  // Inform the content script about the failure?
+                  // For now, just send error response to original sender if possible
+                  sendResponse({ success: false, error: 'Title generation failed' });
+              });
+          
+          return true; // Indicates asynchronous response
+      } else {
+          console.error('[AetherFlow] 无效的 GENERATE_TITLE 请求:', message, sender);
+          sendResponse({ success: false, error: 'Invalid payload or sender tab info' });
+      }
+  }
+
+  // Handle other messages... (Keep other existing listeners, e.g., from setupMessaging)
+  // Return false or nothing for synchronous messages or unhandled messages
+  return false;
+});
+
+/**
+ * Helper function to open the side panel for a given tab.
+ * @param tab The tab to open the side panel for.
+ */
+async function openSidePanelForTab(tab: chrome.tabs.Tab) {
+    if (!tab || !tab.windowId) {
+        console.error('[AetherFlow] 无法打开侧边栏：缺少标签页或窗口ID');
+        throw new Error('Missing tab or window ID.');
+    }
+    try {
+        await chrome.sidePanel.open({ windowId: tab.windowId });
+        console.log(`[AetherFlow] 侧边栏已在窗口 ${tab.windowId} 中打开或聚焦`);
+    } catch (error) {
+        console.error(`[AetherFlow] 在窗口 ${tab.windowId} 中打开侧边栏时出错:`, error);
+        throw error; // Re-throw the error for the caller to handle
+    }
+}
 
 // 设置Service Worker保活机制
 setupServiceWorkerKeepAlive();
@@ -719,219 +813,147 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   initializeServices();
 });
 
-// 设置右键菜单
+// --- 上下文菜单相关 --- 
+
+/**
+ * 设置上下文菜单
+ */
 function setupContextMenu() {
-  console.log('[AetherFlow] 设置右键菜单...');
-
-  // 先清除所有已有菜单，避免重复
-  chrome.contextMenus.removeAll(() => {
-    // 创建菜单项
+  chrome.contextMenus.remove('captureSelection', () => {
+    // Ignore errors, might not exist on first run
     chrome.contextMenus.create({
-      id: 'aetherflow-capture-prompt',
-      title: 'Aetherflow-Add to Library',
+      id: 'captureSelection',
+      title: 'AetherFlow: Capture selection', 
       contexts: ['selection']
-    }, () => {
-      if (chrome.runtime.lastError) {
-        console.error('[AetherFlow] 创建右键菜单失败:', chrome.runtime.lastError);
-      } else {
-        console.log('[AetherFlow] 右键菜单创建成功');
-      }
     });
+    if (chrome.runtime.lastError) {
+      console.warn("Context menu setup error (might be due to reload):", chrome.runtime.lastError.message);
+    }
   });
+}
 
-  // 监听菜单点击事件
-  chrome.contextMenus.onClicked.addListener((info, tab) => {
-    console.log('[AetherFlow] 右键菜单被点击:', info.menuItemId);
-    
-    if (info.menuItemId === 'aetherflow-capture-prompt') {
-      console.log('[AetherFlow] 处理收藏提示词请求');
-      
-      // 确保有选中的文本（仅做基本检查）
-      if (!info.selectionText) {
-        console.warn('[AetherFlow] 没有选中文本');
-        return;
-      }
-      
-      // 确保有有效的标签页
-      if (!tab || !tab.id) {
-        console.warn('[AetherFlow] 无有效标签页，无法处理请求');
-        return;
-      }
-      
-      console.log('[AetherFlow] Chrome API提供的选中文本预览:', 
-        info.selectionText.substring(0, 50) + (info.selectionText.length > 50 ? '...' : ''));
-      
-      // 增加超时处理以防止无响应情况
-      let hasResponded = false;
-      const timeoutId = setTimeout(() => {
-        if (!hasResponded) {
-          console.warn('[AetherFlow] 获取选中文本请求超时，使用API提供的文本作为备选');
-          handleCapturePrompt(info.selectionText || '', tab);
-          hasResponded = true;
-        }
-      }, 1000); // 1秒超时
-      
-      // 尝试从内容脚本获取原始选中文本
-      try {
-        chrome.tabs.sendMessage(tab.id, { type: 'GET_SELECTED_TEXT' }, function(response) {
-          // 清除超时定时器
-          clearTimeout(timeoutId);
-          
-          // 如果已经通过超时处理过，不再处理
-          if (hasResponded) return;
-          hasResponded = true;
-          
-          if (chrome.runtime.lastError) {
-            console.error('[AetherFlow] 获取选中文本失败:', chrome.runtime.lastError);
-            
-            // 检查内容脚本是否存活，如果不存活则尝试刷新
-            if (tab.id && tab.id > 0) {
-              checkContentScriptAndRecover(tab.id).then((recovered) => {
-                if (recovered) {
-                  // 如果恢复成功，使用Chrome API提供的文本（至少能保证功能）
-                  console.log('[AetherFlow] 已恢复内容脚本，继续使用Chrome API提供的文本');
-                  handleCapturePrompt(info.selectionText || '', tab);
-                } else {
-                  // 仍然使用API提供的文本，但显示错误通知
-                  console.warn('[AetherFlow] 无法恢复内容脚本，使用备选方案');
-                  handleCapturePrompt(info.selectionText || '', tab, true);
-                }
-              });
+/**
+ * 处理上下文菜单点击事件
+ * 现在发送消息给内容脚本以打开预览窗口，而不是直接保存。
+ */
+function onContextMenuClicked(info: chrome.contextMenus.OnClickData, tab?: chrome.tabs.Tab) {
+  // Check if the necessary info is present
+  if (info.menuItemId === 'captureSelection' && info.selectionText && tab?.id) {
+    const tabId = tab.id;
+    const content = info.selectionText;
+    console.log(`[AetherFlow] Context Menu: Requesting preview modal for selection from Tab ${tabId}`, content.substring(0, 50) + '...');
+
+    // Send message to content script to show the preview modal
+    chrome.tabs.sendMessage(
+        tabId,
+        {
+            type: 'SHOW_CAPTURE_MODAL_FROM_CONTEXT',
+            payload: { content: content }
+        },
+        (response) => {
+            if (chrome.runtime.lastError) {
+                console.error(`[AetherFlow] Error sending SHOW_CAPTURE_MODAL message to Tab ${tabId}:`, chrome.runtime.lastError.message);
+                // Fallback or error notification if needed?
+                // Maybe try direct save as a fallback?
+                // For now, just log the error.
+                safelySendNotification(tabId, 'Could not open AetherFlow capture window.', 'error');
             } else {
-              // 标签页ID无效，直接使用API提供的文本
-              console.warn('[AetherFlow] 标签页ID无效，使用API提供的文本');
-              handleCapturePrompt(info.selectionText || '', tab);
+                console.log(`[AetherFlow] SHOW_CAPTURE_MODAL message sent successfully to Tab ${tabId}, response:`, response);
             }
-            return;
-          }
-          
-          // 使用内容脚本返回的原始文本
-          if (response && response.text) {
-            console.log('[AetherFlow] 从内容脚本获取到选中文本:', {
-              长度: response.text.length,
-              包含换行符: response.text.includes('\n'),
-              行数: response.text.split('\n').length,
-              前30字符: response.text.substring(0, 30).replace(/\n/g, '\\n')
-            });
-            handleCapturePrompt(response.text, tab);
-          } else {
-            console.warn('[AetherFlow] 内容脚本未返回选中文本，使用Chrome API提供的文本');
-            handleCapturePrompt(info.selectionText || '', tab);
-          }
-        });
-      } catch (error) {
-        // 清除超时定时器
-        clearTimeout(timeoutId);
-        
-        // 如果已经通过超时处理过，不再处理
-        if (hasResponded) return;
-        hasResponded = true;
-        
-        console.error('[AetherFlow] 获取选中文本时发生异常:', error);
-        handleCapturePrompt(info.selectionText || '', tab);
-      }
-    }
-  });
-  
-  // 检查内容脚本状态并尝试恢复
-  async function checkContentScriptAndRecover(tabId: number): Promise<boolean> {
-    console.log(`[AetherFlow] 检查内容脚本状态并尝试恢复, 标签页ID=${tabId}`);
-    
-    // 确保有效的标签页ID
-    if (!tabId || tabId <= 0) {
-      console.error(`[AetherFlow] 无效的标签页ID: ${tabId}`);
-      return false;
-    }
-    
-    // 重置内容脚本注册状态
-    contentScriptRegistry.delete(tabId);
-    
-    // 尝试重新注入内容脚本（通过刷新扩展）
-    try {
-      await chrome.scripting.executeScript({
-        target: { tabId },
-        func: () => {
-          // 在页面中添加一个标记，表示需要重新初始化
-          window.dispatchEvent(new CustomEvent('aetherflow-reinitialize'));
-          console.log('[AetherFlow-PAGE] 触发重新初始化事件');
-          
-          // 立即返回以避免阻塞
-          return true;
         }
-      });
-      
-      // 等待一段时间，让内容脚本有机会重新初始化
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // 检查内容脚本是否已恢复
-      const ready = await isContentScriptReady(tabId);
-      console.log(`[AetherFlow] 内容脚本恢复结果: 标签页ID=${tabId}, 就绪=${ready}`);
-      return ready;
-    } catch (error) {
-      console.error(`[AetherFlow] 尝试恢复内容脚本失败:`, error);
-      return false;
-    }
+    );
+
+    // Remove the direct save logic
+    /*
+    const promptData: CreatePromptInput = {
+        content: content,
+        isFavorite: true, // Default favorite from context menu
+        source: 'user' // Source from context menu is user
+    };
+    createPrompt(promptData)
+        .then(newPrompt => { ... })
+        .catch(error => { ... });
+    */
+  } else {
+      console.warn("[AetherFlow] Context menu click ignored: Missing selectionText or tab ID.");
   }
-  
-  // 处理捕获选中文本为提示词
-  async function handleCapturePrompt(content: string, tab: chrome.tabs.Tab, showConnectError = false): Promise<void> {
-    try {
-      console.log('[AetherFlow] 开始处理捕获提示词，文本长度:', content.length);
-      
-      // 捕获选中文本为提示词
-      const result = await captureSelectionAsPrompt(content);
-      console.log('[AetherFlow] 提示词保存结果:', result);
-      
-      // 显示通知
-      if (tab.id) {
-        // 如果有连接错误，同时显示
-        let message = result ? 'Prompt has been added to library' : 'Failed to save prompt';
-        const type = result ? 'success' : 'error';
-        
-        if (showConnectError) {
-          message += ' (Warning: Extension connection issue detected)';
-        }
-        
-        try {
-          console.log('[AetherFlow] 发送通知:', message, '类型:', type);
-          const notified = await safelySendNotification(tab.id, message, type);
-          
-          // 如果通知发送失败，尝试使用替代方法
-          if (!notified) {
-            console.warn('[AetherFlow] 常规通知失败，尝试使用强制注入');
-            await forceShowNotification(tab.id, message, type);
-          }
-        } catch (notifyError) {
-          console.error('[AetherFlow] 通知发送失败:', notifyError);
-          // 尝试强制注入通知
-          await forceShowNotification(tab.id, message, type);
-        }
-        
-        // 手动广播提示词更新消息
-        try {
-          chrome.runtime.sendMessage({ 
-            type: 'PROMPT_UPDATED',
-            from: 'context_menu'
-          });
-          console.log('[AetherFlow] 已发送PROMPT_UPDATED消息通知UI更新');
-        } catch (notifyError) {
-          console.warn('[AetherFlow] 发送PROMPT_UPDATED消息失败:', notifyError);
-        }
-      }
-    } catch (error: any) {
-      console.error('[AetherFlow] 保存提示词出错:', error);
-      
-      // 发送错误通知
-      if (tab.id) {
-        const errorMessage = 'Failed to save prompt: ' + (error.message || 'Unknown error');
-        try {
-          await safelySendNotification(tab.id, errorMessage, 'error');
-        } catch (notifyError) {
-          console.error('[AetherFlow] 错误通知发送失败:', notifyError);
-          await forceShowNotification(tab.id, errorMessage, 'error');
-        }
-      }
+}
+
+// Register the context menu listener (ensure this is the only listener registered)
+chrome.contextMenus.onClicked.addListener(onContextMenuClicked);
+
+// 处理暂存的捕获请求
+async function processPendingCaptures() {
+  try {
+    console.log('[AetherFlow] 检查暂存的捕获请求...');
+    
+    // 获取所有存储的键
+    const data = await chrome.storage.local.get(null);
+    
+    // 找出所有暂存的捕获请求
+    const pendingKeys = Object.keys(data).filter(key => 
+      key.startsWith('temp_capture_') && 
+      data[key] && 
+      data[key].pendingCapture === true
+    );
+    
+    if (pendingKeys.length === 0) {
+      return; // 没有暂存的请求
     }
+    
+    console.log(`[AetherFlow] 发现${pendingKeys.length}个暂存的捕获请求，开始处理...`);
+    
+    // 处理每个暂存的请求
+    for (const key of pendingKeys) {
+      const captureData = data[key];
+      
+      // 提取内容
+      const content = captureData.content;
+      
+      if (!content || typeof content !== 'string' || content.trim() === '') {
+        console.warn(`[AetherFlow] 暂存捕获请求 ${key} 内容为空，跳过`);
+        // 删除无效的暂存请求
+        chrome.storage.local.remove(key);
+        continue;
+      }
+      
+      console.log(`[AetherFlow] 处理暂存的捕获请求 ${key}，内容长度: ${content.length}`);
+      
+      try {
+        // 尝试保存提示词
+        const result = await captureSelectionAsPrompt(content);
+        
+        if (result) {
+          console.log(`[AetherFlow] 成功处理暂存的捕获请求 ${key}`);
+          
+          // 尝试向用户发送通知
+          try {
+            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+              if (tabs && tabs[0] && tabs[0].id) {
+                safelySendNotification(
+                  tabs[0].id, 
+                  'Pending prompt has been saved to library', 
+                  'success'
+                );
+              }
+            });
+          } catch (notifyError) {
+            console.warn('[AetherFlow] 发送通知失败:', notifyError);
+          }
+        } else {
+          console.warn(`[AetherFlow] 处理暂存的捕获请求 ${key} 失败`);
+        }
+      } catch (error) {
+        console.error(`[AetherFlow] 处理暂存的捕获请求 ${key} 出错:`, error);
+        // 保留失败的请求，下次再试
+        continue;
+      }
+      
+      // 处理完成后删除暂存的请求
+      chrome.storage.local.remove(key);
+    }
+  } catch (error) {
+    console.error('[AetherFlow] 处理暂存的捕获请求时出错:', error);
   }
 }
 
@@ -1008,81 +1030,6 @@ async function captureSelectionAsPrompt(content: string): Promise<boolean> {
     }
     
     return false;
-  }
-}
-
-// 处理暂存的捕获请求
-async function processPendingCaptures() {
-  try {
-    console.log('[AetherFlow] 检查暂存的捕获请求...');
-    
-    // 获取所有存储的键
-    const data = await chrome.storage.local.get(null);
-    
-    // 找出所有暂存的捕获请求
-    const pendingKeys = Object.keys(data).filter(key => 
-      key.startsWith('temp_capture_') && 
-      data[key] && 
-      data[key].pendingCapture === true
-    );
-    
-    if (pendingKeys.length === 0) {
-      return; // 没有暂存的请求
-    }
-    
-    console.log(`[AetherFlow] 发现${pendingKeys.length}个暂存的捕获请求，开始处理...`);
-    
-    // 处理每个暂存的请求
-    for (const key of pendingKeys) {
-      const captureData = data[key];
-      
-      // 提取内容
-      const content = captureData.content;
-      
-      if (!content || typeof content !== 'string' || content.trim() === '') {
-        console.warn(`[AetherFlow] 暂存捕获请求 ${key} 内容为空，跳过`);
-        // 删除无效的暂存请求
-        chrome.storage.local.remove(key);
-        continue;
-      }
-      
-      console.log(`[AetherFlow] 处理暂存的捕获请求 ${key}，内容长度: ${content.length}`);
-      
-      try {
-        // 尝试保存提示词
-        const result = await captureSelectionAsPrompt(content);
-        
-        if (result) {
-          console.log(`[AetherFlow] 成功处理暂存的捕获请求 ${key}`);
-          
-          // 尝试向用户发送通知
-          try {
-            chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-              if (tabs && tabs[0] && tabs[0].id) {
-                safelySendNotification(
-                  tabs[0].id, 
-                  'Pending prompt has been saved to library', 
-                  'success'
-                );
-              }
-            });
-          } catch (notifyError) {
-            console.warn('[AetherFlow] 发送通知失败:', notifyError);
-          }
-        } else {
-          console.warn(`[AetherFlow] 处理暂存的捕获请求 ${key} 失败`);
-        }
-      } catch (error) {
-        console.error(`[AetherFlow] 处理暂存的捕获请求 ${key} 出错:`, error);
-        // 保留失败的请求，下次再试
-        continue;
-      }
-      
-      // 处理完成后删除暂存的请求
-      chrome.storage.local.remove(key);
-    }
-  } catch (error) {
-    console.error('[AetherFlow] 处理暂存的捕获请求时出错:', error);
   }
 }
 
