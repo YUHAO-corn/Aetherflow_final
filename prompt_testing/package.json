@@ -1,0 +1,14 @@
+{
+  "name": "prompt-testing",
+  "version": "1.0.0",
+  "description": "Script to test prompt optimization with Doubao API",
+  "main": "test_script.js",
+  "scripts": {
+    "test": "node test_script.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-fetch": "^2.6.7"
+  }
+} 

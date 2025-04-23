@@ -14,6 +14,7 @@ import { authService } from '../services/auth';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth/web-extension';
 import { safeLocalStorage, isServiceWorkerEnvironment } from '../utils/safeEnvironment';
 import { generateTitleForPrompt } from '../services/prompt/actions';
+import { getSystemPrompt } from '../services/optimizationService';
 
 console.log('[AetherFlow] 后台脚本加载成功');
 
@@ -65,7 +66,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                   console.error('[AetherFlow] 保存提示词时出错:', error);
                   sendResponse({ success: false, error: error.message });
               });
-      } else {
+  } else {
            console.error('[AetherFlow] 无效的剪藏保存请求 payload:', payload);
            sendResponse({ success: false, error: 'Invalid payload for SAVE_PROMPT_CAPTURE' });
       }
@@ -102,6 +103,106 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       } else {
           console.error('[AetherFlow] 无效的 GENERATE_TITLE 请求:', message, sender);
           sendResponse({ success: false, error: 'Invalid payload or sender tab info' });
+      }
+  }
+
+  // --- Handle OPTIMIZE_SELECTION message --- 
+  if (message.type === 'OPTIMIZE_SELECTION') {
+      console.log('[AetherFlow] 收到 OPTIMIZE_SELECTION 请求，内容长度:', message.payload?.content?.length);
+      if (sender.tab && sender.tab.id && message.payload && message.payload.content) {
+          const tabId = sender.tab.id;
+          const originalContent = message.payload.content;
+          const doubaoModelId = 'doubao-lite-32k-240828'; // Define model ID
+          const doubaoApiUrl = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions'; // Define API URL
+
+          // --- Get API Key from storage --- 
+          chrome.storage.local.get('doubaoApiKey', async (result) => {
+              if (chrome.runtime.lastError) {
+                  console.error('[AetherFlow] 读取 doubaoApiKey 出错:', chrome.runtime.lastError);
+                  sendResponse({ success: false, error: 'Failed to read API Key' });
+                  return;
+              }
+              const apiKey = result.doubaoApiKey;
+              if (!apiKey) {
+                  console.error('[AetherFlow] 未找到 doubaoApiKey');
+                  sendResponse({ success: false, error: 'API Key not configured' });
+                  // TODO: Consider sending a message to content script to prompt user to configure
+                  return;
+              }
+              console.log('[AetherFlow] 成功读取 doubaoApiKey');
+
+              // --- Prepare for API Call --- 
+              try {
+                  // Get the system prompt for concise mode
+                  const systemPrompt = getSystemPrompt('concise'); 
+
+                  const headers = {
+                      'Content-Type': 'application/json',
+                      'Authorization': `Bearer ${apiKey}`
+                  };
+                  
+                  const body = JSON.stringify({
+                      model: doubaoModelId,
+                      messages: [
+                          {
+                              role: 'system',
+                              content: systemPrompt
+                          },
+                          {
+                              role: 'user',
+                              content: originalContent
+                          }
+                      ]
+                      // Add other parameters like temperature if needed
+                  });
+
+                  console.log('[AetherFlow] 准备调用豆包 API...');
+                  // --- Make API Call using fetch --- 
+                  const response = await fetch(doubaoApiUrl, {
+                      method: 'POST',
+                      headers: headers,
+                      body: body
+                  });
+
+                  if (!response.ok) {
+                      // Handle HTTP errors
+                      const errorData = await response.json().catch(() => ({})); // Try to parse error JSON
+                      console.error(`[AetherFlow] 豆包 API 请求失败: ${response.status} ${response.statusText}`, errorData);
+                      throw new Error(`API request failed with status ${response.status}: ${errorData?.error?.message || response.statusText}`);
+                  }
+
+                  const responseData = await response.json();
+                  
+                  // --- Process Response --- 
+                  if (responseData.choices && responseData.choices[0] && responseData.choices[0].message) {
+                      const optimizedContent = responseData.choices[0].message.content;
+                      console.log('[AetherFlow] 豆包 API 优化完成:', optimizedContent.substring(0, 100) + '...');
+                      
+                      // TODO: Consider adding post-processing similar to optimizationService if needed
+
+                      // Send the result back
+                      chrome.tabs.sendMessage(tabId, {
+                          type: 'OPTIMIZATION_RESULT',
+                          payload: { optimizedContent: optimizedContent }
+                      }).catch(error => {
+                          console.error(`[AetherFlow] 发送 OPTIMIZATION_RESULT 消息到 Tab ${tabId} 失败:`, error);
+                      });
+                      sendResponse({ success: true }); // Acknowledge successful processing
+                  } else {
+                      console.error('[AetherFlow] 豆包 API 响应格式无效:', responseData);
+                      throw new Error('Invalid API response format');
+                  }
+
+    } catch (error) {
+                  console.error('[AetherFlow] 调用豆包 API 或处理响应时出错:', error);
+                  sendResponse({ success: false, error: error instanceof Error ? error.message : 'Unknown optimization error' });
+    }
+          });
+          
+          return true; // Indicates asynchronous response
+  } else {
+          console.error('[AetherFlow] 无效的 OPTIMIZE_SELECTION 请求:', message, sender);
+          sendResponse({ success: false, error: 'Invalid payload or sender tab info for OPTIMIZE_SELECTION' });
       }
   }
 
@@ -793,6 +894,17 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     console.error('数据迁移失败:', error);
   }
   
+  // --- Store Doubao API Key --- 
+  const doubaoApiKey = '32550ef8-b626-4478-bf53-5fb5e34e114f';
+  chrome.storage.local.set({ doubaoApiKey: doubaoApiKey }, () => {
+      if (chrome.runtime.lastError) {
+          console.error('[AetherFlow] 保存豆包 API Key 到 storage 失败:', chrome.runtime.lastError);
+      } else {
+          console.log('[AetherFlow] 豆包 API Key 已写入 storage。');
+      }
+  });
+  // --- End Store Doubao API Key ---
+  
   // 根据安装原因执行不同操作
   if (details.reason === 'install') {
     // 新安装时，初始化示例数据
@@ -826,7 +938,7 @@ function setupContextMenu() {
       title: 'AetherFlow: Capture selection', 
       contexts: ['selection']
     });
-    if (chrome.runtime.lastError) {
+      if (chrome.runtime.lastError) {
       console.warn("Context menu setup error (might be due to reload):", chrome.runtime.lastError.message);
     }
   });
@@ -851,13 +963,13 @@ function onContextMenuClicked(info: chrome.contextMenus.OnClickData, tab?: chrom
             payload: { content: content }
         },
         (response) => {
-            if (chrome.runtime.lastError) {
+          if (chrome.runtime.lastError) {
                 console.error(`[AetherFlow] Error sending SHOW_CAPTURE_MODAL message to Tab ${tabId}:`, chrome.runtime.lastError.message);
                 // Fallback or error notification if needed?
                 // Maybe try direct save as a fallback?
                 // For now, just log the error.
                 safelySendNotification(tabId, 'Could not open AetherFlow capture window.', 'error');
-            } else {
+                } else {
                 console.log(`[AetherFlow] SHOW_CAPTURE_MODAL message sent successfully to Tab ${tabId}, response:`, response);
             }
         }
@@ -874,7 +986,7 @@ function onContextMenuClicked(info: chrome.contextMenus.OnClickData, tab?: chrom
         .then(newPrompt => { ... })
         .catch(error => { ... });
     */
-  } else {
+          } else {
       console.warn("[AetherFlow] Context menu click ignored: Missing selectionText or tab ID.");
   }
 }
@@ -937,7 +1049,7 @@ async function processPendingCaptures() {
                 );
               }
             });
-          } catch (notifyError) {
+        } catch (notifyError) {
             console.warn('[AetherFlow] 发送通知失败:', notifyError);
           }
         } else {

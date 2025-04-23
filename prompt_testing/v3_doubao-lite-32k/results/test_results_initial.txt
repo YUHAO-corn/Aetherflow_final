@@ -1,0 +1,91 @@
+--- Test Run Started: 2025-04-22T17:35:48.806Z ---
+--- Test Case ID: case_1 ---
+Input: 如何高效学习
+
+Output:
+请详细阐述适用于不同学习场景的高效学习策略，涵盖预习、听讲、复习等各个环节。
+
+具体包括：
+- 预习阶段：如何制定有效的预习计划，明确预习目标，提高预习效率。
+- 听讲阶段：怎样集中注意力，积极参与课堂互动，提升听课质量。
+- 复习阶段：何种复习方法最能巩固知识，加深理解，强化记忆。
+
+在回答中，请分别针对不同学科（如语文、数学、英语等）提供具体的学习技巧和建议，并说明每种技巧的适用范围和预期效果。
+Duration: 3075ms
+
+
+--- Test Case ID: case_2 ---
+Input: 写一个关于太空旅行的故事，要有趣
+
+Output:
+创作一个短篇科幻故事，主题围绕一次充满意外的星际太空旅行。
+
+故事要求：
+- 风格：轻松幽默，带有奇幻色彩。
+- 主要情节：一次本应平稳的火星旅行，途中遭遇了神秘的星际风暴和可爱的外星生物干扰。
+- 角色：至少包含一位勇敢好奇的年轻旅行者和一位知识渊博（或有点迷糊）的太空导游。
+- 结局：问题最终以奇妙的方式化解，旅行者收获满满，并留下难忘的经历。
+- 长度：约 600 - 800 字。
+Duration: 3103ms
+
+
+--- Test Case ID: case_3 ---
+Input: 总结一下这篇文章的主要观点
+
+Output:
+请扮演一位专业的研究助理。
+
+你的任务是阅读以下提供的文章，并以要点列表的形式，总结出文章的核心论点和关键支撑论据。
+
+要求：
+- 总结必须客观、准确，忠实于原文内容。
+- 每个要点都应简洁明了。
+- 预计输出 3 - 5 个核心要点。
+
+文章内容：
+[此处应自动填充或提示用户粘贴文章内容]
+Duration: 2145ms
+
+
+--- Test Case ID: case_4 ---
+Input: 我想让你帮我写一封邮件，是给客户的，就说我们那个项目可能要晚一点，因为遇到点技术问题，但是我们正在加紧解决，希望他们理解，不用太担心，我们会尽快更新进展。语气要专业和安抚。
+
+Output:
+请以专业且安抚的口吻，撰写一封项目延期通知邮件给客户。
+
+邮件需包含以下要点：
+1. 告知客户原定项目交付日期将有所延迟。
+2. 简要说明延迟原因是遇到了未预见的技术挑战。
+3. 强调团队正在全力解决问题，并致力于将影响降至最低。
+4. 承诺会及时向客户同步最新进展。
+5. 表达对可能造成不便的歉意，并感谢客户的理解与耐心。
+Duration: 2880ms
+
+
+--- Test Case ID: case_5 ---
+Input: Please act as a senior Python developer and write a function to reverse a string efficiently.
+
+Output:
+Please act as a senior Python developer and write a function to reverse a string efficiently.
+Duration: 705ms
+
+
+--- Test Case ID: case_6 ---
+Input: 猫咪
+
+Output:
+请提供关于"猫咪"的详细信息，例如品种、习性或趣闻。
+Duration: 717ms
+
+
+--- Test Case ID: case_7 ---
+Input: summarize this for me please
+
+Output:
+Please summarize the key points of the following text:
+
+[Paste the text here]
+Duration: 818ms
+
+
+--- Test Run Finished: 2025-04-22T17:36:02.257Z --- 

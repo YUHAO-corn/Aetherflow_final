@@ -1,0 +1,30 @@
+[
+  {
+    "id": "case_1",
+    "input_prompt": "如何高效学习"
+  },
+  {
+    "id": "case_2",
+    "input_prompt": "写一个关于太空旅行的故事，要有趣"
+  },
+  {
+    "id": "case_3",
+    "input_prompt": "总结一下这篇文章的主要观点"
+  },
+  {
+    "id": "case_4",
+    "input_prompt": "我想让你帮我写一封邮件，是给客户的，就说我们那个项目可能要晚一点，因为遇到点技术问题，但是我们正在加紧解决，希望他们理解，不用太担心，我们会尽快更新进展。语气要专业和安抚。"
+  },
+  {
+    "id": "case_5",
+    "input_prompt": "Please act as a senior Python developer and write a function to reverse a string efficiently."
+  },
+  {
+    "id": "case_6",
+    "input_prompt": "猫咪"
+  },
+  {
+    "id": "case_7",
+    "input_prompt": "summarize this for me please"
+  }
+] 

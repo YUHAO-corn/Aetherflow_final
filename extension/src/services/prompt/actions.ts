@@ -554,6 +554,11 @@ export async function deletePrompts(): Promise<boolean> {
  * @returns 生成的标题
  */
 export async function generateTitleForPrompt(content: string): Promise<string> {
+  // 如果内容为空或仅包含空格，则直接返回"未命名提示词"
+  if (!content || content.trim().length === 0) {
+    return '未命名提示词';
+  }
+
   try {
     // 首先尝试使用豆包API生成标题
     const title = await generateTitle(content);
@@ -576,7 +581,8 @@ export async function generateTitleForPrompt(content: string): Promise<string> {
     } catch (localError) {
       console.error('[PromptService] 本地标题生成也失败:', localError);
       // 最终降级处理
-      return content.length > 30 ? content.substring(0, 27) : content;
+      // 如果内容超过30个字符，取前27个字符加省略号作为标题，否则直接用内容
+      return content.length > 30 ? content.substring(0, 27) + '...' : content;
     }
   }
 }

@@ -11,6 +11,7 @@
     "https://chat.deepseek.com/*",
     "https://www.phind.com/*",
     "https://kimi.moonshot.cn/*",
+    "https://ark.cn-beijing.volces.com/*",
     "<all_urls>"
   ],
   "side_panel": {

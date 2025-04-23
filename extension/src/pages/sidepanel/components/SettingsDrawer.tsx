@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Download, Check, Cloud, LogOut, HardDrive, Loader2 } from 'lucide-react';
+import { X, Download, Check, Cloud, LogOut, HardDrive, Loader2, Keyboard } from 'lucide-react';
 import { useExport } from '../../../hooks/useExport';
 import { useAuth } from '../../../hooks/useAuth';
 import { authService } from '../../../services/auth';
@@ -17,6 +17,11 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
   const [isLoadingStorage, setIsLoadingStorage] = useState(false);
   const [useCloudStorage, setUseCloudStorage] = useState<boolean | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // 打开 Chrome 快捷键设置页面的函数
+  const openShortcutsPage = () => {
+    chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+  };
   
   useEffect(() => {
     setUseCloudStorage(true);
@@ -102,10 +107,10 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
           </button>
         </div>
         
-        <div className="p-4">
+        <div className="p-4 space-y-6">
+          <div>
           <h4 className="text-md font-bold text-magic-200 mb-4">Cloud Sync</h4>
-          
-          <div className="mb-6 space-y-4">
+            <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <Cloud className="w-5 h-5 text-magic-400 mr-2" />
@@ -125,22 +130,21 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
                 />
               </button>
             </div>
-            
             {!user && (
               <div className="text-sm text-amber-400 pl-7">
                 Login required to use cloud sync
               </div>
             )}
-            
             {user && (
               <div className="text-xs text-magic-400 pl-7">
                 Your prompts will be synced across all your devices when you are logged in
               </div>
             )}
+            </div>
           </div>
           
+          <div>
           <h4 className="text-md font-bold text-magic-200 mb-4">Data Management</h4>
-          
           <div className="space-y-4">
             <button
               onClick={exportToCSV}
@@ -180,6 +184,32 @@ export function SettingsDrawer({ isOpen, onClose }: SettingsDrawerProps) {
           <div className="mt-6 text-sm text-magic-400">
             <p>The CSV file will include all your prompts, including title, content, creation time, and usage count information.</p>
           </div>
+          </div>
+
+          <div>
+            <h4 className="text-md font-bold text-magic-200 mb-4">Keyboard Shortcuts</h4>
+            <div className="space-y-3 text-magic-300">
+              <p>Default shortcuts (can be customized):</p>
+              <ul className="list-disc list-inside space-y-1 pl-2">
+                <li>
+                  <span className="font-mono bg-magic-700 px-1.5 py-0.5 rounded">Shift + Ctrl + F</span>: Toggle Sidebar
+                </li>
+                <li>
+                  <span className="font-mono bg-magic-700 px-1.5 py-0.5 rounded">Shift + Ctrl + H</span>: Open Capture Window
+                </li>
+              </ul>
+              <p className="text-xs text-magic-400">
+                (On macOS, <span className="font-mono bg-magic-700 px-1 py-0.5 rounded">Ctrl</span> is typically replaced by <span className="font-mono bg-magic-700 px-1 py-0.5 rounded">Command ⌘</span>)
+              </p>
+              <button
+                onClick={openShortcutsPage}
+                className="flex items-center justify-center px-4 py-2 mt-4 bg-magic-600 hover:bg-magic-500 rounded-md text-white transition-colors w-full"
+              >
+                <Keyboard className="w-4 h-4 mr-2" /> Customize Shortcuts in Chrome
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
     </>

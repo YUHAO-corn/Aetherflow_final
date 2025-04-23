@@ -1,0 +1,90 @@
+/* Styles for AetherFlow Capture Toolbar */
+
+.aetherflow-capture-toolbar {
+  position: absolute;
+  z-index: 9999;
+  background-color: var(--aetherflow-toolbar-bg, #ffffff); /* Fallback */
+  border-radius: 999px; /* Pill shape */
+  box-shadow: var(--aetherflow-toolbar-shadow, 0 2px 8px rgba(0, 0, 0, 0.12)); /* Fallback */
+  padding: 4px; /* Padding around the buttons */
+  display: none; /* Hidden by default */
+  /* Use Flexbox for layout */
+  display: inline-flex; /* Changed from block to inline-flex for better sizing */
+  align-items: center;
+  gap: 4px; /* Spacing between visible buttons */
+  /* Removed fixed line-height, let content flow */
+  white-space: nowrap;
+  /* Remove backdrop filter */
+  /* backdrop-filter: blur(4px); */
+  transition: opacity 0.2s ease-in-out; /* Add transition for potential future fades */
+}
+
+/* --- New Toolbar Button Styles --- */
+
+/* Shared button styles */
+.aetherflow-capture-toolbar button {
+    background: none;
+    border: none;
+    padding: 6px; /* Slightly larger padding for click area */
+    margin: 0;
+    cursor: pointer;
+    color: var(--aetherflow-toolbar-brand-color, #2d1b6b); /* Use Brand Color, fallback */
+    border-radius: 50%; /* Make buttons circular */
+    display: inline-flex; /* Align icon inside */
+    align-items: center;
+    justify-content: center;
+    line-height: 0; /* Ensure icon is centered */
+    transition: background-color 0.15s ease;
+}
+
+.aetherflow-capture-toolbar button:hover {
+    background-color: var(--aetherflow-toolbar-hover-bg, rgba(0, 0, 0, 0.05)); /* Fallback */
+}
+
+/* Ensure SVGs within buttons inherit color and have correct fill/stroke */
+.aetherflow-capture-toolbar button svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+    /* Explicitly set fill and stroke based on typical usage */
+    fill: none; /* Default to no fill */
+    stroke: currentColor; /* Default to stroke using button color */
+    stroke-width: 2; /* Default stroke width, can be overridden */
+}
+
+/* Override for icons that primarily use fill (like Sparkles, Bookmark) */
+/* Increase specificity by adding button element and/or toolbar class */
+.aetherflow-capture-toolbar button.aetherflow-capture-action-button svg,
+.aetherflow-capture-toolbar button.aetherflow-capture-logo-button svg {
+    fill: currentColor;
+    stroke: none; /* No stroke for these */
+}
+
+/* Specific adjustments for Capture button's inner lines (white plus sign) */
+/* Ensure this rule also has sufficient specificity */
+.aetherflow-capture-toolbar button.aetherflow-capture-action-button svg line {
+    stroke: var(--aetherflow-toolbar-bg, white); /* Match background (white), fallback */
+    stroke-width: 2;
+}
+
+/* Adjustments for the Disable (X) button - uses stroke */
+.aetherflow-capture-disable-button svg {
+    /* Inherits stroke: currentColor and stroke-width: 2 from default */
+    /* If different stroke width needed, specify here */
+    stroke-width: 2.5; /* Match the width set in the SVG */
+    fill: none;
+}
+
+/* Reorder elements visually using flex order */
+.aetherflow-capture-disable-button { order: 1; } /* Close */
+.aetherflow-capture-action-button { order: 2; } /* Capture */
+.aetherflow-capture-optimize-button { order: 3; } /* Optimize (New) */
+.aetherflow-capture-logo-button { order: 4; } /* Logo */
+
+/* Ensure Optimize button inherits styles - Add rule if specific styling needed */
+.aetherflow-capture-optimize-button svg {
+    /* Inherits default stroke: currentColor */
+    /* Adjust stroke-width if needed, default is 2 */
+    stroke-width: 2;
+    fill: none;
+} 

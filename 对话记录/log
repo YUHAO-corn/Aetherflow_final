@@ -1,16 +1,16 @@
-<div class="aetherflow-capture-toolbar" style="top: 374px; left: 816px; display: block;"><button class="aetherflow-capture-disable-button" title="Turn off AetherFlow on this site">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-          <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
-          <line x1="12" y1="2" x2="12" y2="12" stroke="currentColor" stroke-width="2"></line>
-        </svg>
-    </button><button class="aetherflow-capture-action-button" title="Capture to AetherFlow">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-        <path d="m19 21-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"></path>
-        <line x1="12" x2="12" y1="7" y2="13" stroke="white" stroke-width="2"></line> 
-        <line x1="9" x2="15" y1="10" y2="10" stroke="white" stroke-width="2"></line>
-      </svg>
-    </button><button class="aetherflow-capture-logo-button" title="Open AetherFlow">
-      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-         <path d="M12 2l2.24 7.37L22 12l-7.37 2.24L12 22l-2.24-7.37L2 12l7.37-2.24L12 2zM8.5 4.5l-1 3 3 1 -1 3 3-1 1 3 1-3 3 1 -3-1 1-3 -3 1 -1-3zM15.5 15.5l-1 3 3 1 -1 3 3-1 1 3 1-3 3 1 -3-1 1-3 -3 1 -1-3z"></path> 
-      </svg>
-    </button></div>
+content.js:1 Click detected outside unpinned modal, hiding...
+content.js:1 Hiding preview modal
+content.js:1 [Capture Script] Received message: {type: 'SHOW_CAPTURE_MODAL_MANUAL'}
+content.js:1 [Capture Script] Received SHOW_CAPTURE_MODAL_MANUAL
+content.js:1 [Capture Script] Requesting title generation for content length: 0
+content.js:1 Showing preview modal directly
+content.js:1 [Messaging] 收到消息: SHOW_CAPTURE_MODAL_MANUAL
+content.js:1 [AetherFlow-DEBUG] 接收消息(全局监听器): {type: 'SHOW_CAPTURE_MODAL_MANUAL', data: undefined, sender: '未知', time: '2025-04-23T09:09:58.967Z'}
+content.js:1 [Messaging] 收到消息: SHOW_CAPTURE_MODAL_MANUAL
+content.js:1 [AetherFlow-DEBUG] 接收消息(全局监听器): {type: 'SHOW_CAPTURE_MODAL_MANUAL', data: undefined, sender: '未知', time: '2025-04-23T09:09:58.967Z'}
+content.js:1 [Capture Script] Received message: {type: 'SHOW_CAPTURE_MODAL_MANUAL'}
+content.js:1 [Capture Script] Received SHOW_CAPTURE_MODAL_MANUAL
+content.js:1 [Capture Script] Requesting title generation for content length: 0
+content.js:1 Showing preview modal directly
+content.js:1 [Capture Script] GENERATE_TITLE message sent, response: {success: false, error: 'Invalid payload or sender tab info'}
+content.js:1 [Capture Script] GENERATE_TITLE message sent, response: {success: false, error: 'Invalid payload or sender tab info'}

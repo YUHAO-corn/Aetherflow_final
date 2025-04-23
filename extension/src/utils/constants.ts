@@ -7,9 +7,9 @@
  */
 export const TITLE_LIMITS = {
   /** 给AI的指令限制（更严格，留出余量） */
-  AI_INSTRUCTION: 20,
+  AI_INSTRUCTION: 80,
   /** 后处理容错限制 */
-  PROCESSING: 40,
+  PROCESSING: 80,
   /** 前端显示限制 */
   DISPLAY: 80,
 }; 

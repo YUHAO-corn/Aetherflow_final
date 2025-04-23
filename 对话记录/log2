@@ -1,122 +1,131 @@
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [Messaging] 收到消息: MEMBERSHIP_STATUS_UPDATED
-background.js:2 [AetherFlow] 后台: 收到消息 MEMBERSHIP_STATUS_UPDATED undefined
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: LOGIN_WITH_GOOGLE
-background.js:2 [Messaging] 收到消息: LOGIN_WITH_GOOGLE
-background.js:2 [AetherFlow] 后台: 收到消息 LOGIN_WITH_GOOGLE undefined
-background.js:2 [Background] 收到 LOGIN_WITH_GOOGLE 请求
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Background] 准备创建 Offscreen document...
-background.js:2 [Background] 将创建 Offscreen document，URL: chrome-extension://ldpadjcdbfndeghcklogoppmbnmphbki/offscreen.html
-background.js:2 [Background] Offscreen document 创建成功
-background.js:2 [Background] Offscreen document 已准备好，发送 startGoogleSignIn 消息
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042165800, 状态=loading, URL=https://aetherflow-b6459.firebaseapp.com/__/auth/h
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY {url: 'https://aetherflow-b6459.firebaseapp.com/__/auth/h…d=1658575266&providerId=google.com&scopes=profile', title: '', readyState: 'interactive', time: '2025-04-20T17:26:24.227Z'}
-background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042165800, URL https://aetherflow-b6459.firebaseapp.com/__/auth/handler?apiKey=AIzaSyCulWQxvrzxDOLGOxzi2ngj9n0DwzvqJFw&appName=%5BDEFAULT%5D&authType=signInViaPopup&redirectUrl=https%3A%2F%2Faetherflow-b6459.web.app%2Fauth.html&v=10.12.4&eventId=1658575266&providerId=google.com&scopes=profile
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042165800, 状态=complete, URL=https://aetherflow-b6459.firebaseapp.com/__/auth/h
-background.js:2 [AetherFlow-DEBUG] 页面加载完成: ID=2042165800, 准备检查内容脚本
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042165800, 状态=loading, URL=https://accounts.google.com/o/oauth2/auth?response
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042165800, 状态=undefined, URL=https://accounts.google.com/o/oauth2/auth?response
-background.js:2 [AetherFlow-DEBUG] 主动检查内容脚本状态: ID=2042165800
-background.js:2 [AetherFlow-DEBUG] 开始检查内容脚本就绪状态: ID=2042165800, 已注册=true
-background.js:2 [AetherFlow-DEBUG] 内容脚本已在注册表中: ID=2042165800
-background.js:2 [AetherFlow-DEBUG] 内容脚本状态检查结果: ID=2042165800, 就绪=true
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY {url: 'https://accounts.google.com/o/oauth2/auth?response…ontext_uri=https%3A%2F%2Faetherflow-b6459.web.app', title: 'Sign in - Google Accounts', readyState: 'interactive', time: '2025-04-20T17:26:25.539Z'}
-background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042165800, URL https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=423266303314-7f3n7s17c70o1vptv3ahnl78g7b5dchd.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Faetherflow-b6459.firebaseapp.com%2F__%2Fauth%2Fhandler&state=AMbdmDnl1XlgO2217Zd_aUpytJD7RhyRFlDgwK582x7gHOovSYx400ldbpczL9YOc8-EEMGUVCWbbthhp4J09A24BoM1GYQjoWuniLYrVkDa77DZ3tgd-KTOKSPjoQYFdDx_EWPVO4q1DLF2vJOkJMtXc0EtzyMtOtojQLx1les8ZtEacSqc0D9ttBWf1dp_ApitoGsBqrb8-DKhml5KLWzaUlsCpIVcPBjyYoIRwBKFeflpUboMcL-ZmFi_bJ1LeRwMcGXK1bXJtNuUUZCRx8pIUjvUXFKa8LMwMsc9wI08bLgszPbyI7lsbYXHUkKAeayQ6bbMS2xlG4k&scope=openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20profile&context_uri=https%3A%2F%2Faetherflow-b6459.web.app
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042165800, 状态=complete, URL=https://accounts.google.com/o/oauth2/auth?response
-background.js:2 [AetherFlow-DEBUG] 页面加载完成: ID=2042165800, 准备检查内容脚本
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042165800, 状态=undefined, URL=https://accounts.google.com/o/oauth2/auth?response
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042165800, 状态=loading, URL=https://accounts.google.com/o/oauth2/auth?response
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042165800, 状态=complete, URL=https://accounts.google.com/o/oauth2/auth?response
-background.js:2 [AetherFlow-DEBUG] 页面加载完成: ID=2042165800, 准备检查内容脚本
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY {url: 'https://accounts.google.com/o/oauth2/auth?response…ontext_uri=https%3A%2F%2Faetherflow-b6459.web.app', title: 'Sign in - Google Accounts', readyState: 'complete', time: '2025-04-20T17:26:26.464Z'}
-background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042165800, URL https://accounts.google.com/o/oauth2/auth?response_type=code&client_id=423266303314-7f3n7s17c70o1vptv3ahnl78g7b5dchd.apps.googleusercontent.com&redirect_uri=https%3A%2F%2Faetherflow-b6459.firebaseapp.com%2F__%2Fauth%2Fhandler&state=AMbdmDnl1XlgO2217Zd_aUpytJD7RhyRFlDgwK582x7gHOovSYx400ldbpczL9YOc8-EEMGUVCWbbthhp4J09A24BoM1GYQjoWuniLYrVkDa77DZ3tgd-KTOKSPjoQYFdDx_EWPVO4q1DLF2vJOkJMtXc0EtzyMtOtojQLx1les8ZtEacSqc0D9ttBWf1dp_ApitoGsBqrb8-DKhml5KLWzaUlsCpIVcPBjyYoIRwBKFeflpUboMcL-ZmFi_bJ1LeRwMcGXK1bXJtNuUUZCRx8pIUjvUXFKa8LMwMsc9wI08bLgszPbyI7lsbYXHUkKAeayQ6bbMS2xlG4k&scope=openid%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20profile&context_uri=https%3A%2F%2Faetherflow-b6459.web.app
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042165800, 状态=loading, URL=https://accounts.google.com/o/oauth2/auth?response
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042165800, 状态=loading, URL=https://accounts.google.com/o/oauth2/auth/oauthcho
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042165800, 状态=undefined, URL=https://accounts.google.com/o/oauth2/auth/oauthcho
-background.js:2 [AetherFlow-DEBUG] 主动检查内容脚本状态: ID=2042165800
-background.js:2 [AetherFlow-DEBUG] 开始检查内容脚本就绪状态: ID=2042165800, 已注册=true
-background.js:2 [AetherFlow-DEBUG] 内容脚本已在注册表中: ID=2042165800
-background.js:2 [AetherFlow-DEBUG] 内容脚本状态检查结果: ID=2042165800, 就绪=true
-background.js:2 [AetherFlow-DEBUG] 主动检查内容脚本状态: ID=2042165800
-background.js:2 [AetherFlow-DEBUG] 开始检查内容脚本就绪状态: ID=2042165800, 已注册=true
-background.js:2 [AetherFlow-DEBUG] 内容脚本已在注册表中: ID=2042165800
-background.js:2 [AetherFlow-DEBUG] 内容脚本状态检查结果: ID=2042165800, 就绪=true
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042165800, 状态=complete, URL=https://accounts.google.com/o/oauth2/auth/oauthcho
-background.js:2 [AetherFlow-DEBUG] 页面加载完成: ID=2042165800, 准备检查内容脚本
-background.js:2 [AetherFlow-DEBUG] 主动检查内容脚本状态: ID=2042165800
-background.js:2 [AetherFlow-DEBUG] 开始检查内容脚本就绪状态: ID=2042165800, 已注册=true
-background.js:2 [AetherFlow-DEBUG] 内容脚本已在注册表中: ID=2042165800
-background.js:2 [AetherFlow-DEBUG] 内容脚本状态检查结果: ID=2042165800, 就绪=true
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042165800, 状态=loading, URL=https://aetherflow-b6459.firebaseapp.com/__/auth/h
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY {url: 'https://aetherflow-b6459.firebaseapp.com/__/auth/h…%2Fuserinfo.profile+openid&authuser=0&prompt=none', title: '', readyState: 'interactive', time: '2025-04-20T17:26:34.902Z'}
-background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042165800, URL https://aetherflow-b6459.firebaseapp.com/__/auth/handler?state=AMbdmDnl1XlgO2217Zd_aUpytJD7RhyRFlDgwK582x7gHOovSYx400ldbpczL9YOc8-EEMGUVCWbbthhp4J09A24BoM1GYQjoWuniLYrVkDa77DZ3tgd-KTOKSPjoQYFdDx_EWPVO4q1DLF2vJOkJMtXc0EtzyMtOtojQLx1les8ZtEacSqc0D9ttBWf1dp_ApitoGsBqrb8-DKhml5KLWzaUlsCpIVcPBjyYoIRwBKFeflpUboMcL-ZmFi_bJ1LeRwMcGXK1bXJtNuUUZCRx8pIUjvUXFKa8LMwMsc9wI08bLgszPbyI7lsbYXHUkKAeayQ6bbMS2xlG4k&code=4%2F0Ab_5qllR_b9u19gtlpAA1zvdRQZkJJUtPkTJOu5-SZiLD8OixBijzjAO9uNzIwlFjGwAww&scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+openid&authuser=0&prompt=none
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042165800, 状态=complete, URL=https://aetherflow-b6459.firebaseapp.com/__/auth/h
-background.js:2 [AetherFlow-DEBUG] 页面加载完成: ID=2042165800, 准备检查内容脚本
-background.js:2 [AetherFlow-DEBUG] 标签页关闭，移除注册: ID=2042165800
-background.js:2 [AetherFlow-DEBUG] 主动检查内容脚本状态: ID=2042165800
-background.js:2 [AetherFlow-DEBUG] 开始检查内容脚本就绪状态: ID=2042165800, 已注册=false
-background.js:2 [AetherFlow-DEBUG] 发送PING消息检查内容脚本: ID=2042165800
-background.js:2 [AetherFlow-DEBUG] 内容脚本未就绪: ID=2042165800, 错误=Could not establish connection. Receiving end does not exist.
-background.js:2 [AetherFlow-DEBUG] 内容脚本状态检查结果: ID=2042165800, 就绪=false
-background.js:2 [Background] 与 Offscreen 通信失败: {message: 'A listener indicated an asynchronous response by r…age channel closed before a response was received'}
+ [SW] CloudStorageService 在 Service Worker 环境中运行，网络监听已禁用
+ Firebase App 初始化成功 (web-extension context)
+ [SW] [Storage] 在Service Worker环境中使用ChromeStorageService
+ [SW] [MembershipService] 在Service Worker中设置自动同步
+ [SW] [MembershipService] 在Service Worker环境中运行，网络监听已禁用
+ [AuthService] Initial check: No user, attempting anonymous sign-in...
+ [AetherFlow] 后台脚本加载成功
+ [AetherFlow] 设置Service Worker保活机制
+ [PromptMessaging] 初始化提示词消息处理器
+ Extension installed/updated: update
+ Starting data migration...
+ [Storage] 未发现旧格式数据，无需迁移
+ 无需进行数据迁移
+ 扩展已更新到新版本，正在检查数据...
+ [AetherFlow] 豆包 API Key 已写入 storage。
+ [AetherFlow] 后台: 初始化示例提示词数据
+ [SampleData] Starting to initialize sample prompt data...
+ [ChromeStorage] 开始保存提示词: ID=0c42e153-98b2-4c1c-a280-4d84fe04eb61, 标题=How to Study Efficiently, 内容长度=607
+ [ChromeStorage] 将提示词保存到键名: prompt_0c42e153-98b2-4c1c-a280-4d84fe04eb61
+ [ChromeStorage] 提示词保存成功: ID=0c42e153-98b2-4c1c-a280-4d84fe04eb61
+ [ChromeStorage] 开始保存提示词: ID=d41d649e-68c5-467c-97df-3b5924e814c0, 标题=Scientific Body Management, 内容长度=728
+ [ChromeStorage] 将提示词保存到键名: prompt_d41d649e-68c5-467c-97df-3b5924e814c0
+ [ChromeStorage] 提示词保存成功: ID=d41d649e-68c5-467c-97df-3b5924e814c0
+ [ChromeStorage] 开始保存提示词: ID=1e0cc243-7842-40ca-997d-d0a035ebd77e, 标题=Mood Regulation Guide, 内容长度=795
+ [ChromeStorage] 将提示词保存到键名: prompt_1e0cc243-7842-40ca-997d-d0a035ebd77e
+ [ChromeStorage] 提示词保存成功: ID=1e0cc243-7842-40ca-997d-d0a035ebd77e
+ [ChromeStorage] 开始保存提示词: ID=fe03e4b1-e950-47dd-8624-d6c131361c56, 标题=Assignment Feedback Generator, 内容长度=885
+ [ChromeStorage] 将提示词保存到键名: prompt_fe03e4b1-e950-47dd-8624-d6c131361c56
+ [ChromeStorage] 提示词保存成功: ID=fe03e4b1-e950-47dd-8624-d6c131361c56
+ [ChromeStorage] 开始保存提示词: ID=83e27dfa-bb11-4113-ab66-29b1759511b4, 标题=Content Creation Engine, 内容长度=960
+ [ChromeStorage] 将提示词保存到键名: prompt_83e27dfa-bb11-4113-ab66-29b1759511b4
+ [ChromeStorage] 提示词保存成功: ID=83e27dfa-bb11-4113-ab66-29b1759511b4
+ [ChromeStorage] 开始保存提示词: ID=e7fa5a51-7c32-46d2-ac6f-86c01fce6792, 标题=Research Paper Analyzer, 内容长度=999
+ [ChromeStorage] 将提示词保存到键名: prompt_e7fa5a51-7c32-46d2-ac6f-86c01fce6792
+ [ChromeStorage] 提示词保存成功: ID=e7fa5a51-7c32-46d2-ac6f-86c01fce6792
+ [ChromeStorage] 开始保存提示词: ID=c54e2ae0-5195-46c1-8e02-333c0d444f6e, 标题=Legal Document Analyzer, 内容长度=1084
+ [ChromeStorage] 将提示词保存到键名: prompt_c54e2ae0-5195-46c1-8e02-333c0d444f6e
+ [ChromeStorage] 提示词保存成功: ID=c54e2ae0-5195-46c1-8e02-333c0d444f6e
+ [SampleData] Sample prompt data initialization completed
+ 示例数据初始化结果: undefined
+ Firebase App 已初始化，返回现有实例 (web-extension context)
+ [Background] Firebase初始化成功
+ [Background] 云存储设置状态: 未启用
+ [Background] 在Service Worker中，跳过云存储初始化检查。
+ [Background] 当前认证状态: 未登录
+ Context menu setup error (might be due to reload): Cannot find menu item with id captureSelection
 （匿名） @ background.js:2
+ [CloudStorage] 开始执行 syncAllPrompts
+ [AuthService] onAuthStateChanged: User found jGisq1sXKYekj5jXsNrC3UyIqD92 isAnonymous: true
+ [SW] [MembershipService] 用户 jGisq1sXKYekj5jXsNrC3UyIqD92 登录，同步会员状态
+ [SW] [MembershipService] 为用户 jGisq1sXKYekj5jXsNrC3UyIqD92 设置 Firestore 会员状态监听
+ [AuthService] getCurrentUser: Found currentUser directly.
+ [AuthService] Initial anonymous sign-in successful. jGisq1sXKYekj5jXsNrC3UyIqD92
+ [SW] [MembershipService] 验证用户 jGisq1sXKYekj5jXsNrC3UyIqD92 的会员状态
+background.js:2 [CloudStorage] 获取到 7 个本地提示词
+background.js:2 [SW] [MembershipService] 会员状态文档不存在，尝试从用户文档读取
+background.js:2 [CloudStorage] 获取到 0 个云端活动提示词
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 0c42e153-98b2-4c1c-a280-4d84fe04eb61
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 1e0cc243-7842-40ca-997d-d0a035ebd77e
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 83e27dfa-bb11-4113-ab66-29b1759511b4
+background.js:2 [CloudStorage] 准备上传本地独有提示词: c54e2ae0-5195-46c1-8e02-333c0d444f6e
+background.js:2 [CloudStorage] 准备上传本地独有提示词: d41d649e-68c5-467c-97df-3b5924e814c0
+background.js:2 [CloudStorage] 准备上传本地独有提示词: e7fa5a51-7c32-46d2-ac6f-86c01fce6792
+background.js:2 [CloudStorage] 准备上传本地独有提示词: fe03e4b1-e950-47dd-8624-d6c131361c56
+background.js:2 [CloudStorage] 提交 7 个批量写操作...
+background.js:2 [ChromeStorage] 开始保存提示词: ID=0c42e153-98b2-4c1c-a280-4d84fe04eb61, 标题=How to Study Efficiently, 内容长度=607
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_0c42e153-98b2-4c1c-a280-4d84fe04eb61
+background.js:2 [ChromeStorage] 开始保存提示词: ID=1e0cc243-7842-40ca-997d-d0a035ebd77e, 标题=Mood Regulation Guide, 内容长度=795
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_1e0cc243-7842-40ca-997d-d0a035ebd77e
+background.js:2 [ChromeStorage] 开始保存提示词: ID=83e27dfa-bb11-4113-ab66-29b1759511b4, 标题=Content Creation Engine, 内容长度=960
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_83e27dfa-bb11-4113-ab66-29b1759511b4
+background.js:2 [ChromeStorage] 开始保存提示词: ID=c54e2ae0-5195-46c1-8e02-333c0d444f6e, 标题=Legal Document Analyzer, 内容长度=1084
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_c54e2ae0-5195-46c1-8e02-333c0d444f6e
+background.js:2 [ChromeStorage] 开始保存提示词: ID=d41d649e-68c5-467c-97df-3b5924e814c0, 标题=Scientific Body Management, 内容长度=728
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_d41d649e-68c5-467c-97df-3b5924e814c0
+background.js:2 [ChromeStorage] 开始保存提示词: ID=e7fa5a51-7c32-46d2-ac6f-86c01fce6792, 标题=Research Paper Analyzer, 内容长度=999
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_e7fa5a51-7c32-46d2-ac6f-86c01fce6792
+background.js:2 [ChromeStorage] 开始保存提示词: ID=fe03e4b1-e950-47dd-8624-d6c131361c56, 标题=Assignment Feedback Generator, 内容长度=885
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_fe03e4b1-e950-47dd-8624-d6c131361c56
+background.js:2 [ChromeStorage] 提示词保存成功: ID=0c42e153-98b2-4c1c-a280-4d84fe04eb61
+background.js:2 [ChromeStorage] 提示词保存成功: ID=1e0cc243-7842-40ca-997d-d0a035ebd77e
+background.js:2 [ChromeStorage] 提示词保存成功: ID=83e27dfa-bb11-4113-ab66-29b1759511b4
+background.js:2 [ChromeStorage] 提示词保存成功: ID=c54e2ae0-5195-46c1-8e02-333c0d444f6e
+background.js:2 [ChromeStorage] 提示词保存成功: ID=d41d649e-68c5-467c-97df-3b5924e814c0
+background.js:2 [ChromeStorage] 提示词保存成功: ID=e7fa5a51-7c32-46d2-ac6f-86c01fce6792
+background.js:2 [ChromeStorage] 提示词保存成功: ID=fe03e4b1-e950-47dd-8624-d6c131361c56
+background.js:2 [SW] [MembershipService] 服务器上无会员记录
+background.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+background.js:2 [SW] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: jGisq1sXKYekj5jXsNrC3UyIqD92
+background.js:2 [CloudStorage] syncAllPrompts 完成 Object
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042166614, 状态=loading, URL=https://aetherflow-app.com/terms-of-service.html
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY Object
+background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042166614, URL https://aetherflow-app.com/terms-of-service.html
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042166614, 状态=complete, URL=https://aetherflow-app.com/terms-of-service.html
+background.js:2 [AetherFlow-DEBUG] 页面加载完成: ID=2042166614, 准备检查内容脚本
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY Object
+background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042166614, URL https://aetherflow-app.com/terms-of-service.html
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY Object
+background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042166614, URL https://aetherflow-app.com/terms-of-service.html
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
+background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY Object
+background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042166614, URL https://aetherflow-app.com/terms-of-service.html
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [AetherFlow-DEBUG] 主动检查内容脚本状态: ID=2042166614
+background.js:2 [AetherFlow-DEBUG] 开始检查内容脚本就绪状态: ID=2042166614, 已注册=true
+background.js:2 [AetherFlow-DEBUG] 内容脚本已在注册表中: ID=2042166614
+background.js:2 [AetherFlow-DEBUG] 内容脚本状态检查结果: ID=2042166614, 就绪=true
+background.js:2 [AetherFlow] 收到 OPTIMIZE_SELECTION 请求，内容长度: 459
+background.js:2 [Messaging] 收到消息: OPTIMIZE_SELECTION
+background.js:2 [Messaging] 收到消息: OPTIMIZE_SELECTION
+background.js:2 [AetherFlow] 后台: 收到消息 OPTIMIZE_SELECTION Object
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [Messaging] 异步操作完成
+background.js:2 [AetherFlow] 成功读取 doubaoApiKey
+background.js:2 [AetherFlow] 准备调用豆包 API...
+background.js:2 [AetherFlow] 豆包 API 优化完成: 【核心任务】明确使用服务的年龄限制及相关法律合规要求，若代表公司等实体使用需说明授权情况。
+【关键约束】必须年满 18 岁方可使用服务，使用服务时需保证不违反任何适用法律法规。若代表公司等实体使用，需...

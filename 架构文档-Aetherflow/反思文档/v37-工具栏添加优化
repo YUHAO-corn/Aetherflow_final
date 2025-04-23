@@ -1,0 +1,36 @@
+## v37 - 捕获窗口体验优化
+
+本次迭代主要针对捕获窗口（通过快捷键或工具栏按钮触发）的用户体验进行了优化，主要包含以下关键修改：
+
+1.  **优化空文本捕获流程:**
+    *   **问题:** 当用户未选中文本，直接触发捕获窗口时，系统仍会尝试根据空内容生成标题，显示不必要的加载状态。
+    *   **修改:** 调整了 `extension/src/content/previewModal.ts` 中的 `showPreviewModal` 函数逻辑。
+    *   **效果:** 现在，如果触发时 `selectedText` 为空，捕获窗口将直接显示，标题栏为空并提示 "Enter title"，不再显示加载动画或向后台请求生成标题。仅当 `selectedText` 有内容时，才执行标题生成流程。
+    *   **目的:** 提升手动创建笔记时的流畅度和直观性，减少不必要的后台交互。
+
+2.  **调整默认快捷键:**
+    *   **问题:** 原默认快捷键 `Shift + Ctrl + G` (Mac 为 `Shift + Command + G`) 与 Chrome 内置的"查找上一个"功能冲突。
+    *   **修改:**
+        *   在 `manifest.json` 中，将 `open_capture_modal` 命令的 `suggested_key` 修改为 `Shift+Ctrl+H` (Mac 为 `Shift+MacCtrl+H`)。
+        *   同步更新了 `SettingsDrawer.tsx` 中设置界面显示的默认快捷键说明文本。
+    *   **目的:** 解决快捷键冲突，提高用户操作的准确性。
+
+3.  **添加工具栏（右键菜单）优化功能:**
+    *   **目标:** 允许用户直接通过右键菜单优化选中的文本。
+    *   **修改:**
+        *   **`manifest.json`**: 
+            *   添加了 `contextMenus` 权限。
+            *   注册了一个新的上下文菜单项 "Optimize Selection (豆包)" (ID: `optimizeSelection`)，仅在选中文本时显示。
+        *   **`background/index.ts`**: 
+            *   添加 `chrome.contextMenus.onClicked` 监听器，捕获 `optimizeSelection` 菜单项的点击事件。
+            *   在监听器中，获取选中内容 (`info.selectionText`) 并发送 `OPTIMIZE_SELECTION` 消息给自身的消息监听器。
+            *   在 `chrome.runtime.onMessage` 中添加对 `OPTIMIZE_SELECTION` 消息的处理，调用 `optimizationService` 执行优化。
+            *   **[测试目的]** 在 `onInstalled` 中添加了向 `chrome.storage.local` 写入**占位符** API Key 的逻辑，**强调此为不安全的测试方法，需本地替换真实 Key，且严禁提交发布**。
+            *   更新了 API Key 获取失败时的错误提示信息。
+        *   **`extension/src/background/services/optimizationService.ts`**: 
+            *   创建新服务文件，封装与豆包 API 的交互逻辑。
+            *   实现 `getDoubaoApiKey` 函数从 `chrome.storage.local` 读取 API Key。
+            *   实现 `optimizePrompt` 函数，负责获取 Key、构建请求、调用豆包 API (`/chat/completions`)、处理响应和错误。
+        *   **`extension/tsconfig.json`**: 
+            *   在 `compilerOptions.lib` 中添加了 `"dom"`, `"dom.iterable"`, `"webworker"` 以支持 Service Worker 环境下的 API 类型。
+    *   **目的:** 提供一个快速访问文本优化功能的入口点，无需打开捕获窗口。
