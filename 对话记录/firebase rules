@@ -1,44 +1,29 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // 基本规则：默认拒绝所有访问
+    
+    // 默认拒绝所有未明确允许的访问
     match /{document=**} {
       allow read, write: if false;
     }
     
-    // 用户文档规则
+    // 允许用户访问和修改自己的用户文档
     match /users/{userId} {
-      // 只允许用户访问自己的文档
       allow read, write: if request.auth != null && request.auth.uid == userId;
-      
-      // 会员状态子集合规则 (关键补充)
-      match /membership/status {
-        // 只允许用户读取自己的会员状态
-        allow read: if request.auth != null && request.auth.uid == userId;
-        // 显式禁止客户端写入会员状态，因为这是由 Cloud Run 负责的
-        allow write: if false;
-      }
-      
-      // 提示词集合规则
-      match /prompts/{promptId} {
-        // 允许用户操作自己的提示词
+    }
+
+    // 允许用户访问自己用户ID下的所有子集合和文档 (通用规则)
+    // 注意: 这比原始规则更通用一些，用于调试
+    match /users/{userId}/{subcollection}/{docId=**} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
       }
       
-      // 用户元数据规则
-      match /metadata/{docId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
-      
-      // 同步状态规则
-      match /syncState/{docId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
-      
-      // 连接测试文档规则（用于测试网络连接）
-      match /connectionTest/{docId} {
-        allow read, write: if request.auth != null && request.auth.uid == userId;
-      }
+    // 对会员状态子集合的特定覆盖规则 (更优先)
+    match /users/{userId}/membership/status {
+      // 只允许用户读取自己的会员状态
+      allow read: if request.auth != null && request.auth.uid == userId;
+      // 显式禁止客户端写入会员状态
+      allow write: if false;
     }
   }
 }

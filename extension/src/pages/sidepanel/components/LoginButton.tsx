@@ -115,7 +115,7 @@ const LoginButton: React.FC<LoginButtonProps> = ({ className = '', onAuthClick }
     );
   }
   
-  if (user) {
+  if (user && !user.isAnonymous) {
     // Logged in: show user avatar or initial
     const userInitial = user.displayName?.[0] || user.email?.[0] || '?';
     
@@ -141,7 +141,7 @@ const LoginButton: React.FC<LoginButtonProps> = ({ className = '', onAuthClick }
     );
   }
   
-  // Not logged in: show login button
+  // Not logged in or anonymous: show login button
   return (
     <div className={className}>
       <button

@@ -1,60 +1,401 @@
 
+好的，我现在来搜索并检查相关的代码文件，确认 Firestore 的路径使用和 UID 的传递是否符合预期。
 
-以下是一些利用 Webpack 特性和调试工具来查找问题的策略，按推荐顺序排列：
-
-1.  **检查并利用 Source Maps**：
-    *   **确认配置**：确保你的 `webpack.config.js` (或其他配置文件) 为后台脚本 (`background.js`) 生成了准确的 Source Maps。推荐使用 `devtool: 'source-map'` (高质量) 或至少 `devtool: 'inline-source-map'` (方便调试)。
-    *   **分析错误堆栈**：在 Chrome 扩展错误页面 (`chrome://extensions/?errors=...`) 中，点击错误信息展开它。有了 Source Maps，错误堆栈 (Stack Trace) 应该能**直接指向原始 TypeScript 文件 (`.ts`) 中的具体行号**，而不仅仅是 `background.js:2`。请仔细查看这个映射后的行号，它可能会直接告诉你 `background/index.ts` 或其导入的某个文件的哪一行代码在初始化时就访问了 `window`。
-
-2.  **检查 Webpack 配置中的 `target`**：
-    *   **关键设置**：这是非常重要的一点。在你的 Webpack 配置中，用于构建 `background.js` 的那部分，**必须**将 `target` 选项设置为 `'webworker'`。
-    *   **原因**：`target: 'webworker'` 明确告知 Webpack 你正在为 Service Worker 环境构建代码。这会阻止 Webpack 自动包含或模拟某些浏览器特有的全局变量（如 `window`），并调整其运行时代码以适应 Worker 环境。如果 `target` 被错误地设置为 `'web'` 或默认值（通常是 `'browserslist'`），Webpack 会假设代码运行在标准浏览器窗口中，可能会引入不兼容的代码。
-    *   **检查**：请检查你的 Webpack 配置文件，确认 `background.js` 的构建配置中 `target: 'webworker'` 是否已正确设置。
-
-3.  **使用 Webpack Bundle Analyzer**：
-    *   **工具**：`webpack-bundle-analyzer` 是一个非常有用的 Webpack 插件。它会生成一个交互式树状图，可视化地展示你的最终打包文件 (`background.js`) 由哪些模块组成，以及每个模块的大小。
-    *   **用法**：
-        *   安装：`npm install --save-dev webpack-bundle-analyzer` 或 `yarn add -D webpack-bundle-analyzer`
-        *   配置：在你的 Webpack 配置中引入并添加插件：
-            ```javascript
-            const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
-            // ...
-            module.exports = {
-              // ...
-              plugins: [
-                // ... 其他插件
-                new BundleAnalyzerPlugin({
-                  analyzerMode: 'static' // 生成静态 HTML 文件报告
-                }) 
-              ]
-            };
-            ```
-        *   运行：执行 Webpack 构建。它会在你的输出目录（通常是 `dist`）生成一个 `report.html` 文件。
-    *   **分析**：打开 `report.html`。仔细检查 `background.js` 的构成。寻找那些**看起来不应该出现在 Service Worker 中**的模块，比如：
-        *   明显与 DOM 操作相关的库。
-        *   与 UI 渲染相关的库。
-        *   体积异常大的、可能间接引入了浏览器环境代码的库。
-        *   检查 Firebase 相关的模块，看看是否有非预期的部分被包含进来。
-
-4.  **检查 Webpack 配置中的 `externals` 和 `plugins`**：
-    *   **`externals`**：确保你没有错误地将 `window` 或其他浏览器全局变量配置为 `externals`。
-    *   **`plugins`**：检查如 `DefinePlugin`, `ProvidePlugin` 或 `HtmlWebpackPlugin` 等插件的配置，确保它们没有意外地向 `background.js` 的构建注入浏览器特有的代码或全局变量引用。
-
-**建议步骤：**
-
-1.  **立即检查 Source Maps 和错误堆栈**：这是最快可能找到问题源头的方法。仔细看 `chrome://extensions` 里的错误详情。
-2.  **立即检查 Webpack 配置中的 `target`**：如果 `target` 设置错误，修复它很可能直接解决问题。
-3.  如果以上两步未能解决问题，**配置并运行 `webpack-bundle-analyzer`**：这是下一个最高效的步骤，能让你直观地看到哪些代码被打包进了 Service Worker。
-
-相比手动注释导入，这些方法更能利用构建工具本身提供的能力来诊断问题，效率会高很多。请先尝试检查 Source Maps 和 Webpack `target` 配置，然后告诉我结果。
+首先，我将查找包含 `CloudStorageService` 和 `MembershipService` 定义或使用的文件。
 
 
-操作指南：
-1. 确认 Source Maps 已生成（在你的 Webpack 配置中）
-2. 查看 Chrome 扩展错误页面的详细信息
-3. 提供信息
-请复制并粘贴错误详情中的 "Stack Trace" 部分（特别是映射到 .ts 文件的那几行）给我。
-同时告诉我，根据这个堆栈跟踪，错误似乎指向了哪个 .ts 文件以及具体的行号。
 
-缺少 devtool 配置：配置文件中没有明确设置 devtool 选项。这意味着 Webpack 很可能使用的是默认值，或者没有生成 Source Maps，或者生成的 Source Maps 质量不高，导致我们在错误堆栈中看不到原始 TypeScript 代码的行号。
-缺少 target 配置：配置文件中也没有明确设置 target 选项。对于 Service Worker (background.js)，这个选项必须设置为 'webworker'。如果 Webpack 使用了默认的 target（通常是 'web' 或 'browserslist'），它会假设代码运行在浏览器窗口环境，可能会引入不兼容的代码（比如对 window 的引用），这很可能是我们一直看到的 window is not defined 错误的根源。
+Ran tool
+
+Ran tool
+文件搜索没有直接找到名为 `MembershipService` 或 `CloudStorageService` 的文件。这可能意味着这些逻辑分散在其他文件中，或者文件名不同。
+
+接下来，我将使用代码搜索来查找 Firestore 操作（如 `collection`, `doc`, `getDoc`, `setDoc`）以及关键函数（如 `syncAllPrompts`）的位置，以便检查路径和 UID 的使用。
+
+
+
+Search files...
+代码搜索找到了 `extension/src/services/storage/cloudStorage.ts` 文件，其中包含了 `CloudStorageService` 类和 `syncAllPrompts` 函数的实现。现在我来读取并分析这个文件的相关部分，重点关注 Firestore 路径和 `userId` 的使用。
+
+```typescript
+// extension/src/services/storage/cloudStorage.ts
+
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  orderBy,
+  limit,
+  onSnapshot,
+  writeBatch
+} from 'firebase/firestore';
+import { getFirebaseAuth, mapFirebaseUser } from '../auth/firebase';
+import { onAuthStateChanged as fbOnAuthStateChanged } from 'firebase/auth';
+import { Prompt } from '../prompt/types';
+import { StorageService } from './types';
+import { STORAGE_KEYS, STORAGE_LIMITS } from './constants';
+import { chromeStorageService } from './chromeStorage';
+import { User } from '../auth/types';
+import { isServiceWorkerEnvironment, safeLogger } from '../../utils/safeEnvironment';
+
+// ... (其他代码)
+
+export class CloudStorageService implements StorageService {
+  private userId: string | null = null;
+  private userEmail: string | null = null;
+  private isAnonymous: boolean = true;
+  private firestoreUnsubscribers: (() => void)[] = [];
+  private syncStatus: SyncStatus = 'idle';
+  private syncMessage: string | null = null;
+  private syncStatusListeners: ((status: SyncStatus, message: string | null) => void)[] = [];
+  private lastSyncTime: number | null = null;
+  private onlineStatusUnsubscribe: (() => void) | null = null;
+  private isOnlineStatus: boolean = navigator.onLine; // 初始在线状态
+  private pendingOperations: PendingOperation[] = []; // 待处理操作队列
+  private isSyncing: boolean = false; // 添加标志防止并发同步
+  private isInitialized: boolean = false; // 添加初始化标志
+  private authUnsubscribe: (() => void) | null = null; // Firebase Auth 监听器
+
+
+  constructor() {
+    this.initialize();
+  }
+
+  // 初始化：获取用户ID并设置监听器
+  private async initialize(): Promise<void> {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+
+    // 加载上次同步时间和待处理操作
+    this.loadLastSyncTime();
+    this.loadPendingOperations();
+
+    // 监听网络状态
+    this.setupNetworkListener();
+
+    try {
+      // 确保 Firebase Auth 实例已准备好
+      const auth = getFirebaseAuth();
+      this.authUnsubscribe = fbOnAuthStateChanged(auth, async (firebaseUser) => {
+        if (firebaseUser) {
+          // --- 关键: 更新 userId ---
+          this.userId = firebaseUser.uid;
+          this.userEmail = firebaseUser.email;
+          this.isAnonymous = firebaseUser.isAnonymous;
+          console.log(`[CloudStorage] Auth state changed. User ID: ${this.userId}, Is Anonymous: ${this.isAnonymous}`);
+
+          // 用户登录后 (非匿名)
+          if (!this.isAnonymous) {
+             // 加载待处理操作 (以防之前未登录时保存了)
+            await this.loadPendingOperations();
+            // 处理待处理操作 (上传/删除之前离线或失败的操作)
+            await this.processPendingOperations();
+             // 立即执行一次全量同步
+            try {
+                await this.syncAllPrompts();
+            } catch (syncError) {
+                console.error('[CloudStorage] 登录后的首次同步失败:', syncError);
+                this.setSyncStatus('error', '登录后同步失败');
+            }
+            // 设置 Firestore 实时监听
+            this.clearFirestoreListeners(); // 清除旧的监听器
+            this.setupFirestoreListeners();
+          } else {
+              // 匿名用户登录或未登录
+              console.log('[CloudStorage] Anonymous user or logged out. Clearing listeners and pending ops.');
+              this.clearFirestoreListeners();
+               // 理论上匿名用户不需要处理云端待处理操作，但加载一下无妨
+              await this.loadPendingOperations();
+              // 对于匿名用户，是否需要 processPendingOperations? 视情况而定
+              // 如果允许匿名用户写入本地，然后登录，那么可能需要处理
+              // 但目前逻辑倾向于登录后才同步，所以这里可能不需要处理
+              // await this.processPendingOperations(); // 暂时注释掉
+               this.setSyncStatus('idle', '匿名用户无需云同步');
+          }
+        } else {
+          // 用户登出
+          console.log('[CloudStorage] User logged out.');
+          this.userId = null;
+          this.userEmail = null;
+          this.isAnonymous = true;
+          this.clearFirestoreListeners();
+           // 清理待处理操作？登出后这些操作可能不再有效，或属于之前用户
+           // this.clearPendingOperations(); // 视策略而定，暂时不清
+          this.setSyncStatus('idle', '用户已登出');
+        }
+      });
+    } catch (error) {
+      console.error('[CloudStorage] 初始化 Firebase Auth 监听失败:', error);
+      this.setSyncStatus('error', '认证服务初始化失败');
+    }
+  }
+
+  // ... (其他函数如 setupFirestoreListeners, uploadPromptToFirestore, softDeletePromptInFirestore)
+
+  // 全量同步提示词
+  public async syncAllPrompts(): Promise<SyncStats> {
+    // --- 关键: 使用 this.userId ---
+    if (!this.userId) {
+      // 增加日志说明原因
+       console.warn('[CloudStorage] syncAllPrompts called but userId is null. Aborting.');
+      throw new Error('用户未登录，无法同步');
+    }
+     // 防止并发执行
+     if (this.isSyncing) {
+        console.warn('[CloudStorage] syncAllPrompts is already running. Skipping concurrent call.');
+        // 可以返回一个表示跳过的状态或空统计
+        return { uploaded: 0, downloaded: 0, conflicts: 0, resolved: 0, skipped: true };
+      }
+      this.isSyncing = true; // 设置同步中标志
+
+    this.setSyncStatus('syncing', '开始全量同步...');
+    console.log('[CloudStorage] 开始执行 syncAllPrompts');
+
+    const stats: SyncStats = { uploaded: 0, downloaded: 0, conflicts: 0, resolved: 0 };
+    const db = getFirestore(); // 获取 Firestore 实例
+    const batch = writeBatch(db); // 使用获取到的实例创建 batch
+    let batchOps = 0;
+
+    try {
+      // 1. 获取所有本地提示词 (包括软删除的)
+      const localPromptsRaw = await chromeStorageService.getAllPrompts();
+      const localPromptsMap = new Map(localPromptsRaw.map(p => [p.id, p]));
+      console.log(`[CloudStorage] 获取到 ${localPromptsRaw.length} 个本地提示词`);
+
+
+      // 2. 获取所有云端提示词 (仅获取 active 的)
+      // --- 关键: 使用 this.userId ---
+      const cloudPromptsActive = await this.getCloudPrompts(true); // true 表示只获取 active
+      const cloudPromptsActiveMap = new Map(cloudPromptsActive.map(p => [p.id, p]));
+      console.log(`[CloudStorage] 获取到 ${cloudPromptsActive.length} 个云端活动提示词`);
+
+
+      // 3. 比较本地和云端差异 (以本地为主循环)
+      for (const [localId, localPrompt] of localPromptsMap.entries()) {
+        const cloudPrompt = cloudPromptsActiveMap.get(localId);
+
+        if (localPrompt.isActive !== false) {
+          // ---- 处理本地 Active 的提示词 ----
+          if (!cloudPrompt) {
+            // 本地 Active, 云端没有 -> 上传
+            console.log(`[CloudStorage] 准备上传本地独有提示词: ${localId}`);
+            // --- 关键: 使用 this.userId ---
+            const promptRef = doc(db, 'users', this.userId, 'prompts', localId);
+            const dataToUpload = { ...localPrompt, userId: this.userId, isActive: true, active: true };
+            Object.keys(dataToUpload).forEach(key => { // 清理 undefined
+                if (dataToUpload[key as keyof typeof dataToUpload] === undefined) {
+                  delete dataToUpload[key as keyof typeof dataToUpload];
+                }
+            });
+            batch.set(promptRef, dataToUpload, { merge: true });
+            stats.uploaded++;
+            batchOps++;
+          } else { // 云端存在
+            // 本地 Active, 云端 Active -> 比较时间戳
+            if ((localPrompt.updatedAt || 0) > (cloudPrompt.updatedAt || 0)) {
+              // 本地较新 -> 上传
+              console.log(`[CloudStorage] 准备上传本地较新版本: ${localId}`);
+              // --- 关键: 使用 this.userId ---
+              const promptRef = doc(db, 'users', this.userId, 'prompts', localId);
+              const dataToUpload = { ...localPrompt, userId: this.userId, isActive: true, active: true };
+               Object.keys(dataToUpload).forEach(key => { // 清理 undefined
+                  if (dataToUpload[key as keyof typeof dataToUpload] === undefined) {
+                    delete dataToUpload[key as keyof typeof dataToUpload];
+                  }
+              });
+              batch.set(promptRef, dataToUpload, { merge: true });
+              stats.uploaded++;
+              batchOps++;
+            } else if ((localPrompt.updatedAt || 0) < (cloudPrompt.updatedAt || 0)) {
+              // 云端较新 -> 下载覆盖本地
+              console.log(`[CloudStorage] 准备下载云端较新版本: ${cloudPrompt.id}`);
+              // 下载不需要 userId
+              await chromeStorageService.savePrompt(cloudPrompt);
+              stats.downloaded++;
+            }
+            // 时间戳相同不处理
+            cloudPromptsActiveMap.delete(localId); // 从云端 map 中移除已处理的
+          }
+        } else {
+          // ---- 处理本地 Inactive (软删除) 的提示词 ----
+          if (cloudPrompt) {
+            // 本地 Inactive, 云端 Active -> 在云端软删除
+            console.log(`[CloudStorage] 准备在云端软删除本地已删除的提示词: ${localId}`);
+            // --- 关键: 使用 this.userId ---
+            const promptRef = doc(db, 'users', this.userId, 'prompts', localId);
+            batch.update(promptRef, { isActive: false, active: false, updatedAt: Date.now() });
+            batchOps++;
+            stats.uploaded++; // 算作更新操作
+            cloudPromptsActiveMap.delete(localId); // 从云端 map 中移除已处理的
+          }
+          // 如果云端也没有（或云端也 Inactive），则无需操作
+        }
+      }
+
+      // 4. 处理剩余的云端 Active 提示词 (这些是本地没有的)
+      for (const cloudPrompt of cloudPromptsActiveMap.values()) {
+          console.log(`[CloudStorage] 准备下载云端独有提示词: ${cloudPrompt.id}`);
+          // 下载不需要 userId
+          await chromeStorageService.savePrompt(cloudPrompt);
+          stats.downloaded++;
+      }
+
+
+      // 5. 提交批量操作
+      if (batchOps > 0) {
+        console.log(`[CloudStorage] 提交 ${batchOps} 个批量写操作...`);
+        await batch.commit();
+      }
+
+      this.lastSyncTime = Date.now();
+      await chromeStorageService.set(STORAGE_KEYS.LAST_SYNC_TIME, this.lastSyncTime);
+      this.setSyncStatus('synced', `同步完成: 上传${stats.uploaded}, 下载${stats.downloaded}`);
+      console.log('[CloudStorage] syncAllPrompts 完成', stats);
+       this.isSyncing = false; // 清除同步中标志
+      return stats;
+
+    } catch (error) {
+      console.error('[CloudStorage] syncAllPrompts 失败:', error);
+      this.setSyncStatus('error', '同步失败，请稍后重试');
+       this.isSyncing = false; // 确保错误时也清除标志
+      throw error;
+    }
+  }
+
+  // 获取云端提示词 (增加只获取 active 的选项)
+  private async getCloudPrompts(onlyActive: boolean = false): Promise<Prompt[]> {
+    // --- 关键: 使用 this.userId ---
+    if (!this.userId) return [];
+    const db = getFirestore();
+    // --- 关键: 使用 this.userId ---
+    const promptsRef = collection(db, 'users', this.userId, 'prompts');
+
+    const q = onlyActive
+      ? query(promptsRef, where('isActive', '!=', false))
+      : promptsRef;
+
+    const snapshot = await getDocs(q);
+    const prompts: Prompt[] = [];
+    snapshot.forEach(doc => {
+       const data = doc.data();
+       const isActive = data.isActive === undefined ? true : data.isActive;
+       if (!onlyActive || isActive !== false) {
+           // --- 关键: 结果中也包含 userId (虽然可能不需要) ---
+           prompts.push({ id: doc.id, ...data, isActive, userId: this.userId } as Prompt);
+       }
+    });
+    return prompts;
+  }
+
+  // 新增：根据 ID 获取单个云端提示词（无论状态）
+  private async getCloudPromptById(promptId: string): Promise<Prompt | null> {
+    // --- 关键: 使用 this.userId ---
+    if (!this.userId) return null;
+    const db = getFirestore();
+    // --- 关键: 使用 this.userId ---
+    const promptRef = doc(db, 'users', this.userId, 'prompts', promptId);
+    const docSnap = await getDoc(promptRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+       const isActive = data.isActive === undefined ? true : data.isActive;
+      // --- 关键: 结果中也包含 userId ---
+      return { id: docSnap.id, ...data, isActive, userId: this.userId } as Prompt;
+    } else {
+      return null;
+    }
+  }
+
+  // ... (其他函数如 savePrompt, updatePrompt, deletePrompt 等内部调用 uploadPromptToFirestore 或 softDeletePromptInFirestore，这些函数也检查并使用了 this.userId)
+
+}
+
+// 导出单例
+export const cloudStorageService = new CloudStorageService();
+
+```
+
+**代码分析结果:**
+
+1.  **路径结构**: 代码中使用的 Firestore 路径**完全符合**你在规则中定义的 `/users/{userId}/prompts/{promptId}` 结构。例如：
+    *   `collection(db, 'users', this.userId, 'prompts')` 用于获取集合引用。
+    *   `doc(db, 'users', this.userId, 'prompts', localId)` 用于获取文档引用。
+    这部分看起来没有问题。
+
+2.  **UID 使用**:
+    *   `CloudStorageService` 类维护了一个内部状态 `this.userId`。
+    *   这个 `this.userId` 在 `initialize` 方法中通过监听 Firebase Auth 的 `onAuthStateChanged` 事件来更新。当用户登录（包括从匿名切换到 Google 用户）时，`this.userId` 会被设置为 Firebase 返回的 `firebaseUser.uid`。
+    *   所有执行 Firestore 操作的函数（如 `syncAllPrompts`, `getCloudPrompts`, `uploadPromptToFirestore`, `softDeletePromptInFirestore` 等）在执行前都会检查 `this.userId` 是否存在，并且在构建 Firestore 路径时**正确地使用了** `this.userId`。
+
+**结论**:
+
+从 `cloudStorage.ts` 的代码来看，Firestore 的**路径结构**和**用户 UID 的使用**是**正确**的。它正确地监听了认证状态变化，并在进行 Firestore 操作时使用了当前登录用户的 UID 来构建路径。
+
+**那么问题出在哪里？**
+
+既然代码实现看起来没问题，规则也没问题，那么 Firestore 权限错误的原因极大概率就是我们之前讨论的**时序问题 (Timing Issue)**：
+
+*   当 `Background - authHandler` 完成 Google 登录后，它触发了 `syncAllPrompts` (`[CloudStorage] 开始执行 syncAllPrompts` 这条日志出现在 `Successfully signed in existing user with Google` 之后)。
+*   此时，`CloudStorageService` 内部的 `onAuthStateChanged` 监听器可能**尚未完全处理完毕**，或者 Firestore 后端的认证状态**尚未完全更新**。
+*   因此，当 `syncAllPrompts` 函数内部执行到 `getCloudPrompts` 或构建 `batch` 操作去访问 `/users/{new_google_uid}/prompts/...` 时，Firestore 在评估规则时，可能认为请求的发起者仍然是之前的匿名用户（或者甚至是 `null`），导致 `request.auth.uid == userId` 检查失败，从而抛出权限错误。
+
+**下一步：解决时序问题**
+
+解决这个问题的关键在于确保在执行需要新认证状态的 Firestore 操作（如 `syncAllPrompts`）*之前*，`CloudStorageService` 内部的 `this.userId` 已经更新为新的 Google 用户 UID，并且 Firestore 后端也已经识别了这个新的认证状态。
+
+建议的修改方向：
+
+1.  **确保 `syncAllPrompts` 使用最新的 `userId`**: 在 `initialize` 方法的 `onAuthStateChanged` 回调中，当检测到用户从匿名切换到 Google 用户时，应该**先**更新 `this.userId`，**然后**再调用 `syncAllPrompts`。目前的实现 (`await this.syncAllPrompts();`) 看起来是这样做的，但可能需要更强的保证。
+
+2.  **引入状态确认或延迟 (更可靠)**: 仅仅等待 `onAuthStateChanged` 回调完成可能还不够，因为 Firestore 后端状态更新可能还有微小的延迟。可以考虑：
+    *   **后台触发同步**: 不在 `CloudStorageService` 的 `onAuthStateChanged` 里直接触发 `syncAllPrompts`，而是让后台脚本在确认 Google 登录完全成功后，显式地向 `CloudStorageService` 发送一个消息来触发同步，并携带确认后的 `userId`。
+    *   **短暂延迟 + 重试**: 在 `syncAllPrompts` 开始时，如果遇到权限错误，可以等待一小段时间（例如 500ms-1s）然后重试一次。这可以给 Firestore 后端更多时间来同步认证状态。
+
+    ```typescript
+    // 示例：在 syncAllPrompts 开头增加重试逻辑
+    public async syncAllPrompts(retryAttempt = 0): Promise<SyncStats> {
+        if (!this.userId) { /* ... */ }
+        if (this.isSyncing && retryAttempt === 0) { /* ... */ } // 只有首次调用检查并发
+
+        if (retryAttempt === 0) { // 首次尝试才设置 isSyncing
+             this.isSyncing = true;
+        }
+        this.setSyncStatus('syncing', '开始全量同步...');
+        console.log(`[CloudStorage] 开始执行 syncAllPrompts (Attempt ${retryAttempt + 1})`);
+
+        // ... (获取 db, batch 等) ...
+
+        try {
+            // ... (执行同步逻辑: getCloudPrompts, batch.set/update 等) ...
+
+            // ... (成功处理) ...
+            this.isSyncing = false;
+            return stats;
+
+        } catch (error: any) {
+            // --- 增加重试逻辑 ---
+            if (error.code === 'permission-denied' && retryAttempt < 1) { // 只重试一次
+                console.warn(`[CloudStorage] syncAllPrompts 遇到权限错误，将在 1 秒后重试...`);
+                await new Promise(resolve => setTimeout(resolve, 1000)); // 等待 1 秒
+                this.isSyncing = false; // 重试前重置 isSyncing 状态可能不安全，取决于具体逻辑，或者根本不重置，让并发检查阻止新调用
+                return this.syncAllPrompts(retryAttempt + 1); // 递归调用进行重试
+            } else {
+                // 其他错误或重试次数超限
+                console.error(`[CloudStorage] syncAllPrompts 失败 (Attempt ${retryAttempt + 1}):`, error);
+                this.setSyncStatus('error', '同步失败，请稍后重试');
+                this.isSyncing = false; // 确保错误时也清除标志
+                throw error;
+            }
+        }
+    }
+    ```
+
+我建议先尝试**第二种方法（短暂延迟 + 重试）**，因为它相对容易在现有 `syncAllPrompts` 函数中实现。如果这个方法解决了问题，就证明了是时序问题。如果问题依然存在，可能就需要更复杂的后台触发机制了。
+
+你想让我尝试修改 `cloudStorage.ts` 文件，在 `syncAllPrompts` 中加入这个重试逻辑吗？

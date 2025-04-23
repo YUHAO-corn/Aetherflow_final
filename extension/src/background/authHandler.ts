@@ -1,4 +1,4 @@
-import { GoogleAuthProvider, signInWithCredential, getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithCredential, getAuth, onAuthStateChanged, signOut, linkWithCredential } from 'firebase/auth';
 import { getFirebaseAuth, mapFirebaseUser } from '../services/auth/firebase'; // Corrected import path based on file search results
 import { User } from '../services/auth/types'; // Import User type if not already present
 
@@ -11,7 +11,7 @@ import { User } from '../services/auth/types'; // Import User type if not alread
  * @param sendResponse - Callback function to send the response back to the caller.
  */
 export async function handleLoginWithGoogle(
-  payload: any, 
+  payload: { isAnonymousUser?: boolean },
   sender: chrome.runtime.MessageSender, 
   sendResponse: (response?: any) => void
 ): Promise<void> {
@@ -91,28 +91,87 @@ export async function handleLoginWithGoogle(
         // The ID token (first argument) is null when using OAuth access tokens
         const credential = GoogleAuthProvider.credential(null, accessToken); 
         
-        // Sign in to Firebase with the credential
-        console.log('[Background - authHandler] Signing into Firebase with the obtained token...');
+        // --- Link or Sign In Logic --- 
+        console.log('[Background - authHandler] Checking if user is anonymous for linking...');
         const auth = getFirebaseAuth(); // Get the initialized Firebase Auth instance
-        const userCredential = await signInWithCredential(auth, credential);
+        const currentUser = auth.currentUser;
+        const isAnonymous = payload?.isAnonymousUser; // Check the flag from the payload
         
+        let userCredential;
+        
+        if (isAnonymous && currentUser && currentUser.isAnonymous) {
+          // If the frontend indicated an anonymous user, and we confirm it here,
+          // attempt to link the Google credential to the existing anonymous account.
+          console.log('[Background - authHandler] Attempting to link Google credential to anonymous user:', currentUser.uid);
+          try {
+            userCredential = await linkWithCredential(currentUser, credential);
+            console.log('[Background - authHandler] Successfully linked Google credential to anonymous user.');
+          } catch(linkError: any) {
+            console.error('[Background - authHandler] Failed to link Google credential:', linkError.code, linkError.message);
+            
+            // --- Auto Sign-in Logic for Existing Google Account ---
+            if (linkError.code === 'auth/credential-already-in-use') {
+              console.log('[Background - authHandler] Google credential already in use detected. Attempting standard sign-in...');
+              try {
+                // Step 1: Sign out the anonymous user silently
+                await signOut(auth); // Use the existing auth instance
+                console.log('[Background - authHandler] Anonymous user signed out successfully.');
+                
+                // Step 2: Attempt to sign in with the *same* Google credential
+                console.log('[Background - authHandler] Attempting sign-in with existing Google credential...');
+                // Re-get auth instance just in case signout affected it (though usually not needed)
+                const freshAuth = getFirebaseAuth(); 
+                userCredential = await signInWithCredential(freshAuth, credential); 
+                console.log('[Background - authHandler] Successfully signed in existing user with Google after conflict.');
+                // *** Let the normal success flow handle the response ***
+              } catch (signInError: any) {
+                 // Handle errors during the sign-out or sign-in attempt
+                 console.error('[Background - authHandler] Error during automatic Google sign-in after conflict:', signInError);
+                 sendResponse({
+                    success: false,
+                    error: {
+                      code: signInError.code || 'auth/auto-signin-error',
+                      message: signInError.message || 'An error occurred while trying to log you into your existing Google account. Please try logging in directly.'
+                    }
+                 });
+                 return; // Stop execution after sending error response
+              }
+            } else {
+              // If the linking error was NOT 'credential-already-in-use', send the original linking error back
+              sendResponse({
+                success: false,
+                error: {
+                  code: linkError.code || 'auth/link-error',
+                  message: linkError.message || 'Failed to link Google account.'
+                }
+              });
+              return; // Stop execution after sending error response
+            }
+          }
+        } else {
+          // If not anonymous, or inconsistency detected, proceed with normal sign-in.
+          console.log('[Background - authHandler] Proceeding with normal Google sign-in...');
+          userCredential = await signInWithCredential(auth, credential);
         console.log('[Background - authHandler] Firebase sign-in successful.');
+        }
+        
+        // --- End Link or Sign In Logic ---
         
         // Map the Firebase user object to our application's user format
         const appUser = mapFirebaseUser(userCredential.user);
         
         // Send the successful response with user data
         sendResponse({ success: true, user: appUser });
-        console.log('[Background - authHandler] User information sent to Sidepanel.');
+        console.log('[Background - authHandler] User information sent after link/sign-in.');
         
       } catch (error: any) {
-        // Handle errors during token processing or Firebase sign-in
-        console.error('[Background - authHandler] Error processing auth response:', error);
+        // Handle errors during token processing or Firebase sign-in/linking
+        console.error('[Background - authHandler] Error processing auth response or during Firebase operation:', error);
         sendResponse({
           success: false,
           error: {
             code: error.code || 'auth/unknown',
-            message: error.message || 'An unknown error occurred while processing the auth response.'
+            message: error.message || 'An unknown error occurred while processing the auth response or signing in.'
           }
         });
       }

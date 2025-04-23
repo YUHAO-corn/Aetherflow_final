@@ -18,7 +18,15 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   
-  const { login, register, loginWithGoogle, resetPassword, loading, error } = useAuth();
+  const { 
+    login, 
+    register, 
+    loginWithGoogle, 
+    resetPassword, 
+    loading, 
+    error, 
+    loadingMessage
+  } = useAuth();
   
   // Reset form when drawer opens
   useEffect(() => {
@@ -182,8 +190,15 @@ const AuthDrawer: React.FC<AuthDrawerProps> = ({ isOpen, onClose }) => {
             </button>
           </div>
           
-          {/* Error alerts */}
-          {(formError || error) && (
+          {/* Loading Message (takes precedence over error) */}
+          {loadingMessage && (
+            <div className="bg-blue-500/20 text-blue-200 px-4 py-2 text-sm animate-pulse">
+              {loadingMessage}
+            </div>
+          )}
+          
+          {/* Error alerts (only shown if loadingMessage is not present) */}
+          {!loadingMessage && (formError || error) && (
             <div className="bg-red-500/20 text-red-200 px-4 py-2 text-sm">
               {formError || error}
             </div>

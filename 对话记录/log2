@@ -1,131 +1,3666 @@
- [SW] CloudStorageService 在 Service Worker 环境中运行，网络监听已禁用
- Firebase App 初始化成功 (web-extension context)
- [SW] [Storage] 在Service Worker环境中使用ChromeStorageService
- [SW] [MembershipService] 在Service Worker中设置自动同步
- [SW] [MembershipService] 在Service Worker环境中运行，网络监听已禁用
- [AuthService] Initial check: No user, attempting anonymous sign-in...
- [AetherFlow] 后台脚本加载成功
- [AetherFlow] 设置Service Worker保活机制
- [PromptMessaging] 初始化提示词消息处理器
- Extension installed/updated: update
- Starting data migration...
- [Storage] 未发现旧格式数据，无需迁移
- 无需进行数据迁移
- 扩展已更新到新版本，正在检查数据...
- [AetherFlow] 豆包 API Key 已写入 storage。
- [AetherFlow] 后台: 初始化示例提示词数据
- [SampleData] Starting to initialize sample prompt data...
- [ChromeStorage] 开始保存提示词: ID=0c42e153-98b2-4c1c-a280-4d84fe04eb61, 标题=How to Study Efficiently, 内容长度=607
- [ChromeStorage] 将提示词保存到键名: prompt_0c42e153-98b2-4c1c-a280-4d84fe04eb61
- [ChromeStorage] 提示词保存成功: ID=0c42e153-98b2-4c1c-a280-4d84fe04eb61
- [ChromeStorage] 开始保存提示词: ID=d41d649e-68c5-467c-97df-3b5924e814c0, 标题=Scientific Body Management, 内容长度=728
- [ChromeStorage] 将提示词保存到键名: prompt_d41d649e-68c5-467c-97df-3b5924e814c0
- [ChromeStorage] 提示词保存成功: ID=d41d649e-68c5-467c-97df-3b5924e814c0
- [ChromeStorage] 开始保存提示词: ID=1e0cc243-7842-40ca-997d-d0a035ebd77e, 标题=Mood Regulation Guide, 内容长度=795
- [ChromeStorage] 将提示词保存到键名: prompt_1e0cc243-7842-40ca-997d-d0a035ebd77e
- [ChromeStorage] 提示词保存成功: ID=1e0cc243-7842-40ca-997d-d0a035ebd77e
- [ChromeStorage] 开始保存提示词: ID=fe03e4b1-e950-47dd-8624-d6c131361c56, 标题=Assignment Feedback Generator, 内容长度=885
- [ChromeStorage] 将提示词保存到键名: prompt_fe03e4b1-e950-47dd-8624-d6c131361c56
- [ChromeStorage] 提示词保存成功: ID=fe03e4b1-e950-47dd-8624-d6c131361c56
- [ChromeStorage] 开始保存提示词: ID=83e27dfa-bb11-4113-ab66-29b1759511b4, 标题=Content Creation Engine, 内容长度=960
- [ChromeStorage] 将提示词保存到键名: prompt_83e27dfa-bb11-4113-ab66-29b1759511b4
- [ChromeStorage] 提示词保存成功: ID=83e27dfa-bb11-4113-ab66-29b1759511b4
- [ChromeStorage] 开始保存提示词: ID=e7fa5a51-7c32-46d2-ac6f-86c01fce6792, 标题=Research Paper Analyzer, 内容长度=999
- [ChromeStorage] 将提示词保存到键名: prompt_e7fa5a51-7c32-46d2-ac6f-86c01fce6792
- [ChromeStorage] 提示词保存成功: ID=e7fa5a51-7c32-46d2-ac6f-86c01fce6792
- [ChromeStorage] 开始保存提示词: ID=c54e2ae0-5195-46c1-8e02-333c0d444f6e, 标题=Legal Document Analyzer, 内容长度=1084
- [ChromeStorage] 将提示词保存到键名: prompt_c54e2ae0-5195-46c1-8e02-333c0d444f6e
- [ChromeStorage] 提示词保存成功: ID=c54e2ae0-5195-46c1-8e02-333c0d444f6e
- [SampleData] Sample prompt data initialization completed
- 示例数据初始化结果: undefined
- Firebase App 已初始化，返回现有实例 (web-extension context)
- [Background] Firebase初始化成功
- [Background] 云存储设置状态: 未启用
- [Background] 在Service Worker中，跳过云存储初始化检查。
- [Background] 当前认证状态: 未登录
- Context menu setup error (might be due to reload): Cannot find menu item with id captureSelection
+sidepanel.js:2 [AuthService] 发起 Google 登录/链接请求...
+background.js:2 [Listeners] Received message: LOGIN_WITH_GOOGLE
+background.js:2 [Background - authHandler] Received LOGIN_WITH_GOOGLE request
+background.js:2 [Background - authHandler] Starting Google auth flow via chrome.identity...
+background.js:2 [Background - authHandler] Generated Redirect URI: https://ldpadjcdbfndeghcklogoppmbnmphbki.chromiumapp.org/
+background.js:2 [Listeners] Received message: CONTENT_SCRIPT_READY
+background.js:2 [Listeners] Received message: CONTENT_SCRIPT_READY
+background.js:2 [Listeners] Received message: CONTENT_SCRIPT_READY
+background.js:2 [Listeners] Received message: CONTENT_SCRIPT_READY
+background.js:2 [Listeners] Received message: CONTENT_SCRIPT_READY
+background.js:2 [Listeners] Received message: CONTENT_SCRIPT_READY
+background.js:2 [AetherFlow] 内容脚本已就绪 (通过消息): 标签页ID 2042167042, URL https://accounts.youtube.com/accounts/CheckConnection?pmpo=https%3A%2F%2Faccounts.google.com&v=1165657146&timestamp=1745428649692
+background.js:2 [Listeners] Received message: CONTENT_SCRIPT_READY
+background.js:2 [Listeners] Received message: CONTENT_SCRIPT_READY
+background.js:2 [Listeners] Received message: CONTENT_SCRIPT_READY
+background.js:2 [Listeners] Received message: CONTENT_SCRIPT_READY
+background.js:2 [Background - authHandler] Successfully obtained auth response.
+background.js:2 [Background - authHandler] Successfully obtained access token.
+background.js:2 [Background - authHandler] Checking if user is anonymous for linking...
+background.js:2 [Background - authHandler] Attempting to link Google credential to anonymous user: oIVAlJ0C0Jdj60RSw4f9ZIweH1X2
+background.js:2 [AetherFlow-DEBUG] 标签页关闭，移除注册: ID=2042167042
+background.js:2 [Background - authHandler] Failed to link Google credential: auth/credential-already-in-use Firebase: Error (auth/credential-already-in-use).
 （匿名） @ background.js:2
+background.js:2 [Background - authHandler] Google credential already in use detected. Attempting standard sign-in...
+background.js:2 [Background - authHandler] Anonymous user signed out successfully.
+background.js:2 [Background - authHandler] Attempting sign-in with existing Google credential...
+sidepanel.js:2 [AuthService] onAuthStateChanged: No user found.
+sidepanel.js:2 [Window] [MembershipService] 用户登出，清理监听
+ [AuthService] Attempting anonymous sign-in...
+ [SessionManager] 用户会话结束，开始清理状态...
+ [SessionManager] 清理本地存储中的用户数据...
+ [AuthService] onAuthStateChanged: No user found.
+ [useMembership] 用户登出，重置为本地会员状态
+ [AuthService] Attempting anonymous sign-in...
+ [SessionManager] 用户会话结束，开始清理状态...
+ [SessionManager] 清理本地存储中的用户数据...
+ [AuthService] onAuthStateChanged: No user found.
+ [useAuth] Auth state changed (AppUser): null
+ [AuthService] Attempting anonymous sign-in...
+ [SessionManager] 用户会话结束，开始清理状态...
+ [SessionManager] 清理本地存储中的用户数据...
+ [AuthService] onAuthStateChanged: No user found.
+ [useMembership] 用户登出，重置为本地会员状态
+ [AuthService] Attempting anonymous sign-in...
+ [SessionManager] 用户会话结束，开始清理状态...
+ [SessionManager] 清理本地存储中的用户数据...
+ [AuthService] onAuthStateChanged: No user found.
+ [useMembership] 用户登出，重置为本地会员状态
+ [AuthService] Attempting anonymous sign-in...
+ [SessionManager] 用户会话结束，开始清理状态...
+ [SessionManager] 清理本地存储中的用户数据...
+ [AuthService] onAuthStateChanged: No user found.
+ [useAuth] Auth state changed (AppUser): null
+ [AuthService] Attempting anonymous sign-in...
+ [SessionManager] 用户会话结束，开始清理状态...
+ [SessionManager] 清理本地存储中的用户数据...
+ [AuthService] onAuthStateChanged: No user found.
+ [useAuth] Auth state changed (AppUser): null
+ [AuthService] Attempting anonymous sign-in...
+ [SessionManager] 用户会话结束，开始清理状态...
+ [SessionManager] 清理本地存储中的用户数据...
+ [AuthService] onAuthStateChanged: No user found.
+ [useMembership] 用户登出，重置为本地会员状态
+ [AuthService] Attempting anonymous sign-in...
+ [SessionManager] 用户会话结束，开始清理状态...
+ [SessionManager] 清理本地存储中的用户数据...
+ [AuthService] onAuthStateChanged: No user found.
+ [useMembership] 用户登出，重置为本地会员状态
+ [AuthService] Attempting anonymous sign-in...
+ [SessionManager] 用户会话结束，开始清理状态...
+ [SessionManager] 清理本地存储中的用户数据...
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [SessionManager] 本地存储清理完成
+ [Window] [MembershipService] 重置会员服务状态
+ [SessionManager] 本地存储清理完成
+ [Window] [MembershipService] 重置会员服务状态
+ [SessionManager] 本地存储清理完成
+ [Window] [MembershipService] 重置会员服务状态
+ [SessionManager] 本地存储清理完成
+ [Window] [MembershipService] 重置会员服务状态
+ [SessionManager] 本地存储清理完成
+sidepanel.js:2 [Window] [MembershipService] 重置会员服务状态
+sidepanel.js:2 [SessionManager] 本地存储清理完成
+sidepanel.js:2 [Window] [MembershipService] 重置会员服务状态
+sidepanel.js:2 [SessionManager] 本地存储清理完成
+sidepanel.js:2 [Window] [MembershipService] 重置会员服务状态
+sidepanel.js:2 [SessionManager] 本地存储清理完成
+sidepanel.js:2 [Window] [MembershipService] 重置会员服务状态
+sidepanel.js:2 [SessionManager] 本地存储清理完成
+sidepanel.js:2 [Window] [MembershipService] 重置会员服务状态
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [Window] [MembershipService] 已广播会员状态更新消息
+sidepanel.js:2 [Window] [MembershipService] 会员服务状态已重置
+sidepanel.js:2 [CloudStorageService] 重置云存储服务状态
+sidepanel.js:2 [SessionManager] 状态清理完成
+sidepanel.js:2 [Window] [MembershipService] 已广播会员状态更新消息
+sidepanel.js:2 [Window] [MembershipService] 会员服务状态已重置
+sidepanel.js:2 [CloudStorageService] 重置云存储服务状态
+sidepanel.js:2 [SessionManager] 状态清理完成
+sidepanel.js:2 [Window] [MembershipService] 已广播会员状态更新消息
+sidepanel.js:2 [Window] [MembershipService] 会员服务状态已重置
+sidepanel.js:2 [CloudStorageService] 重置云存储服务状态
+sidepanel.js:2 [SessionManager] 状态清理完成
+sidepanel.js:2 [Window] [MembershipService] 已广播会员状态更新消息
+sidepanel.js:2 [Window] [MembershipService] 会员服务状态已重置
+sidepanel.js:2 [CloudStorageService] 重置云存储服务状态
+sidepanel.js:2 [SessionManager] 状态清理完成
+sidepanel.js:2 [Window] [MembershipService] 已广播会员状态更新消息
+sidepanel.js:2 [Window] [MembershipService] 会员服务状态已重置
+sidepanel.js:2 [CloudStorageService] 重置云存储服务状态
+sidepanel.js:2 [SessionManager] 状态清理完成
+sidepanel.js:2 [Window] [MembershipService] 已广播会员状态更新消息
+sidepanel.js:2 [Window] [MembershipService] 会员服务状态已重置
+sidepanel.js:2 [CloudStorageService] 重置云存储服务状态
+background.js:2 [Listeners] Received message: MEMBERSHIP_STATUS_UPDATED
+sidepanel.js:2 [SessionManager] 状态清理完成
+sidepanel.js:2 [Window] [MembershipService] 已广播会员状态更新消息
+sidepanel.js:2 [Window] [MembershipService] 会员服务状态已重置
+sidepanel.js:2 [CloudStorageService] 重置云存储服务状态
+sidepanel.js:2 [SessionManager] 状态清理完成
+background.js:2 [Listeners] Unhandled message type: MEMBERSHIP_STATUS_UPDATED
+（匿名） @ background.js:2
+sidepanel.js:2 [Window] [MembershipService] 已广播会员状态更新消息
+sidepanel.js:2 [Window] [MembershipService] 会员服务状态已重置
+sidepanel.js:2 [CloudStorageService] 重置云存储服务状态
+sidepanel.js:2 [SessionManager] 状态清理完成
+sidepanel.js:2 [Window] [MembershipService] 已广播会员状态更新消息
+sidepanel.js:2 [Window] [MembershipService] 会员服务状态已重置
+sidepanel.js:2 [CloudStorageService] 重置云存储服务状态
+sidepanel.js:2 [SessionManager] 状态清理完成
+background.js:2 [Listeners] Received message: MEMBERSHIP_STATUS_UPDATED
+background.js:2 [Listeners] Unhandled message type: MEMBERSHIP_STATUS_UPDATED
+（匿名） @ background.js:2
+background.js:2 [Listeners] Received message: MEMBERSHIP_STATUS_UPDATED
+background.js:2 [Listeners] Unhandled message type: MEMBERSHIP_STATUS_UPDATED
+（匿名） @ background.js:2
+background.js:2 [Listeners] Received message: MEMBERSHIP_STATUS_UPDATED
+background.js:2 [Listeners] Unhandled message type: MEMBERSHIP_STATUS_UPDATED
+（匿名） @ background.js:2
+background.js:2 [Listeners] Received message: MEMBERSHIP_STATUS_UPDATED
+background.js:2 [Listeners] Unhandled message type: MEMBERSHIP_STATUS_UPDATED
+（匿名） @ background.js:2
+background.js:2 [Listeners] Received message: MEMBERSHIP_STATUS_UPDATED
+background.js:2 [Listeners] Unhandled message type: MEMBERSHIP_STATUS_UPDATED
+（匿名） @ background.js:2
+background.js:2 [Listeners] Received message: MEMBERSHIP_STATUS_UPDATED
+background.js:2 [Listeners] Unhandled message type: MEMBERSHIP_STATUS_UPDATED
+（匿名） @ background.js:2
+background.js:2 [Listeners] Received message: MEMBERSHIP_STATUS_UPDATED
+background.js:2 [Listeners] Unhandled message type: MEMBERSHIP_STATUS_UPDATED
+（匿名） @ background.js:2
+background.js:2 [Listeners] Received message: MEMBERSHIP_STATUS_UPDATED
+background.js:2 [Listeners] Unhandled message type: MEMBERSHIP_STATUS_UPDATED
+（匿名） @ background.js:2
+background.js:2 [CloudStorage] 开始执行 syncAllPrompts
+ [Background - authHandler] Successfully signed in existing user with Google after conflict.
+ [Background - authHandler] User information sent after link/sign-in.
+ [AuthService] Google 登录/链接成功，收到用户信息: {uid: 'vSRFczgpo8aW7MbAXv6byuwkPIV2', email: 'godcorn001@gmail.com', displayName: 'Aetherflow', photoURL: 'https://lh3.googleusercontent.com/a/ACg8ocIgWlE-Lcj0kGs-RQw3RHoF4HpYH6QGd7qeNoiXiQxXFezb4w=s96-c', isAnonymous: false, …}
+ [CloudStorage] 获取到 0 个本地提示词
+ [ChromeStorage] 开始保存提示词: ID=011989e2-2b15-4695-b0c3-7a92cc622607, 标题=How to Study Efficiently, 内容长度=607
+ [ChromeStorage] 将提示词保存到键名: prompt_011989e2-2b15-4695-b0c3-7a92cc622607
+ [ChromeStorage] 开始保存提示词: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04, 标题=Research Paper Analyzer, 内容长度=999
+ [ChromeStorage] 将提示词保存到键名: prompt_0d70f4cd-a93e-4f64-99f1-49f3397d9b04
+ [ChromeStorage] 开始保存提示词: ID=1307c22a-2e54-49a7-a7bf-1afb8d80fcd0, 标题=123, 内容长度=3
+ [ChromeStorage] 将提示词保存到键名: prompt_1307c22a-2e54-49a7-a7bf-1afb8d80fcd0
+ [ChromeStorage] 开始保存提示词: ID=179a724b-4bab-4127-a862-c5ce761b8c8c, 标题=Mood Regulation Guide, 内容长度=795
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [ChromeStorage] 将提示词保存到键名: prompt_179a724b-4bab-4127-a862-c5ce761b8c8c
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [ChromeStorage] 开始保存提示词: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d, 标题=Assignment Feedback Generator, 内容长度=885
+ [ChromeStorage] 将提示词保存到键名: prompt_1a622540-0539-44f4-8c5b-ff3ff28d1a3d
+ [ChromeStorage] 开始保存提示词: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9, 标题=Mood Regulation Guide, 内容长度=795
+ [ChromeStorage] 将提示词保存到键名: prompt_1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [ChromeStorage] 开始保存提示词: ID=35022091-0817-4074-af83-e9662d6717a9, 标题=Scientific Body Management, 内容长度=728
+ [ChromeStorage] 将提示词保存到键名: prompt_35022091-0817-4074-af83-e9662d6717a9
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+background.js:2 [ChromeStorage] 开始保存提示词: ID=44e5da5d-72db-4179-95a7-87190e1624a7, 标题=Legal Document Analyzer, 内容长度=1084
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_44e5da5d-72db-4179-95a7-87190e1624a7
+background.js:2 [ChromeStorage] 开始保存提示词: ID=48100976-9344-4429-9d3c-7e85c5c4f835, 标题=How to Study Efficiently, 内容长度=607
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_48100976-9344-4429-9d3c-7e85c5c4f835
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+background.js:2 [ChromeStorage] 开始保存提示词: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69, 标题=Content Creation Engine, 内容长度=960
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+background.js:2 [ChromeStorage] 开始保存提示词: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2, 标题=Legal Document Analyzer, 内容长度=1084
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_6c5040b7-0ad8-4ca7-b747-3eacef113ff2
+background.js:2 [ChromeStorage] 开始保存提示词: ID=8d452bdf-f2f1-49dd-b695-7ffae7f24156, 标题=123, 内容长度=15
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_8d452bdf-f2f1-49dd-b695-7ffae7f24156
+background.js:2 [ChromeStorage] 开始保存提示词: ID=91988521-8262-46c8-b456-9e66c90bfa85, 标题=happy, 内容长度=5
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_91988521-8262-46c8-b456-9e66c90bfa85
+background.js:2 [ChromeStorage] 开始保存提示词: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b, 标题=Research Paper Analyzer, 内容长度=999
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_b0643e3e-3be9-45bf-9a60-f7fa5eca601b
+background.js:2 [ChromeStorage] 开始保存提示词: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea, 标题=Content Creation Engine, 内容长度=960
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+background.js:2 [ChromeStorage] 开始保存提示词: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc, 标题=Assignment Feedback Generator, 内容长度=885
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_dce22bfb-fe40-48d8-be44-846c9fccc0dc
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+background.js:2 [ChromeStorage] 开始保存提示词: ID=e2619f6d-0abb-4303-80ab-750c3003c35b, 标题=Scientific Body Management, 内容长度=728
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_e2619f6d-0abb-4303-80ab-750c3003c35b
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+background.js:2 [ChromeStorage] 提示词保存成功: ID=011989e2-2b15-4695-b0c3-7a92cc622607
+background.js:2 [ChromeStorage] 提示词保存成功: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04
+background.js:2 [ChromeStorage] 提示词保存成功: ID=1307c22a-2e54-49a7-a7bf-1afb8d80fcd0
+background.js:2 [ChromeStorage] 提示词保存成功: ID=179a724b-4bab-4127-a862-c5ce761b8c8c
+background.js:2 [ChromeStorage] 提示词保存成功: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d
+background.js:2 [ChromeStorage] 提示词保存成功: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
+background.js:2 [ChromeStorage] 提示词保存成功: ID=35022091-0817-4074-af83-e9662d6717a9
+background.js:2 [ChromeStorage] 提示词保存成功: ID=44e5da5d-72db-4179-95a7-87190e1624a7
+background.js:2 [ChromeStorage] 提示词保存成功: ID=48100976-9344-4429-9d3c-7e85c5c4f835
+background.js:2 [ChromeStorage] 提示词保存成功: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
+background.js:2 [ChromeStorage] 提示词保存成功: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2
+background.js:2 [ChromeStorage] 提示词保存成功: ID=8d452bdf-f2f1-49dd-b695-7ffae7f24156
+background.js:2 [ChromeStorage] 提示词保存成功: ID=91988521-8262-46c8-b456-9e66c90bfa85
+background.js:2 [ChromeStorage] 提示词保存成功: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b
+background.js:2 [ChromeStorage] 提示词保存成功: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
+background.js:2 [ChromeStorage] 提示词保存成功: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc
+background.js:2 [ChromeStorage] 提示词保存成功: ID=e2619f6d-0abb-4303-80ab-750c3003c35b
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+background.js:2 [CloudStorage] 获取到 17 个云端活动提示词
+background.js:2 [CloudStorage] 准备下载云端独有提示词: 011989e2-2b15-4695-b0c3-7a92cc622607
+background.js:2 [ChromeStorage] 开始保存提示词: ID=011989e2-2b15-4695-b0c3-7a92cc622607, 标题=How to Study Efficiently, 内容长度=607
+ [ChromeStorage] 将提示词保存到键名: prompt_011989e2-2b15-4695-b0c3-7a92cc622607
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [ChromeStorage] 提示词保存成功: ID=011989e2-2b15-4695-b0c3-7a92cc622607
+ [CloudStorage] 准备下载云端独有提示词: 0d70f4cd-a93e-4f64-99f1-49f3397d9b04
+ [ChromeStorage] 开始保存提示词: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04, 标题=Research Paper Analyzer, 内容长度=999
+ [ChromeStorage] 将提示词保存到键名: prompt_0d70f4cd-a93e-4f64-99f1-49f3397d9b04
+ [ChromeStorage] 提示词保存成功: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04
+ [CloudStorage] 准备下载云端独有提示词: 1307c22a-2e54-49a7-a7bf-1afb8d80fcd0
+ [ChromeStorage] 开始保存提示词: ID=1307c22a-2e54-49a7-a7bf-1afb8d80fcd0, 标题=123, 内容长度=3
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [ChromeStorage] 将提示词保存到键名: prompt_1307c22a-2e54-49a7-a7bf-1afb8d80fcd0
+ [usePromptsData] Re-sorting prompts by createdAt desc
+ [usePromptsData] Re-sorting prompts by createdAt desc
+ [usePromptsData] Re-sorting prompts by createdAt desc
+ [usePromptsData] Re-sorting prompts by createdAt desc
+ [ChromeStorage] 提示词保存成功: ID=1307c22a-2e54-49a7-a7bf-1afb8d80fcd0
+ [CloudStorage] 准备下载云端独有提示词: 179a724b-4bab-4127-a862-c5ce761b8c8c
+ [ChromeStorage] 开始保存提示词: ID=179a724b-4bab-4127-a862-c5ce761b8c8c, 标题=Mood Regulation Guide, 内容长度=795
+ [ChromeStorage] 将提示词保存到键名: prompt_179a724b-4bab-4127-a862-c5ce761b8c8c
+ [ChromeStorage] 提示词保存成功: ID=179a724b-4bab-4127-a862-c5ce761b8c8c
+ [CloudStorage] 准备下载云端独有提示词: 1a622540-0539-44f4-8c5b-ff3ff28d1a3d
+ [ChromeStorage] 开始保存提示词: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d, 标题=Assignment Feedback Generator, 内容长度=885
+ [ChromeStorage] 将提示词保存到键名: prompt_1a622540-0539-44f4-8c5b-ff3ff28d1a3d
+ [ChromeStorage] 提示词保存成功: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d
+ [CloudStorage] 准备下载云端独有提示词: 1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
+ [ChromeStorage] 开始保存提示词: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9, 标题=Mood Regulation Guide, 内容长度=795
+ [ChromeStorage] 将提示词保存到键名: prompt_1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
+ [ChromeStorage] 提示词保存成功: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
+ [CloudStorage] 准备下载云端独有提示词: 35022091-0817-4074-af83-e9662d6717a9
+ [ChromeStorage] 开始保存提示词: ID=35022091-0817-4074-af83-e9662d6717a9, 标题=Scientific Body Management, 内容长度=728
+ [ChromeStorage] 将提示词保存到键名: prompt_35022091-0817-4074-af83-e9662d6717a9
+ [usePromptsData] Re-sorting prompts by createdAt desc
+ [ChromeStorage] 提示词保存成功: ID=35022091-0817-4074-af83-e9662d6717a9
+ [CloudStorage] 准备下载云端独有提示词: 44e5da5d-72db-4179-95a7-87190e1624a7
+ [ChromeStorage] 开始保存提示词: ID=44e5da5d-72db-4179-95a7-87190e1624a7, 标题=Legal Document Analyzer, 内容长度=1084
+ [ChromeStorage] 将提示词保存到键名: prompt_44e5da5d-72db-4179-95a7-87190e1624a7
+ [ChromeStorage] 提示词保存成功: ID=44e5da5d-72db-4179-95a7-87190e1624a7
+ [CloudStorage] 准备下载云端独有提示词: 48100976-9344-4429-9d3c-7e85c5c4f835
+ [ChromeStorage] 开始保存提示词: ID=48100976-9344-4429-9d3c-7e85c5c4f835, 标题=How to Study Efficiently, 内容长度=607
+ [ChromeStorage] 将提示词保存到键名: prompt_48100976-9344-4429-9d3c-7e85c5c4f835
+ [ChromeStorage] 提示词保存成功: ID=48100976-9344-4429-9d3c-7e85c5c4f835
+ [CloudStorage] 准备下载云端独有提示词: 4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
+ [ChromeStorage] 开始保存提示词: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69, 标题=Content Creation Engine, 内容长度=960
+ [ChromeStorage] 将提示词保存到键名: prompt_4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
+ [ChromeStorage] 提示词保存成功: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
+ [CloudStorage] 准备下载云端独有提示词: 6c5040b7-0ad8-4ca7-b747-3eacef113ff2
+ [ChromeStorage] 开始保存提示词: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2, 标题=Legal Document Analyzer, 内容长度=1084
+ [ChromeStorage] 将提示词保存到键名: prompt_6c5040b7-0ad8-4ca7-b747-3eacef113ff2
+ [ChromeStorage] 提示词保存成功: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2
+ [CloudStorage] 准备下载云端独有提示词: 8d452bdf-f2f1-49dd-b695-7ffae7f24156
+ [ChromeStorage] 开始保存提示词: ID=8d452bdf-f2f1-49dd-b695-7ffae7f24156, 标题=123, 内容长度=15
+ [ChromeStorage] 将提示词保存到键名: prompt_8d452bdf-f2f1-49dd-b695-7ffae7f24156
+ [ChromeStorage] 提示词保存成功: ID=8d452bdf-f2f1-49dd-b695-7ffae7f24156
+ [CloudStorage] 准备下载云端独有提示词: 91988521-8262-46c8-b456-9e66c90bfa85
+ [ChromeStorage] 开始保存提示词: ID=91988521-8262-46c8-b456-9e66c90bfa85, 标题=happy, 内容长度=5
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_91988521-8262-46c8-b456-9e66c90bfa85
+background.js:2 [ChromeStorage] 提示词保存成功: ID=91988521-8262-46c8-b456-9e66c90bfa85
+background.js:2 [CloudStorage] 准备下载云端独有提示词: b0643e3e-3be9-45bf-9a60-f7fa5eca601b
+background.js:2 [ChromeStorage] 开始保存提示词: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b, 标题=Research Paper Analyzer, 内容长度=999
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_b0643e3e-3be9-45bf-9a60-f7fa5eca601b
+background.js:2 [ChromeStorage] 提示词保存成功: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b
+background.js:2 [CloudStorage] 准备下载云端独有提示词: d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
+background.js:2 [ChromeStorage] 开始保存提示词: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea, 标题=Content Creation Engine, 内容长度=960
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
+background.js:2 [ChromeStorage] 提示词保存成功: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
+background.js:2 [CloudStorage] 准备下载云端独有提示词: dce22bfb-fe40-48d8-be44-846c9fccc0dc
+background.js:2 [ChromeStorage] 开始保存提示词: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc, 标题=Assignment Feedback Generator, 内容长度=885
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_dce22bfb-fe40-48d8-be44-846c9fccc0dc
+background.js:2 [ChromeStorage] 提示词保存成功: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc
+background.js:2 [CloudStorage] 准备下载云端独有提示词: e2619f6d-0abb-4303-80ab-750c3003c35b
+background.js:2 [ChromeStorage] 开始保存提示词: ID=e2619f6d-0abb-4303-80ab-750c3003c35b, 标题=Scientific Body Management, 内容长度=728
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_e2619f6d-0abb-4303-80ab-750c3003c35b
+background.js:2 [ChromeStorage] 提示词保存成功: ID=e2619f6d-0abb-4303-80ab-750c3003c35b
+background.js:2 [CloudStorage] syncAllPrompts 完成 {uploaded: 0, downloaded: 17, conflicts: 0, resolved: 0}
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [CloudStorage] 开始执行 syncAllPrompts
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found vSRFczgpo8aW7MbAXv6byuwkPIV2 isAnonymous: false
+sidepanel.js:2 [Window] [MembershipService] 用户 vSRFczgpo8aW7MbAXv6byuwkPIV2 登录，同步会员状态
+sidepanel.js:2 [Window] [MembershipService] 为用户 vSRFczgpo8aW7MbAXv6byuwkPIV2 设置 Firestore 会员状态监听
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found vSRFczgpo8aW7MbAXv6byuwkPIV2 isAnonymous: false
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found vSRFczgpo8aW7MbAXv6byuwkPIV2 isAnonymous: false
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'vSRFczgpo8aW7MbAXv6byuwkPIV2', email: 'godcorn001@gmail.com', displayName: 'Aetherflow', photoURL: 'https://lh3.googleusercontent.com/a/ACg8ocIgWlE-Lcj0kGs-RQw3RHoF4HpYH6QGd7qeNoiXiQxXFezb4w=s96-c', isAnonymous: false, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found vSRFczgpo8aW7MbAXv6byuwkPIV2 isAnonymous: false
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found vSRFczgpo8aW7MbAXv6byuwkPIV2 isAnonymous: false
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found vSRFczgpo8aW7MbAXv6byuwkPIV2 isAnonymous: false
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'vSRFczgpo8aW7MbAXv6byuwkPIV2', email: 'godcorn001@gmail.com', displayName: 'Aetherflow', photoURL: 'https://lh3.googleusercontent.com/a/ACg8ocIgWlE-Lcj0kGs-RQw3RHoF4HpYH6QGd7qeNoiXiQxXFezb4w=s96-c', isAnonymous: false, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found vSRFczgpo8aW7MbAXv6byuwkPIV2 isAnonymous: false
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'vSRFczgpo8aW7MbAXv6byuwkPIV2', email: 'godcorn001@gmail.com', displayName: 'Aetherflow', photoURL: 'https://lh3.googleusercontent.com/a/ACg8ocIgWlE-Lcj0kGs-RQw3RHoF4HpYH6QGd7qeNoiXiQxXFezb4w=s96-c', isAnonymous: false, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found vSRFczgpo8aW7MbAXv6byuwkPIV2 isAnonymous: false
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found vSRFczgpo8aW7MbAXv6byuwkPIV2 isAnonymous: false
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [Window] [MembershipService] 验证用户 vSRFczgpo8aW7MbAXv6byuwkPIV2 的会员状态
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [CloudStorage] 获取到 17 个本地提示词
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: vSRFczgpo8aW7MbAXv6byuwkPIV2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: vSRFczgpo8aW7MbAXv6byuwkPIV2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: vSRFczgpo8aW7MbAXv6byuwkPIV2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: vSRFczgpo8aW7MbAXv6byuwkPIV2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: vSRFczgpo8aW7MbAXv6byuwkPIV2
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+ [ChromeStorage] 开始保存提示词: ID=011989e2-2b15-4695-b0c3-7a92cc622607, 标题=How to Study Efficiently, 内容长度=607
+ [ChromeStorage] 将提示词保存到键名: prompt_011989e2-2b15-4695-b0c3-7a92cc622607
+ [ChromeStorage] 开始保存提示词: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04, 标题=Research Paper Analyzer, 内容长度=999
+ [ChromeStorage] 将提示词保存到键名: prompt_0d70f4cd-a93e-4f64-99f1-49f3397d9b04
+ [ChromeStorage] 开始保存提示词: ID=1307c22a-2e54-49a7-a7bf-1afb8d80fcd0, 标题=123, 内容长度=3
+ [ChromeStorage] 将提示词保存到键名: prompt_1307c22a-2e54-49a7-a7bf-1afb8d80fcd0
+ [ChromeStorage] 开始保存提示词: ID=179a724b-4bab-4127-a862-c5ce761b8c8c, 标题=Mood Regulation Guide, 内容长度=795
+ [ChromeStorage] 将提示词保存到键名: prompt_179a724b-4bab-4127-a862-c5ce761b8c8c
+ [ChromeStorage] 开始保存提示词: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d, 标题=Assignment Feedback Generator, 内容长度=885
+ [ChromeStorage] 将提示词保存到键名: prompt_1a622540-0539-44f4-8c5b-ff3ff28d1a3d
+ [ChromeStorage] 开始保存提示词: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9, 标题=Mood Regulation Guide, 内容长度=795
+ [ChromeStorage] 将提示词保存到键名: prompt_1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
+ [ChromeStorage] 开始保存提示词: ID=35022091-0817-4074-af83-e9662d6717a9, 标题=Scientific Body Management, 内容长度=728
+ [ChromeStorage] 将提示词保存到键名: prompt_35022091-0817-4074-af83-e9662d6717a9
+ [ChromeStorage] 开始保存提示词: ID=44e5da5d-72db-4179-95a7-87190e1624a7, 标题=Legal Document Analyzer, 内容长度=1084
+ [ChromeStorage] 将提示词保存到键名: prompt_44e5da5d-72db-4179-95a7-87190e1624a7
+ [ChromeStorage] 开始保存提示词: ID=48100976-9344-4429-9d3c-7e85c5c4f835, 标题=How to Study Efficiently, 内容长度=607
+ [ChromeStorage] 将提示词保存到键名: prompt_48100976-9344-4429-9d3c-7e85c5c4f835
+ [ChromeStorage] 开始保存提示词: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69, 标题=Content Creation Engine, 内容长度=960
+ [ChromeStorage] 将提示词保存到键名: prompt_4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
+ [ChromeStorage] 开始保存提示词: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2, 标题=Legal Document Analyzer, 内容长度=1084
+ [ChromeStorage] 将提示词保存到键名: prompt_6c5040b7-0ad8-4ca7-b747-3eacef113ff2
+ [ChromeStorage] 开始保存提示词: ID=8d452bdf-f2f1-49dd-b695-7ffae7f24156, 标题=123, 内容长度=15
+ [ChromeStorage] 将提示词保存到键名: prompt_8d452bdf-f2f1-49dd-b695-7ffae7f24156
+ [ChromeStorage] 开始保存提示词: ID=91988521-8262-46c8-b456-9e66c90bfa85, 标题=happy, 内容长度=5
+ [ChromeStorage] 将提示词保存到键名: prompt_91988521-8262-46c8-b456-9e66c90bfa85
+ [ChromeStorage] 开始保存提示词: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b, 标题=Research Paper Analyzer, 内容长度=999
+ [ChromeStorage] 将提示词保存到键名: prompt_b0643e3e-3be9-45bf-9a60-f7fa5eca601b
+ [ChromeStorage] 开始保存提示词: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea, 标题=Content Creation Engine, 内容长度=960
+ [ChromeStorage] 将提示词保存到键名: prompt_d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
+ [ChromeStorage] 开始保存提示词: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc, 标题=Assignment Feedback Generator, 内容长度=885
+ [ChromeStorage] 将提示词保存到键名: prompt_dce22bfb-fe40-48d8-be44-846c9fccc0dc
+ [ChromeStorage] 开始保存提示词: ID=e2619f6d-0abb-4303-80ab-750c3003c35b, 标题=Scientific Body Management, 内容长度=728
+ [ChromeStorage] 将提示词保存到键名: prompt_e2619f6d-0abb-4303-80ab-750c3003c35b
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+ [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=011989e2-2b15-4695-b0c3-7a92cc622607
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=1307c22a-2e54-49a7-a7bf-1afb8d80fcd0
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=179a724b-4bab-4127-a862-c5ce761b8c8c
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=35022091-0817-4074-af83-e9662d6717a9
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=44e5da5d-72db-4179-95a7-87190e1624a7
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=48100976-9344-4429-9d3c-7e85c5c4f835
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=8d452bdf-f2f1-49dd-b695-7ffae7f24156
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=91988521-8262-46c8-b456-9e66c90bfa85
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=e2619f6d-0abb-4303-80ab-750c3003c35b
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [CloudStorage] 开始执行 syncAllPrompts
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found IQxtuUSyBba2AXAbYQRiYfkohje2 isAnonymous: true
+sidepanel.js:2 [Window] [MembershipService] 用户 IQxtuUSyBba2AXAbYQRiYfkohje2 登录，同步会员状态
+sidepanel.js:2 [Window] [MembershipService] 为用户 IQxtuUSyBba2AXAbYQRiYfkohje2 设置 Firestore 会员状态监听
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found IQxtuUSyBba2AXAbYQRiYfkohje2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found IQxtuUSyBba2AXAbYQRiYfkohje2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'IQxtuUSyBba2AXAbYQRiYfkohje2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found IQxtuUSyBba2AXAbYQRiYfkohje2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found IQxtuUSyBba2AXAbYQRiYfkohje2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found IQxtuUSyBba2AXAbYQRiYfkohje2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'IQxtuUSyBba2AXAbYQRiYfkohje2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found IQxtuUSyBba2AXAbYQRiYfkohje2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'IQxtuUSyBba2AXAbYQRiYfkohje2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found IQxtuUSyBba2AXAbYQRiYfkohje2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found IQxtuUSyBba2AXAbYQRiYfkohje2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] Anonymous sign-in successful. IQxtuUSyBba2AXAbYQRiYfkohje2
+sidepanel.js:2 [CloudStorage] 获取到 17 个本地提示词
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: d7XtSfQj00PQoS512zksQpgkCwM2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: d7XtSfQj00PQoS512zksQpgkCwM2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: d7XtSfQj00PQoS512zksQpgkCwM2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: d7XtSfQj00PQoS512zksQpgkCwM2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: d7XtSfQj00PQoS512zksQpgkCwM2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: d7XtSfQj00PQoS512zksQpgkCwM2
+sidepanel.js:2 [CloudStorage] 开始执行 syncAllPrompts
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found d7XtSfQj00PQoS512zksQpgkCwM2 isAnonymous: true
+sidepanel.js:2 [Window] [MembershipService] 用户 d7XtSfQj00PQoS512zksQpgkCwM2 登录，同步会员状态
+sidepanel.js:2 [Window] [MembershipService] 为用户 d7XtSfQj00PQoS512zksQpgkCwM2 设置 Firestore 会员状态监听
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found d7XtSfQj00PQoS512zksQpgkCwM2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found d7XtSfQj00PQoS512zksQpgkCwM2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'd7XtSfQj00PQoS512zksQpgkCwM2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found d7XtSfQj00PQoS512zksQpgkCwM2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found d7XtSfQj00PQoS512zksQpgkCwM2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found d7XtSfQj00PQoS512zksQpgkCwM2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'd7XtSfQj00PQoS512zksQpgkCwM2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found d7XtSfQj00PQoS512zksQpgkCwM2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'd7XtSfQj00PQoS512zksQpgkCwM2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found d7XtSfQj00PQoS512zksQpgkCwM2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found d7XtSfQj00PQoS512zksQpgkCwM2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] Anonymous sign-in successful. d7XtSfQj00PQoS512zksQpgkCwM2
+sidepanel.js:2 [CloudStorage] 获取到 17 个本地提示词
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: vaO1Pwf14XQvKK0sx5qDx5grndS2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: vaO1Pwf14XQvKK0sx5qDx5grndS2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: vaO1Pwf14XQvKK0sx5qDx5grndS2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: vaO1Pwf14XQvKK0sx5qDx5grndS2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: vaO1Pwf14XQvKK0sx5qDx5grndS2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: vaO1Pwf14XQvKK0sx5qDx5grndS2
  [CloudStorage] 开始执行 syncAllPrompts
- [AuthService] onAuthStateChanged: User found jGisq1sXKYekj5jXsNrC3UyIqD92 isAnonymous: true
- [SW] [MembershipService] 用户 jGisq1sXKYekj5jXsNrC3UyIqD92 登录，同步会员状态
- [SW] [MembershipService] 为用户 jGisq1sXKYekj5jXsNrC3UyIqD92 设置 Firestore 会员状态监听
- [AuthService] getCurrentUser: Found currentUser directly.
- [AuthService] Initial anonymous sign-in successful. jGisq1sXKYekj5jXsNrC3UyIqD92
- [SW] [MembershipService] 验证用户 jGisq1sXKYekj5jXsNrC3UyIqD92 的会员状态
-background.js:2 [CloudStorage] 获取到 7 个本地提示词
-background.js:2 [SW] [MembershipService] 会员状态文档不存在，尝试从用户文档读取
+ [AuthService] onAuthStateChanged: User found vaO1Pwf14XQvKK0sx5qDx5grndS2 isAnonymous: true
+ [Window] [MembershipService] 用户 vaO1Pwf14XQvKK0sx5qDx5grndS2 登录，同步会员状态
+ [Window] [MembershipService] 为用户 vaO1Pwf14XQvKK0sx5qDx5grndS2 设置 Firestore 会员状态监听
+ [Window] [MembershipService] 正在进行同步，跳过此次验证
+ [AuthService] onAuthStateChanged: User found vaO1Pwf14XQvKK0sx5qDx5grndS2 isAnonymous: true
+ [useMembership] 用户登录，刷新会员状态
+ [Window] [MembershipService] 正在进行同步，跳过此次验证
+ [AuthService] onAuthStateChanged: User found vaO1Pwf14XQvKK0sx5qDx5grndS2 isAnonymous: true
+ [useAuth] Auth state changed (AppUser): {uid: 'vaO1Pwf14XQvKK0sx5qDx5grndS2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+ [AuthService] onAuthStateChanged: User found vaO1Pwf14XQvKK0sx5qDx5grndS2 isAnonymous: true
+ [useMembership] 用户登录，刷新会员状态
+ [Window] [MembershipService] 正在进行同步，跳过此次验证
+ [AuthService] onAuthStateChanged: User found vaO1Pwf14XQvKK0sx5qDx5grndS2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found vaO1Pwf14XQvKK0sx5qDx5grndS2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'vaO1Pwf14XQvKK0sx5qDx5grndS2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found vaO1Pwf14XQvKK0sx5qDx5grndS2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'vaO1Pwf14XQvKK0sx5qDx5grndS2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found vaO1Pwf14XQvKK0sx5qDx5grndS2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found vaO1Pwf14XQvKK0sx5qDx5grndS2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] Anonymous sign-in successful. vaO1Pwf14XQvKK0sx5qDx5grndS2
+sidepanel.js:2 [CloudStorage] 获取到 17 个本地提示词
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: 1zyTx9j7KUTt14jzrfLlHzF4AAl2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: 1zyTx9j7KUTt14jzrfLlHzF4AAl2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: 1zyTx9j7KUTt14jzrfLlHzF4AAl2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: 1zyTx9j7KUTt14jzrfLlHzF4AAl2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: 1zyTx9j7KUTt14jzrfLlHzF4AAl2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: 1zyTx9j7KUTt14jzrfLlHzF4AAl2
+sidepanel.js:2 [CloudStorage] 开始执行 syncAllPrompts
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found 1zyTx9j7KUTt14jzrfLlHzF4AAl2 isAnonymous: true
+sidepanel.js:2 [Window] [MembershipService] 用户 1zyTx9j7KUTt14jzrfLlHzF4AAl2 登录，同步会员状态
+sidepanel.js:2 [Window] [MembershipService] 为用户 1zyTx9j7KUTt14jzrfLlHzF4AAl2 设置 Firestore 会员状态监听
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found 1zyTx9j7KUTt14jzrfLlHzF4AAl2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found 1zyTx9j7KUTt14jzrfLlHzF4AAl2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: '1zyTx9j7KUTt14jzrfLlHzF4AAl2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found 1zyTx9j7KUTt14jzrfLlHzF4AAl2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found 1zyTx9j7KUTt14jzrfLlHzF4AAl2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found 1zyTx9j7KUTt14jzrfLlHzF4AAl2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: '1zyTx9j7KUTt14jzrfLlHzF4AAl2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found 1zyTx9j7KUTt14jzrfLlHzF4AAl2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: '1zyTx9j7KUTt14jzrfLlHzF4AAl2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found 1zyTx9j7KUTt14jzrfLlHzF4AAl2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found 1zyTx9j7KUTt14jzrfLlHzF4AAl2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] Anonymous sign-in successful. 1zyTx9j7KUTt14jzrfLlHzF4AAl2
+sidepanel.js:2 [CloudStorage] 获取到 17 个本地提示词
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: rpNk9FJrTtMSUsvgqva5fhGDARP2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: rpNk9FJrTtMSUsvgqva5fhGDARP2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: rpNk9FJrTtMSUsvgqva5fhGDARP2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: rpNk9FJrTtMSUsvgqva5fhGDARP2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: rpNk9FJrTtMSUsvgqva5fhGDARP2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: rpNk9FJrTtMSUsvgqva5fhGDARP2
+sidepanel.js:2 [CloudStorage] 开始执行 syncAllPrompts
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found rpNk9FJrTtMSUsvgqva5fhGDARP2 isAnonymous: true
+sidepanel.js:2 [Window] [MembershipService] 用户 rpNk9FJrTtMSUsvgqva5fhGDARP2 登录，同步会员状态
+sidepanel.js:2 [Window] [MembershipService] 为用户 rpNk9FJrTtMSUsvgqva5fhGDARP2 设置 Firestore 会员状态监听
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found rpNk9FJrTtMSUsvgqva5fhGDARP2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found rpNk9FJrTtMSUsvgqva5fhGDARP2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'rpNk9FJrTtMSUsvgqva5fhGDARP2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found rpNk9FJrTtMSUsvgqva5fhGDARP2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found rpNk9FJrTtMSUsvgqva5fhGDARP2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found rpNk9FJrTtMSUsvgqva5fhGDARP2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'rpNk9FJrTtMSUsvgqva5fhGDARP2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found rpNk9FJrTtMSUsvgqva5fhGDARP2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'rpNk9FJrTtMSUsvgqva5fhGDARP2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found rpNk9FJrTtMSUsvgqva5fhGDARP2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found rpNk9FJrTtMSUsvgqva5fhGDARP2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] Anonymous sign-in successful. rpNk9FJrTtMSUsvgqva5fhGDARP2
+sidepanel.js:2 [CloudStorage] 获取到 17 个本地提示词
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: ZQsO6NjHKXNd3M0zCGOBL8RNghc2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: ZQsO6NjHKXNd3M0zCGOBL8RNghc2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: ZQsO6NjHKXNd3M0zCGOBL8RNghc2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: ZQsO6NjHKXNd3M0zCGOBL8RNghc2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: ZQsO6NjHKXNd3M0zCGOBL8RNghc2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: ZQsO6NjHKXNd3M0zCGOBL8RNghc2
+ [CloudStorage] 开始执行 syncAllPrompts
+ [AuthService] onAuthStateChanged: User found ZQsO6NjHKXNd3M0zCGOBL8RNghc2 isAnonymous: true
+ [Window] [MembershipService] 用户 ZQsO6NjHKXNd3M0zCGOBL8RNghc2 登录，同步会员状态
+ [Window] [MembershipService] 为用户 ZQsO6NjHKXNd3M0zCGOBL8RNghc2 设置 Firestore 会员状态监听
+ [Window] [MembershipService] 正在进行同步，跳过此次验证
+ [AuthService] onAuthStateChanged: User found ZQsO6NjHKXNd3M0zCGOBL8RNghc2 isAnonymous: true
+ [useMembership] 用户登录，刷新会员状态
+ [Window] [MembershipService] 正在进行同步，跳过此次验证
+ [AuthService] onAuthStateChanged: User found ZQsO6NjHKXNd3M0zCGOBL8RNghc2 isAnonymous: true
+ [useAuth] Auth state changed (AppUser): {uid: 'ZQsO6NjHKXNd3M0zCGOBL8RNghc2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+ [AuthService] onAuthStateChanged: User found ZQsO6NjHKXNd3M0zCGOBL8RNghc2 isAnonymous: true
+ [useMembership] 用户登录，刷新会员状态
+ [Window] [MembershipService] 正在进行同步，跳过此次验证
+ [AuthService] onAuthStateChanged: User found ZQsO6NjHKXNd3M0zCGOBL8RNghc2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found ZQsO6NjHKXNd3M0zCGOBL8RNghc2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'ZQsO6NjHKXNd3M0zCGOBL8RNghc2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found ZQsO6NjHKXNd3M0zCGOBL8RNghc2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'ZQsO6NjHKXNd3M0zCGOBL8RNghc2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found ZQsO6NjHKXNd3M0zCGOBL8RNghc2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found ZQsO6NjHKXNd3M0zCGOBL8RNghc2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] Anonymous sign-in successful. ZQsO6NjHKXNd3M0zCGOBL8RNghc2
+sidepanel.js:2 [CloudStorage] 获取到 17 个本地提示词
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: UdZ8x7GI6MZ43iUTI6IqfBD82SL2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: UdZ8x7GI6MZ43iUTI6IqfBD82SL2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: UdZ8x7GI6MZ43iUTI6IqfBD82SL2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: UdZ8x7GI6MZ43iUTI6IqfBD82SL2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: UdZ8x7GI6MZ43iUTI6IqfBD82SL2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: UdZ8x7GI6MZ43iUTI6IqfBD82SL2
+sidepanel.js:2 [CloudStorage] 开始执行 syncAllPrompts
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found UdZ8x7GI6MZ43iUTI6IqfBD82SL2 isAnonymous: true
+sidepanel.js:2 [Window] [MembershipService] 用户 UdZ8x7GI6MZ43iUTI6IqfBD82SL2 登录，同步会员状态
+sidepanel.js:2 [Window] [MembershipService] 为用户 UdZ8x7GI6MZ43iUTI6IqfBD82SL2 设置 Firestore 会员状态监听
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found UdZ8x7GI6MZ43iUTI6IqfBD82SL2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found UdZ8x7GI6MZ43iUTI6IqfBD82SL2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'UdZ8x7GI6MZ43iUTI6IqfBD82SL2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found UdZ8x7GI6MZ43iUTI6IqfBD82SL2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found UdZ8x7GI6MZ43iUTI6IqfBD82SL2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found UdZ8x7GI6MZ43iUTI6IqfBD82SL2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'UdZ8x7GI6MZ43iUTI6IqfBD82SL2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found UdZ8x7GI6MZ43iUTI6IqfBD82SL2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'UdZ8x7GI6MZ43iUTI6IqfBD82SL2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found UdZ8x7GI6MZ43iUTI6IqfBD82SL2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found UdZ8x7GI6MZ43iUTI6IqfBD82SL2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] Anonymous sign-in successful. UdZ8x7GI6MZ43iUTI6IqfBD82SL2
+sidepanel.js:2 [CloudStorage] 获取到 17 个本地提示词
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Wqcd0K1DXvOoWnhWUsEHoIKJhzw1
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Wqcd0K1DXvOoWnhWUsEHoIKJhzw1
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Wqcd0K1DXvOoWnhWUsEHoIKJhzw1
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Wqcd0K1DXvOoWnhWUsEHoIKJhzw1
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Wqcd0K1DXvOoWnhWUsEHoIKJhzw1
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Wqcd0K1DXvOoWnhWUsEHoIKJhzw1
+sidepanel.js:2 
+            
+            
+           GET https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?gsessionid=yH5PX5lCh6D7aHXmk-z-lYFJRRRg1yZ4Jf4KAL5LL3E&VER=8&database=projects%2Faetherflow-b6459%2Fdatabases%2F(default)&RID=rpc&SID=oFqy1vOKuQvGu2zeXBVqhA&AID=0&CI=0&TYPE=xmlhttp&zx=o3m92y92d9lx&t=1 400 (Bad Request)
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+gn @ sidepanel.js:2
+e.Fa @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+fn @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+Fe @ sidepanel.js:2
+e.Ga @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+cn @ sidepanel.js:2
+e.connect @ sidepanel.js:2
+Tn.m @ sidepanel.js:2
+Fo @ sidepanel.js:2
+send @ sidepanel.js:2
+I_ @ sidepanel.js:2
+y_ @ sidepanel.js:2
+qa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Xa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+$o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+Wo @ sidepanel.js:2
+f_ @ sidepanel.js:2
+V_ @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+auth @ sidepanel.js:2
+start @ sidepanel.js:2
+Wa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+za @ sidepanel.js:2
+hl @ sidepanel.js:2
+await in hl
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+r @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Cu @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+enqueueRetryable @ sidepanel.js:2
+o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 
+            
+            
+           GET https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?gsessionid=yH5PX5lCh6D7aHXmk-z-lYFJRRRg1yZ4Jf4KAL5LL3E&VER=8&database=projects%2Faetherflow-b6459%2Fdatabases%2F(default)&RID=rpc&SID=oFqy1vOKuQvGu2zeXBVqhA&AID=0&CI=1&TYPE=xmlhttp&zx=z9mzebvhvelt&t=1 400 (Bad Request)
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+gn @ sidepanel.js:2
+e.ab @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+Ce @ sidepanel.js:2
+e.Fa @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+fn @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+Fe @ sidepanel.js:2
+e.Ga @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+cn @ sidepanel.js:2
+e.connect @ sidepanel.js:2
+Tn.m @ sidepanel.js:2
+Fo @ sidepanel.js:2
+send @ sidepanel.js:2
+I_ @ sidepanel.js:2
+y_ @ sidepanel.js:2
+qa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Xa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+$o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+Wo @ sidepanel.js:2
+f_ @ sidepanel.js:2
+V_ @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+auth @ sidepanel.js:2
+start @ sidepanel.js:2
+Wa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+za @ sidepanel.js:2
+hl @ sidepanel.js:2
+await in hl
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+r @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Cu @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+enqueueRetryable @ sidepanel.js:2
+o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 
+            
+            
+           POST https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8&database=projects%2Faetherflow-b6459%2Fdatabases%2F(default)&gsessionid=yH5PX5lCh6D7aHXmk-z-lYFJRRRg1yZ4Jf4KAL5LL3E&SID=oFqy1vOKuQvGu2zeXBVqhA&RID=34607&TYPE=terminate&zx=uu7erqmzyntg 400 (Bad Request)
+on @ sidepanel.js:2
+Tn.close @ sidepanel.js:2
+Mo @ sidepanel.js:2
+close @ sidepanel.js:2
+close @ sidepanel.js:2
+stop @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Va @ sidepanel.js:2
+hl @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+r @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Cu @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+enqueueRetryable @ sidepanel.js:2
+o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 [CloudStorage] 开始执行 syncAllPrompts
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Wqcd0K1DXvOoWnhWUsEHoIKJhzw1 isAnonymous: true
+sidepanel.js:2 [Window] [MembershipService] 用户 Wqcd0K1DXvOoWnhWUsEHoIKJhzw1 登录，同步会员状态
+sidepanel.js:2 [Window] [MembershipService] 为用户 Wqcd0K1DXvOoWnhWUsEHoIKJhzw1 设置 Firestore 会员状态监听
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Wqcd0K1DXvOoWnhWUsEHoIKJhzw1 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Wqcd0K1DXvOoWnhWUsEHoIKJhzw1 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'Wqcd0K1DXvOoWnhWUsEHoIKJhzw1', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Wqcd0K1DXvOoWnhWUsEHoIKJhzw1 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Wqcd0K1DXvOoWnhWUsEHoIKJhzw1 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Wqcd0K1DXvOoWnhWUsEHoIKJhzw1 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'Wqcd0K1DXvOoWnhWUsEHoIKJhzw1', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Wqcd0K1DXvOoWnhWUsEHoIKJhzw1 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'Wqcd0K1DXvOoWnhWUsEHoIKJhzw1', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Wqcd0K1DXvOoWnhWUsEHoIKJhzw1 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Wqcd0K1DXvOoWnhWUsEHoIKJhzw1 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] Anonymous sign-in successful. Wqcd0K1DXvOoWnhWUsEHoIKJhzw1
+sidepanel.js:2 [CloudStorage] 获取到 17 个本地提示词
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Muqv9MBYqIVJQAhoLkV8xKnsojs2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Muqv9MBYqIVJQAhoLkV8xKnsojs2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Muqv9MBYqIVJQAhoLkV8xKnsojs2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Muqv9MBYqIVJQAhoLkV8xKnsojs2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Muqv9MBYqIVJQAhoLkV8xKnsojs2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Muqv9MBYqIVJQAhoLkV8xKnsojs2
+sidepanel.js:2 [CloudStorage] 开始执行 syncAllPrompts
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Muqv9MBYqIVJQAhoLkV8xKnsojs2 isAnonymous: true
+sidepanel.js:2 [Window] [MembershipService] 用户 Muqv9MBYqIVJQAhoLkV8xKnsojs2 登录，同步会员状态
+sidepanel.js:2 [Window] [MembershipService] 为用户 Muqv9MBYqIVJQAhoLkV8xKnsojs2 设置 Firestore 会员状态监听
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Muqv9MBYqIVJQAhoLkV8xKnsojs2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Muqv9MBYqIVJQAhoLkV8xKnsojs2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'Muqv9MBYqIVJQAhoLkV8xKnsojs2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Muqv9MBYqIVJQAhoLkV8xKnsojs2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Muqv9MBYqIVJQAhoLkV8xKnsojs2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Muqv9MBYqIVJQAhoLkV8xKnsojs2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'Muqv9MBYqIVJQAhoLkV8xKnsojs2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Muqv9MBYqIVJQAhoLkV8xKnsojs2 isAnonymous: true
+sidepanel.js:2 [useAuth] Auth state changed (AppUser): {uid: 'Muqv9MBYqIVJQAhoLkV8xKnsojs2', email: null, displayName: null, photoURL: null, isAnonymous: true, …}
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Muqv9MBYqIVJQAhoLkV8xKnsojs2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] onAuthStateChanged: User found Muqv9MBYqIVJQAhoLkV8xKnsojs2 isAnonymous: true
+sidepanel.js:2 [useMembership] 用户登录，刷新会员状态
+sidepanel.js:2 [Window] [MembershipService] 正在进行同步，跳过此次验证
+sidepanel.js:2 [AuthService] Anonymous sign-in successful. Muqv9MBYqIVJQAhoLkV8xKnsojs2
+sidepanel.js:2 [CloudStorage] 获取到 17 个本地提示词
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Muqv9MBYqIVJQAhoLkV8xKnsojs2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Muqv9MBYqIVJQAhoLkV8xKnsojs2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Muqv9MBYqIVJQAhoLkV8xKnsojs2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Muqv9MBYqIVJQAhoLkV8xKnsojs2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Muqv9MBYqIVJQAhoLkV8xKnsojs2
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Muqv9MBYqIVJQAhoLkV8xKnsojs2
+background.js:2 [CloudStorage] 开始执行 syncAllPrompts
+background.js:2 [CloudStorage] 获取到 17 个本地提示词
+sidepanel.js:2 Firestore监听错误: FirebaseError: Missing or insufficient permissions.
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+iu @ sidepanel.js:2
+error @ sidepanel.js:2
+onError @ sidepanel.js:2
+El @ sidepanel.js:2
+Ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Za @ sidepanel.js:2
+onNext @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Ko @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Nn.ta @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+gn @ sidepanel.js:2
+e.Fa @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+fn @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+Fe @ sidepanel.js:2
+e.Ga @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+cn @ sidepanel.js:2
+e.connect @ sidepanel.js:2
+Tn.m @ sidepanel.js:2
+Fo @ sidepanel.js:2
+send @ sidepanel.js:2
+I_ @ sidepanel.js:2
+y_ @ sidepanel.js:2
+qa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Xa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+$o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+Wo @ sidepanel.js:2
+f_ @ sidepanel.js:2
+V_ @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+auth @ sidepanel.js:2
+start @ sidepanel.js:2
+Wa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+za @ sidepanel.js:2
+hl @ sidepanel.js:2
+await in hl
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+r @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Cu @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+enqueueRetryable @ sidepanel.js:2
+o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 [CloudStorage] syncAllPrompts 失败: FirebaseError: Missing or insufficient permissions.
+syncAllPrompts @ sidepanel.js:2
+await in syncAllPrompts
+onLoginSuccess @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 登录同步失败: FirebaseError: Missing or insufficient permissions.
+onLoginSuccess @ sidepanel.js:2
+await in onLoginSuccess
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 [CloudStorage] syncAllPrompts 失败: FirebaseError: Missing or insufficient permissions.
+syncAllPrompts @ sidepanel.js:2
+await in syncAllPrompts
+onLoginSuccess @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 登录同步失败: FirebaseError: Missing or insufficient permissions.
+onLoginSuccess @ sidepanel.js:2
+await in onLoginSuccess
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 [CloudStorage] syncAllPrompts 失败: FirebaseError: Missing or insufficient permissions.
+syncAllPrompts @ sidepanel.js:2
+await in syncAllPrompts
+onLoginSuccess @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 登录同步失败: FirebaseError: Missing or insufficient permissions.
+onLoginSuccess @ sidepanel.js:2
+await in onLoginSuccess
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 Firestore监听错误: FirebaseError: Missing or insufficient permissions.
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+iu @ sidepanel.js:2
+error @ sidepanel.js:2
+onError @ sidepanel.js:2
+El @ sidepanel.js:2
+Ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Za @ sidepanel.js:2
+onNext @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Ko @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Nn.ta @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+gn @ sidepanel.js:2
+e.Fa @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+fn @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+Fe @ sidepanel.js:2
+e.Ga @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+cn @ sidepanel.js:2
+e.connect @ sidepanel.js:2
+Tn.m @ sidepanel.js:2
+Fo @ sidepanel.js:2
+send @ sidepanel.js:2
+I_ @ sidepanel.js:2
+y_ @ sidepanel.js:2
+qa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Xa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+$o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+Wo @ sidepanel.js:2
+f_ @ sidepanel.js:2
+V_ @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+auth @ sidepanel.js:2
+start @ sidepanel.js:2
+Wa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+za @ sidepanel.js:2
+hl @ sidepanel.js:2
+await in hl
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+r @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Cu @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+enqueueRetryable @ sidepanel.js:2
+o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 Firestore监听错误: FirebaseError: Missing or insufficient permissions.
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+iu @ sidepanel.js:2
+error @ sidepanel.js:2
+onError @ sidepanel.js:2
+El @ sidepanel.js:2
+Ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Za @ sidepanel.js:2
+onNext @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Ko @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Nn.ta @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+gn @ sidepanel.js:2
+e.Fa @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+fn @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+Fe @ sidepanel.js:2
+e.Ga @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+cn @ sidepanel.js:2
+e.connect @ sidepanel.js:2
+Tn.m @ sidepanel.js:2
+Fo @ sidepanel.js:2
+send @ sidepanel.js:2
+I_ @ sidepanel.js:2
+y_ @ sidepanel.js:2
+qa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Xa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+$o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+Wo @ sidepanel.js:2
+f_ @ sidepanel.js:2
+V_ @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+auth @ sidepanel.js:2
+start @ sidepanel.js:2
+Wa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+za @ sidepanel.js:2
+hl @ sidepanel.js:2
+await in hl
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+r @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Cu @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+enqueueRetryable @ sidepanel.js:2
+o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 Firestore监听错误: FirebaseError: Missing or insufficient permissions.
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+iu @ sidepanel.js:2
+error @ sidepanel.js:2
+onError @ sidepanel.js:2
+El @ sidepanel.js:2
+Ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Za @ sidepanel.js:2
+onNext @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Ko @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Nn.ta @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+gn @ sidepanel.js:2
+e.Fa @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+fn @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+Fe @ sidepanel.js:2
+e.Ga @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+cn @ sidepanel.js:2
+e.connect @ sidepanel.js:2
+Tn.m @ sidepanel.js:2
+Fo @ sidepanel.js:2
+send @ sidepanel.js:2
+I_ @ sidepanel.js:2
+y_ @ sidepanel.js:2
+qa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Xa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+$o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+Wo @ sidepanel.js:2
+f_ @ sidepanel.js:2
+V_ @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+auth @ sidepanel.js:2
+start @ sidepanel.js:2
+Wa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+za @ sidepanel.js:2
+hl @ sidepanel.js:2
+await in hl
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+r @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Cu @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+enqueueRetryable @ sidepanel.js:2
+o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 Firestore监听错误: FirebaseError: Missing or insufficient permissions.
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+iu @ sidepanel.js:2
+error @ sidepanel.js:2
+onError @ sidepanel.js:2
+El @ sidepanel.js:2
+Ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Za @ sidepanel.js:2
+onNext @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Ko @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Nn.ta @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+gn @ sidepanel.js:2
+e.Fa @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+fn @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+Fe @ sidepanel.js:2
+e.Ga @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+cn @ sidepanel.js:2
+e.connect @ sidepanel.js:2
+Tn.m @ sidepanel.js:2
+Fo @ sidepanel.js:2
+send @ sidepanel.js:2
+I_ @ sidepanel.js:2
+y_ @ sidepanel.js:2
+qa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Xa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+$o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+Wo @ sidepanel.js:2
+f_ @ sidepanel.js:2
+V_ @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+auth @ sidepanel.js:2
+start @ sidepanel.js:2
+Wa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+za @ sidepanel.js:2
+hl @ sidepanel.js:2
+await in hl
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+r @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Cu @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+enqueueRetryable @ sidepanel.js:2
+o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 Firestore监听错误: FirebaseError: Missing or insufficient permissions.
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+iu @ sidepanel.js:2
+error @ sidepanel.js:2
+onError @ sidepanel.js:2
+El @ sidepanel.js:2
+Ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Za @ sidepanel.js:2
+onNext @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Ko @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Nn.ta @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+gn @ sidepanel.js:2
+e.Fa @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+fn @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+Fe @ sidepanel.js:2
+e.Ga @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+cn @ sidepanel.js:2
+e.connect @ sidepanel.js:2
+Tn.m @ sidepanel.js:2
+Fo @ sidepanel.js:2
+send @ sidepanel.js:2
+I_ @ sidepanel.js:2
+y_ @ sidepanel.js:2
+qa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Xa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+$o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+Wo @ sidepanel.js:2
+f_ @ sidepanel.js:2
+V_ @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+auth @ sidepanel.js:2
+start @ sidepanel.js:2
+Wa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+za @ sidepanel.js:2
+hl @ sidepanel.js:2
+await in hl
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+r @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Cu @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+enqueueRetryable @ sidepanel.js:2
+o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 Firestore监听错误: FirebaseError: Missing or insufficient permissions.
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+iu @ sidepanel.js:2
+error @ sidepanel.js:2
+onError @ sidepanel.js:2
+El @ sidepanel.js:2
+Ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Za @ sidepanel.js:2
+onNext @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Ko @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Nn.ta @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+gn @ sidepanel.js:2
+e.Fa @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+fn @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+Fe @ sidepanel.js:2
+e.Ga @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+cn @ sidepanel.js:2
+e.connect @ sidepanel.js:2
+Tn.m @ sidepanel.js:2
+Fo @ sidepanel.js:2
+send @ sidepanel.js:2
+I_ @ sidepanel.js:2
+y_ @ sidepanel.js:2
+qa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Xa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+$o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+Wo @ sidepanel.js:2
+f_ @ sidepanel.js:2
+V_ @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+auth @ sidepanel.js:2
+start @ sidepanel.js:2
+Wa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+za @ sidepanel.js:2
+hl @ sidepanel.js:2
+await in hl
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+r @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Cu @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+enqueueRetryable @ sidepanel.js:2
+o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 [CloudStorage] syncAllPrompts 失败: FirebaseError: Missing or insufficient permissions.
+syncAllPrompts @ sidepanel.js:2
+await in syncAllPrompts
+onLoginSuccess @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 登录同步失败: FirebaseError: Missing or insufficient permissions.
+onLoginSuccess @ sidepanel.js:2
+await in onLoginSuccess
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 Firestore监听错误: FirebaseError: Missing or insufficient permissions.
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+iu @ sidepanel.js:2
+error @ sidepanel.js:2
+onError @ sidepanel.js:2
+El @ sidepanel.js:2
+Ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Za @ sidepanel.js:2
+onNext @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Ko @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Nn.ta @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+gn @ sidepanel.js:2
+e.Fa @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+fn @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+Fe @ sidepanel.js:2
+e.Ga @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+cn @ sidepanel.js:2
+e.connect @ sidepanel.js:2
+Tn.m @ sidepanel.js:2
+Fo @ sidepanel.js:2
+send @ sidepanel.js:2
+I_ @ sidepanel.js:2
+y_ @ sidepanel.js:2
+qa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Xa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+$o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+Wo @ sidepanel.js:2
+f_ @ sidepanel.js:2
+V_ @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+auth @ sidepanel.js:2
+start @ sidepanel.js:2
+Wa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+za @ sidepanel.js:2
+hl @ sidepanel.js:2
+await in hl
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+r @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Cu @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+enqueueRetryable @ sidepanel.js:2
+o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 [Window] [MembershipService] 从服务器验证会员状态失败: FirebaseError: Missing or insufficient permissions.
+Up @ sidepanel.js:2
+verifyMembershipWithServer @ sidepanel.js:2
+await in verifyMembershipWithServer
+refreshMembershipState @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 [CloudStorage] syncAllPrompts 失败: FirebaseError: Missing or insufficient permissions.
+syncAllPrompts @ sidepanel.js:2
+await in syncAllPrompts
+onLoginSuccess @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 登录同步失败: FirebaseError: Missing or insufficient permissions.
+onLoginSuccess @ sidepanel.js:2
+await in onLoginSuccess
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 [CloudStorage] syncAllPrompts 失败: FirebaseError: Missing or insufficient permissions.
+syncAllPrompts @ sidepanel.js:2
+await in syncAllPrompts
+onLoginSuccess @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 登录同步失败: FirebaseError: Missing or insufficient permissions.
+onLoginSuccess @ sidepanel.js:2
+await in onLoginSuccess
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 [CloudStorage] syncAllPrompts 失败: FirebaseError: Missing or insufficient permissions.
+syncAllPrompts @ sidepanel.js:2
+await in syncAllPrompts
+onLoginSuccess @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 登录同步失败: FirebaseError: Missing or insufficient permissions.
+onLoginSuccess @ sidepanel.js:2
+await in onLoginSuccess
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 Firestore监听错误: FirebaseError: Missing or insufficient permissions.
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+iu @ sidepanel.js:2
+error @ sidepanel.js:2
+onError @ sidepanel.js:2
+El @ sidepanel.js:2
+Ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+ql @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Za @ sidepanel.js:2
+onNext @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Ko @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Nn.ta @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+gn @ sidepanel.js:2
+e.Fa @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+fn @ sidepanel.js:2
+Ge @ sidepanel.js:2
+Le.Y @ sidepanel.js:2
+Le.ca @ sidepanel.js:2
+ie @ sidepanel.js:2
+re @ sidepanel.js:2
+Yt @ sidepanel.js:2
+e.bb @ sidepanel.js:2
+e.Ea @ sidepanel.js:2
+qt @ sidepanel.js:2
+e.Pa @ sidepanel.js:2
+Promise.then
+Rt @ sidepanel.js:2
+e.Sa @ sidepanel.js:2
+Promise.then
+e.send @ sidepanel.js:2
+e.ea @ sidepanel.js:2
+ze @ sidepanel.js:2
+Fe @ sidepanel.js:2
+e.Ga @ sidepanel.js:2
+P @ sidepanel.js:2
+Promise.then
+I @ sidepanel.js:2
+cn @ sidepanel.js:2
+e.connect @ sidepanel.js:2
+Tn.m @ sidepanel.js:2
+Fo @ sidepanel.js:2
+send @ sidepanel.js:2
+I_ @ sidepanel.js:2
+y_ @ sidepanel.js:2
+qa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Xa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+$o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+setTimeout
+Wo @ sidepanel.js:2
+f_ @ sidepanel.js:2
+V_ @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+auth @ sidepanel.js:2
+start @ sidepanel.js:2
+Wa @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+za @ sidepanel.js:2
+hl @ sidepanel.js:2
+await in hl
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+r @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Cu @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+vu @ sidepanel.js:2
+enqueue @ sidepanel.js:2
+enqueueAndForget @ sidepanel.js:2
+enqueueRetryable @ sidepanel.js:2
+o @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 [CloudStorage] syncAllPrompts 失败: FirebaseError: Missing or insufficient permissions.
+syncAllPrompts @ sidepanel.js:2
+await in syncAllPrompts
+onLoginSuccess @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 登录同步失败: FirebaseError: Missing or insufficient permissions.
+onLoginSuccess @ sidepanel.js:2
+await in onLoginSuccess
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 [CloudStorage] syncAllPrompts 失败: FirebaseError: Missing or insufficient permissions.
+syncAllPrompts @ sidepanel.js:2
+await in syncAllPrompts
+onLoginSuccess @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 登录同步失败: FirebaseError: Missing or insufficient permissions.
+onLoginSuccess @ sidepanel.js:2
+await in onLoginSuccess
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+await in _updateCurrentUser
+id @ sidepanel.js:2
+await in id
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+sendOne @ sidepanel.js:2
+forEachObserver @ sidepanel.js:2
+next @ sidepanel.js:2
+notifyAuthListeners @ sidepanel.js:2
+（匿名） @ sidepanel.js:2
+Promise.then
+queue @ sidepanel.js:2
+_updateCurrentUser @ sidepanel.js:2
+_onStorageEvent @ sidepanel.js:2
+await in _onStorageEvent
+notifyListeners @ sidepanel.js:2
+_poll @ sidepanel.js:2
+await in _poll
+（匿名） @ sidepanel.js:2
+sidepanel.js:2 [CloudStorage] 获取到 0 个云端活动提示词
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: 011989e2-2b15-4695-b0c3-7a92cc622607
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: 0d70f4cd-a93e-4f64-99f1-49f3397d9b04
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: 1307c22a-2e54-49a7-a7bf-1afb8d80fcd0
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: 179a724b-4bab-4127-a862-c5ce761b8c8c
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: 1a622540-0539-44f4-8c5b-ff3ff28d1a3d
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: 1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: 35022091-0817-4074-af83-e9662d6717a9
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: 44e5da5d-72db-4179-95a7-87190e1624a7
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: 48100976-9344-4429-9d3c-7e85c5c4f835
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: 4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: 6c5040b7-0ad8-4ca7-b747-3eacef113ff2
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: 8d452bdf-f2f1-49dd-b695-7ffae7f24156
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: 91988521-8262-46c8-b456-9e66c90bfa85
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: b0643e3e-3be9-45bf-9a60-f7fa5eca601b
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: dce22bfb-fe40-48d8-be44-846c9fccc0dc
+sidepanel.js:2 [CloudStorage] 准备上传本地独有提示词: e2619f6d-0abb-4303-80ab-750c3003c35b
+sidepanel.js:2 [CloudStorage] 提交 17 个批量写操作...
+sidepanel.js:2 [AuthService] getCurrentUser: Found currentUser directly.
+sidepanel.js:2 [Window] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: Muqv9MBYqIVJQAhoLkV8xKnsojs2
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=011989e2-2b15-4695-b0c3-7a92cc622607, 标题=How to Study Efficiently, 内容长度=607
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_011989e2-2b15-4695-b0c3-7a92cc622607
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04, 标题=Research Paper Analyzer, 内容长度=999
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_0d70f4cd-a93e-4f64-99f1-49f3397d9b04
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=1307c22a-2e54-49a7-a7bf-1afb8d80fcd0, 标题=123, 内容长度=3
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_1307c22a-2e54-49a7-a7bf-1afb8d80fcd0
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=179a724b-4bab-4127-a862-c5ce761b8c8c, 标题=Mood Regulation Guide, 内容长度=795
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_179a724b-4bab-4127-a862-c5ce761b8c8c
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d, 标题=Assignment Feedback Generator, 内容长度=885
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_1a622540-0539-44f4-8c5b-ff3ff28d1a3d
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9, 标题=Mood Regulation Guide, 内容长度=795
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=35022091-0817-4074-af83-e9662d6717a9, 标题=Scientific Body Management, 内容长度=728
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_35022091-0817-4074-af83-e9662d6717a9
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=44e5da5d-72db-4179-95a7-87190e1624a7, 标题=Legal Document Analyzer, 内容长度=1084
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_44e5da5d-72db-4179-95a7-87190e1624a7
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=48100976-9344-4429-9d3c-7e85c5c4f835, 标题=How to Study Efficiently, 内容长度=607
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_48100976-9344-4429-9d3c-7e85c5c4f835
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69, 标题=Content Creation Engine, 内容长度=960
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2, 标题=Legal Document Analyzer, 内容长度=1084
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_6c5040b7-0ad8-4ca7-b747-3eacef113ff2
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=8d452bdf-f2f1-49dd-b695-7ffae7f24156, 标题=123, 内容长度=15
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_8d452bdf-f2f1-49dd-b695-7ffae7f24156
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=91988521-8262-46c8-b456-9e66c90bfa85, 标题=happy, 内容长度=5
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_91988521-8262-46c8-b456-9e66c90bfa85
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b, 标题=Research Paper Analyzer, 内容长度=999
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_b0643e3e-3be9-45bf-9a60-f7fa5eca601b
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea, 标题=Content Creation Engine, 内容长度=960
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc, 标题=Assignment Feedback Generator, 内容长度=885
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_dce22bfb-fe40-48d8-be44-846c9fccc0dc
+sidepanel.js:2 [ChromeStorage] 开始保存提示词: ID=e2619f6d-0abb-4303-80ab-750c3003c35b, 标题=Scientific Body Management, 内容长度=728
+sidepanel.js:2 [ChromeStorage] 将提示词保存到键名: prompt_e2619f6d-0abb-4303-80ab-750c3003c35b
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=011989e2-2b15-4695-b0c3-7a92cc622607
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=1307c22a-2e54-49a7-a7bf-1afb8d80fcd0
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=179a724b-4bab-4127-a862-c5ce761b8c8c
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=35022091-0817-4074-af83-e9662d6717a9
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=44e5da5d-72db-4179-95a7-87190e1624a7
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=48100976-9344-4429-9d3c-7e85c5c4f835
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=8d452bdf-f2f1-49dd-b695-7ffae7f24156
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=91988521-8262-46c8-b456-9e66c90bfa85
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc
+sidepanel.js:2 [ChromeStorage] 提示词保存成功: ID=e2619f6d-0abb-4303-80ab-750c3003c35b
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+background.js:2 Firestore监听错误: FirebaseError: Missing or insufficient permissions.
+（匿名） @ background.js:2
+（匿名） @ background.js:2
+setTimeout
+iu @ background.js:2
+error @ background.js:2
+onError @ background.js:2
+yc @ background.js:2
+Bc @ background.js:2
+（匿名） @ background.js:2
+Promise.then
+Mc @ background.js:2
+（匿名） @ background.js:2
+za @ background.js:2
+onNext @ background.js:2
+（匿名） @ background.js:2
+（匿名） @ background.js:2
+（匿名） @ background.js:2
+（匿名） @ background.js:2
+Promise.then
+vu @ background.js:2
+enqueue @ background.js:2
+enqueueAndForget @ background.js:2
+（匿名） @ background.js:2
+（匿名） @ background.js:2
+Ko @ background.js:2
+（匿名） @ background.js:2
+（匿名） @ background.js:2
+ie @ background.js:2
+re @ background.js:2
+Rn.ta @ background.js:2
+We @ background.js:2
+Ue.Y @ background.js:2
+Ue.ca @ background.js:2
+ie @ background.js:2
+re @ background.js:2
+Yt @ background.js:2
+e.bb @ background.js:2
+e.Ea @ background.js:2
+qt @ background.js:2
+e.Pa @ background.js:2
+Promise.then
+$t @ background.js:2
+e.Sa @ background.js:2
+Promise.then
+e.send @ background.js:2
+e.ea @ background.js:2
+je @ background.js:2
+mn @ background.js:2
+e.Fa @ background.js:2
+P @ background.js:2
+Promise.then
+C @ background.js:2
+fn @ background.js:2
+We @ background.js:2
+Ue.Y @ background.js:2
+Ue.ca @ background.js:2
+ie @ background.js:2
+re @ background.js:2
+Yt @ background.js:2
+e.bb @ background.js:2
+e.Ea @ background.js:2
+qt @ background.js:2
+e.Pa @ background.js:2
+Promise.then
+$t @ background.js:2
+e.Sa @ background.js:2
+Promise.then
+e.send @ background.js:2
+e.ea @ background.js:2
+je @ background.js:2
+Ve @ background.js:2
+e.Ga @ background.js:2
+P @ background.js:2
+Promise.then
+C @ background.js:2
+ln @ background.js:2
+e.connect @ background.js:2
+An.m @ background.js:2
+Fo @ background.js:2
+send @ background.js:2
+I_ @ background.js:2
+y_ @ background.js:2
+Ma @ background.js:2
+（匿名） @ background.js:2
+Ha @ background.js:2
+（匿名） @ background.js:2
+（匿名） @ background.js:2
+（匿名） @ background.js:2
+（匿名） @ background.js:2
+Promise.then
+vu @ background.js:2
+enqueue @ background.js:2
+enqueueAndForget @ background.js:2
+（匿名） @ background.js:2
+（匿名） @ background.js:2
+$o @ background.js:2
+（匿名） @ background.js:2
+setTimeout
+Wo @ background.js:2
+f_ @ background.js:2
+V_ @ background.js:2
+（匿名） @ background.js:2
+Promise.then
+auth @ background.js:2
+start @ background.js:2
+Fa @ background.js:2
+（匿名） @ background.js:2
+Na @ background.js:2
+rc @ background.js:2
+await in rc
+（匿名） @ background.js:2
+（匿名） @ background.js:2
+r @ background.js:2
+（匿名） @ background.js:2
+Cu @ background.js:2
+（匿名） @ background.js:2
+（匿名） @ background.js:2
+（匿名） @ background.js:2
+Promise.then
+vu @ background.js:2
+enqueue @ background.js:2
+enqueueAndForget @ background.js:2
+enqueueRetryable @ background.js:2
+o @ background.js:2
+（匿名） @ background.js:2
+（匿名） @ background.js:2
+（匿名） @ background.js:2
+Promise.then
+sendOne @ background.js:2
+forEachObserver @ background.js:2
+next @ background.js:2
+notifyAuthListeners @ background.js:2
+（匿名） @ background.js:2
+Promise.then
+queue @ background.js:2
+_updateCurrentUser @ background.js:2
+_onStorageEvent @ background.js:2
+await in _onStorageEvent
+notifyListeners @ background.js:2
+_poll @ background.js:2
+await in _poll
+（匿名） @ background.js:2
 background.js:2 [CloudStorage] 获取到 0 个云端活动提示词
-background.js:2 [CloudStorage] 准备上传本地独有提示词: 0c42e153-98b2-4c1c-a280-4d84fe04eb61
-background.js:2 [CloudStorage] 准备上传本地独有提示词: 1e0cc243-7842-40ca-997d-d0a035ebd77e
-background.js:2 [CloudStorage] 准备上传本地独有提示词: 83e27dfa-bb11-4113-ab66-29b1759511b4
-background.js:2 [CloudStorage] 准备上传本地独有提示词: c54e2ae0-5195-46c1-8e02-333c0d444f6e
-background.js:2 [CloudStorage] 准备上传本地独有提示词: d41d649e-68c5-467c-97df-3b5924e814c0
-background.js:2 [CloudStorage] 准备上传本地独有提示词: e7fa5a51-7c32-46d2-ac6f-86c01fce6792
-background.js:2 [CloudStorage] 准备上传本地独有提示词: fe03e4b1-e950-47dd-8624-d6c131361c56
-background.js:2 [CloudStorage] 提交 7 个批量写操作...
-background.js:2 [ChromeStorage] 开始保存提示词: ID=0c42e153-98b2-4c1c-a280-4d84fe04eb61, 标题=How to Study Efficiently, 内容长度=607
-background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_0c42e153-98b2-4c1c-a280-4d84fe04eb61
-background.js:2 [ChromeStorage] 开始保存提示词: ID=1e0cc243-7842-40ca-997d-d0a035ebd77e, 标题=Mood Regulation Guide, 内容长度=795
-background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_1e0cc243-7842-40ca-997d-d0a035ebd77e
-background.js:2 [ChromeStorage] 开始保存提示词: ID=83e27dfa-bb11-4113-ab66-29b1759511b4, 标题=Content Creation Engine, 内容长度=960
-background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_83e27dfa-bb11-4113-ab66-29b1759511b4
-background.js:2 [ChromeStorage] 开始保存提示词: ID=c54e2ae0-5195-46c1-8e02-333c0d444f6e, 标题=Legal Document Analyzer, 内容长度=1084
-background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_c54e2ae0-5195-46c1-8e02-333c0d444f6e
-background.js:2 [ChromeStorage] 开始保存提示词: ID=d41d649e-68c5-467c-97df-3b5924e814c0, 标题=Scientific Body Management, 内容长度=728
-background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_d41d649e-68c5-467c-97df-3b5924e814c0
-background.js:2 [ChromeStorage] 开始保存提示词: ID=e7fa5a51-7c32-46d2-ac6f-86c01fce6792, 标题=Research Paper Analyzer, 内容长度=999
-background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_e7fa5a51-7c32-46d2-ac6f-86c01fce6792
-background.js:2 [ChromeStorage] 开始保存提示词: ID=fe03e4b1-e950-47dd-8624-d6c131361c56, 标题=Assignment Feedback Generator, 内容长度=885
-background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_fe03e4b1-e950-47dd-8624-d6c131361c56
-background.js:2 [ChromeStorage] 提示词保存成功: ID=0c42e153-98b2-4c1c-a280-4d84fe04eb61
-background.js:2 [ChromeStorage] 提示词保存成功: ID=1e0cc243-7842-40ca-997d-d0a035ebd77e
-background.js:2 [ChromeStorage] 提示词保存成功: ID=83e27dfa-bb11-4113-ab66-29b1759511b4
-background.js:2 [ChromeStorage] 提示词保存成功: ID=c54e2ae0-5195-46c1-8e02-333c0d444f6e
-background.js:2 [ChromeStorage] 提示词保存成功: ID=d41d649e-68c5-467c-97df-3b5924e814c0
-background.js:2 [ChromeStorage] 提示词保存成功: ID=e7fa5a51-7c32-46d2-ac6f-86c01fce6792
-background.js:2 [ChromeStorage] 提示词保存成功: ID=fe03e4b1-e950-47dd-8624-d6c131361c56
-background.js:2 [SW] [MembershipService] 服务器上无会员记录
-background.js:2 [AuthService] getCurrentUser: Found currentUser directly.
-background.js:2 [SW] [MembershipService] 会员状态同步已禁用。会员状态只能由服务端更新。用户: jGisq1sXKYekj5jXsNrC3UyIqD92
-background.js:2 [CloudStorage] syncAllPrompts 完成 Object
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042166614, 状态=loading, URL=https://aetherflow-app.com/terms-of-service.html
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY Object
-background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042166614, URL https://aetherflow-app.com/terms-of-service.html
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [AetherFlow-DEBUG] 页面更新: ID=2042166614, 状态=complete, URL=https://aetherflow-app.com/terms-of-service.html
-background.js:2 [AetherFlow-DEBUG] 页面加载完成: ID=2042166614, 准备检查内容脚本
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY Object
-background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042166614, URL https://aetherflow-app.com/terms-of-service.html
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY Object
-background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042166614, URL https://aetherflow-app.com/terms-of-service.html
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [Messaging] 收到消息: CONTENT_SCRIPT_READY
-background.js:2 [AetherFlow] 后台: 收到消息 CONTENT_SCRIPT_READY Object
-background.js:2 [AetherFlow] 内容脚本已就绪: 标签页ID 2042166614, URL https://aetherflow-app.com/terms-of-service.html
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [AetherFlow-DEBUG] 主动检查内容脚本状态: ID=2042166614
-background.js:2 [AetherFlow-DEBUG] 开始检查内容脚本就绪状态: ID=2042166614, 已注册=true
-background.js:2 [AetherFlow-DEBUG] 内容脚本已在注册表中: ID=2042166614
-background.js:2 [AetherFlow-DEBUG] 内容脚本状态检查结果: ID=2042166614, 就绪=true
-background.js:2 [AetherFlow] 收到 OPTIMIZE_SELECTION 请求，内容长度: 459
-background.js:2 [Messaging] 收到消息: OPTIMIZE_SELECTION
-background.js:2 [Messaging] 收到消息: OPTIMIZE_SELECTION
-background.js:2 [AetherFlow] 后台: 收到消息 OPTIMIZE_SELECTION Object
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [Messaging] 异步操作完成
-background.js:2 [AetherFlow] 成功读取 doubaoApiKey
-background.js:2 [AetherFlow] 准备调用豆包 API...
-background.js:2 [AetherFlow] 豆包 API 优化完成: 【核心任务】明确使用服务的年龄限制及相关法律合规要求，若代表公司等实体使用需说明授权情况。
-【关键约束】必须年满 18 岁方可使用服务，使用服务时需保证不违反任何适用法律法规。若代表公司等实体使用，需...
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 011989e2-2b15-4695-b0c3-7a92cc622607
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 0d70f4cd-a93e-4f64-99f1-49f3397d9b04
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 1307c22a-2e54-49a7-a7bf-1afb8d80fcd0
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 179a724b-4bab-4127-a862-c5ce761b8c8c
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 1a622540-0539-44f4-8c5b-ff3ff28d1a3d
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 35022091-0817-4074-af83-e9662d6717a9
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 44e5da5d-72db-4179-95a7-87190e1624a7
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 48100976-9344-4429-9d3c-7e85c5c4f835
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 6c5040b7-0ad8-4ca7-b747-3eacef113ff2
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 8d452bdf-f2f1-49dd-b695-7ffae7f24156
+background.js:2 [CloudStorage] 准备上传本地独有提示词: 91988521-8262-46c8-b456-9e66c90bfa85
+background.js:2 [CloudStorage] 准备上传本地独有提示词: b0643e3e-3be9-45bf-9a60-f7fa5eca601b
+background.js:2 [CloudStorage] 准备上传本地独有提示词: d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
+background.js:2 [CloudStorage] 准备上传本地独有提示词: dce22bfb-fe40-48d8-be44-846c9fccc0dc
+background.js:2 [CloudStorage] 准备上传本地独有提示词: e2619f6d-0abb-4303-80ab-750c3003c35b
+background.js:2 [CloudStorage] 提交 17 个批量写操作...
+background.js:2 [ChromeStorage] 开始保存提示词: ID=011989e2-2b15-4695-b0c3-7a92cc622607, 标题=How to Study Efficiently, 内容长度=607
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_011989e2-2b15-4695-b0c3-7a92cc622607
+background.js:2 [ChromeStorage] 开始保存提示词: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04, 标题=Research Paper Analyzer, 内容长度=999
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_0d70f4cd-a93e-4f64-99f1-49f3397d9b04
+background.js:2 [ChromeStorage] 开始保存提示词: ID=1307c22a-2e54-49a7-a7bf-1afb8d80fcd0, 标题=123, 内容长度=3
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_1307c22a-2e54-49a7-a7bf-1afb8d80fcd0
+background.js:2 [ChromeStorage] 开始保存提示词: ID=179a724b-4bab-4127-a862-c5ce761b8c8c, 标题=Mood Regulation Guide, 内容长度=795
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_179a724b-4bab-4127-a862-c5ce761b8c8c
+background.js:2 [ChromeStorage] 开始保存提示词: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d, 标题=Assignment Feedback Generator, 内容长度=885
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_1a622540-0539-44f4-8c5b-ff3ff28d1a3d
+background.js:2 [ChromeStorage] 开始保存提示词: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9, 标题=Mood Regulation Guide, 内容长度=795
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
+background.js:2 [ChromeStorage] 开始保存提示词: ID=35022091-0817-4074-af83-e9662d6717a9, 标题=Scientific Body Management, 内容长度=728
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_35022091-0817-4074-af83-e9662d6717a9
+background.js:2 [ChromeStorage] 开始保存提示词: ID=44e5da5d-72db-4179-95a7-87190e1624a7, 标题=Legal Document Analyzer, 内容长度=1084
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_44e5da5d-72db-4179-95a7-87190e1624a7
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+background.js:2 [ChromeStorage] 开始保存提示词: ID=48100976-9344-4429-9d3c-7e85c5c4f835, 标题=How to Study Efficiently, 内容长度=607
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_48100976-9344-4429-9d3c-7e85c5c4f835
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+background.js:2 [ChromeStorage] 开始保存提示词: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69, 标题=Content Creation Engine, 内容长度=960
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
+background.js:2 [ChromeStorage] 开始保存提示词: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2, 标题=Legal Document Analyzer, 内容长度=1084
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_6c5040b7-0ad8-4ca7-b747-3eacef113ff2
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+background.js:2 [ChromeStorage] 开始保存提示词: ID=8d452bdf-f2f1-49dd-b695-7ffae7f24156, 标题=123, 内容长度=15
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_8d452bdf-f2f1-49dd-b695-7ffae7f24156
+background.js:2 [ChromeStorage] 开始保存提示词: ID=91988521-8262-46c8-b456-9e66c90bfa85, 标题=happy, 内容长度=5
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_91988521-8262-46c8-b456-9e66c90bfa85
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+background.js:2 [ChromeStorage] 开始保存提示词: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b, 标题=Research Paper Analyzer, 内容长度=999
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_b0643e3e-3be9-45bf-9a60-f7fa5eca601b
+background.js:2 [ChromeStorage] 开始保存提示词: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea, 标题=Content Creation Engine, 内容长度=960
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
+background.js:2 [ChromeStorage] 开始保存提示词: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc, 标题=Assignment Feedback Generator, 内容长度=885
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_dce22bfb-fe40-48d8-be44-846c9fccc0dc
+background.js:2 [ChromeStorage] 开始保存提示词: ID=e2619f6d-0abb-4303-80ab-750c3003c35b, 标题=Scientific Body Management, 内容长度=728
+background.js:2 [ChromeStorage] 将提示词保存到键名: prompt_e2619f6d-0abb-4303-80ab-750c3003c35b
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+background.js:2 [ChromeStorage] 提示词保存成功: ID=011989e2-2b15-4695-b0c3-7a92cc622607
+background.js:2 [ChromeStorage] 提示词保存成功: ID=0d70f4cd-a93e-4f64-99f1-49f3397d9b04
+background.js:2 [ChromeStorage] 提示词保存成功: ID=1307c22a-2e54-49a7-a7bf-1afb8d80fcd0
+background.js:2 [ChromeStorage] 提示词保存成功: ID=179a724b-4bab-4127-a862-c5ce761b8c8c
+background.js:2 [ChromeStorage] 提示词保存成功: ID=1a622540-0539-44f4-8c5b-ff3ff28d1a3d
+background.js:2 [ChromeStorage] 提示词保存成功: ID=1ec2d33f-b8ba-4638-a3f7-bd13e18996a9
+background.js:2 [ChromeStorage] 提示词保存成功: ID=35022091-0817-4074-af83-e9662d6717a9
+background.js:2 [ChromeStorage] 提示词保存成功: ID=44e5da5d-72db-4179-95a7-87190e1624a7
+background.js:2 [ChromeStorage] 提示词保存成功: ID=48100976-9344-4429-9d3c-7e85c5c4f835
+background.js:2 [ChromeStorage] 提示词保存成功: ID=4e9a2cf6-f04f-41b4-8a4c-74b2b4925f69
+background.js:2 [ChromeStorage] 提示词保存成功: ID=6c5040b7-0ad8-4ca7-b747-3eacef113ff2
+background.js:2 [ChromeStorage] 提示词保存成功: ID=8d452bdf-f2f1-49dd-b695-7ffae7f24156
+background.js:2 [ChromeStorage] 提示词保存成功: ID=91988521-8262-46c8-b456-9e66c90bfa85
+background.js:2 [ChromeStorage] 提示词保存成功: ID=b0643e3e-3be9-45bf-9a60-f7fa5eca601b
+background.js:2 [ChromeStorage] 提示词保存成功: ID=d71a0bc9-d273-4c6e-a8ff-7ec2c79d3eea
+background.js:2 [ChromeStorage] 提示词保存成功: ID=dce22bfb-fe40-48d8-be44-846c9fccc0dc
+background.js:2 [ChromeStorage] 提示词保存成功: ID=e2619f6d-0abb-4303-80ab-750c3003c35b
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] 检测到提示词数据变更，刷新数据
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [usePromptsData] Re-sorting prompts by createdAt desc
+sidepanel.js:2 [CloudStorage] syncAllPrompts 完成 {uploaded: 17, downloaded: 0, conflicts: 0, resolved: 0}
+background.js:2 [CloudStorage] syncAllPrompts 完成 {uploaded: 17, downloaded: 0, conflicts: 0, resolved: 0}

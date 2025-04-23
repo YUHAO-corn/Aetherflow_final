@@ -6,7 +6,9 @@ import {
   updateProfile,
   deleteUser,
   onAuthStateChanged as fbOnAuthStateChanged,
-  signInAnonymously
+  signInAnonymously,
+  EmailAuthProvider,
+  linkWithCredential
 } from 'firebase/auth/web-extension';
 import { getFirebaseAuth, mapFirebaseUser } from './firebase';
 import { AuthService, LoginInput, RegisterInput, User } from './types';
@@ -16,25 +18,87 @@ import { handleSessionEnd } from './sessionManager';
 export const authService: AuthService = {
   // 用户注册
   async registerUser(input: RegisterInput): Promise<User> {
-    try {
       const auth = getFirebaseAuth();
       const { email, password, displayName } = input;
-      
-      // 创建用户
-      const { user } = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // 如果提供了显示名称，则更新用户资料
+    let userCredential; // Use let to assign later
+
+    try {
+      const currentUser = auth.currentUser;
+
+      // Check if there is a currently signed-in anonymous user
+      if (currentUser && currentUser.isAnonymous) {
+        console.log('[AuthService] Linking email/password to anonymous user...');
+        // Create credentials for email/password linking
+        const credential = EmailAuthProvider.credential(email, password);
+        
+        // Link the credential to the anonymous user
+        userCredential = await linkWithCredential(currentUser, credential);
+        console.log('[AuthService] Anonymous user successfully linked with email/password.');
+      } else {
+        console.log('[AuthService] Creating new user with email/password...');
+        // No anonymous user, create a new user as before
+        userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      }
+
+      const user = userCredential.user; // Get the user from the credential
+
+      // 如果提供了显示名称，并且是新创建的用户或者链接后需要更新
+      // (linkWithCredential 也会返回最新的 User 对象，可以更新)
       if (displayName) {
+        // Check if profile update is needed (optional, but good practice)
+        if (user.displayName !== displayName) { 
+          console.log(`[AuthService] Updating profile for user ${user.uid}...`);
         await updateProfile(user, { displayName });
       }
+      }
       
-      // 转换为应用 User 类型
-      const appUser = mapFirebaseUser(user);
+      // 转换为应用 User 类型 (使用更新后的 user 对象)
+      // 需要重新获取最新的 user 对象，因为它可能已被 updateProfile 更新
+      const updatedUser = auth.currentUser; 
+      if (!updatedUser) {
+         throw new Error("User not found after registration/linking.");
+      }
+      const appUser = mapFirebaseUser(updatedUser); 
       
       return appUser;
     } catch (error: any) {
-      console.error('注册失败:', error);
-      throw new Error(error.message || '注册失败，请重试');
+      console.error('注册/链接失败:', error.code, error.message);
+
+      // --- Auto Sign-in Logic for Existing Email --- 
+      // Check if the error is specifically credential-already-in-use during the linking phase
+      const currentUser = auth.currentUser; // Re-check current user state within catch
+      if (error.code === 'auth/credential-already-in-use' && currentUser && currentUser.isAnonymous) {
+        console.log('[AuthService] Credential already in use detected during anonymous link. Attempting standard login...');
+        try {
+          // Step 1: Sign out the anonymous user silently
+          await authService.logoutUser(); // Use authService instance to call logout
+          console.log('[AuthService] Anonymous user signed out successfully.');
+          
+          // Step 2: Attempt to sign in with the provided email and password
+          console.log('[AuthService] Attempting sign-in with existing credentials...');
+          const loggedInUser = await authService.loginUser({ email, password }); // Use authService instance
+          console.log('[AuthService] Successfully signed in existing user after conflict.');
+          
+          // If login is successful, return the logged-in user
+          // Note: Display name update won't happen in this path, but the user is logged in.
+          return loggedInUser;
+          
+        } catch (signInError: any) {
+          // Handle errors during the sign-out or sign-in attempt
+          console.error('[AuthService] Error during automatic sign-in after conflict:', signInError);
+          // Throw a specific error for the UI to potentially handle differently
+          throw new Error('An error occurred while trying to log you into your existing account. Please try logging in directly.'); 
+        }
+      }
+      // --- End Auto Sign-in Logic ---
+
+      // Handle other specific errors or re-throw generic error
+      if (error.code === 'auth/email-already-in-use') {
+        // This case might still happen if a non-anonymous user tries to register
+        throw new Error('该邮箱已被注册，请尝试登录或使用其他邮箱。');
+      } 
+      // If it wasn't the specific credential-in-use error during linking, re-throw the original error
+      throw new Error(error.message || '注册或账户链接失败，请重试');
     }
   },
   
@@ -59,26 +123,38 @@ export const authService: AuthService = {
   
   // Google 登录 (重构后)
   async loginWithGoogle(): Promise<User> {
-    console.log('[AuthService] 发起 Google 登录请求...');
+    console.log('[AuthService] 发起 Google 登录/链接请求...');
+    // Add a check here to inform the background script if we are anonymous
+    const auth = getFirebaseAuth();
+    const isAnonymous = !!(auth.currentUser && auth.currentUser.isAnonymous);
+    
     return new Promise((resolve, reject) => {
-      // 向后台脚本发送登录请求消息
-      chrome.runtime.sendMessage({ type: 'LOGIN_WITH_GOOGLE' }, (response) => {
+      // 向后台脚本发送登录请求消息, 附加是否为匿名用户的信息
+      chrome.runtime.sendMessage({ 
+        type: 'LOGIN_WITH_GOOGLE', 
+        payload: { isAnonymousUser: isAnonymous } // Send anonymous status
+      }, (response) => {
         if (chrome.runtime.lastError) {
-          // 消息发送失败或后台脚本出错
-          console.error('[AuthService] Google 登录消息发送失败:', chrome.runtime.lastError);
-          return reject(new Error('无法连接到后台服务进行登录: ' + chrome.runtime.lastError.message));
+          console.error('[AuthService] Google 登录/链接消息发送失败:', chrome.runtime.lastError);
+          return reject(new Error('无法连接到后台服务进行登录/链接: ' + chrome.runtime.lastError.message));
         }
 
         if (response && response.success) {
-          console.log('[AuthService] Google 登录成功，收到用户信息:', response.user);
-          // 后台脚本成功后应返回 { success: true, user: User }
-          // 无需在此处保存状态，后台 signInWithCredential 会触发 onAuthStateChanged
+          console.log('[AuthService] Google 登录/链接成功，收到用户信息:', response.user);
           resolve(response.user as User);
         } else {
-          // 后台脚本返回失败或无效响应
           const errorMessage = response?.error?.message || '未知错误';
-          console.error('[AuthService] Google 登录失败:', errorMessage, response?.error);
-          reject(new Error(`Google 登录失败: ${errorMessage}`));
+          const errorCode = response?.error?.code;
+          console.error(`[AuthService] Google 登录/链接失败: ${errorMessage}`, response?.error);
+          // Provide more specific error messages based on code
+          if (errorCode === 'auth/credential-already-in-use') {
+             reject(new Error('此 Google 账户已关联到其他用户，请尝试使用其他账户登录。'));
+          } else if (errorCode === 'auth/account-exists-with-different-credential') {
+             reject(new Error('您已使用其他方式（如邮箱）注册过，请先使用该方式登录。')); // Or guide to link
+          }
+          else {
+             reject(new Error(`Google 登录/链接失败: ${errorMessage}`));
+          }
         }
       });
     });
@@ -173,69 +249,116 @@ export const authService: AuthService = {
   onAuthStateChanged(callback: (user: User | null) => void): () => void {
     const auth = getFirebaseAuth();
     let isSigningInAnonymously = false; // 添加一个标志防止重复匿名登录
+    let potentialLogoutTimer: ReturnType<typeof setTimeout> | null = null; // 用于延迟处理登出/匿名登录
 
     const unsubscribe = fbOnAuthStateChanged(auth, (firebaseUser) => {
+      // 清除可能存在的登出延迟计时器
+      if (potentialLogoutTimer) {
+        clearTimeout(potentialLogoutTimer);
+        potentialLogoutTimer = null;
+      }
+
       if (firebaseUser) {
-        console.log('[AuthService] onAuthStateChanged: User found', 
-                    firebaseUser.uid, 
+        console.log('[AuthService] onAuthStateChanged: User found',
+                    firebaseUser.uid,
                     `isAnonymous: ${firebaseUser.isAnonymous}`);
-        isSigningInAnonymously = false; // 重置标志
+        isSigningInAnonymously = false; // 确认用户存在，重置匿名登录标志
         const appUser = mapFirebaseUser(firebaseUser);
         callback(appUser);
       } else {
-        console.log('[AuthService] onAuthStateChanged: No user found.');
-        // 用户登出或初始未登录
-        callback(null);
+        console.log('[AuthService] onAuthStateChanged: Received null user state.');
+        // 不要立即回调 null 或尝试匿名登录
+        // 设置一个短暂的延迟，比如 1 秒，再次检查状态
+        potentialLogoutTimer = setTimeout(async () => {
+           console.log('[AuthService] Re-checking auth state after delay...');
+           const currentAuth = getFirebaseAuth(); // 获取最新的 Auth 实例
+           const latestUser = currentAuth.currentUser;
 
-        // 修正: 如果当前没有用户且没有正在尝试匿名登录，则尝试匿名登录
-        if (!isSigningInAnonymously) {
-          console.log('[AuthService] Attempting anonymous sign-in...');
-          isSigningInAnonymously = true;
-          signInAnonymously(auth)
-            .then((userCredential) => {
-              // 匿名登录成功会再次触发 onAuthStateChanged
-              console.log('[AuthService] Anonymous sign-in successful.', userCredential.user.uid);
-              // 不需要在这里 callback，等待下一次 onAuthStateChanged 触发
-            })
-            .catch((error) => {
-              console.error('[AuthService] Anonymous sign-in failed:', error);
-              isSigningInAnonymously = false; // 登录失败，重置标志允许重试
-            })
-            .finally(() => {
-              // 移除 finally 里的重置，因为成功后需要等 onAuthStateChanged 触发来重置
-              // isSigningInAnonymously = false; 
-            });
-        } else {
-          console.log('[AuthService] Already attempting anonymous sign-in, skipping.')
-        }
-        
-        // 调用会话结束处理函数 (如果需要的话，可以在匿名登录尝试前或后调用)
-        handleSessionEnd().catch(error => {
-           console.error('处理会话结束时发生错误:', error);
-        });
+           if (latestUser) {
+             // 如果延迟后用户又存在了（说明之前的 null 是暂时的），则忽略这次 null 事件
+             console.log('[AuthService] Auth state recovered after delay. User:', latestUser.uid);
+             // 可选：如果需要，可以再次调用 callback 以确保 UI 更新
+             // callback(mapFirebaseUser(latestUser));
+           } else {
+             // 如果延迟后用户仍然是 null，那么才真正处理登出状态
+             console.log('[AuthService] Confirmed user is null after delay. Proceeding with logout state.');
+             callback(null); // 真正通知 UI 用户已登出
+
+             // 只有在确认用户确实为 null 后，才考虑匿名登录
+             if (!isSigningInAnonymously) {
+               console.log('[AuthService] Attempting anonymous sign-in after confirmed logout...');
+               isSigningInAnonymously = true;
+               try {
+                 const userCredential = await signInAnonymously(auth);
+                 console.log('[AuthService] Anonymous sign-in successful after confirmed logout.', userCredential.user.uid);
+                 // 成功会再次触发 onAuthStateChanged
+               } catch (error) {
+                 console.error('[AuthService] Anonymous sign-in failed after confirmed logout:', error);
+                 isSigningInAnonymously = false;
+               } finally {
+                   // 无论成功失败，匿名登录尝试结束后都应该重置标志，允许下次尝试
+                   // isSigningInAnonymously = false; // 放在 finally 可能更安全，但当前逻辑是成功后等 onAuthStateChanged 触发时重置
+                   // 保持原逻辑：失败时重置，成功时等下一次 onAuthStateChanged
+               }
+             } else {
+               console.log('[AuthService] Already attempting anonymous sign-in, skipping.');
+             }
+             
+             // 调用会话结束处理函数 (如果需要的话)
+             handleSessionEnd().catch(error => {
+                console.error('处理会话结束时发生错误:', error);
+             });
+           }
+           potentialLogoutTimer = null; // 清理计时器引用
+        }, 1000); // 延迟 1 秒，可以根据测试调整
+
       }
     }, (error: Error) => {
+       // 处理错误情况
+       if (potentialLogoutTimer) {
+         clearTimeout(potentialLogoutTimer);
+         potentialLogoutTimer = null;
+       }
       console.error('认证状态观察错误:', error);
       callback(null);
       isSigningInAnonymously = false; // 出错时也重置标志
     });
-    
+
     // 初始检查：如果启动时就没有用户，也触发一次匿名登录尝试
     // 这可以加速初始匿名登录过程，避免等待 onAuthStateChanged 首次回调
+    // 注意：这里的匿名登录也可能和 Auth 状态恢复竞争，如果启动时快速恢复了登录状态，可能不需要这里的匿名登录
+    // 可以考虑也给这里的初始匿名登录加一个小的延迟检查
     if (!auth.currentUser && !isSigningInAnonymously) {
-      console.log('[AuthService] Initial check: No user, attempting anonymous sign-in...');
-      isSigningInAnonymously = true;
-      signInAnonymously(auth)
-        .then((userCredential) => {
-          console.log('[AuthService] Initial anonymous sign-in successful.', userCredential.user.uid);
-        })
-        .catch((error) => {
-          console.error('[AuthService] Initial anonymous sign-in failed:', error);
-          isSigningInAnonymously = false; 
-        });
+        console.log('[AuthService] Initial check: No user, scheduling potential anonymous sign-in...');
+        // 也给初始检查加个延迟，给 Auth 状态恢复一点时间
+        setTimeout(() => {
+            const currentAuth = getFirebaseAuth();
+            if (!currentAuth.currentUser && !isSigningInAnonymously) {
+                console.log('[AuthService] Initial check after delay: Still no user, attempting anonymous sign-in...');
+                isSigningInAnonymously = true;
+                signInAnonymously(auth)
+                  .then((userCredential) => {
+                    console.log('[AuthService] Initial anonymous sign-in successful.', userCredential.user.uid);
+                    // 成功后 onAuthStateChanged 会处理
+                  })
+                  .catch((error) => {
+                    console.error('[AuthService] Initial anonymous sign-in failed:', error);
+                    isSigningInAnonymously = false;
+                  });
+            } else {
+                 console.log('[AuthService] Initial check after delay: User found or already signing in anonymously, skipping initial attempt.');
+            }
+        }, 500); // 短暂延迟 500ms
     }
 
-    return unsubscribe;
+
+    return () => {
+      // 组件卸载或服务停止时确保清除计时器
+      if (potentialLogoutTimer) {
+        clearTimeout(potentialLogoutTimer);
+      }
+      unsubscribe(); // 调用 Firebase 返回的取消订阅函数
+    };
   },
   
   // 检查是否已认证
