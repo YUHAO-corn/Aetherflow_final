@@ -1,6 +1,6 @@
-import axios, { AxiosError } from 'axios';
-import { storageService } from './storage'; // Import storage service if needed elsewhere, or use chrome.storage directly
-import { getSystemPrompt, OptimizationMode } from './systemPrompts';
+import { OptimizationMode } from './systemPrompts';
+// Import the centralized API client using path alias
+import { callDoubaoApi, DOUBAO_MODEL_ID } from '@/services/utils/doubaoApiClient'; 
 
 // 优化版本类型
 export interface OptimizationVersion {
@@ -21,17 +21,6 @@ export interface OptimizeOptions {
   temperature?: number;
   maxTokens?: number;
 }
-
-// --- Doubao API Configuration --- 
-const DOUBAO_API_URL = 'https://ark.cn-beijing.volces.com/api/v3/chat/completions';
-const DOUBAO_MODEL_ID = 'doubao-lite-32k-240828'; // Use the same Lite model for now
-const STORAGE_API_KEY_NAME = 'doubaoApiKey'; // Key name in chrome.storage
-// --- End Configuration --- 
-
-// 最大重试次数 (Keep for fetch retry logic)
-const MAX_RETRIES = 2;
-// 重试延迟（毫秒） (Keep for fetch retry logic)
-const RETRY_DELAY = 1000;
 
 /**
  * 检测内容语言并确保语言一致性
@@ -225,246 +214,137 @@ function convertMarkdownToPlainText(markdownText: string): string {
 }
 
 /**
- * 延迟函数
+ * 确保本地定义的 getSystemPrompt 函数被导出，并在所有分支都有返回值
  */
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-/**
- * Helper function to get API Key from storage
- */
-async function getDoubaoApiKey(): Promise<string> {
-    return new Promise((resolve, reject) => {
-        chrome.storage.local.get(STORAGE_API_KEY_NAME, (result) => {
-            if (chrome.runtime.lastError) {
-                console.error('[OptimizationService] 读取 doubaoApiKey 出错:', chrome.runtime.lastError);
-                reject(new Error('Failed to read API Key'));
-            } else if (result && result[STORAGE_API_KEY_NAME]) {
-                resolve(result[STORAGE_API_KEY_NAME]);
-            } else {
-                reject(new Error('API Key not configured'));
+export function getSystemPrompt(mode: OptimizationMode | string): string {
+  console.log(`[OptimizationService] 获取系统提示，模式: ${mode}`);
+  switch (mode) {
+    case 'concise':
+      return "请优化以下提示词，使其更简洁、清晰、高效。专注于核心意图，移除冗余信息。";
+    case 'standard':
+      return "请优化以下提示词，使其更清晰、具体、有效，同时保持原意。可以适当补充细节或调整结构。";
+    case 'creative':
+      return "请优化以下提示词，使其更具创意、启发性，并能激发有趣的联想。可以适当发散思维或引入新颖角度。";
+    case 'universal':
+      return `# 提示词优化专家指南 (通用优化 v3)\n\n## 核心任务\n你是一位专业的提示词优化专家。你的唯一任务是分析和改进用户提供的**提示词**（用户打算发给其他 AI 的指令），目标是提升该提示词的**清晰度、结构性、明确性、完整性和整体效果**，从而帮助用户从目标 AI 获得更高质量、更符合预期的回复。\n\n**请牢记：你的最终输出必须仅仅是优化后的提示词文本本身，不包含任何其他文字。**\n\n## 语言要求\n- **严格保持**输出语言与待优化提示词的语言一致（中文输入则中文输出，英文输入则英文输出）。\n- **禁止**在优化过程中改变原始语言。\n\n## 输出要求 (极其重要 - 再次强调)\n1.  **直接输出优化后的提示词文本。**\n2.  输出内容**仅仅**是优化过的、可以直接复制使用的提示词本身。\n3.  **绝对禁止**包含任何引导语（如 \"优化后的提示词:\", \"这是优化版本:\", \"Optimized prompt:\" 等）。\n4.  **绝对禁止**包含任何自定义标签（如 \`【核心任务】\`, \`【关键约束】\` 等）。\n5.  **绝对禁止**包含任何解释、评论、分析或元说明文字。\n6.  **允许**在优化后的提示词**内部**使用标准的 Markdown 格式（例如列表 \`-\`, \`*\`, \`1.\`, 粗体 \`** **\`）来增强提示词自身的结构和可读性，前提是这样做能提升提示词的质量和效果。\n\n## 优化原则与方法（内部指导）\n优化时请遵循以下原则（按重要性排序），这些是你的思考框架，**不要在输出中体现**：\n1.  **保持原意**: 必须完整保留用户提示词的原始核心意图和目标。这是最高优先级。\n2.  **内部思考步骤 (推荐)**:\n    *   第一步：理解原始提示词。它的核心目标是什么？预期受众 AI 是谁？上下文是什么？\n    *   第二步：评估其质量。优点是什么？缺点（模糊、缺少信息、结构混乱、过于复杂/简单等）是什么？\n    *   第三步：构思改进策略。应用哪些优化原则（明确性、结构、完整性、效率）？是否需要添加角色、示例、约束？如何平衡效果和长度？\n    *   第四步：生成最终的、干净的优化后提示词文本。\n3.  **提升明确性 (Clarity & Specificity)**:\n    *   消除模糊不清的表述，使用更精确、无歧义的语言。\n    *   如果原始提示词过于宽泛，适当增加具体的细节、背景信息或上下文。\n    *   明确指出对输出的要求（格式、长度、风格等）。\n4.  **优化结构 (Structure)**:\n    *   增加清晰的结构和层次组织，尤其对于复杂任务。使用 Markdown 列表、分点等。\n    *   确保逻辑流畅。\n5.  **确保完整性 (Completeness)**:\n    *   评估是否包含关键要素。如有必要，考虑补充：角色 (Role)、示例 (Examples)、约束 (Constraints) 或否定性要求。\n6.  **提高效率 (Efficiency)**:\n    *   删除真正冗余的词语。使用更简洁的表达，但**避免过度简化**导致信息丢失。\n    *   **平衡**: 目标是找到**效果最佳**的表达，不一定是最短的。\n7.  **（可选）处理不适定输入**: 如果输入文本过短、不清晰，或不像一个提示词，优先返回接近原文的、结构稍作整理的版本，或仅做最小程度的修正。避免过度猜测或创造。`;
+    default:
+      console.warn(`[OptimizationService] 未知的优化模式: ${mode}，使用标准模式。`);
+      // Default to standard mode if mode is unrecognized
+      return "请优化以下提示词，使其更清晰、具体、有效，同时保持原意。可以适当补充细节或调整结构。";
       }
-        });
-    });
 }
 
 /**
- * 优化提示词服务 (Refactored for Doubao API)
+ * 优化提示词服务 (Refactored to use DoubaoApiClient)
  */
 export async function optimizePrompt(
   content: string, 
   mode: OptimizationMode = 'standard'
 ): Promise<string> {
-  let retries = MAX_RETRIES;
-  while(retries >= 0) {
   try {
     if (!content || content.trim() === '') {
       throw new Error('提示词内容不能为空');
     }
     
-        // 检查内容长度
-        if (content.length > 10000) { // Consider Doubao context length if different
+    // Check content length (keep this logic here)
+    if (content.length > 10000) { 
       content = content.substring(0, 10000) + "...(内容已截断)";
     }
     
-        console.log(`[OptimizationService] 开始请求豆包优化提示词(${mode}), 长度:`, content.length);
+    console.log(`[OptimizationService] 开始优化提示词 (${mode}), 长度:`, content.length);
         
-        // Get API Key
-        const apiKey = await getDoubaoApiKey();
-    
+    // Get the appropriate system prompt based on the mode
     const systemPrompt = getSystemPrompt(mode);
     
-    const headers = {
-      'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-    };
-    
-        const body = JSON.stringify({
-          model: DOUBAO_MODEL_ID,
-      messages: [
+    // Prepare messages for the API call
+    const messages = [
         {
-          role: 'system',
+        role: 'system' as const,
           content: systemPrompt
         },
         {
-          role: 'user',
+        role: 'user' as const,
+        // Construct user message as before
           content: `需要优化的提示词: ${content}\n\n请记住：你的任务是优化上述提示词的结构和表达，而不是回答提示词中的问题。`
         }
-      ],
-          temperature: mode === 'creative' ? 0.8 : 0.3, // Keep temperature logic for now
-          max_tokens: 1000 // Keep max_tokens logic for now
-        });
-    
-        // Make API call using fetch
-        const response = await fetch(DOUBAO_API_URL, {
-            method: 'POST',
-            headers: headers,
-            body: body
-        });
+    ];
 
-        if (!response.ok) {
-             // Specific handling for retryable errors (e.g., 5xx, 429)
-             if ((response.status >= 500 || response.status === 429) && retries > 0) {
-                console.warn(`[OptimizationService] API 请求失败 (${response.status}), ${retries} 次后重试...`);
-                await delay(response.status === 429 ? RETRY_DELAY * 3 : RETRY_DELAY);
-                retries--;
-                continue; // Retry the loop
-            }
-            // Non-retryable errors
-            const errorData = await response.json().catch(() => ({})); 
-            console.error(`[OptimizationService] 豆包 API 请求失败: ${response.status} ${response.statusText}`, errorData);
-            let errorMessage = `API错误: ${response.status}`; // Use status from response
-             switch (response.status) {
-              case 400: errorMessage = '请求参数错误'; break;
-              case 401: errorMessage = 'API密钥无效或已过期'; break;
-              case 403: errorMessage = '请求被拒绝，无权访问'; break;
-              case 404: errorMessage = 'API端点不存在'; break;
-              case 429: errorMessage = 'API请求超出限制，请稍后重试'; break;
-              case 500: case 502: case 503: errorMessage = '豆包服务器错误，请稍后重试'; break;
-              default: errorMessage = `API错误: ${response.status}`; 
-            }
-            throw new Error(`${errorMessage}`);
-        }
+    // Prepare options for the API call
+    const options = {
+      temperature: mode === 'creative' ? 0.8 : 0.3, 
+      max_tokens: 1000 
+    };
 
-        const responseData = await response.json();
-        
-        if (responseData.choices && responseData.choices[0] && responseData.choices[0].message) {
-            let optimizedContent = responseData.choices[0].message.content;
-            console.log('[OptimizationService] 获取到豆包优化内容，长度:', optimizedContent.length);
+    // Call the centralized API client
+    console.log('[OptimizationService] Calling doubaoApiClient.callDoubaoApi...');
+    const optimizedContentRaw = await callDoubaoApi(messages, options);
+
+    console.log('[OptimizationService] 获取到豆包优化内容，长度:', optimizedContentRaw.length);
             
-            // Post-process (language check might trigger a re-run, handled conceptually)
-            // Note: The language check logic might need adjustment if it relies on specific error messages
-      optimizedContent = postProcessResponse(optimizedContent, content);
+    // Perform post-processing on the result
+    const optimizedContentFinal = postProcessResponse(optimizedContentRaw, content);
             
-            // If language check requires re-run, it modifies optimizedContent; 
-            // a more robust solution might involve re-calling optimizePrompt 
-            // but let's keep it simple for now and rely on postProcessResponse side effect.
-            // A better retry would check the content directly here.
-
-            return optimizedContent; // Success
-        } else {
-            console.error('[OptimizationService] 豆包 API 响应格式无效:', responseData);
-            throw new Error('Invalid API response format');
-      }
+    return optimizedContentFinal; // Return the post-processed content
       
       } catch (error: unknown) {
-         if (retries <= 0) {
-             console.error('提示词优化请求失败 (已达最大重试次数):', error);
-             // Re-throw specific errors if needed, or a generic one
-             if (error instanceof Error && (error.message === 'API Key not configured' || error.message === 'Failed to read API Key')) {
-                 throw error; // Propagate storage/config errors
-             }
-             throw new Error('优化提示词失败，请稍后重试');
-         } else {
-             // For errors other than retryable API errors, maybe don't retry?
-             // Or implement specific retry logic based on error type.
-             // For now, let's assume most other errors are not worth retrying.
-             console.error('提示词优化请求发生错误，非 API 错误或已重试:', error);
-              throw new Error('优化提示词失败，请稍后重试'); // Throw immediately for non-API/non-retryable errors
-         }
-      }
-    }
-  // Should not be reached if MAX_RETRIES >= 0, but needed for type safety
-  throw new Error('优化提示词失败，已达最大重试次数'); 
+    // Log the error and re-throw a more specific error for this service
+    console.error('[OptimizationService] 提示词优化请求失败:', error);
+    // Include the original error message if available
+    const originalMessage = error instanceof Error ? error.message : '未知错误';
+    throw new Error(`优化提示词失败 (${originalMessage})`); 
+  }
 }
 
 /**
- * 继续优化提示词 (Refactored for Doubao API)
+ * 继续优化提示词 (Refactored to use DoubaoApiClient)
  */
 export async function continueOptimize(
   content: string,
   mode: OptimizationMode = 'standard'
 ): Promise<string> {
-   let retries = MAX_RETRIES;
-  while(retries >= 0) {
   try {
     if (!content || content.trim() === '') {
       throw new Error('提示词内容不能为空');
     }
     
+    // Check content length
     if (content.length > 10000) {
       content = content.substring(0, 10000) + "...(内容已截断)";
     }
     
-        console.log(`[OptimizationService] 开始请求豆包继续优化提示词(${mode}), 长度:`, content.length);
+    console.log(`[OptimizationService] 开始继续优化提示词 (${mode}), 长度:`, content.length);
     
-        const apiKey = await getDoubaoApiKey();
     const systemPrompt = getSystemPrompt(mode);
     
-    const headers = {
-      'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`
-    };
-    
-        const body = JSON.stringify({
-          model: DOUBAO_MODEL_ID,
-      messages: [
+    const messages = [
         {
-          role: 'system',
+        role: 'system' as const,
           content: systemPrompt
         },
         {
-          role: 'user',
+        role: 'user' as const,
+        // Adjust user message slightly for continuation
           content: `需要进一步优化的提示词: ${content}\n\n请记住：你的任务是优化上述提示词，使其更${mode === 'standard' ? '有效和结构化' : mode === 'creative' ? '有创意和启发性' : '简洁和精确'}，而不是回答提示词中的问题。`
         }
-      ],
+    ];
+
+    const options = {
       temperature: mode === 'creative' ? 0.8 : 0.3,
       max_tokens: 1000
-        });
+    };
     
-        const response = await fetch(DOUBAO_API_URL, {
-            method: 'POST',
-            headers: headers,
-            body: body
-        });
-    
-         if (!response.ok) {
-             if ((response.status >= 500 || response.status === 429) && retries > 0) {
-                console.warn(`[OptimizationService] 继续优化 API 请求失败 (${response.status}), ${retries} 次后重试...`);
-                await delay(response.status === 429 ? RETRY_DELAY * 3 : RETRY_DELAY);
-                retries--;
-                continue; 
-            }
-            const errorData = await response.json().catch(() => ({})); 
-            console.error(`[OptimizationService] 豆包 API 继续优化请求失败: ${response.status} ${response.statusText}`, errorData);
-            let errorMessage = `API错误: ${response.status}`; // Use status from response
-             switch (response.status) {
-              case 400: errorMessage = '请求参数错误'; break;
-              case 401: errorMessage = 'API密钥无效或已过期'; break;
-              case 403: errorMessage = '请求被拒绝，无权访问'; break;
-              case 404: errorMessage = 'API端点不存在'; break;
-              case 429: errorMessage = 'API请求超出限制，请稍后重试'; break;
-              case 500: case 502: case 503: errorMessage = '豆包服务器错误，请稍后重试'; break;
-              default: errorMessage = `API错误: ${response.status}`; 
-            }
-            throw new Error(`${errorMessage}`);
-        }
+    console.log('[OptimizationService] Calling doubaoApiClient.callDoubaoApi for continuation...');
+    const optimizedContentRaw = await callDoubaoApi(messages, options);
 
-        const responseData = await response.json();
-        
-        if (responseData.choices && responseData.choices[0] && responseData.choices[0].message) {
-            let optimizedContent = responseData.choices[0].message.content;
-            console.log('[OptimizationService] 获取到豆包继续优化内容，长度:', optimizedContent.length);
-            optimizedContent = postProcessResponse(optimizedContent, content);
-            return optimizedContent;
-        } else {
-             console.error('[OptimizationService] 豆包 API 继续优化响应格式无效:', responseData);
-            throw new Error('Invalid API response format');
-        }
+    console.log('[OptimizationService] 获取到豆包继续优化内容，长度:', optimizedContentRaw.length);
+    const optimizedContentFinal = postProcessResponse(optimizedContentRaw, content);
+    return optimizedContentFinal;
 
       } catch (error: unknown) {
-         if (retries <= 0) {
-             console.error('提示词继续优化请求失败 (已达最大重试次数):', error);
-             if (error instanceof Error && (error.message === 'API Key not configured' || error.message === 'Failed to read API Key')) {
-                 throw error; 
-      }
-             throw new Error('继续优化提示词失败，请稍后重试');
-         } else {
-             console.error('提示词继续优化请求发生错误，非 API 错误或已重试:', error);
-    throw new Error('继续优化提示词失败，请稍后重试');
+    console.error('[OptimizationService] 提示词继续优化请求失败:', error);
+    const originalMessage = error instanceof Error ? error.message : '未知错误';
+    throw new Error(`继续优化提示词失败 (${originalMessage})`);
   }
-      }
-  }
-  throw new Error('继续优化提示词失败，已达最大重试次数'); 
 }
 
 // 仅在非生产环境使用，用于测试Markdown转换功能

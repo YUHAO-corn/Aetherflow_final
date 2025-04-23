@@ -12,6 +12,7 @@ export type MessageType =
   | 'PROMPT_UPDATED'
   | 'IMPORT_PROMPTS'
   | 'EXPORT_PROMPTS'
+  | 'GENERATE_TITLE'
   // 内容脚本相关消息类型
   | 'COPY_TO_CLIPBOARD'
   | 'INJECT_PROMPT'
@@ -25,11 +26,18 @@ export type MessageType =
   // 消息通信检测
   | 'PING'
   | 'CONTENT_SCRIPT_READY'
+  | 'HEARTBEAT'
+  // 侧边栏
+  | 'OPEN_SIDEBAR'
+  // 优化
+  | 'OPTIMIZE_SELECTION'
   // 旧版兼容消息类型
   | 'LEGACY_SEARCH_PROMPTS'
   | 'GET_SELECTED_TEXT'
   // 添加认证相关消息类型
-  | 'LOGIN_WITH_GOOGLE';
+  | 'LOGIN_WITH_GOOGLE'
+  | 'CHECK_AUTH_STATE'
+  | 'LOGOUT';
 
 /**
  * 统一消息接口

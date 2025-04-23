@@ -3,8 +3,8 @@
  * 提供提示词优化相关的业务功能
  */
 
-import { optimizePrompt, continueOptimize, OptimizationMode } from '../optimizationService';
-export type { OptimizationMode } from '../optimizationService';
+import { optimizePrompt, continueOptimize } from '@/services/optimizationService';
+export type { OptimizationMode } from '@/services/systemPrompts';
 import { OptimizationVersion, OptimizationError } from './types';
 export type { OptimizationVersion, OptimizationError } from './types';
 import { generateTitleForPrompt } from '../prompt/actions';
