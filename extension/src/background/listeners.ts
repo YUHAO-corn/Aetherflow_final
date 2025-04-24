@@ -11,7 +11,7 @@ import {
 } from '@/background/promptHandler'; // Also use alias here for consistency
 import { handleLoginWithGoogle, handleCheckAuthState, handleLogout } from '@/background/authHandler'; // Use alias
 import { markContentScriptReady } from '@/background/contentScriptManager'; // Use alias
-import { handleOptimizeSelection } from '@/background/optimizationHandler'; // Use alias
+import { handleOptimizeSelection, handleOptimizeModalContent } from '@/background/optimizationHandler'; // Add handleOptimizeModalContent
 // Import the new AI feature handler
 import { handleGenerateTitle } from '@/background/aiFeaturesHandler'; // Use alias
 import { createErrorResponse } from '@/services/messaging'; // Use alias
@@ -88,6 +88,12 @@ export function initializeMessageListeners() {
                      handleOptimizeSelection(message.payload, sender, sendResponse);
                      isAsync = true; // API call is async
                      break;
+
+                case 'OPTIMIZE_MODAL_CONTENT':
+                    // Call the new handler from optimizationHandler
+                    handleOptimizeModalContent(message.payload, sender, sendResponse);
+                    isAsync = true; // API call is async
+                    break;
 
                 // --- Message previously in second onMessage listener ---
                 case 'PROMPT_UPDATED':

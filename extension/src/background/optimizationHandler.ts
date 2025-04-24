@@ -56,5 +56,60 @@ export async function handleOptimizeSelection(
   // sendResponse is handled asynchronously. Listener needs to return true.
 }
 
+/**
+ * Handles the OPTIMIZE_MODAL_CONTENT message for the preview modal.
+ */
+export async function handleOptimizeModalContent(
+  payload: { content?: string }, 
+  sender: chrome.runtime.MessageSender,
+  sendResponse: (response?: any) => void
+): Promise<void> {
+  console.log('[OptimizationHandler] Received OPTIMIZE_MODAL_CONTENT request, content length:', payload?.content?.length);
+
+  if (!sender.tab?.id || !payload?.content) {
+    console.error('[OptimizationHandler] Invalid request: Missing tab ID or content.', { payload, sender });
+    sendResponse({ success: false, error: 'Invalid payload or sender tab info for OPTIMIZE_MODAL_CONTENT' });
+    return;
+  }
+
+  const tabId = sender.tab.id;
+  const originalContent = payload.content;
+
+  try {
+    console.log('[OptimizationHandler] Calling optimizationService.optimizePrompt with universal mode for modal...');
+    // Call the centralized service with the 'universal' mode
+    const optimizedContent = await optimizePrompt(originalContent, 'universal');
+
+    console.log('[OptimizationHandler] Modal optimization successful via service:', optimizedContent.substring(0, 100) + '...');
+
+    // Send the result back specifically for the modal
+    chrome.tabs.sendMessage(tabId, {
+        type: 'MODAL_OPTIMIZATION_RESULT',
+        payload: { optimizedContent: optimizedContent }
+    }).catch(error => {
+        console.error(`[OptimizationHandler] Error sending MODAL_OPTIMIZATION_RESULT to Tab ${tabId}:`, error);
+    });
+
+    // Acknowledge successful processing of the background message
+    sendResponse({ success: true });
+
+  } catch (error: any) {
+    console.error('[OptimizationHandler] Error calling optimizationService for modal:', error);
+    const errorPayload = { 
+        code: error.code || 'optimization/service-failed', 
+        message: error.message || 'Optimization failed' 
+    };
+    // Send error details back in the result message for the modal to handle
+    chrome.tabs.sendMessage(tabId, {
+        type: 'MODAL_OPTIMIZATION_RESULT',
+        payload: { error: errorPayload }
+    }).catch(error => {
+        console.error(`[OptimizationHandler] Error sending MODAL_OPTIMIZATION_RESULT (error state) to Tab ${tabId}:`, error);
+    });
+    // Also acknowledge the original message failed
+    sendResponse({ success: false, error: errorPayload });
+  }
+}
+
 // No separate initializer needed for this handler
  

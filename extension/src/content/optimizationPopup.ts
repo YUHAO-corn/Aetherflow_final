@@ -1,6 +1,76 @@
 import { showToast } from './toast'; // Assuming toast is used for copy feedback
 
 export let optimizePopupElement: HTMLDivElement | null = null;
+// --- State variables for drag and pin ---
+let isDragging = false;
+let offsetX = 0;
+let offsetY = 0;
+let isPinned = false;
+
+/** Helper function to check pin status */
+export function isOptimizationPopupPinned(): boolean {
+    return isPinned;
+}
+
+// --- Drag Handlers ---
+function onDragMouseDown(event: MouseEvent): void {
+    if (!optimizePopupElement || !(event.target as HTMLElement)?.classList.contains('aetherflow-optimize-popup-header')) {
+        return; // Only drag by the header
+    }
+    isDragging = true;
+    // Calculate offset from the top-left corner of the popup
+    offsetX = event.clientX - optimizePopupElement.offsetLeft;
+    offsetY = event.clientY - optimizePopupElement.offsetTop;
+    optimizePopupElement.style.cursor = 'grabbing'; // Indicate dragging
+    // Add listeners to the window to track mouse movement everywhere
+    window.addEventListener('mousemove', onDragMouseMove, true);
+    window.addEventListener('mouseup', onDragMouseUp, true);
+    event.preventDefault(); // Prevent text selection while dragging header
+    event.stopPropagation(); // Prevent triggering lower-level listeners like closing on click outside
+}
+
+function onDragMouseMove(event: MouseEvent): void {
+    if (!isDragging || !optimizePopupElement) return;
+    // Calculate new position
+    let newLeft = event.clientX - offsetX;
+    let newTop = event.clientY - offsetY;
+
+    // --- Boundary checks (keep within viewport) ---
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const popupWidth = optimizePopupElement.offsetWidth;
+    const popupHeight = optimizePopupElement.offsetHeight;
+    const margin = 5; // Small margin
+
+    newLeft = Math.max(margin, Math.min(newLeft, viewportWidth - popupWidth - margin));
+    newTop = Math.max(margin, Math.min(newTop, viewportHeight - popupHeight - margin));
+
+    optimizePopupElement.style.left = `${newLeft}px`;
+    optimizePopupElement.style.top = `${newTop}px`;
+}
+
+function onDragMouseUp(): void {
+    if (!isDragging || !optimizePopupElement) return;
+    isDragging = false;
+    optimizePopupElement.style.cursor = 'grab'; // Restore cursor
+    // Remove global listeners
+    window.removeEventListener('mousemove', onDragMouseMove, true);
+    window.removeEventListener('mouseup', onDragMouseUp, true);
+}
+
+// --- Pin Handler ---
+function togglePinOptimizationPopup(event: MouseEvent): void {
+    isPinned = !isPinned;
+    const pinButton = event.currentTarget as HTMLButtonElement;
+    if (optimizePopupElement) {
+        optimizePopupElement.classList.toggle('aetherflow-popup-pinned', isPinned);
+    }
+    // Update button appearance/title based on pin state
+    pinButton.title = isPinned ? 'Unpin window' : 'Pin window';
+    // Simple visual feedback: change icon slightly or background (CSS handles this better)
+    console.log('Optimization Popup Pinned:', isPinned);
+    event.stopPropagation(); // Prevent closing popup when clicking pin button
+}
 
 // --- Message Listener --- 
 // Listen for results from the background script
@@ -198,18 +268,43 @@ export function getOrCreateOptimizationPopup(): HTMLDivElement {
     console.log('[Capture Script] Creating optimization result popup element.');
     optimizePopupElement = document.createElement('div');
     optimizePopupElement.className = 'aetherflow-optimize-popup';
-    optimizePopupElement.style.position = 'fixed'; 
+    optimizePopupElement.style.position = 'fixed';
     optimizePopupElement.style.display = 'none'; // Hidden by default
 
     // Prevent clicks inside the popup from closing it via the global listener
-    optimizePopupElement.addEventListener('mousedown', (e) => e.stopPropagation());
+    // This should NOT stop propagation for the header mousedown for dragging
+    optimizePopupElement.addEventListener('mousedown', (e) => {
+        // Only stop propagation if the click is NOT on the header itself
+        if (!(e.target as HTMLElement)?.closest('.aetherflow-optimize-popup-header')) {
+             e.stopPropagation();
+        }
+    });
 
-    // --- Popup Header (Optional, for close button) ---
+    // --- Popup Header (Drag Handle & Controls) ---
     const header = document.createElement('div');
     header.className = 'aetherflow-optimize-popup-header';
+    header.addEventListener('mousedown', onDragMouseDown); // Add drag listener here
+
+    // Header controls container (to keep pin/close buttons grouped)
+    const controls = document.createElement('div');
+    controls.className = 'aetherflow-optimize-popup-controls';
+
+
+    // Add Pin Button
+    const pinButton = document.createElement('button');
+    pinButton.className = 'aetherflow-popup-pin-button aetherflow-modal-control-button'; // Reuse styles?
+    pinButton.title = 'Pin window';
+    // Simple pin icon (e.g., from Lucide or similar) - Placeholder SVG
+    pinButton.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+        </svg>`;
+    pinButton.addEventListener('click', togglePinOptimizationPopup);
+    controls.appendChild(pinButton); // Add pin button first
 
     const closeButton = document.createElement('button');
-    closeButton.className = 'aetherflow-popup-close-button'; // Distinct class
+    closeButton.className = 'aetherflow-popup-close-button aetherflow-modal-control-button'; // Reuse styles?
     closeButton.title = 'Close';
     // Use X icon
     closeButton.innerHTML = `
@@ -218,7 +313,9 @@ export function getOrCreateOptimizationPopup(): HTMLDivElement {
             <line x1="6" y1="6" x2="18" y2="18"></line>
         </svg>`;
     closeButton.addEventListener('click', hideOptimizationPopup);
-    header.appendChild(closeButton);
+    controls.appendChild(closeButton); // Add close button after pin
+
+    header.appendChild(controls); // Add controls group to header
     optimizePopupElement.appendChild(header);
 
     // --- Popup Content Area ---

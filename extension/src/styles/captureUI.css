@@ -10,6 +10,13 @@
   --aetherflow-primary-bg-rgb: 45, 27, 107;
   --aetherflow-secondary-bg: #4a2f9c; /* Lighter Purple */
   --aetherflow-secondary-bg-rgb: 74, 47, 156; /* RGB for RGBA */
+  
+  /* Define Purple Accent based on secondary purple */
+  --aetherflow-purple-accent: var(--aetherflow-secondary-bg);
+  --aetherflow-purple-accent-rgb: var(--aetherflow-secondary-bg-rgb);
+  --aetherflow-purple-accent-hover: #3b257a; /* Slightly darker purple for hover */
+
+  /* Keep original blue accent as well, in case it's needed elsewhere */
   --aetherflow-accent: #3b82f6; /* Example: Blue accent */
   --aetherflow-accent-rgb: 59, 130, 246; /* RGB for RGBA */
   --aetherflow-accent-hover: #2563eb; /* Example: Darker Blue */
@@ -31,4 +38,57 @@
   --aetherflow-primary-hover-bg: #221551;
   --aetherflow-modal-shadow: 0 5px 15px rgba(0, 0, 0, 0.1), 0 2px 5px rgba(0, 0, 0, 0.06);
 }
+
+/* --- Styles for Preview Modal Content Optimization --- */
+
+/* REMOVE OLD STYLES AS THEY ARE NOW IN previewModal.css or redundant */
+/*
+.aetherflow-capture-optimize-link-container {
+    padding: 8px 12px 0; 
+    margin-top: -4px; 
+}
+
+.aetherflow-capture-optimize-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 8px;
+    border: none;
+    background: none;
+    color: var(--aetherflow-accent, #3b82f6);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.15s ease;
+}
+
+.aetherflow-capture-optimize-link:hover {
+    background-color: var(--aetherflow-accent-rgb, rgba(59, 130, 246, 0.1));
+}
+
+.aetherflow-capture-optimize-link svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2;
+}
+
+.aetherflow-capture-modal.aetherflow-modal-loading .aetherflow-capture-modal-body textarea {
+    opacity: 0.6;
+    pointer-events: none; 
+}
+
+.aetherflow-capture-modal.aetherflow-modal-loading .aetherflow-capture-optimize-link {
+    opacity: 0.6;
+    cursor: default;
+    pointer-events: none;
+}
+
+.aetherflow-capture-modal.aetherflow-modal-loading .aetherflow-capture-optimize-link::after {
+    content: '⏳';
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 12px;
+}
+*/
 

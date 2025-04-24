@@ -24,31 +24,62 @@
   justify-content: flex-end; /* Place close button to the right */
   padding: 3px 6px; /* Reduced vertical padding */
   flex-shrink: 0; /* Prevent header from shrinking */
+  cursor: grab; /* Indicate draggable area */
+  background-color: var(--aetherflow-modal-secondary-bg, #f8f9fa); /* Slightly different background for header */
+  border-bottom: 1px solid var(--aetherflow-border-color, #e9ecef); /* Separator line */
+}
+
+.aetherflow-optimize-popup-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px; /* Spacing between pin and close */
+}
+
+.aetherflow-modal-control-button {
+    background: none;
+    border: none;
+    padding: 3px;
+    margin: 0;
+    cursor: pointer;
+    color: var(--aetherflow-control-icon-color, #6c757d); /* fallback */
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.aetherflow-modal-control-button:hover {
+    color: var(--aetherflow-control-icon-hover-color, #343a40); /* fallback */
+    background-color: var(--aetherflow-control-icon-hover-bg, #e9ecef); /* fallback */
+}
+
+.aetherflow-modal-control-button svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2.5;
+}
+
+.aetherflow-popup-pin-button svg {
+    stroke-width: 2; /* Adjust pin icon stroke if needed */
+}
+
+.aetherflow-optimize-popup.aetherflow-popup-pinned .aetherflow-popup-pin-button {
+    background-color: var(--aetherflow-accent-rgb, rgba(59, 130, 246, 0.15)); /* Use accent color with opacity */
+    color: var(--aetherflow-accent, #3b82f6); /* Use accent color */
+}
+
+.aetherflow-optimize-popup.aetherflow-popup-pinned .aetherflow-popup-pin-button:hover {
+    background-color: var(--aetherflow-accent-rgb, rgba(59, 130, 246, 0.25));
 }
 
 .aetherflow-popup-close-button {
-  background: none;
-  border: none;
-  padding: 3px;
-  margin: 0;
-  cursor: pointer;
-  color: var(--aetherflow-control-icon-color, #6c757d); /* fallback */
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  line-height: 0;
-  transition: background-color 0.15s ease, color 0.15s ease;
-}
-
-.aetherflow-popup-close-button:hover {
-  color: var(--aetherflow-control-icon-hover-color, #343a40); /* fallback */
-  background-color: var(--aetherflow-control-icon-hover-bg, #e9ecef); /* fallback */
+    /* Now inherits from aetherflow-modal-control-button */
 }
 
 .aetherflow-popup-close-button svg {
-  width: 14px;
-  height: 14px;
+  /* Inherits size from generic, ensure stroke width is correct */
   stroke-width: 2.5;
 }
 

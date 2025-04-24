@@ -37,7 +37,15 @@ export type MessageType =
   // 添加认证相关消息类型
   | 'LOGIN_WITH_GOOGLE'
   | 'CHECK_AUTH_STATE'
-  | 'LOGOUT';
+  | 'LOGOUT'
+  | 'AUTH_STATE_CHANGED'
+  // 优化相关新消息类型
+  | 'OPTIMIZE_MODAL_CONTENT'
+  | 'MODAL_OPTIMIZATION_RESULT'
+  | 'OPTIMIZATION_RESULT'
+  // Generic response types (NEW)
+  | 'GENERIC_SUCCESS'
+  | 'GENERIC_ERROR';
 
 /**
  * 统一消息接口
@@ -51,6 +59,12 @@ export interface Message<T = any> {
   data?: any;
   // 请求ID，用于追踪异步请求
   requestId?: string;
+  // 可选的发送者上下文
+  from?: 'background' | 'content' | 'popup' | 'sidepanel';
+  // 可选的错误信息
+  error?: any;
+  // 可选的成功标志
+  success?: boolean;
 }
 
 /**
@@ -75,4 +89,51 @@ export type MessageCallback = (
   message: Message,
   sender: chrome.runtime.MessageSender,
   sendResponse: (response?: unknown) => void
-) => void | boolean | Promise<void | boolean>; 
+) => void | boolean | Promise<void | boolean>;
+
+// --- Specific Payload Types (Example - Add more as needed) ---
+
+export interface OptimizeSelectionPayload {
+  content: string;
+}
+
+export interface OptimizationResultPayload {
+  optimizedContent: string;
+  error?: { code: string; message: string }; // Optional error details
+}
+
+export interface SavePromptPayload {
+  title: string;
+  content: string;
+}
+
+export interface GenerateTitlePayload {
+  content: string;
+}
+
+export interface TitleGeneratedPayload {
+  title: string;
+}
+
+// --- Helper Functions (Optional) ---
+
+export function createSuccessResponse(payload?: any): Message {
+  // Use the new generic success type
+  return { type: 'GENERIC_SUCCESS', success: true, payload }; 
+}
+
+export function createErrorResponse(error: Error | any, type?: MessageType): Message {
+  const message = error instanceof Error ? error.message : String(error);
+  // Use the new generic error type if no specific type is provided
+  const errorType = type || 'GENERIC_ERROR'; 
+  return {
+    type: errorType, 
+    success: false, 
+    error: { 
+      message: message, 
+      // Include stack or code if available and desired
+      stack: error instanceof Error ? error.stack : undefined,
+      code: (error as any).code // Add error code if exists
+    } 
+  };
+} 

@@ -3,9 +3,9 @@ import '../styles/captureUI.css'; // Import CSS for webpack
 // Import toolbar functions
 import { floatingToolbar, showFloatingToolbar, hideFloatingToolbar } from './floatingToolbar';
 // Import preview modal functions
-import { previewModal, showPreviewModal, hidePreviewModal } from './previewModal';
+import { previewModalState, showPreviewModal, hidePreviewModal } from './previewModal';
 // Import optimization popup functions
-import { optimizePopupElement, getOrCreateOptimizationPopup, hideOptimizationPopup } from './optimizationPopup';
+import { optimizePopupElement, getOrCreateOptimizationPopup, hideOptimizationPopup, isOptimizationPopupPinned } from './optimizationPopup';
 // Import toast notification function
 import { showToastNotification } from './toastNotification';
 
@@ -42,9 +42,9 @@ export function initCaptureFeature(): void {
         return true; // Indicate async response if needed, though showing modal is mostly sync
     } else if (message.type === 'TITLE_GENERATED') {
         console.log('[Capture Script] Received generated title:', message.payload.title);
-        if (previewModal) {
-            const titleInput = previewModal.modal.querySelector('#aetherflow-capture-title') as HTMLInputElement;
-            const titleSpinner = previewModal.modal.querySelector('.aetherflow-capture-title-spinner') as HTMLSpanElement;
+        if (previewModalState) {
+            const titleInput = previewModalState.modal.querySelector('#aetherflow-capture-title') as HTMLInputElement;
+            const titleSpinner = previewModalState.modal.querySelector('.aetherflow-capture-title-spinner') as HTMLSpanElement;
 
             if (titleSpinner) {
                 titleSpinner.style.display = 'none'; // Hide spinner
@@ -113,14 +113,16 @@ function handleMouseDown(event: MouseEvent): void {
   }
 
   // Hide Preview Modal ONLY if it exists, is NOT pinned, and the click is OUTSIDE the modal content
-  if (previewModal && !previewModal.isPinned && !previewModal.modal.contains(event.target as Node)) {
+  if (previewModalState && !previewModalState.isPinned && !previewModalState.modal.contains(event.target as Node)) {
      console.log('Click detected outside unpinned modal, hiding...');
      hidePreviewModal();
    }
 
-   // Hide Optimization Popup if click is outside
-   if (optimizePopupElement && optimizePopupElement.style.display !== 'none' && !optimizePopupElement.contains(event.target as Node)) {
-      console.log('Click detected outside optimization popup, hiding...');
+   // Hide Optimization Popup if click is outside AND it's not pinned
+   if (optimizePopupElement && optimizePopupElement.style.display !== 'none' &&
+       !isOptimizationPopupPinned() &&
+       !optimizePopupElement.contains(event.target as Node)) {
+      console.log('Click detected outside unpinned optimization popup, hiding...');
       hideOptimizationPopup();
    }
 }
