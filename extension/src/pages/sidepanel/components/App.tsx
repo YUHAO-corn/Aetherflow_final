@@ -13,6 +13,7 @@ import { usePromptsData } from '../../../hooks/usePromptsData';
 import { useOptimize } from '../../../hooks/useOptimize';
 import { useMembership } from '../../../hooks/useMembership';
 import type { OptimizationMode, OptimizationVersion } from '../../../services/optimization';
+import { DevMembershipSwitcher } from '../../../components/dev/DevMembershipSwitcher';
 
 // 默认导出App组件以便sidepanel/index.tsx可以正确导入
 const App: React.FC = () => {
@@ -110,10 +111,10 @@ const App: React.FC = () => {
       setIsLogoHovered(true);
       // 清除之前的timeout（如果有）
       if (logoTimeoutRef.current) {
-        clearTimeout(logoTimeoutRef.current);
+        window.clearTimeout(logoTimeoutRef.current);
       }
       // 设置新的timeout，动画结束后重置状态
-      logoTimeoutRef.current = setTimeout(() => {
+      logoTimeoutRef.current = window.setTimeout(() => {
         setIsLogoHovered(false);
       }, 800); // 与动画时长一致
     }
@@ -251,7 +252,7 @@ const App: React.FC = () => {
       )}
 
       {/* 开发环境专用的会员状态测试工具 */}
-      <DevMembershipTools />
+      {process.env.NODE_ENV === 'development' && <DevMembershipSwitcher />}
     </div>
   );
 };

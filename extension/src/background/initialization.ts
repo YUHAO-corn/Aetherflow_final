@@ -1,7 +1,7 @@
  // extension/src/background/initialization.ts
 
 import { initializeFirebase, getFirebaseAuth } from '../services/auth/firebase';
-import { safeLocalStorage, isServiceWorkerEnvironment } from '../utils/safeEnvironment';
+import { safeLocalStorage, isServiceWorkerEnvironment, safeLogger } from '../utils/safeEnvironment';
 import { cloudStorageService } from '../services/storage/cloudStorage'; // Verify path and export
 import { storageService, migratePromptsData } from '../services/storage'; // Verify path and export
 import { initializeSampleData } from './sampleData'; // Assuming sampleData.ts is in the same dir

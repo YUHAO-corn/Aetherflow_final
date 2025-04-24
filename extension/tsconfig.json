@@ -19,7 +19,7 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "types": ["chrome", "jest", "@testing-library/jest-dom"],
+    "types": ["chrome", "jest", "@testing-library/jest-dom", "node"],
     "outDir": "./dist",
     "esModuleInterop": true
   },

@@ -1,0 +1,47 @@
+# V40 - 任务 C.1 (QuotaService 基础) 及开发环境修复反思
+
+## 1. 核心任务完成：QuotaService 基础功能
+
+-   **服务创建**: 在 `extension/src/services/quota/` 目录下创建了 `QuotaService` (`index.ts`), 类型定义 (`types.ts`), 和常量文件 (`constants.ts`)。
+-   **数据模型**: 定义了 `QuotaLimits` (存储、每日优化限制) 和 `QuotaUsage` (当前用量、上次重置时间) 接口，以及 Free/Pro 的默认限制值。
+-   **核心逻辑**:
+    -   实现了 `getLimits()`, `getUsage()`, `canUseFeature()` API 用于查询配额状态。
+    -   实现了 `incrementUsage()` 用于增加用量（需后续集成调用）。
+    -   实现了 `resetOptimizationUsage()` 用于重置每日优化次数。
+-   **服务集成**:
+    -   `QuotaService` 监听 `AuthService` 和 `MembershipService` 的状态变化，以自动初始化、重置状态和更新配额限制。
+    -   提供了 `subscribe`/`notifyObservers` 方法以供其他模块监听配额变化。
+-   **数据持久化**: 使用 Firestore (`users/{userId}/quota/status`) 存储 `QuotaUsage`，包含加载和带防抖的保存逻辑。
+-   **每日重置**:
+    -   在 `QuotaService` 中添加了 `checkAndPerformDailyReset()` 逻辑，用于在检查配额前确保优化次数基于当天日期。
+    -   在后台脚本 `background/initialization.ts` 中，通过 `setupDailyQuotaResetAlarm()` 函数使用 `chrome.alarms` 设置了每日（本地时间凌晨）定时器，自动调用 `resetOptimizationUsage()`。
+-   **已知待办**:
+    -   `storageCount` 的准确性问题：当前依赖 Firestore 文档中的计数值，后续集成（Task C.5）时，应改为在实际增删提示词操作后调用 `incrementUsage('storage', +/-1)` 来维护。
+
+## 2. 开发辅助工具：会员状态切换器
+
+-   **必要性**: 意识到在开发依赖会员状态的功能 (C.2/C.3) 前，需要一个开发工具来方便地切换状态。
+-   **实现**:
+    -   创建了 `DevMembershipSwitcher.tsx` 组件于 `components/dev/`。
+    -   该组件包含 "Set Free", "Set Pro", "Set Expiring" 按钮，调用 `membershipService` 中已存在的 `_dev*` 方法。
+    -   使用 `useMembership` Hook 显示当前状态。
+    -   通过检查 `process.env.NODE_ENV === 'development'` 将其集成到侧边栏 `App.tsx` 中，确保只在开发环境渲染。
+
+## 3. 开发环境 (`npm run dev`) 问题排查与修复
+
+-   **问题现象**: `npm run dev` 构建的扩展出现 Service Worker 无法启动、侧边栏空白等问题，而 `npm run build` 正常。
+-   **原因分析**:
+    1.  **`devtool` 配置冲突**: `webpack.config.js` 未区分 `development` 和 `production` 模式，导致开发模式下使用了 Webpack 默认的 `eval`-based `devtool`。这与 Chrome 扩展的 CSP (`script-src 'self'`) 冲突，禁止了 `unsafe-eval`，导致脚本加载失败。
+    2.  **开发模式判断错误**: `MembershipService` 中的 `isDevelopmentMode()` 方法错误地依赖 `window.location.hostname`，在 `chrome-extension://` 环境下判断失败，导致开发工具 (`_dev*` 方法) 无法使用。
+    3.  **(次要)类型冲突**: 在 `tsconfig.json` 中为 `process.env` 添加 `"node"` 类型后，导致 `setTimeout`/`setInterval` 的返回值类型 (`Timeout`) 与预期的 `number` 冲突。
+-   **修复步骤**:
+    1.  修改 `webpack.config.js`，使其导出函数，并根据 `argv.mode` 设置 `devtool: isProduction ? false : 'cheap-module-source-map'`，解决了 CSP 冲突。**关键点：修改 Webpack 配置后需要重启 `npm run dev` 进程才能生效。**
+    2.  修改 `MembershipService.isDevelopmentMode()`，改为主要依赖 `process.env.NODE_ENV === 'development'` 进行判断，解决了开发工具无法使用的问题。**关键点：修改 `.ts` 文件后，`--watch` 会自动重新构建，只需重新加载扩展。**
+    3.  通过在代码中显式使用 `window.setTimeout`/`window.clearTimeout` 或修改 `setInterval` 返回值变量类型为 `any`，解决了类型冲突。
+
+## 4. 主要反思与学习点
+
+-   **开发工具先行**: 对于依赖复杂状态（如会员等级）的功能，优先开发测试辅助工具能显著提高后续开发和验收效率。
+-   **环境判断标准**: 在 Webpack 构建的项目（包括扩展）中，判断开发/生产环境最可靠的方式是检查构建时注入的 `process.env.NODE_ENV`。避免使用运行时环境（如 `hostname`）进行判断。
+-   **Chrome CSP 与 `devtool`**: 开发 Chrome 扩展时需注意 CSP 限制，选择与 `script-src 'self'` 兼容的 `devtool` 选项（如 `cheap-module-source-map`），避免使用 `eval`-based source map。
+-   **`webpack --watch` 的机制**: 理解 `--watch` 只监视源代码文件的更改，不监视配置文件（如 `webpack.config.js`, `tsconfig.json`）的更改。配置文件更改后需要重启 `dev` 进程。

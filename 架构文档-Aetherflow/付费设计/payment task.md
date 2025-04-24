@@ -432,112 +432,144 @@ implementation_tasks:
     
     # 阶段C: 配额管理与限制体验 (1周)
     phase_c:
-      description: 实现配额管理和限制体验，展示免费用户与会员的权益差异
+      description: 实现配额管理和限制体验，清晰展示免费与Pro会员在核心功能使用上的差异，并自然引导升级。
+      # 详细设计参考: `架构文档-Aetherflow/模块设计/quota and overlay`
+      # 注意：以下任务项提供了推荐的实现路径，但开发者在执行时若发现与现有代码冲突或有更优方案，应及时沟通并调整。
       
-      task_c1: # 配额数据模型设计与管理服务
-        description: 设计并实现配额数据模型和核心管理服务
+      # --- 模块 C.1: 配额服务基础 --- 
+      module_c1:
+        name: Quota Service Foundation
+        description: 构建配额管理的核心服务 (`QuotaService`)，定义、存储和计算配额。
+        tasks_included: [task_c1]
         work_items:
-          - 实现QuotaLimits和QuotaUsage数据模型
-          - 创建QuotaService配额管理服务
-          - 实现存储配额检查逻辑
-          - 实现优化次数配额检查和计数逻辑
-          - 添加配额重置定时机制
-          - 实现与会员状态的联动机制
-        
+          - 定义 `QuotaLimits` 和 `QuotaUsage` 数据模型 (包含 storage, optimization 计数和 optimization lastReset 时间戳)。
+          - 创建 `QuotaService` 服务类 (位置: `extension/src/services/quota/`)。
+          - 实现配额数据存储 (倾向于独立 Firestore 文档 `users/{userId}/quota/status`)。
+          - 实现获取用户当前配额限制的逻辑 (根据 `MembershipService` 状态确定免费/Pro限制：Storage 5/100, Opti 3/50)。
+          - 实现查询当前用量和检查是否可使用某功能 (`getUsage`, `getLimits`, `canUseFeature`) 的 API。
+          - 实现更新用量 (`incrementUsage`) 和重置优化次数 (`resetOptimizationUsage`) 的 API。
+          - 实现与 `MembershipService` 状态变更的联动，当会员状态变化时自动更新 `QuotaLimits`。
+          - 实现用量/限制状态变更的通知机制 (观察者模式)。
+          - 处理匿名用户和新用户的配额初始化逻辑。
+          - (后台任务) 使用 `chrome.alarms` API 设置每日定时器，在用户本地时间凌晨 00:00 调用 `resetOptimizationUsage`。
         acceptance_criteria:
-          - 数据模型完整实现并与存储层集成
-          - 能正确检查存储和优化配额状态
-          - 配额限制能根据会员状态自动调整
-          - 每日配额能在适当时间重置
-          - 提供准确的配额使用统计信息
-      
-      task_c5: # 配额检查集成与错误处理
-        description: 将配额检查集成到核心操作流程并完善错误处理
-        work_items:
-          - 在创建提示词前添加存储配额检查
-          - 在执行优化前添加优化次数配额检查
-          - 实现标准化的配额错误处理（如阻止操作）
-          - 添加友好的错误提示和恢复建议（基础提示即可，详细UI见C3）
-          - 设计配额相关操作的重试机制（可选）
-        
-        acceptance_criteria:
-          - 创建超额提示词的操作被阻止
-          - 优化次数用尽时的优化操作被阻止
-          - 错误提示清晰（即使只是控制台日志或简单alert）
-          - 配额相关错误有统一处理方式
-          - (可选) 在合适场景提供重试或替代方案
-        implementation_note: 依赖 C1 完成。此任务使配额限制在应用逻辑层面生效。
+          - `QuotaService` 能根据会员状态正确返回存储和优化配额的限制值。
+          - 能正确存储、读取和更新用户的存储用量和每日优化用量。
+          - `canUseFeature` API 能准确判断用户是否超出某项配额。
+          - 会员状态变更后，`QuotaService` 能自动更新并应用新的配额限制。
+          - 每日优化次数能在用户本地时间凌晨 00:00 准确重置 (免费=3, Pro=50)。
+          - 匿名用户和新用户的配额状态被正确初始化。
+          - 提供清晰的 API 供其他服务调用，并包含必要的类型定义和错误处理。
+        dependencies: 
+          - MembershipService (Phase B)
 
-      task_c2: # 降级处理机制实现
-        description: 实现会员降级时的超额内容处理机制
+      # --- 模块 C.2: 降级处理与锁定内容 UI --- 
+      module_c2:
+        name: Downgrade Handling & Locked Content UI
+        description: 实现会员降级时的超额内容处理逻辑，并提供对应的锁定状态 UI 展示。
+        tasks_included: [task_c2, task_c4]
         work_items:
-          - 设计降级处理策略(保留最新5条提示词)
-          - 实现超额内容检测逻辑
-          - 实现标记超额内容为锁定状态 (`locked: true`) 的机制
-          - 添加降级处理完成的内部事件或日志
-          - 提供恢复访问的逻辑（升级后解锁）
-        
+          # C2 - Downgrade Logic
+          - 在 `MembershipService` 中，当检测到状态从 `pro` 变为 `free` 时，触发降级处理逻辑。
+          - （降级逻辑主体可能在 `PromptService` 中）获取免费存储配额 (5 条)。
+          - 统计当前用户提示词总数，若 > 5，则根据 **创建时间 (`createdAt`)** 降序排序，保留最新的 5 条。
+          - 将其余旧提示词的 Firestore 文档字段 `locked` 更新为 `true`。
+          - 添加 `locked` 字段到 `Prompt` 的 TypeScript 定义中。
+          - 实现用户重新升级为 Pro 时，自动将所有提示词 `locked` 字段更新为 `false` 或移除的逻辑。
+          # C4 - Locked Content UI
+          - 修改现有 `PromptCard` 组件，增加对 `locked` 状态的处理逻辑。
+          - 当 `prompt.locked === true` 时，应用锁定的视觉样式 (灰色遮罩、锁定图标、内容透明度降低)。
+          - 实现鼠标悬停 (Hover) 效果 (遮罩变暗、显示升级提示文本和 "升级解锁" 按钮)。
+          - 阻止锁定卡片的默认点击行为 (如加载到编辑器)。
+          - "升级解锁" 按钮点击跳转至官网支付页 (携带来源参数)。
+          - 实现锁定状态的 UI 设计 (遮罩、图标、文本、按钮样式、动画)，遵循 `quota and overlay` PRD 中的规范。
         acceptance_criteria:
-          - 会员降级后能自动检测并标记超额内容
-          - 保留策略符合"最新5条"的规则
-          - 超额内容被标记为锁定而非直接删除
-          - 升级后能触发解锁逻辑
-        implementation_note: 依赖 C1 和 MembershipService。此任务处理降级后的数据状态，为 C4 UI 做准备。
+          # C2
+          - 用户从 Pro 降级为 Free 且提示词数量 > 5 时，除最新创建的 5 条外，其余提示词的 `locked` 字段被设为 `true`。
+          - 排序依据是提示词的 `createdAt` 字段。
+          - 提示词的类型定义已更新包含 `locked` 字段。
+          - 用户重新升级为 Pro 后，所有提示词的 `locked` 状态被正确移除。
+          # C4
+          - `locked: true` 的提示词在列表中显示为锁定状态。
+          - 锁定状态的视觉效果 (遮罩、图标、透明度) 符合设计。
+          - 鼠标悬停效果和升级提示、按钮显示正常。
+          - 点击锁定卡片本身无反应。
+          - 点击 "升级解锁" 按钮能正确跳转到支付页面。
+        dependencies:
+          - Module C.1 (QuotaService)
+          - MembershipService (Phase B)
 
-      task_c3: # 配额限制横幅与升级引导
-        description: 实现配额限制提示横幅和升级引导
+      # --- 模块 C.3: 配额集成与限制触达 UI --- 
+      module_c3:
+        name: Quota Integration & Limit Reached UI
+        description: 将配额检查集成到核心操作流程，并实现达到限制时的 UI 反馈（横幅及 Toast）。
+        tasks_included: [task_c5, task_c3]
         work_items:
-          - 创建QuotaBanner组件
-          - 支持不同类型的配额限制提示（存储/优化）
-          - 实现关闭和升级按钮行为
-          - 集成到主界面适当位置
-          - 与配额服务连接（或监听 C5 阻止操作的事件），自动显示/隐藏
-        
+          # C5 - Integration & Error Handling
+          - 在创建新提示词的服务/Hook (如 `PromptService`) 中，调用 `quotaService.canUseFeature('storage')` 进行检查。
+          - 在执行优化功能的服务/Hook 中，调用 `quotaService.canUseFeature('optimization')` 进行检查。
+          - 在优化成功完成后，调用 `quotaService.incrementUsage('optimization')` 更新用量。
+          - 定义并实现特定的错误类型 `QuotaExceededError` (携带配额类型信息)。
+          - 当 `canUseFeature` 返回 `false` 时，对应服务/Hook 应抛出 `QuotaExceededError` 并阻止操作。
+          - 实现上层 (如 UI 或调用 Hook 的地方) 对 `QuotaExceededError` 的捕获和处理逻辑，触发相应的 UI 反馈 (首次横幅，后续或 Pro 限制使用 Toast)。
+          - 实现 Toast 提示的显示逻辑和 UI 设计 (遵循 PRD)。
+          # C3 - Quota Banner UI
+          - 创建 `QuotaBanner` React 组件 (位置: `components/common/` 或 `components/quota/`)。
+          - 组件能接收配额类型 (`storage` 或 `optimization`) 作为 prop，并显示对应的文案 (包含当前限制和 Pro 权益)。
+          - 实现 "升级到 Pro" 按钮，点击跳转至官网支付页 (携带来源参数)。
+          - 实现 "了解更多" 按钮/链接，行为复用 `UpgradeButton` 组件 (跳转官网、hover卡片、带token)。
+          - 实现 "关闭" 按钮，点击后隐藏横幅 (当前会话内同类型不再自动弹出)。
+          - 实现横幅的 UI 设计 (样式、布局、图标、动画)，遵循 `quota and overlay` PRD 中的规范。
         acceptance_criteria:
-          - 达到限制并尝试操作时自动显示对应横幅 (首次)
-          - 横幅显示正确的限制信息
-          - 可通过关闭按钮暂时隐藏
-          - 点击升级按钮正确跳转到支付流程
-          - 不同类型限制有差异化提示
-          - UI 符合 `quota and overlay` PRD 中的设计规范
-        implementation_note: 依赖 C1, C5。此任务为达到使用限制提供 UI 反馈。
+          # C5
+          - 免费用户创建第 6 条提示词时，操作被阻止并抛出 `QuotaExceededError(type='storage')`。
+          - 免费用户尝试第 4 次优化时，操作被阻止并抛出 `QuotaExceededError(type='optimization')`。
+          - Pro 用户创建第 101 条提示词时，操作被阻止并抛出 `QuotaExceededError(type='storage')`。
+          - Pro 用户尝试第 51 次优化时，操作被阻止并抛出 `QuotaExceededError(type='optimization')`。
+          - 优化操作只有在成功后才增加优化次数计数。
+          - 错误处理逻辑能区分不同类型的配额超限，并根据规则触发 Banner 或 Toast。
+          # C3
+          - 当免费用户首次尝试创建第 6 条提示词时，在提示词列表顶部显示存储限制横幅。
+          - 当免费用户首次尝试执行第 4 次优化时，在优化区域显示优化限制横幅。
+          - 横幅内容根据配额类型正确显示。
+          - "升级" 和 "了解更多" 按钮功能符合预期 (正确跳转、携带参数/token)。
+          - "关闭" 按钮能隐藏横幅，且同会话同类型不再自动触发。
+          - 横幅 UI 符合设计规范。
+          - Toast 提示按规则正确显示并符合设计。
+        dependencies:
+          - Module C.1 (QuotaService)
 
-      task_c4: # 锁定提示词卡片实现
-        description: 实现超出配额的锁定提示词卡片
-        work_items:
-          - 创建LockedPromptCard组件 (或修改现有卡片组件增加锁定状态)
-          - 实现锁定视觉效果和交互 (遮罩、图标、Hover效果)
-          - 添加升级提示和按钮
-          - 集成到提示词库列表中
-          - 根据提示词数据的 `locked` 状态 (由 C2 设置) 显示
-        
-        acceptance_criteria:
-          - `locked: true` 的提示词显示锁定状态
-          - 锁定卡片有明确的视觉区分
-          - 悬停时显示升级提示和按钮
-          - 点击锁定卡片有适当反馈（阻止默认行为，提示升级）
-          - UI 符合 `quota and overlay` PRD 中的设计规范
-        implementation_note: 依赖 C2。此任务为降级锁定的内容提供 UI 反馈。
-      
       phase_c_verification:
-        scenario: "配额管理与限制体验验收"
+        scenario: "配额管理与限制体验验收 (按模块)"
         steps:
-          - 初始状态为免费用户
-          - 创建5条提示词(达到免费限制) # 验证 C1, C5
-          - 尝试创建第6条提示词，预期操作被阻止，看到配额横幅 # 验证 C1, C5, C3
-          - 关闭横幅，再次尝试创建，预期操作仍被阻止，可能看到Toast提示
-          - 尝试使用超过3次优化，预期操作被阻止，看到配额横幅 # 验证 C1, C5, C3
-          - (模拟)将用户状态改为Pro，创建10条提示词
-          - (模拟)将用户状态降级为Free，检查最早的5条提示词是否显示为锁定状态 # 验证 C1, C2, C4
-          - 检查锁定卡片的视觉和交互 # 验证 C4
-          - 点击锁定卡片或横幅上的升级按钮，检查是否跳转 # 验证 C3, C4
+          - **模块 C.1 验收:**
+            - (开发者) 调用 QuotaService API 验证：不同会员状态下的 `getLimits` 返回值。
+            - (开发者) 调用 API 验证 `incrementUsage` 和 `getUsage` 功能。
+            - (模拟) 修改 Firestore 数据，验证 `QuotaService` 对用量/限制变化的通知。
+            - (模拟) 验证每日重置功能是否按本地时间触发。
+            - (开发者) 验证匿名/新用户初始化。
+          - **模块 C.2 验收:**
+            - (模拟) Pro 用户拥有 > 5 条提示词，将其状态降级为 Free。
+            - 检查 Firestore 中提示词的 `locked` 字段是否按 `createdAt` 规则正确设置。
+            - 在扩展 UI 中检查对应的旧提示词是否显示为锁定状态，并验证锁定卡片 UI (遮罩、图标、Hover 效果、升级按钮)。
+            - 点击锁定卡片升级按钮，验证跳转。
+            - (模拟) 将用户升级回 Pro，验证 `locked` 字段被移除，UI 恢复正常。
+          - **模块 C.3 验收:**
+            - 免费用户创建 5 条提示词，尝试创建第 6 条 -> 阻止操作，显示存储横幅。
+            - 关闭横幅，再次尝试创建 -> 阻止操作，显示 Toast。
+            - 免费用户使用 3 次优化，尝试第 4 次 -> 阻止操作，显示优化横幅。
+            - 关闭横幅，再次尝试优化 -> 阻止操作，显示 Toast。
+            - Pro 用户 (模拟 100 条提示词)，尝试创建第 101 条 -> 阻止操作，显示 Toast。
+            - Pro 用户 (模拟 50 次优化)，尝试第 51 次 -> 阻止操作，显示 Toast。
+            - 验证横幅/Toast 内容、样式、交互 ("升级", "了解更多", "关闭") 符合设计。
         expected:
-          - 配额检查准确，超额操作被阻止
-          - 达到限制时有清晰的 UI 反馈（横幅）
-          - 降级后超额内容正确处理为锁定状态，并有相应 UI 展示
-          - 所有限制场景有明确的升级引导
-          - 免费用户仍能使用核心功能（在限制内）
-    
+          - 每个模块的功能符合其验收标准。
+          - 各项配额检查准确，超额操作按预期被阻止。
+          - 达到限制时有清晰且符合规则的 UI 反馈（横幅/Toast）。
+          - 降级后超额内容按创建时间正确处理为锁定状态，并有相应 UI 展示。
+          - 所有限制场景有明确的升级引导，且跳转正确。
+          - 每日优化次数能正确重置。
+
     # 阶段D: 功能完善与异常处理 (1周)
     phase_d:
       description: 完善特权功能，处理异常情况，优化整体体验

@@ -37,7 +37,7 @@ class MembershipService {
   private maxRetryCount = 3;
   private retryDelay = 500; // 毫秒
   private syncStatus: SyncStatus = 'idle';
-  private autoSyncInterval: number | null = null;
+  private autoSyncInterval: any = null;
   private syncIntervalTime: number = DEFAULT_SYNC_INTERVAL;
   
   // 用于管理订阅的清理函数
@@ -808,16 +808,31 @@ class MembershipService {
   
   /**
    * 判断是否为开发环境
+   * 修改为检查 process.env.NODE_ENV
    */
   private isDevelopmentMode(): boolean {
+    // 在 Service Worker 环境中总是返回 false，因为 process.env 不可用
+    // 且开发工具的 UI 不会在此环境中运行
     if (isServiceWorkerEnvironment) {
-      return false; // Service Worker环境中禁用开发模式
+      return false; 
     }
     
-    return typeof window !== 'undefined' && 
-      (window.location.hostname === 'localhost' || 
-      window.location.hostname === '127.0.0.1' ||
-      window.localStorage.getItem('DEV_MODE') === 'true');
+    // 主要依赖构建时注入的环境变量
+    // Webpack 在 development mode 下会将其设为 'development'
+    const isDevEnv = process.env.NODE_ENV === 'development';
+
+    // 保留 localStorage 作为备用或强制开启开发模式的选项（可选）
+    const forceDevMode = typeof window !== 'undefined' && window.localStorage.getItem('DEV_MODE') === 'true';
+    
+    safeLogger.log(`[isDevelopmentMode] NODE_ENV: ${process.env.NODE_ENV}, forceDevMode: ${forceDevMode}, result: ${isDevEnv || forceDevMode}`);
+
+    return isDevEnv || forceDevMode;
+    
+    // 移除基于 hostname 的不可靠检查
+    // return typeof window !== 'undefined' && 
+    //   (window.location.hostname === 'localhost' || 
+    //   window.location.hostname === '127.0.0.1' ||
+    //   window.localStorage.getItem('DEV_MODE') === 'true');
   }
 
   /**
